@@ -1,0 +1,2 @@
+# smui
+Search Management UI
