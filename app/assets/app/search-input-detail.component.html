@@ -1,0 +1,313 @@
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col">
+        <div class="form-group smui-no-bottom-margin">
+          <table style="width:100%">
+            <tr>
+              <td style="width:20%">
+                <small style="text-transform: uppercase">Input Term:</small>
+              </td>
+              <td style="width:55%">
+                <!-- TODO Could be solved more elegant while having a conditional expression within <input>, that respects detailSearchInput might be null -->
+                <ng-container *ngIf="detailSearchInput !== null">
+                  <input type="text"
+                         class="form-control"
+                         id="inputSearchInput"
+                         placeholder="Edit Search Input ..."
+                         [(ngModel)]="detailSearchInput.term">
+                </ng-container>
+                <ng-container *ngIf="detailSearchInput === null">
+                  <input type="text"
+                         class="form-control"
+                         id="inputSearchInput"
+                         placeholder="Edit Search Input ..."
+                         disabled="disabled">
+                </ng-container>
+              </td>
+              <td style="width:25%">
+                <button type="button" class="btn btn-outline-secondary col" data-toggle="modal" data-target="#detailHelpModal">
+                  Help
+                </button>
+              </td>
+          </table>
+        </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div class="card">
+
+  <div class="card-body smui-no-bottom-padding">
+    <div class="row">
+      <div class="col">
+
+        <button id="btnGroupDrop1"
+                type="button"
+                class="btn btn-success dropdown-toggle btn-block"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                [attr.disabled]="(detailSearchInput === null) ? '' : null">
+          + Add New Search Rule for Input
+        </button>
+        <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+          <span class="dropdown-item" (click)="addNewSynonymRule()">Synonym Rule (directed or undirected)</span>
+          <span class="dropdown-item" (click)="addNewUpDownRule()">UP/DOWN Rule</span>
+          <span class="dropdown-item" (click)="addNewFilterRule()">FILTER Rule</span>
+          <span class="dropdown-item" (click)="addNewDeleteRule()">DELETE Rule</span>
+        </div>
+
+      </div>
+      <div class="col">
+        <button type="button"
+                class="btn btn-primary btn-block"
+                (click)="saveSearchInputDetails()"
+                [attr.disabled]="(detailSearchInput === null) ? '' : null">
+          Save Search Rules for Input
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TODO evaluate refactoring of table-layouts into abstract/generic ng-template -->
+
+  <div class="card-body smui-no-bottom-padding">
+
+    <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.synonymRules.length > 0)">
+      <table style="width:100%">
+        <tr *ngFor="let synonymRule of detailSearchInput.synonymRules; let idxSynonymRules = index">
+          <td style="width:20%">
+            <small style="text-transform: uppercase">Synonym Rule:</small>
+          </td>
+          <td style="width:20%">
+            <select class="form-control" [(ngModel)]="synonymRule.synonymType">
+              <option [ngValue]="0">= (undirected)</option>
+              <option [ngValue]="1">-> (directed)</option>
+            </select>
+          </td>
+          <td style="width:55%">
+            <input type="text"
+                   class="form-control"
+                   id="inputSynonymTerm"
+                   placeholder="Edit Synonym Rule Term ..."
+                   [(ngModel)]="synonymRule.term">
+          </td>
+          <td style="width:5%">
+            <button type="button"
+                    class="btn btn-danger btn-sm float-right"
+                    (click)="deleteSynonymRule(idxSynonymRules); $event.stopPropagation();">-</button>
+          </td>
+        </tr>
+      </table>
+    </ng-container>
+
+    <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.upDownRules.length > 0)">
+      <table style="width:100%">
+        <tr *ngFor="let upDownRule of detailSearchInput.upDownRules; let idxUpDownRules = index">
+          <td style="width:20%">
+            <small style="text-transform: uppercase">UP/DOWN Rule:</small>
+          </td>
+          <!-- Option#1: Show non combined UP/DOWN dropdown followed by boost/malus number input -->
+          <td style="width:10%" *ngIf="!featureToggleService.getSyncToggleUiConceptUpDownRulesCombined().bState">
+            <select class="form-control" [(ngModel)]="upDownRule.upDownType">
+              <option [ngValue]="0">UP</option>
+              <option [ngValue]="1">DOWN</option>
+            </select>
+          </td>
+          <td style="width:10%" *ngIf="!featureToggleService.getSyncToggleUiConceptUpDownRulesCombined().bState">
+            <input type="number"
+                   class="form-control"
+                   id="inputUpDownBoostMalus"
+                   placeholder="Boost/Malus ..."
+                   [(ngModel)]="upDownRule.boostMalusValue">
+            <!-- TODO create combined select/input-number UI form component to edit upDownRule.boostMalusValue
+
+            <select class="form-control">
+              <option selected="selected">0</option>
+              <option>50</option>
+              <option>100</option>
+              <option>500</option>
+            </select>
+            -->
+          </td>
+          <!-- Option#2: Show combined UP(+++++) to DOWN(----) dropdown only -->
+          <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptUpDownRulesCombined().bState">
+            <select class="form-control" [(ngModel)]="upDownRule.upDownDropdownDefinitionMapping">
+              <option *ngFor="let mapping of upDownDropdownDefinitionMappings(); let idxMapping = index" [value]="idxMapping">
+                {{mapping.displayName}}
+              </option>
+            </select>
+          </td>
+          <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState">
+            <input type="text"
+                   class="form-control"
+                   placeholder="Solr Field (empty)"
+                   [(ngModel)]="upDownRule.suggestedSolrFieldName"
+                   [ngbTypeahead]="searchSuggestedSolrFieldNames" />
+          </td>
+          <td ng-style="{'width' : (featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState) ? '35%' : '55%'}">
+            <input type="text"
+                   class="form-control"
+                   id="inputUpDownTerm"
+                   placeholder="Edit UP/DOWN Rule Term ..."
+                   [(ngModel)]="upDownRule.term">
+          </td>
+          <td style="width:5%">
+            <button type="button"
+                    class="btn btn-danger btn-sm float-right"
+                    (click)="deleteUpDownRule(idxUpDown); $event.stopPropagation();">-</button>
+          </td>
+        </tr>
+      </table>
+    </ng-container>
+
+    <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.filterRules.length > 0)">
+      <table style="width:100%">
+        <tr *ngFor="let filterRule of detailSearchInput.filterRules; let idxFilterRules = index">
+          <td style="width:20%">
+            <small style="text-transform: uppercase">FILTER Rule:</small>
+          </td>
+          <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState">
+            <input type="text"
+                   class="form-control"
+                   placeholder="Solr Field (empty)"
+                   [(ngModel)]="filterRule.suggestedSolrFieldName"
+                   [ngbTypeahead]="searchSuggestedSolrFieldNames" />
+          </td>
+          <td ng-style="{'width' : (featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState) ? '55%' : '75%'}">
+            <input type="text"
+                   class="form-control"
+                   id="inputFilterTerm"
+                   placeholder="Edit FILTER Rule Term ..."
+                   [(ngModel)]="filterRule.term">
+          </td>
+          <td style="width:5%">
+            <button type="button"
+                    class="btn btn-danger btn-sm float-right"
+                    (click)="deleteFilterRule(idxFilter); $event.stopPropagation();">-</button>
+          </td>
+        </tr>
+      </table>
+    </ng-container>
+
+    <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.deleteRules.length > 0)">
+      <table style="width:100%">
+        <tr *ngFor="let deleteRule of detailSearchInput.deleteRules; let idxDeleteRules = index">
+          <td style="width:20%">
+            <small style="text-transform: uppercase">DELETE Rule:</small>
+          </td>
+          <td style="width:75%">
+            <input type="text"
+                   class="form-control"
+                   id="inputDeleteTerm"
+                   placeholder="Edit DELETE Rule Term ..."
+                   [(ngModel)]="deleteRule.term">
+          </td>
+          <td style="width:5%">
+            <button type="button"
+                    class="btn btn-danger btn-sm float-right"
+                    (click)="deleteDeleteRule(idxFilter); $event.stopPropagation();">-</button>
+          </td>
+        </tr>
+      </table>
+    </ng-container>
+
+    <div class="alert alert-danger smui-no-bottom-margin" role="alert" *ngIf="(detailSearchInput !== null) && ((detailSearchInput.synonymRules.length < 1) && (detailSearchInput.upDownRules.length < 1) && (detailSearchInput.filterRules.length < 1) && (detailSearchInput.deleteRules.length < 1))">
+      No Rules maintained for Search Input. This Search Input will therefore not being included to rules.txt on deployment to Solr.
+    </div>
+
+  </div>
+
+  <div class="card-body">
+    <div class="row">
+      <div class="col">
+      </div>
+      <div class="col">
+        <button type="button"
+                class="btn btn-primary btn-block"
+                (click)="saveSearchInputDetails()"
+                [attr.disabled]="(detailSearchInput === null) ? '' : null">
+          Save Search Rules for Input
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal fade" id="detailHelpModal" tabindex="-1" role="dialog" aria-labelledby="detailHelpModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailHelpModalLongTitle">Help on Search Management Rules</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h6>SYNONYM RULE</h6>
+        <table>
+          <tr>
+            <td style="width:20%;vertical-align:top;"><code>= (undirected)</code></td>
+            <td>Default configuration. Makes input term match synonym term and vice versa.</td>
+          </tr>
+          <tr>
+            <td style="width:20%;vertical-align:top;"><code>-> (directed)</code></td>
+            <td>Makes only synonym term match for input term.</td>
+          </tr>
+          <tr>
+            <td style="width:20%;vertical-align:top;"><code>$1</code> placeholder</td>
+            <td>Can be used with a directed synonym in combination with <code>*</code> Wildcard. See <em>Input Matching</em>.</td>
+          </tr>
+        </table>
+        <h6>UP/DOWN RULE</h6>
+        <p>
+          Increases or decreases document ranking matching a specific term, e.g.:<br>
+          <code>UP(10): Altersteilzeit</code>, or <code>DOWN(500): englische Übersetzung</code>.<br>
+          Can be combined with native Solr field syntax. See <em>FILTER RULE</em>.
+        </p>
+        <h6>FILTER RULE</h6>
+        <p>
+          Filter exclusively documents matching a specific term or totally remove them completely.<br>
+          When term is prefixed with <code>*</code>, native Solr field syntax can be used, e.g.:<br>
+          <code>* price:[350 TO 450]</code>, <code>* microline1:Vertrag</code>, or <code>-vertrag</code>.<br>
+        </p>
+        <h6>DELETE RULE</h6>
+        <p>
+          Delete rules allow you to remove keywords from a query.
+        </p>
+        <h6>Input Matching</h6>
+        <table>
+          <tr>
+            <td style="width:20%;vertical-align:top;"><code>"personal computer"</code></td>
+            <td>Only match the exact query 'personal computer'.</td>
+          </tr>
+          <tr>
+            <td style="width:20%;vertical-align:top;"><code>"personal computer</code></td>
+            <td>Only match queries starting with 'personal computer'</td>
+          </tr>
+          <tr>
+            <td style="width:20%;vertical-align:top;"><code>personal computer"</code></td>
+            <td>Only match queries ending with 'personal computer'</td>
+          </tr>
+          <tr>
+            <td style="width:20%;vertical-align:top;"><code>urlaubs*</code></td>
+            <td>
+              Wildcard matching of queries starting with 'urlaubs' (e.g. 'urlaubsgeld' or 'urlaubszeit').<br>
+              Can be combined with <code>$1</code> placeholder in a directed synonym (e.g. <code>urlaub $1</code>).<br>
+              WARNING: Only works in combination with a directed (not undirected) synonym!
+            </td>
+          </tr>
+        </table>
+        <p>
+          For more information refer to detailled <a href="https://github.com/renekrie/querqy#getting-started-setting-up-common-rules-under-solr" target="_new">documentation of querqy</a>.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

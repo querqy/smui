@@ -1,0 +1,37 @@
+@()
+<!doctype html>
+<html lang="de" data-framework="angular2">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <base href="/" />
+
+    <title>Search Management UI</title>
+
+    @* Non-Shadow-DOM supplied CSS/JS main resources (static) *@
+    <link rel='stylesheet' href='@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")'>
+    <script type='text/javascript' src='@routes.Assets.versioned("lib/jquery/jquery.min.js")'></script> @* TODO resolve jquery a NPM module properly *@
+    <script type='text/javascript' src='@routes.Assets.versioned("lib/bootstrap/js/bootstrap.bundle.min.js")'></script>
+    <link rel='stylesheet' href='@routes.Assets.versioned("lib/angular2-toaster/toaster.css")'>
+    @* Additional Server side included CSS/JS resources (below public/stylesheets/styles.css in the Scala/Play housing application) *@
+    <link rel='stylesheet' href='@routes.Assets.versioned("stylesheets/styles.css")'>
+
+    <script type='text/javascript' src='@routes.Assets.versioned("lib/core-js/client/shim.min.js")'></script>
+    <script type='text/javascript' src='@routes.Assets.versioned("lib/zone.js/dist/zone.js")'></script>
+    <script type='text/javascript' src='@routes.Assets.versioned("lib/systemjs/dist/system.src.js")'></script>
+    <script type='text/javascript' src='@routes.Assets.versioned("systemjs.config.js")'></script>
+    @* our app is downloaded as individual javascript files by SystemJs after compilation by sbt-typescript *@
+    <script>
+    System.import('assets/app/main.js')
+        .catch(function(err){
+            console.error(err);
+        });
+    </script>
+</head>
+<body>
+    <app-root>
+        <div class="smui-loading-spinner"></div>
+    </app-root>
+</body>
+</html>

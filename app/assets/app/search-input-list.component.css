@@ -1,0 +1,19 @@
+.smui-list-group-item {
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	cursor: pointer;
+}
+
+.smui-input-list-divide-synonym::before {
+	content: " | ";
+}
+
+li.list-group-item.active > .text-muted {
+	color: #aaa !important;
+}
+
+/* TODO very raw height estimate, but works */
+.smui-search-input-list {
+	max-height: calc(100vh - 140px);
+	overflow-y: scroll;
+}

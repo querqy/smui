@@ -1,0 +1,42 @@
+<toaster-container [toasterconfig]="toasterConfig"></toaster-container>
+<div class="container-fluid">
+
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+        <span class="navbar-brand">Search Mangement UI</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+            <ul class="navbar-nav mr-auto">
+            </ul>
+
+            <div class="btn-group">
+                <select class="selectpicker" #solrIndexSelect (change)="selectSolrIndex(solrIndexSelect.value)" [(ngModel)]="solrIndexSelectOptionModel">
+                    <option *ngFor="let solrIndex of listSolrIndeces" [value]="solrIndex.id">
+                        {{solrIndex.description}}
+                    </option>
+                </select>
+                <button type="button" class="btn btn-outline-secondary" (click)="publishSolrConfig()">Publish Config to Solr</button>
+            </div>
+
+        </div>
+    </nav>
+
+    <div class="row">
+
+        <div class="col-4">
+            <smui-search-input-list [detailComponent]="searchInputDetailComponent"
+                                    [parentComponent]="self"
+                                    #searchInputListComponent></smui-search-input-list>
+        </div>
+        <div class="col-8">
+            <smui-search-input-detail [listComponent]="searchInputListComponent"
+                                      [parentComponent]="self"
+                                      #searchInputDetailComponent></smui-search-input-detail>
+        </div>
+
+    </div>
+
+</div>
