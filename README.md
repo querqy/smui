@@ -23,12 +23,25 @@ It might be necessary to execute command with root rights.
 
 Create MariaDB- or MySQL-database, user and assign according permissions. Example script (SQL):
 
-```CREATE USER 'smui'@'localhost' IDENTIFIED BY 'smui';
+```
+CREATE USER 'smui'@'localhost' IDENTIFIED BY 'smui';
 CREATE DATABASE smui;
 GRANT ALL PRIVILEGES ON smui.* TO 'smui'@'localhost' WITH GRANT OPTION;
 ```
 
 ### Step 3: Adjust configuration
+
+#### rules.txt copy- and update-script (smui2solr.sh)
+
+The script should be located under `/usr/share/search-management-ui/conf/smui2solr.sh`. Adjust the `DST_CP_FILE_TO` to the Solr/querqy rules.txt file's path:
+
+```
+[...]
+DST_CP_FILE_TO="/todo/path/to/rules.txt"
+[...]
+```
+
+#### application.conf (of JAVA/Play web application)
 
 The .conf file is usually located under:
 
