@@ -1,7 +1,7 @@
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "0.9.4"
+version := "pre-1.0.0"
 
 scalaVersion := "2.12.4"
 
