@@ -119,12 +119,19 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
     // validate against SMUI rules (TODO outsource in separated method)
 
-    // if input contains *, all synonyms must be directed
-    if(searchInput.term.contains("*")) {
+    // if input contains *-Wildcard, all synonyms must be directed
+    // TODO discuss if (1) contains or (2) endsWith is the right interpretation
+    if(searchInput.term.trim().contains("*")) {
       if(searchInput.synonymRules.filter(r => r.synonymType == 0).size > 0) {
         logger.error("Parsing Search Input: Wildcard *-using input ('" + searchInput.term + "') has undirected synonym rule");
         return Some("Wildcard *-using input ('\" + searchInput.term + \"') has undirected synonym rule");
       }
+    }
+
+    // undirected synonyms must not contain *-Wildcard
+    if(searchInput.synonymRules.filter(r => r.synonymType == 0 && r.term.trim.contains("*")).size > 0) {
+      logger.error("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')");
+      return Some("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')");
     }
 
     // validate against querqy parser (TODO outsource in separated method)
