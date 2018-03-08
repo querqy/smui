@@ -30,7 +30,7 @@ lazy val root = (project in file("."))
     bashScriptExtraDefines += """addJava "-Dconfig.file=${app_home}/../conf/application.conf"""",
     bashScriptExtraDefines += """addJava "-Dlogback.configurationFile=${app_home}/../conf/logback.xml"""",
     mappings in Universal += {
-      val logback = file("build/dist/conf/logback.xml") // TODO noch nötig? --- (resourceDirectory in Compile).value / "logback.xml"
+      val logback = file("build/shipping/conf/logback.xml") // TODO noch nötig? --- (resourceDirectory in Compile).value / "logback.xml"
       logback -> "conf/logback.xml"
     }
 

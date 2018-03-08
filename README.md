@@ -77,6 +77,8 @@ INSERT INTO solr_index (name, description) VALUES ('index_name1', 'Solr Search I
 [...]
 ```
 
+Hint: `solr_index.name` (in this case `index_name1`) will be used as the name of the Solr core, when performing a Core Reload (see `smui2solr.sh`).
+
 #### Initial Solr Fields
 
 Optional. Example script (SQL):
