@@ -8,7 +8,8 @@ Please follow the above steps in this order.
 
 Example script (command line):
 
-```rpm -i PATH/search-management-ui-VERSION.noarch.rpm
+```
+rpm -i PATH/search-management-ui-VERSION.noarch.rpm
 ```
 
 * Ensure user running search-management-ui can read binary, configs, etc. and write PID file (usually within the folder `/usr/share/search-management-ui`).
@@ -35,7 +36,8 @@ The .conf file is usually located under:
 
 Adjust database URL:
 
-```[...]
+```
+[...]
 db.default.url="jdbc:mysql://localhost/smui?autoReconnect=true&useSSL=false"
 [...]
 ```
@@ -45,7 +47,9 @@ db.default.url="jdbc:mysql://localhost/smui?autoReconnect=true&useSSL=false"
 
 Then first time start the service. Example script (command line):
 
-```search-management-ui &```
+```
+search-management-ui &
+```
 
 Or via `service` command, or automatic startup after reboot respectively (see Step 1).
 
@@ -55,7 +59,8 @@ Or via `service` command, or automatic startup after reboot respectively (see St
 
 There must exist a minimum of 1 Solr Collection, that Search Management rules are maintained for. This must be created before the application can be used. Example script (SQL):
 
-```INSERT INTO solr_index (name, description) VALUES ('index_name1', 'Solr Search Index');
+```
+INSERT INTO solr_index (name, description) VALUES ('index_name1', 'Solr Search Index');
 [...]
 ```
 
@@ -63,7 +68,8 @@ There must exist a minimum of 1 Solr Collection, that Search Management rules ar
 
 Optional. Example script (SQL):
 
-```INSERT INTO suggested_solr_field (name, solr_index_id) values ('microline1', 1);
+```
+INSERT INTO suggested_solr_field (name, solr_index_id) values ('microline1', 1);
 [...]
 ```
 
@@ -75,17 +81,22 @@ Refresh Browser window and you should be ready to go.
 
 The Log file(s) is/are located under the following path:
 
-```/var/log/search-management-ui/```
+```
+/var/log/search-management-ui/
+```
 
 Server log can be watched by example script (command line):
 
-```tail -f /var/log/search-management-ui/search-management-ui.log```
+```
+tail -f /var/log/search-management-ui/search-management-ui.log
+```
 
 ### Add a new Solr Collection (SQL level)
 
 See "Step 5". Example script (SQL):
 
-```INSERT INTO solr_index (name, description) VALUES ('added_index_name2', 'Added Index Description #2');
+```
+INSERT INTO solr_index (name, description) VALUES ('added_index_name2', 'Added Index Description #2');
 INSERT INTO solr_index (name, description) VALUES ('added_index_name3', 'Added Index Description #3');
 [...]
 ```
@@ -94,7 +105,8 @@ INSERT INTO solr_index (name, description) VALUES ('added_index_name3', 'Added I
 
 See "Step 5". Example script (SQL):
 
-```INSERT INTO suggested_solr_field (name, solr_index_id) values ('added_solr_field2', 1);
+```
+INSERT INTO suggested_solr_field (name, solr_index_id) values ('added_solr_field2', 1);
 INSERT INTO suggested_solr_field (name, solr_index_id) values ('added_solr_field3', 1);
 [...]
 ```
