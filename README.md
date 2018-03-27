@@ -90,6 +90,49 @@ INSERT INTO suggested_solr_field (name, solr_index_id) values ('microline1', 1);
 
 Refresh Browser window and you should be ready to go.
 
+#### Convert existing rules.txt
+
+Optional. The following RegEx search and replace pattern can be helpful (example search & replace regexes with Atom.io):
+
+Input terms:
+```
+From: (.*?) =>
+To  : INSERT INTO search_input (term, solr_index_id) VALUES ('$1', 1);\nSET @last_id_si = LAST_INSERT_ID();
+```
+
+Synonyms (directed-only assumed):
+```
+From: ^[ \t].*?SYNONYM: (.*)
+To  : INSERT INTO synonym_rule (synonym_type, term, search_input_id) VALUES (1, '$1', @last_id_si);
+```
+
+UP/DOWN:
+```
+From: ^[ \t].*?UP\((\d*)\): (.*)
+To  : INSERT INTO up_down_rule (up_down_type, boost_malus_value, term, search_input_id) VALUES (0, $1, '$2', @last_id_si);
+
+From: ^[ \t].*?DOWN\((\d*)\): (.*)
+To  : INSERT INTO up_down_rule (up_down_type, boost_malus_value, term, search_input_id) VALUES (1, $1, '$2', @last_id_si);
+```
+
+FILTER:
+```
+tbd
+```
+
+DELETE:
+```
+tbd
+```
+
+Replace comments:
+```
+From: #
+To  : --
+```
+
+Hint: Other querqy compatible rules not editable with SMUI (e.g. DECORATE) must be removed to have a proper SQL running.
+
 ## MAINTENANCE
 
 ## Log data
