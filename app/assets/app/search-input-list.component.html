@@ -5,7 +5,8 @@
       <input type="text"
              class="form-control"
              placeholder="Search or Create Search Input ..."
-             [(ngModel)]="searchInputTerm">
+             [(ngModel)]="searchInputTerm"
+             (keyup.enter)="addNewSearchInput()">
       <span class="input-group-btn">
         <button class="btn btn-success"
                 type="button"

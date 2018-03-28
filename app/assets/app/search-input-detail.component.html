@@ -15,7 +15,8 @@
                          class="form-control"
                          id="inputSearchInput"
                          placeholder="Edit Search Input ..."
-                         [(ngModel)]="detailSearchInput.term">
+                         [(ngModel)]="detailSearchInput.term"
+                         (keyup.enter)="saveSearchInputDetails()">
                 </ng-container>
                 <ng-container *ngIf="detailSearchInput === null">
                   <input type="text"
@@ -92,7 +93,8 @@
                    class="form-control"
                    id="inputSynonymTerm"
                    placeholder="Edit Synonym Rule Term ..."
-                   [(ngModel)]="synonymRule.term">
+                   [(ngModel)]="synonymRule.term"
+                   (keyup.enter)="saveSearchInputDetails()">
           </td>
           <td style="width:5%">
             <button type="button"
@@ -152,7 +154,8 @@
                    class="form-control"
                    id="inputUpDownTerm"
                    placeholder="Edit UP/DOWN Rule Term ..."
-                   [(ngModel)]="upDownRule.term">
+                   [(ngModel)]="upDownRule.term"
+                   (keyup.enter)="saveSearchInputDetails()">
           </td>
           <td style="width:5%">
             <button type="button"
@@ -181,7 +184,8 @@
                    class="form-control"
                    id="inputFilterTerm"
                    placeholder="Edit FILTER Rule Term ..."
-                   [(ngModel)]="filterRule.term">
+                   [(ngModel)]="filterRule.term"
+                   (keyup.enter)="saveSearchInputDetails()">
           </td>
           <td style="width:5%">
             <button type="button"
@@ -203,7 +207,8 @@
                    class="form-control"
                    id="inputDeleteTerm"
                    placeholder="Edit DELETE Rule Term ..."
-                   [(ngModel)]="deleteRule.term">
+                   [(ngModel)]="deleteRule.term"
+                   (keyup.enter)="saveSearchInputDetails()">
           </td>
           <td style="width:5%">
             <button type="button"
