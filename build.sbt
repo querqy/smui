@@ -1,7 +1,7 @@
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "1.0.1"
+version := "1.1.0"
 
 scalaVersion := "2.12.4"
 
@@ -27,8 +27,39 @@ lazy val root = (project in file("."))
 
     // RPM service environment
 
-    bashScriptExtraDefines += """addJava "-Dconfig.file=${app_home}/../conf/application.conf"""",
-    bashScriptExtraDefines += """addJava "-Dlogback.configurationFile=${app_home}/../conf/logback.xml"""",
+    // TODO make service-start-config.sh customizeable per client/shipping (like CLIENT2_...)
+    // TODO clarify role of /etc/default/search-management-ui in start script and eval according alternative
+
+    bashScriptExtraDefines += """# SMUI customization section - START
+ |CLIENT1_CONF_FILE="/srv/search-management-ui/service-start-config.sh"
+ |if [ -f "$CLIENT1_CONF_FILE" ]
+ |then
+ |
+ |  source $CLIENT1_CONF_FILE
+ |
+ |#  echo "SMUI customization as follows:"
+ |#  echo ":: SMUI_CONF_PID_PATH = ${SMUI_CONF_PID_PATH}"
+ |#  echo ":: SMUI_CONF_LOG_BASE_PATH = ${SMUI_CONF_LOG_BASE_PATH}"
+ |#  echo ":: SMUI_CONF_LOGBACK_XML_PATH = ${SMUI_CONF_LOGBACK_XML_PATH}"
+ |#  echo ":: SMUI_CONF_APP_CONF = ${SMUI_CONF_APP_CONF}"
+ |#  echo ":: SMUI_CONF_HTTP_PORT = ${SMUI_CONF_HTTP_PORT}"
+ |
+ |  addJava "-Dpidfile.path=${SMUI_CONF_PID_PATH}"
+ |  addJava "-DLOG_BASE_PATH=${SMUI_CONF_LOG_BASE_PATH}"
+ |  addJava "-Dlogback.configurationFile=${SMUI_CONF_LOGBACK_XML_PATH}"
+ |  addJava "-Dconfig.file=${SMUI_CONF_APP_CONF}"
+ |  addJava "-Dhttp.port=${SMUI_CONF_HTTP_PORT}"
+ |
+ |else
+ |
+ |#  addJava "-Dpidfile.path=/var/run/play.pid
+ |  addJava "-DLOG_BASE_PATH=/var/log
+ |  addJava "-Dlogback.configurationFile=${app_home}/../conf/logback.xml
+ |  addJava "-Dconfig.file=${app_home}/../conf/application.conf
+ |#  addJava "-Dhttp.port=9000
+ |
+ |fi
+ |# smui customization section - END""".stripMargin,
     mappings in Universal += {
       val logback = file("build/shipping/conf/logback.xml") // TODO noch nötig? --- (resourceDirectory in Compile).value / "logback.xml"
       logback -> "conf/logback.xml"

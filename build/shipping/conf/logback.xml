@@ -8,13 +8,13 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/log/search-management-ui/search-management-ui.log</file>
+        <file>${LOG_BASE_PATH}/search-management-ui/search-management-ui.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
         </encoder>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <FileNamePattern>/var/log/search-management-ui/search-management-ui.%i.log.gz</FileNamePattern>
+            <FileNamePattern>${LOG_BASE_PATH}/search-management-ui/search-management-ui.%i.log.gz</FileNamePattern>
             <MinIndex>1</MinIndex>
             <MaxIndex>10</MaxIndex>
         </rollingPolicy>

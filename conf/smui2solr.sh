@@ -1,7 +1,7 @@
 SRC_TMP_FILE=$1
-SOLR_CORE_NAME=$2
-DST_CP_FILE_TO="/todo/path/to/rules.txt"
-SOLR_HOST="localhost:8983"
+DST_CP_FILE_TO=$2
+SOLR_HOST=$3
+SOLR_CORE_NAME=$4
 
 echo "=== smui2solr script performing rules.txt update and core reload ==="
 echo "SRC_TMP_FILE: $SRC_TMP_FILE"

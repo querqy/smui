@@ -12,6 +12,7 @@ import play.api.libs.json._
 import play.api.libs.json.Reads._
 import play.api.libs.functional.syntax._
 import play.api.Play
+import play.api.Configuration
 
 import sys.process._
 
@@ -24,7 +25,8 @@ import querqy.parser.WhiteSpaceQuerqyParserFactory
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
 class ApiController @Inject()(searchManagementRepository: SearchManagementRepository,
                               querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
-                              cc: MessagesControllerComponents)(implicit executionContext: ExecutionContext)
+                              cc: MessagesControllerComponents,
+                              appConfig: Configuration)(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
   private val logger = play.api.Logger;
@@ -193,9 +195,19 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       // Generate rules.txt first
       val strRulesTxt = querqyRulesTxtGenerator.render(solrIndexId);
 
-      // TODO Replace through a proper Play Framework temp file implementation (take care of hard coded /tmp path then)
-      val TEMP_FILENAME = "/tmp/search-management-ui_rules-txt.tmp";
-      val tmpFile = new java.io.File(TEMP_FILENAME);
+      // get necessary conf values (or set super-defaults)
+      // TODO access method to string config variables is deprecated
+      val SRC_TMP_FILE = appConfig.getString("smui2solr.SRC_TMP_FILE").getOrElse("/tmp/search-management-ui_rules-txt.tmp");
+      val DST_CP_FILE_TO = appConfig.getString("smui2solr.DST_CP_FILE_TO").getOrElse("/usr/bin/solr/defaultCore/conf/rules.txt");
+      val SOLR_HOST = appConfig.getString("smui2solr.SOLR_HOST").getOrElse("localhost:8983");
+
+      logger.debug( "In ApiController :: updateRulesTxtForSolrIndex with config" );
+      logger.debug( ":: SRC_TMP_FILE = " + SRC_TMP_FILE );
+      logger.debug( ":: DST_CP_FILE_TO = " + DST_CP_FILE_TO );
+      logger.debug( ":: SOLR_HOST = " + SOLR_HOST );
+
+      // generate rules.txt to temp file
+      val tmpFile = new java.io.File(SRC_TMP_FILE);
       tmpFile.createNewFile();
       val fw = new java.io.FileWriter(tmpFile);
       try {
@@ -211,10 +223,14 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
       logger.debug( ">>>" + strRulesTxt + "<<<" );
 
+      val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId);
+
       val script = Play.current.path.getAbsolutePath() + "/conf/smui2solr.sh " +
-        TEMP_FILENAME + " " +
-        searchManagementRepository.getSolrIndexName(solrIndexId);
-      val result = script !;
+        SRC_TMP_FILE + " " + // smui2solr.sh param $1 - SRC_TMP_FILE
+        DST_CP_FILE_TO + " " +  // smui2solr.sh param $2 - DST_CP_FILE_TO
+        SOLR_HOST + " " + // smui2solr.sh param $3 - SOLR_HOST
+        SOLR_CORE_NAME; // smui2solr.sh param $4 - SOLR_CORE_NAME
+      val result = script !; // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
       logger.debug( "Script execution result: " + result );
       if (result == 0) {
         Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)) );
