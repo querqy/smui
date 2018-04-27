@@ -52,11 +52,11 @@ lazy val root = (project in file("."))
  |
  |else
  |
- |#  addJava "-Dpidfile.path=/var/run/play.pid
- |  addJava "-DLOG_BASE_PATH=/var/log
- |  addJava "-Dlogback.configurationFile=${app_home}/../conf/logback.xml
- |  addJava "-Dconfig.file=${app_home}/../conf/application.conf
- |#  addJava "-Dhttp.port=9000
+ |#  addJava "-Dpidfile.path=/var/run/play.pid"
+ |  addJava "-DLOG_BASE_PATH=/var/log"
+ |  addJava "-Dlogback.configurationFile=${app_home}/../conf/logback.xml"
+ |  addJava "-Dconfig.file=${app_home}/../conf/application.conf"
+ |#  addJava "-Dhttp.port=9000"
  |
  |fi
  |# smui customization section - END""".stripMargin,
