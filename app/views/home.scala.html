@@ -1,4 +1,4 @@
-@()
+@(listFeatureToggle: List[models.FeatureToggleModel.FeatureToggle])
 <!doctype html>
 <html lang="de" data-framework="angular2">
 <head>
@@ -8,6 +8,18 @@
     <base href="/" />
 
     <title>Search Management UI</title>
+
+    @* Feature-Toggle List passed on as Js *@
+    <script>
+var FEATURE_TOGGLE_LIST = [
+@for(featureToggle <- listFeatureToggle) {
+  {
+    "toggleName": "@featureToggle.toggleName",
+    "toggleValue": @featureToggle.toggleValue.renderJsValue
+  },
+}
+];
+    </script>
 
     @* Non-Shadow-DOM supplied CSS/JS main resources (static) *@
     <link rel='stylesheet' href='@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")'>
@@ -28,6 +40,7 @@
             console.error(err);
         });
     </script>
+
 </head>
 <body>
     <app-root>

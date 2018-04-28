@@ -157,13 +157,13 @@ export class SearchInputDetailComponent implements OnInit {
           this.detailSearchInput = retSearchInput;
 
           // take care of extracted Solr syntax
-          if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState) {
+          if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) {
             this.extractSuggestedSolrFieldName(this.detailSearchInput.upDownRules);
             this.extractSuggestedSolrFieldName(this.detailSearchInput.filterRules);
           }
 
           // take care of UP/DOWN mappings
-          if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined().bState) {
+          if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()) {
             if ((this.detailSearchInput.upDownRules !== null) && (this.detailSearchInput.upDownRules.length > 0)) {
               // convert to simple combined UP/DOWN dropdown definition mappings
               // TODO consider a more elegant functional solution
@@ -216,7 +216,7 @@ export class SearchInputDetailComponent implements OnInit {
       id: null,
       term: ''
     };
-    if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined().bState) {
+    if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()) {
       // NOTE: the attribute "upDownDropdownDefinitionMapping" is frontend-only and not supposed to be part of REST transfer
       emptyUpDownRule.upDownDropdownDefinitionMapping = DEFAULT_IDX_UP_DOWN_DROPDOWN_DEFINITION_MAPPING;
     } else {
@@ -240,7 +240,7 @@ export class SearchInputDetailComponent implements OnInit {
       id: null,
       term: ''
     };
-    if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState) {
+    if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) {
       emptyFilterRule.suggestedSolrFieldName = '';
     }
     this.detailSearchInput
@@ -277,14 +277,14 @@ export class SearchInputDetailComponent implements OnInit {
 
     // take care of extracted Solr syntax
     // WARNING: this must be done first (before UP/DOWN mappings) as below routine potentially removes "suggestedSolrFieldName" attribute
-    if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState) {
+    if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) {
       this.integrateSuggestedSolrFieldName(this.detailSearchInput.upDownRules);
       this.integrateSuggestedSolrFieldName(this.detailSearchInput.filterRules);
     }
 
     // take care of UP/DOWN mappings
     console.log(':: this.detailSearchInput.upDownRules = ' + this.detailSearchInput.upDownRules);
-    if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined().bState) {
+    if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()) {
       if ((this.detailSearchInput.upDownRules !== null) && (this.detailSearchInput.upDownRules.length > 0)) {
         // convert from simple combined UP/DOWN dropdown definition mappings to detailed upDownType and bonus/malus value
         this.detailSearchInput.upDownRules = this.detailSearchInput.upDownRules.map(upDownRule => {

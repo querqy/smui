@@ -112,13 +112,13 @@
             <small style="text-transform: uppercase">UP/DOWN Rule:</small>
           </td>
           <!-- Option#1: Show non combined UP/DOWN dropdown followed by boost/malus number input -->
-          <td style="width:10%" *ngIf="!featureToggleService.getSyncToggleUiConceptUpDownRulesCombined().bState">
+          <td style="width:10%" *ngIf="!featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()">
             <select class="form-control" [(ngModel)]="upDownRule.upDownType">
               <option [ngValue]="0">UP</option>
               <option [ngValue]="1">DOWN</option>
             </select>
           </td>
-          <td style="width:10%" *ngIf="!featureToggleService.getSyncToggleUiConceptUpDownRulesCombined().bState">
+          <td style="width:10%" *ngIf="!featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()">
             <input type="number"
                    class="form-control"
                    id="inputUpDownBoostMalus"
@@ -135,21 +135,21 @@
             -->
           </td>
           <!-- Option#2: Show combined UP(+++++) to DOWN(----) dropdown only -->
-          <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptUpDownRulesCombined().bState">
+          <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()">
             <select class="form-control" [(ngModel)]="upDownRule.upDownDropdownDefinitionMapping">
               <option *ngFor="let mapping of upDownDropdownDefinitionMappings(); let idxMapping = index" [value]="idxMapping">
                 {{mapping.displayName}}
               </option>
             </select>
           </td>
-          <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState">
+          <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()">
             <input type="text"
                    class="form-control"
                    placeholder="Solr Field (empty)"
                    [(ngModel)]="upDownRule.suggestedSolrFieldName"
                    [ngbTypeahead]="searchSuggestedSolrFieldNames" />
           </td>
-          <td ng-style="{'width' : (featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState) ? '35%' : '55%'}">
+          <td ng-style="{'width' : (featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) ? '35%' : '55%'}">
             <input type="text"
                    class="form-control"
                    id="inputUpDownTerm"
@@ -172,14 +172,14 @@
           <td style="width:20%">
             <small style="text-transform: uppercase">FILTER Rule:</small>
           </td>
-          <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState">
+          <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()">
             <input type="text"
                    class="form-control"
                    placeholder="Solr Field (empty)"
                    [(ngModel)]="filterRule.suggestedSolrFieldName"
                    [ngbTypeahead]="searchSuggestedSolrFieldNames" />
           </td>
-          <td ng-style="{'width' : (featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields().bState) ? '55%' : '75%'}">
+          <td ng-style="{'width' : (featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) ? '55%' : '75%'}">
             <input type="text"
                    class="form-control"
                    id="inputFilterTerm"

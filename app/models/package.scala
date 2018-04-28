@@ -42,3 +42,19 @@ package object SearchManagementModel {
                                 name: String)
 
 }
+
+package object FeatureToggleModel {
+
+  trait FeatureToggleValue {
+    def renderJsValue(): String;
+  }
+
+  class BoolFeatureToggleValue(bState: Boolean) extends FeatureToggleValue {
+    override def renderJsValue(): String = {
+      return if(bState) "true" else "false";
+    };
+  }
+
+  case class FeatureToggle(toggleName: String, toggleValue: FeatureToggleValue);
+
+}
