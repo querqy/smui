@@ -72,6 +72,8 @@ The configuration file for the application by default is located under:
 /usr/share/search-management-ui/conf/application.conf
 ```
 
+##### Configure basic settings
+
 The following settings can (and should) be made on application.conf level:
 
 variable name | description
@@ -81,6 +83,15 @@ variable name | description
 `smui2solr.DST_CP_FILE_TO` | Path to productive querqy rules.txt (within Solr context)
 `smui2solr.SOLR_HOST` | Solr host
 `play.http.secret.key` | Encryption key for server/client communication (Play 2.6 standard)
+
+##### Configure Feature Toggle (application behaviour)
+
+Optional. The following settings in the `application.conf` define its (frontend) behaviour:
+
+conf key | description | default
+--- | --- | ---
+`toggle.ui-concept.updown-rules.combined` | Show UP(+++) fields instead of separated rule and intensity fields. | `true`
+`toggle.ui-concept.all-rules.with-solr-fields` | Offer a separated "Solr Field" input to the user (UP/DOWN, FILTER). | `true`
 
 #### First time start the application
 
