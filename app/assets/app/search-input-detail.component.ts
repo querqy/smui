@@ -133,8 +133,7 @@ export class SearchInputDetailComponent implements OnInit {
 
   private integrateSuggestedSolrFieldName(objList: Array<any>) {
     for (let i = 0; i < objList.length; i++) {
-      // TODO implementation does not check for 'undefined', etc. ... better use hasOwnProperty!
-      if (objList[i].suggestedSolrFieldName !== null) {
+      if (objList[i].suggestedSolrFieldName) {
         if (objList[i].suggestedSolrFieldName.trim().length > 0) {
           objList[i].term = '* ' + objList[i].suggestedSolrFieldName + ':' + objList[i].term;
           // TODO not very elegant incl. "delete" operator ... Refactor!

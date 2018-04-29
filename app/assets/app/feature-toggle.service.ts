@@ -17,14 +17,14 @@ export class FeatureToggleService {
 
   getSync(toggleName: string): any {
 
-    console.log('In FeatureToggleService :: getSync');
+    // console.log('In FeatureToggleService :: getSync');
     // console.log('... toggleName = ' + JSON.stringify(toggleName));
     const retFt = FEATURE_TOGGLE_LIST.filter(function(ft) {
       return (ft.toggleName === toggleName);
     });
     // console.log('... retFt = ' + JSON.stringify(retFt));
     if (retFt.length === 1) {
-      console.log('... retFt[0].toggleValue = ' + JSON.stringify(retFt[0].toggleValue));
+      // console.log('... retFt[0].toggleValue = ' + JSON.stringify(retFt[0].toggleValue));
       return retFt[0].toggleValue;
     } else {
       // TODO werfen oder bei return null belassen?
