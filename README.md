@@ -1,4 +1,4 @@
-# Search Management UI (SMUI) - Manual version 1.1.0
+# Search Management UI (SMUI) - Manual version 1.2.2
 
 ## INSTALLATION
 
@@ -59,10 +59,10 @@ SMUI_CONF_APP_CONF=${app_home}/../conf/application.conf
 SMUI_CONF_HTTP_PORT=8080
 ```
 
-If no config script is present, the startup script will take:
+If no config script is present, the startup script will take (in this order):
 
-* defaults configured in the startup script (e.g. `addJava "-DLOG_BASE_PATH=/var/log`)
-* Frameworks default values
+# defaults configured in the startup script (e.g. `addJava "-DLOG_BASE_PATH=/var/log`),
+# if none given: Framework's default values
 
 #### Configure application (Play 2.6 configuration level)
 
@@ -76,7 +76,7 @@ The configuration file for the application by default is located under:
 
 The following settings can (and should) be made on application.conf level:
 
-variable name | description
+conf key | description
 --- | ---
 `db.default.*` | Login host and credentials to the database (connection string)
 `smui2solr.SRC_TMP_FILE` | Path to temp file (when rules.txt gernation happens)
