@@ -221,7 +221,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         fw.close();
       }
 
-      logger.debug( ">>>" + strRulesTxt + "<<<" );
+//      logger.debug( ">>>" + strRulesTxt + "<<<" );
 
       val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId);
 

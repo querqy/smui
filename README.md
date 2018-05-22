@@ -1,4 +1,4 @@
-# Search Management UI (SMUI) - Manual version 1.2.2
+# Search Management UI (SMUI) - Manual version 1.3.0
 
 ## INSTALLATION
 
@@ -61,8 +61,8 @@ SMUI_CONF_HTTP_PORT=8080
 
 If no config script is present, the startup script will take (in this order):
 
-# defaults configured in the startup script (e.g. `addJava "-DLOG_BASE_PATH=/var/log`),
-# if none given: Framework's default values
+1. defaults configured in the startup script (e.g. `addJava "-DLOG_BASE_PATH=/var/log`),
+2. if none given: Framework's default values
 
 #### Configure application (Play 2.6 configuration level)
 
@@ -72,9 +72,32 @@ The configuration file for the application by default is located under:
 /usr/share/search-management-ui/conf/application.conf
 ```
 
+An extension to this file overwriting specific settings should be defined in an own `smui-prod.conf`, e.g.:
+
+Important: This config file - extending the existing settings - must firstly include those settings!
+
+```
+include "application.conf"
+
+db.default.url="jdbc:mysql://localhost/smui?autoReconnect=true&useSSL=false"
+db.default.username="smui"
+db.default.password="smui"
+
+smui2solr.SRC_TMP_FILE="/PATH/TO/TMP/FILE.tmp"
+smui2solr.DST_CP_FILE_TO="PATH/TO/SOLR/CORE/CONF/rules.txt"
+smui2solr.SOLR_HOST="localhost:8983"
+
+toggle.ui-concept.updown-rules.combined=true
+toggle.ui-concept.all-rules.with-solr-fields=true
+
+play.http.secret.key="generated application secret"
+```
+
+The following sections describe application configs in more detail.
+
 ##### Configure basic settings
 
-The following settings can (and should) be made on application.conf level:
+The following settings can (and should) be overwritten on application.conf in your own `smui-prod.conf` level:
 
 conf key | description
 --- | ---
