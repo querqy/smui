@@ -18,6 +18,7 @@ import sys.process._
 
 import scala.concurrent.{ExecutionContext, Future}
 import models.SearchManagementModel._
+import models.FeatureToggleModel._
 // TODO evaluate encapsulating querqy validation to a own "models"-class or into models.SearchManagementRepository
 import querqy.rewrite.commonrules.SimpleCommonRulesParser
 import querqy.parser.WhiteSpaceQuerqyParserFactory
@@ -26,7 +27,8 @@ import querqy.parser.WhiteSpaceQuerqyParserFactory
 class ApiController @Inject()(searchManagementRepository: SearchManagementRepository,
                               querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
                               cc: MessagesControllerComponents,
-                              appConfig: Configuration)(implicit executionContext: ExecutionContext)
+                              appConfig: Configuration,
+                              featureToggleList: FeatureToggleList)(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
   private val logger = play.api.Logger;
@@ -119,7 +121,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     // TODO validation ends with first broken rule, it should collect all errors to a line.
     // TODO decide, if input having no rule at all is legit ... (e.g. newly created). Will currently being filtered.
 
-    // validate against SMUI rules (TODO outsource in separated method)
+    // validate against SMUI rules
+    // TODO evaluate to refactor the validation implementation into models/QuerqyRulesTxtGenerator
 
     // if input contains *-Wildcard, all synonyms must be directed
     // TODO discuss if (1) contains or (2) endsWith is the right interpretation
@@ -131,12 +134,13 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
 
     // undirected synonyms must not contain *-Wildcard
-    if(searchInput.synonymRules.filter(r => r.synonymType == 0 && r.term.trim.contains("*")).size > 0) {
+    if(searchInput.synonymRules.filter(r => r.synonymType == 0 && r.term.trim().contains("*")).size > 0) {
       logger.error("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')");
       return Some("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')");
     }
 
-    // validate against querqy parser (TODO outsource in separated method)
+    // validate against querqy parser
+    // TODO outsource in separated method
 
     val singleSearchInputRule = querqyRulesTxtGenerator
       .renderSearchInputRulesForTerm(searchInput.term, searchInput);
@@ -192,8 +196,18 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
   def updateRulesTxtForSolrIndex(solrIndexId: Long) = Action.async {
     Future {
-      // Generate rules.txt first
-      val strRulesTxt = querqyRulesTxtGenerator.render(solrIndexId);
+
+      // TODO shouldnt be necessary to init DO_AUTO_DECORATE_EXPORT_HASH with every render()
+      val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleList
+        .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT) match {
+        case None => false // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
+        case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[Boolean].booleanValue()
+      };
+      val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleList
+        .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO) match {
+        case None => "" // TODO shouldnt be necessary to define default value twice or more (see HomeController :: index)
+        case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[String]
+      };
 
       // get necessary conf values (or set super-defaults)
       // TODO access method to string config variables is deprecated
@@ -201,35 +215,59 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       val DST_CP_FILE_TO = appConfig.getString("smui2solr.DST_CP_FILE_TO").getOrElse("/usr/bin/solr/defaultCore/conf/rules.txt");
       val SOLR_HOST = appConfig.getString("smui2solr.SOLR_HOST").getOrElse("localhost:8983");
 
+      val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId);
+
       logger.debug( "In ApiController :: updateRulesTxtForSolrIndex with config" );
       logger.debug( ":: SRC_TMP_FILE = " + SRC_TMP_FILE );
       logger.debug( ":: DST_CP_FILE_TO = " + DST_CP_FILE_TO );
       logger.debug( ":: SOLR_HOST = " + SOLR_HOST );
+      logger.debug( ":: SOLR_CORE_NAME = " + SOLR_CORE_NAME );
+      logger.debug( ":: DO_SPLIT_DECOMPOUND_RULES_TXT = " + DO_SPLIT_DECOMPOUND_RULES_TXT );
+      logger.debug( ":: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = " + DECOMPOUND_RULES_TXT_DST_CP_FILE_TO );
 
-      // generate rules.txt to temp file
-      val tmpFile = new java.io.File(SRC_TMP_FILE);
-      tmpFile.createNewFile();
-      val fw = new java.io.FileWriter(tmpFile);
-      try {
-        fw.write(strRulesTxt);
-      }
-      catch {
-        case iox: java.io.IOException => logger.error( "IOException while writing /tmp file: " + iox.getStackTrace );
-        case _: Throwable => logger.error("Got an unexpected error while writing /tmp file");
-      }
-      finally {
-        fw.close();
+      // write rules.txt output to to temp file
+      def writeRulesTxtToTempFile(strRulesTxt: String, tmpFilePath: String) = {
+        val tmpFile = new java.io.File(tmpFilePath);
+        tmpFile.createNewFile();
+        val fw = new java.io.FileWriter(tmpFile);
+        try {
+          fw.write(strRulesTxt);
+        }
+        catch {
+          case iox: java.io.IOException => logger.error("IOException while writing /tmp file: " + iox.getStackTrace);
+          case _: Throwable => logger.error("Got an unexpected error while writing /tmp file");
+        }
+        finally {
+          fw.close();
+        }
       }
 
-//      logger.debug( ">>>" + strRulesTxt + "<<<" );
+      if( !DO_SPLIT_DECOMPOUND_RULES_TXT ) {
 
-      val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId);
+        // generate (one) rules.txt into temp file
+        val strRulesTxt = querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId);
+        writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE);
+        logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" );
+
+      } else {
+
+        // generate decompound-rules.txt into temp file
+        val strDecompoundRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, true);
+        writeRulesTxtToTempFile(strDecompoundRulesTxt, SRC_TMP_FILE + "-2");
+        logger.debug( "strDecompoundRulesTxt = >>>" + strDecompoundRulesTxt + "<<<" );
+
+        // generate decompound-rules.txt into temp file
+        val strRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, false);
+        writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE);
+        logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" );
+      }
 
       val script = Play.current.path.getAbsolutePath() + "/conf/smui2solr.sh " +
         SRC_TMP_FILE + " " + // smui2solr.sh param $1 - SRC_TMP_FILE
         DST_CP_FILE_TO + " " +  // smui2solr.sh param $2 - DST_CP_FILE_TO
         SOLR_HOST + " " + // smui2solr.sh param $3 - SOLR_HOST
-        SOLR_CORE_NAME; // smui2solr.sh param $4 - SOLR_CORE_NAME
+        SOLR_CORE_NAME + " " + // smui2solr.sh param $4 - SOLR_CORE_NAME
+        (if(DO_SPLIT_DECOMPOUND_RULES_TXT) DECOMPOUND_RULES_TXT_DST_CP_FILE_TO else "NONE"); // smui2solr.sh param $5 - DECOMPOUND_DST_CP_FILE_TO
       val result = script !; // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
       logger.debug( "Script execution result: " + result );
       if (result == 0) {
