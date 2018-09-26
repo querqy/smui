@@ -49,11 +49,13 @@ package object FeatureToggleModel {
 
   trait FeatureToggleValue {
     def getValue(): Any;
+    def isProtected(): Boolean;
     def renderJsValue(): String;
   }
 
   class BoolFeatureToggleValue(bState: Boolean) extends FeatureToggleValue {
     override def getValue(): Any = bState;
+    override def isProtected(): Boolean = false;
     override def renderJsValue(): String = {
       return if(bState) "true" else "false";
     }
@@ -66,19 +68,21 @@ package object FeatureToggleModel {
     */
   class ProtectedStringFeatureToggleValue(str: String) extends FeatureToggleValue {
     override def getValue(): Any = str;
+    override def isProtected(): Boolean = true;
     override def renderJsValue(): String = {
       return "-1";
     }
   }
 
+  // TODO move isProtected() to the FeatureToggle instead of its value
   case class FeatureToggle(toggleName: String, toggleValue: FeatureToggleValue);
 
   val FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED = "toggle.ui-concept.updown-rules.combined";
   val FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS = "toggle.ui-concept.all-rules.with-solr-fields";
-  val FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT = "toggle.rule-deployment.pre-live.present";
   val FEATURE_TOGGLE_RULE_DEPLOYMENT_AUTO_DECORATE_EXPORT_HASH = "toggle.rule-deployment.auto-decorate.export-hash";
   val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT = "toggle.rule-deployment.split-decompound-rules-txt";
   val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO";
+  val FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT = "toggle.rule-deployment.pre-live.present";
 
   // list encapsulated in a class for being @Inject'ed and shared between controllers
   @javax.inject.Singleton

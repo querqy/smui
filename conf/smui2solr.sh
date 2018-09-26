@@ -3,13 +3,15 @@ DST_CP_FILE_TO=$2
 SOLR_HOST=$3
 SOLR_CORE_NAME=$4
 DECOMPOUND_DST_CP_FILE_TO=$5
+TARGET_SYSTEM=$6
 
-echo "=== smui2solr script performing rules.txt update and core reload ==="
-echo "SRC_TMP_FILE: $SRC_TMP_FILE"
-echo "SOLR_CORE_NAME: $SOLR_CORE_NAME"
-echo "Solr URL call: http://$SOLR_HOST/solr/admin/cores?wt=xml&action=RELOAD&core=$SOLR_CORE_NAME"
-echo "DECOMPOUND_DST_CP_FILE_TO: $DECOMPOUND_DST_CP_FILE_TO"
-echo "=== Hope for the best ;-) Cheers Mate! ==="
+echo "In smui2solr.sh - script performing rules.txt update and core reload"
+echo ":: SRC_TMP_FILE = $SRC_TMP_FILE"
+echo ":: DST_CP_FILE_TO = $DST_CP_FILE_TO"
+echo ":: SOLR_HOST = $SOLR_HOST"
+echo ":: SOLR_CORE_NAME: $SOLR_CORE_NAME"
+echo ":: DECOMPOUND_DST_CP_FILE_TO = $DECOMPOUND_DST_CP_FILE_TO"
+echo ":: TARGET_SYSTEM = $TARGET_SYSTEM"
 
 cp $SRC_TMP_FILE $DST_CP_FILE_TO
 

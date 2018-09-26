@@ -12,7 +12,7 @@
     @* Feature-Toggle List passed on as Js *@
     <script>
 var FEATURE_TOGGLE_LIST = [
-@for(featureToggle <- listFeatureToggle) {
+@for( featureToggle <- listFeatureToggle.filter(t => !t.toggleValue.isProtected()) ) {
   {
     "toggleName": "@featureToggle.toggleName",
     "toggleValue": @featureToggle.toggleValue.renderJsValue

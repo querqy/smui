@@ -7,11 +7,13 @@ import { ToasterService, ToasterConfig } from 'angular2-toaster';
 
 import * as smm from './search-management.model';
 import { SearchManagementService } from './search-management.service';
+import { FeatureToggleService } from './feature-toggle.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  providers: [FeatureToggleService]
 })
 export class AppComponent implements OnInit {
 
@@ -38,6 +40,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private searchManagementService: SearchManagementService,
+    public featureToggleService: FeatureToggleService,
     private toasterService: ToasterService) {
   }
 
@@ -99,16 +102,25 @@ export class AppComponent implements OnInit {
       .safeDirtyCheckAndEvtlConfirmModalExecute( executeSelectSolrIndexOk, executeSelectSolrIndexCancel );
   }
 
-  public publishSolrConfig() {
-    console.log('In AppComponent :: publishSolrConfig');
+  private requestPublishRulesTxtToSolr(targetPlatform: string) {
 
     if (this.currentSolrIndexId !== null) {
       this.searchManagementService
-        .updateRulesTxtForSolrIndex(this.currentSolrIndexId)
+        .updateRulesTxtForSolrIndex(this.currentSolrIndexId, targetPlatform)
         .then(retApiResult => {
           this.showSuccessMsg( retApiResult.message );
         })
         .catch(error => this.handleError(error));
     } // TODO handle else-case, if no currentSolrIndexId selected
+  }
+
+  public publishSolrConfig() {
+    console.log('In AppComponent :: publishSolrConfig');
+    this.requestPublishRulesTxtToSolr('PRELIVE');
+  }
+
+  public publishToLIVE() {
+    console.log('In AppComponent :: publishToLIVE');
+    this.requestPublishRulesTxtToSolr('LIVE');
   }
 }

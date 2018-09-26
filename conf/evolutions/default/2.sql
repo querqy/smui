@@ -4,10 +4,12 @@
 
 create table deployment_log (
 	id bigint not null auto_increment,
+	solr_index_id bigint not null,
 	target_platform varchar(10),
     last_update timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
     result int default 0,
-	constraint pk_search_input primary key (id)
+	constraint pk_deployment_log primary key (id),
+    foreign key (solr_index_id) references solr_index(id) on delete cascade
 );
 -- target_platform
 -- ~~~~~~~~~~~~~~~

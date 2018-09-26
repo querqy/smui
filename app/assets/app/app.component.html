@@ -18,7 +18,8 @@
                         {{solrIndex.description}}
                     </option>
                 </select>
-                <button type="button" class="btn btn-outline-secondary" (click)="publishSolrConfig()">Publish Config to Solr</button>
+                <button type="button" class="btn btn-outline-secondary" (click)="publishSolrConfig()">Push Config to Solr</button>
+                <button *ngIf="featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()" type="button" class="btn btn-outline-danger" (click)="publishToLIVE()">Publish to LIVE</button>
             </div>
 
         </div>

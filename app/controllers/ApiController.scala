@@ -194,87 +194,103 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def updateRulesTxtForSolrIndex(solrIndexId: Long) = Action.async {
+  /**
+    * Performs an update of the rules.txt (or separate rules.txt files) to the configured Solr instance
+    * while using the smui2solr.sh script.
+    *
+    * @param solrIndexId Id of the Solr Index in the database
+    * @param targetSystem "PRELIVE" vs. "LIVE" ... for reference @see evolutions/default/2.sql
+    * @return Ok or BadRequest, if something failed.
+    */
+  private def performUpdateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String): play.api.mvc.Result = {
+
+    // TODO shouldnt be necessary to init DO_AUTO_DECORATE_EXPORT_HASH with every render()
+    val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleList
+      .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT) match {
+      case None => false // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
+      case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[Boolean].booleanValue()
+    };
+    val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleList
+      .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO) match {
+      case None => "" // TODO shouldnt be necessary to define default value twice or more (see HomeController :: index)
+      case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[String]
+    };
+
+    // get necessary conf values (or set super-defaults)
+    // TODO access method to string config variables is deprecated
+    val SRC_TMP_FILE = appConfig.getString("smui2solr.SRC_TMP_FILE").getOrElse("/tmp/search-management-ui_rules-txt.tmp");
+    val DST_CP_FILE_TO = appConfig.getString("smui2solr.DST_CP_FILE_TO").getOrElse("/usr/bin/solr/defaultCore/conf/rules.txt");
+    val SOLR_HOST = appConfig.getString("smui2solr.SOLR_HOST").getOrElse("localhost:8983");
+
+    val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId);
+
+    logger.debug( "In ApiController :: updateRulesTxtForSolrIndex with config" );
+    logger.debug( ":: SRC_TMP_FILE = " + SRC_TMP_FILE );
+    logger.debug( ":: DST_CP_FILE_TO = " + DST_CP_FILE_TO );
+    logger.debug( ":: SOLR_HOST = " + SOLR_HOST );
+    logger.debug( ":: SOLR_CORE_NAME = " + SOLR_CORE_NAME );
+    logger.debug( ":: DO_SPLIT_DECOMPOUND_RULES_TXT = " + DO_SPLIT_DECOMPOUND_RULES_TXT );
+    logger.debug( ":: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = " + DECOMPOUND_RULES_TXT_DST_CP_FILE_TO );
+    logger.debug( ":: targetSystem = " + targetSystem );
+
+    // write rules.txt output to to temp file
+    def writeRulesTxtToTempFile(strRulesTxt: String, tmpFilePath: String) = {
+      val tmpFile = new java.io.File(tmpFilePath);
+      tmpFile.createNewFile();
+      val fw = new java.io.FileWriter(tmpFile);
+      try {
+        fw.write(strRulesTxt);
+      }
+      catch {
+        case iox: java.io.IOException => logger.error("IOException while writing /tmp file: " + iox.getStackTrace);
+        case _: Throwable => logger.error("Got an unexpected error while writing /tmp file");
+      }
+      finally {
+        fw.close();
+      }
+    }
+
+    if( !DO_SPLIT_DECOMPOUND_RULES_TXT ) {
+
+      // generate (one) rules.txt into temp file
+      val strRulesTxt = querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId);
+      writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE);
+      logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" );
+
+    } else {
+
+      // generate decompound-rules.txt into temp file
+      val strDecompoundRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, true);
+      writeRulesTxtToTempFile(strDecompoundRulesTxt, SRC_TMP_FILE + "-2");
+      logger.debug( "strDecompoundRulesTxt = >>>" + strDecompoundRulesTxt + "<<<" );
+
+      // generate decompound-rules.txt into temp file
+      val strRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, false);
+      writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE);
+      logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" );
+    }
+
+    val script = Play.current.path.getAbsolutePath() + "/conf/smui2solr.sh " +
+      SRC_TMP_FILE + " " + // smui2solr.sh param $1 - SRC_TMP_FILE
+      DST_CP_FILE_TO + " " +  // smui2solr.sh param $2 - DST_CP_FILE_TO
+      SOLR_HOST + " " + // smui2solr.sh param $3 - SOLR_HOST
+      SOLR_CORE_NAME + " " + // smui2solr.sh param $4 - SOLR_CORE_NAME
+      (if(DO_SPLIT_DECOMPOUND_RULES_TXT) DECOMPOUND_RULES_TXT_DST_CP_FILE_TO else "NONE") + " " + // smui2solr.sh param $5 - DECOMPOUND_DST_CP_FILE_TO
+      targetSystem; // smui2solr.sh param $6 - TARGET_SYSTEM
+    val result = script !; // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
+    logger.debug( "Script execution result: " + result );
+    if (result == 0) {
+      searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem);
+      Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)) );
+    } else {
+      // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
+      BadRequest( Json.toJson(new ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Unexpected result in script execution.", None)) )
+    }
+  }
+
+  def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String) = Action.async {
     Future {
-
-      // TODO shouldnt be necessary to init DO_AUTO_DECORATE_EXPORT_HASH with every render()
-      val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleList
-        .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT) match {
-        case None => false // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
-        case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[Boolean].booleanValue()
-      };
-      val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleList
-        .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO) match {
-        case None => "" // TODO shouldnt be necessary to define default value twice or more (see HomeController :: index)
-        case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[String]
-      };
-
-      // get necessary conf values (or set super-defaults)
-      // TODO access method to string config variables is deprecated
-      val SRC_TMP_FILE = appConfig.getString("smui2solr.SRC_TMP_FILE").getOrElse("/tmp/search-management-ui_rules-txt.tmp");
-      val DST_CP_FILE_TO = appConfig.getString("smui2solr.DST_CP_FILE_TO").getOrElse("/usr/bin/solr/defaultCore/conf/rules.txt");
-      val SOLR_HOST = appConfig.getString("smui2solr.SOLR_HOST").getOrElse("localhost:8983");
-
-      val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId);
-
-      logger.debug( "In ApiController :: updateRulesTxtForSolrIndex with config" );
-      logger.debug( ":: SRC_TMP_FILE = " + SRC_TMP_FILE );
-      logger.debug( ":: DST_CP_FILE_TO = " + DST_CP_FILE_TO );
-      logger.debug( ":: SOLR_HOST = " + SOLR_HOST );
-      logger.debug( ":: SOLR_CORE_NAME = " + SOLR_CORE_NAME );
-      logger.debug( ":: DO_SPLIT_DECOMPOUND_RULES_TXT = " + DO_SPLIT_DECOMPOUND_RULES_TXT );
-      logger.debug( ":: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = " + DECOMPOUND_RULES_TXT_DST_CP_FILE_TO );
-
-      // write rules.txt output to to temp file
-      def writeRulesTxtToTempFile(strRulesTxt: String, tmpFilePath: String) = {
-        val tmpFile = new java.io.File(tmpFilePath);
-        tmpFile.createNewFile();
-        val fw = new java.io.FileWriter(tmpFile);
-        try {
-          fw.write(strRulesTxt);
-        }
-        catch {
-          case iox: java.io.IOException => logger.error("IOException while writing /tmp file: " + iox.getStackTrace);
-          case _: Throwable => logger.error("Got an unexpected error while writing /tmp file");
-        }
-        finally {
-          fw.close();
-        }
-      }
-
-      if( !DO_SPLIT_DECOMPOUND_RULES_TXT ) {
-
-        // generate (one) rules.txt into temp file
-        val strRulesTxt = querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId);
-        writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE);
-        logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" );
-
-      } else {
-
-        // generate decompound-rules.txt into temp file
-        val strDecompoundRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, true);
-        writeRulesTxtToTempFile(strDecompoundRulesTxt, SRC_TMP_FILE + "-2");
-        logger.debug( "strDecompoundRulesTxt = >>>" + strDecompoundRulesTxt + "<<<" );
-
-        // generate decompound-rules.txt into temp file
-        val strRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, false);
-        writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE);
-        logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" );
-      }
-
-      val script = Play.current.path.getAbsolutePath() + "/conf/smui2solr.sh " +
-        SRC_TMP_FILE + " " + // smui2solr.sh param $1 - SRC_TMP_FILE
-        DST_CP_FILE_TO + " " +  // smui2solr.sh param $2 - DST_CP_FILE_TO
-        SOLR_HOST + " " + // smui2solr.sh param $3 - SOLR_HOST
-        SOLR_CORE_NAME + " " + // smui2solr.sh param $4 - SOLR_CORE_NAME
-        (if(DO_SPLIT_DECOMPOUND_RULES_TXT) DECOMPOUND_RULES_TXT_DST_CP_FILE_TO else "NONE"); // smui2solr.sh param $5 - DECOMPOUND_DST_CP_FILE_TO
-      val result = script !; // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
-      logger.debug( "Script execution result: " + result );
-      if (result == 0) {
-        Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)) );
-      } else {
-        BadRequest( Json.toJson(new ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Unexpected result in script execution.", None)) )
-      }
+      performUpdateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId, targetSystem);
     }
   }
 

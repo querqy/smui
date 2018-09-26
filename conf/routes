@@ -3,22 +3,23 @@
 # ~~~~
 
 # Handle Requests to the Server's root, and supply the Angular SPA
-GET     /                                           controllers.HomeController.index(urlPath = "")
+GET     /   controllers.HomeController.index(urlPath = "")
 
 # serve the API v1 Specification
 # TODO search-input URL path partially "behind" solrIndexId path component and partially not
-GET     /api/v1/solr-index                          controllers.ApiController.listAllSolrIndeces
-GET     /api/v1/:solrIndexId/search-input           controllers.ApiController.listAllSearchInputs(solrIndexId: Long)
-GET     /api/v1/search-input/:searchInputId         controllers.ApiController.getDetailedSearchInput(searchInputId: Long)
-PUT     /api/v1/:solrIndexId/search-input           controllers.ApiController.addNewSearchInput(solrIndexId: Long)
-POST    /api/v1/search-input/:searchInputId         controllers.ApiController.updateSearchInput(searchInputId: Long)
-DELETE  /api/v1/search-input/:searchInputId         controllers.ApiController.deleteSearchInput(searchInputId: Long)
-POST    /api/v1/:solrIndexId/rules-txt              controllers.ApiController.updateRulesTxtForSolrIndex(solrIndexId: Long)
-GET     /api/v1/:solrIndexId/suggested-solr-field   controllers.ApiController.listAllSuggestedSolrFields(solrIndexId: Long)
+GET     /api/v1/solr-index                               controllers.ApiController.listAllSolrIndeces
+GET     /api/v1/:solrIndexId/search-input                controllers.ApiController.listAllSearchInputs(solrIndexId: Long)
+GET     /api/v1/search-input/:searchInputId              controllers.ApiController.getDetailedSearchInput(searchInputId: Long)
+PUT     /api/v1/:solrIndexId/search-input                controllers.ApiController.addNewSearchInput(solrIndexId: Long)
+POST    /api/v1/search-input/:searchInputId              controllers.ApiController.updateSearchInput(searchInputId: Long)
+DELETE  /api/v1/search-input/:searchInputId              controllers.ApiController.deleteSearchInput(searchInputId: Long)
+POST    /api/v1/:solrIndexId/rules-txt/:targetPlatform   controllers.ApiController.updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetPlatform: String)
+GET     /api/v1/:solrIndexId/suggested-solr-field        controllers.ApiController.listAllSuggestedSolrFields(solrIndexId: Long)
+
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file   controllers.Assets.versioned(path="/public", file: Asset)
 
 # Catch anything else, and just supply the Angular SPA as well
-GET     /*urlPath                                   controllers.HomeController.index(urlPath)
+GET     /*urlPath       controllers.HomeController.index(urlPath)
 

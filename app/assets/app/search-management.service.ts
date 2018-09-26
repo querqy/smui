@@ -122,14 +122,17 @@ export class SearchManagementService {
       .catch(this.handleError);
   }
 
-  updateRulesTxtForSolrIndex(solrIndexId: number): Promise<SearchManagementServiceResult> {
+  updateRulesTxtForSolrIndex(solrIndexId: number, targetPlatform: string): Promise<SearchManagementServiceResult> {
     const headers = new Headers({
       'Content-Type': 'application/json'
     });
 
     return this.http
       .post(
-        SEARCH_MANAGEMENT_API_BASE_URL + '/' + solrIndexId + '/' + RULES_TXT_API_URL,
+        SEARCH_MANAGEMENT_API_BASE_URL
+        + '/' + solrIndexId
+        + '/' + RULES_TXT_API_URL
+        + '/' + targetPlatform,
         { headers: headers })
       .toPromise()
       .then(res => {

@@ -461,4 +461,13 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     .as(simpleSuggestedSolrField *)
   }
 
+  def addNewDeploymentLogOk(solrIndexId: Long, targetPlatform: String) = db.withConnection { implicit connection =>
+    SQL("insert into deployment_log(solr_index_id, target_platform) values ({solr_index_id}, {target_platform})")
+      .on(
+        'solr_index_id -> solrIndexId,
+        'target_platform -> targetPlatform
+      )
+      .executeInsert()
+  }
+
 }
