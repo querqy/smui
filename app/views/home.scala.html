@@ -1,4 +1,4 @@
-@(listFeatureToggle: List[models.FeatureToggleModel.FeatureToggle])
+@(listFeatureToggle: List[models.FeatureToggleModel.JsFeatureToggle])
 <!doctype html>
 <html lang="de" data-framework="angular2">
 <head>
@@ -12,10 +12,10 @@
     @* Feature-Toggle List passed on as Js *@
     <script>
 var FEATURE_TOGGLE_LIST = [
-@for( featureToggle <- listFeatureToggle.filter(t => !t.toggleValue.isProtected()) ) {
+@for( featureToggle <- listFeatureToggle ) {
   {
     "toggleName": "@featureToggle.toggleName",
-    "toggleValue": @featureToggle.toggleValue.renderJsValue
+    "toggleValue": @featureToggle.toggleValue.render
   },
 }
 ];

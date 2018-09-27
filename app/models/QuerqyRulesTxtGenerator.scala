@@ -4,13 +4,12 @@ import javax.inject.Inject
 
 import org.joda.time.DateTime
 
-import models.FeatureToggleModel.FEATURE_TOGGLE_RULE_DEPLOYMENT_AUTO_DECORATE_EXPORT_HASH
 import models.SearchManagementModel._
 import models.FeatureToggleModel._
 
 @javax.inject.Singleton
 class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManagementRepository,
-                                        featureToggleList: FeatureToggleList) {
+                                        featureToggleService: FeatureToggleService) {
 
   var DO_AUTO_DECORATE_EXPORT_HASH = false; // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
 
@@ -68,7 +67,13 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     for (deleteRule <- searchInput.deleteRules.filter(r => r.term.trim().size > 0)) {
       retSearchInputRulesTxtPartial.append(renderDeleteRule(deleteRule));
     }
+
+    /*
     if( DO_AUTO_DECORATE_EXPORT_HASH ) {
+      retSearchInputRulesTxtPartial.append(renderDecorateExportHash(retSearchInputRulesTxtPartial.toString()))
+    }
+    */
+    if( featureToggleService.getToggleRuleDeploymentAutoDecorateExportHash ) {
       retSearchInputRulesTxtPartial.append(renderDecorateExportHash(retSearchInputRulesTxtPartial.toString()))
     }
 
@@ -93,8 +98,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   }
 
   /**
-    *
-    *
+    * TODO
     *
     * @param solrIndexId TODO
     * @param separateRulesTxts Whether to split rules.txt from decompound-rules.txt (true) or not (false).
@@ -102,13 +106,6 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     * @return
     */
   private def render(solrIndexId: Long, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean): String = {
-
-    // TODO shouldnt be necessary to init DO_AUTO_DECORATE_EXPORT_HASH with every render()
-    DO_AUTO_DECORATE_EXPORT_HASH = featureToggleList
-      .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_AUTO_DECORATE_EXPORT_HASH) match {
-        case None => false // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
-        case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[Boolean].booleanValue()
-      };
 
     var retQuerqyRulesTxt = new StringBuilder();
 

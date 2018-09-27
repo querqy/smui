@@ -19,6 +19,7 @@ import sys.process._
 import scala.concurrent.{ExecutionContext, Future}
 import models.SearchManagementModel._
 import models.FeatureToggleModel._
+
 // TODO evaluate encapsulating querqy validation to a own "models"-class or into models.SearchManagementRepository
 import querqy.rewrite.commonrules.SimpleCommonRulesParser
 import querqy.parser.WhiteSpaceQuerqyParserFactory
@@ -28,7 +29,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
                               querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
                               cc: MessagesControllerComponents,
                               appConfig: Configuration,
-                              featureToggleList: FeatureToggleList)(implicit executionContext: ExecutionContext)
+                              featureToggleService: FeatureToggleService)(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
   private val logger = play.api.Logger;
@@ -204,27 +205,10 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     */
   private def performUpdateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String): play.api.mvc.Result = {
 
-    // TODO shouldnt be necessary to init all the feature toggles below with every method call
-    val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleList
-      .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT) match {
-      case None => false // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
-      case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[Boolean].booleanValue()
-    };
-    val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleList
-      .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO) match {
-      case None => "" // TODO shouldnt be necessary to define default value twice or more (see HomeController :: index)
-      case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[String]
-    };
-    val DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = featureToggleList
-      .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT) match {
-      case None => false // TODO shouldnt be necessary to define default value twice or more (see HomeController :: index)
-      case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[Boolean].booleanValue()
-    };
-    val CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = featureToggleList
-      .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH) match {
-      case None => "" // TODO shouldnt be necessary to define default value twice or more (see HomeController :: index)
-      case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[String]
-    };
+    val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxt;
+    val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxtDstCpFileTo;
+    val DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = featureToggleService.getToggleRuleDeploymentCustomScript;
+    val CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = featureToggleService.getToggleRuleDeploymentCustomScriptSmui2solrShPath;
 
     // get necessary application.conf values (or set super-defaults)
     // TODO access method to string config variables is deprecated
