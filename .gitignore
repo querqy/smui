@@ -20,3 +20,4 @@ bin
 activator-sbt-*-shim.sbt
 .vagrant
 smui-dev.conf
+smui2solr-dev.sh

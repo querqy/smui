@@ -204,7 +204,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     */
   private def performUpdateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String): play.api.mvc.Result = {
 
-    // TODO shouldnt be necessary to init DO_AUTO_DECORATE_EXPORT_HASH with every render()
+    // TODO shouldnt be necessary to init all the feature toggles below with every method call
     val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleList
       .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT) match {
       case None => false // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
@@ -215,8 +215,18 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       case None => "" // TODO shouldnt be necessary to define default value twice or more (see HomeController :: index)
       case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[String]
     };
+    val DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = featureToggleList
+      .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT) match {
+      case None => false // TODO shouldnt be necessary to define default value twice or more (see HomeController :: index)
+      case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[Boolean].booleanValue()
+    };
+    val CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = featureToggleList
+      .getToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH) match {
+      case None => "" // TODO shouldnt be necessary to define default value twice or more (see HomeController :: index)
+      case Some(toggleValue: FeatureToggleValue) => toggleValue.getValue().asInstanceOf[String]
+    };
 
-    // get necessary conf values (or set super-defaults)
+    // get necessary application.conf values (or set super-defaults)
     // TODO access method to string config variables is deprecated
     val SRC_TMP_FILE = appConfig.getString("smui2solr.SRC_TMP_FILE").getOrElse("/tmp/search-management-ui_rules-txt.tmp");
     val DST_CP_FILE_TO = appConfig.getString("smui2solr.DST_CP_FILE_TO").getOrElse("/usr/bin/solr/defaultCore/conf/rules.txt");
@@ -232,6 +242,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     logger.debug( ":: DO_SPLIT_DECOMPOUND_RULES_TXT = " + DO_SPLIT_DECOMPOUND_RULES_TXT );
     logger.debug( ":: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = " + DECOMPOUND_RULES_TXT_DST_CP_FILE_TO );
     logger.debug( ":: targetSystem = " + targetSystem );
+    logger.debug( ":: DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = " + DO_CUSTOM_SCRIPT_SMUI2SOLR_SH );
+    logger.debug( ":: CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = " + CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH );
 
     // write rules.txt output to to temp file
     def writeRulesTxtToTempFile(strRulesTxt: String, tmpFilePath: String) = {
@@ -270,14 +282,21 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" );
     }
 
-    val script = Play.current.path.getAbsolutePath() + "/conf/smui2solr.sh " +
+    val scriptCall =
+      // decide for the right script
+      (if( DO_CUSTOM_SCRIPT_SMUI2SOLR_SH )
+        CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH
+      else
+        Play.current.path.getAbsolutePath() + "/conf/smui2solr.sh") +
+      // add parameters to the script (in expected order, see smui2solr.sh)
+      " " +
       SRC_TMP_FILE + " " + // smui2solr.sh param $1 - SRC_TMP_FILE
       DST_CP_FILE_TO + " " +  // smui2solr.sh param $2 - DST_CP_FILE_TO
       SOLR_HOST + " " + // smui2solr.sh param $3 - SOLR_HOST
       SOLR_CORE_NAME + " " + // smui2solr.sh param $4 - SOLR_CORE_NAME
       (if(DO_SPLIT_DECOMPOUND_RULES_TXT) DECOMPOUND_RULES_TXT_DST_CP_FILE_TO else "NONE") + " " + // smui2solr.sh param $5 - DECOMPOUND_DST_CP_FILE_TO
       targetSystem; // smui2solr.sh param $6 - TARGET_SYSTEM
-    val result = script !; // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
+    val result = scriptCall !; // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
     logger.debug( "Script execution result: " + result );
     if (result == 0) {
       searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem);
