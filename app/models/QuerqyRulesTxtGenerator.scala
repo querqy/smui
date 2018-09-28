@@ -51,28 +51,29 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     retSearchInputRulesTxtPartial.append(term + " =>\n");
 
     val allSynonymTerms: List[String] = searchInput.term ::
-      searchInput.synonymRules.map(r => r.term).filter(t => t.trim().size > 0);
+      searchInput.synonymRules
+        .filter(r => r.isActive)
+        .map(r => r.term)
+        .filter(t => t.trim().size > 0);
     for (synonymTerm <- allSynonymTerms) {
       // TODO equals on term-level, evaluate if synonym-term identity should be transferred on id-level
       if (!synonymTerm.equals(term)) {
         retSearchInputRulesTxtPartial.append(renderSynonymRule(synonymTerm));
       }
     }
-    for (upDownRule <- searchInput.upDownRules.filter(r => r.term.trim().size > 0)) {
+    for (upDownRule <- searchInput.upDownRules
+      .filter(r => r.isActive && (r.term.trim().size > 0))) {
       retSearchInputRulesTxtPartial.append(renderUpDownRule(upDownRule));
     }
-    for (filterRule <- searchInput.filterRules.filter(r => r.term.trim().size > 0)) {
+    for (filterRule <- searchInput.filterRules
+      .filter(r => r.isActive && (r.term.trim().size > 0))) {
       retSearchInputRulesTxtPartial.append(renderFilterRule(filterRule));
     }
-    for (deleteRule <- searchInput.deleteRules.filter(r => r.term.trim().size > 0)) {
+    for (deleteRule <- searchInput.deleteRules
+      .filter(r => r.isActive && (r.term.trim().size > 0))) {
       retSearchInputRulesTxtPartial.append(renderDeleteRule(deleteRule));
     }
 
-    /*
-    if( DO_AUTO_DECORATE_EXPORT_HASH ) {
-      retSearchInputRulesTxtPartial.append(renderDecorateExportHash(retSearchInputRulesTxtPartial.toString()))
-    }
-    */
     if( featureToggleService.getToggleRuleDeploymentAutoDecorateExportHash ) {
       retSearchInputRulesTxtPartial.append(renderDecorateExportHash(retSearchInputRulesTxtPartial.toString()))
     }
@@ -86,7 +87,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     // take SearchInput term and according DIRECTED SynonymRule to render related rules
     val allInputTerms: List[String] = searchInput.term ::
       searchInput.synonymRules
-        .filter(r => (r.synonymType == 0) && (r.term.trim().size > 0))
+        .filter(r => (r.isActive) && (r.synonymType == 0) && (r.term.trim().size > 0))
         .map(r => r.term);
     for (inputTerm <- allInputTerms) {
       retQuerqyRulesTxtPartial.append(
@@ -117,12 +118,13 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
         searchManagementRepository
           .getDetailedSearchInput(i.id.get)
       })
-      // TODO it needs to be ensured, that a rule not only exists in the list, but also has a filled term (after trim)
+      // filter all inputs, that do not have any active rule
+      // TODO it needs to be ensured, that a rule not only exists in the list, are active, BUT also has a filled term (after trim)
       .filter(i =>
-        (i.synonymRules.size > 0) ||
-        (i.upDownRules.size > 0) ||
-        (i.filterRules.size > 0) ||
-        (i.deleteRules.size > 0)
+        (i.synonymRules.filter(r => r.isActive).size > 0) ||
+        (i.upDownRules.filter(r => r.isActive).size > 0) ||
+        (i.filterRules.filter(r => r.isActive).size > 0) ||
+        (i.deleteRules.filter(r => r.isActive).size > 0)
       );
 
     // separate decompound-rules.txt from rules.txt

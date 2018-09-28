@@ -25,6 +25,7 @@
     <span>{{ searchInput.term }}</span>
 
     <ng-container *ngFor="let searchInputSynonym of searchInput.synonymRules">
+      <!-- TODO evaluate whether to show or hide undirected synonyms, that are not active -->
       <small class="text-muted smui-input-list-divide-synonym" *ngIf="searchInputSynonym.synonymType == 0">
         {{ searchInputSynonym.term }}
       </small>

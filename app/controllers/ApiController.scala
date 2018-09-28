@@ -119,6 +119,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
   private def validateSearchInputToErrMsg(searchInput: SearchInput): Option[String] = {
 
+    // TODO !!! open-issue: validate both inputs and rules, if synonym is undirected !!!
     // TODO validation ends with first broken rule, it should collect all errors to a line.
     // TODO decide, if input having no rule at all is legit ... (e.g. newly created). Will currently being filtered.
 

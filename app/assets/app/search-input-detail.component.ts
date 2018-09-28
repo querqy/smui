@@ -196,7 +196,8 @@ export class SearchInputDetailComponent implements OnInit {
     const emptySynonymRule: smm.SynonymRule = {
       id: null,
       synonymType: 0,
-      term: ''
+      term: '',
+      isActive: true
     };
     this.detailSearchInput
       .synonymRules.push(emptySynonymRule);
@@ -213,7 +214,8 @@ export class SearchInputDetailComponent implements OnInit {
 
     const emptyUpDownRule: smm.UpDownRule = {
       id: null,
-      term: ''
+      term: '',
+      isActive: true
     };
     if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()) {
       // NOTE: the attribute "upDownDropdownDefinitionMapping" is frontend-only and not supposed to be part of REST transfer
@@ -237,7 +239,8 @@ export class SearchInputDetailComponent implements OnInit {
 
     const emptyFilterRule: smm.FilterRule = {
       id: null,
-      term: ''
+      term: '',
+      isActive: true
     };
     if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) {
       emptyFilterRule.suggestedSolrFieldName = '';
@@ -257,7 +260,8 @@ export class SearchInputDetailComponent implements OnInit {
 
     const emptyDeleteRule: smm.DeleteRule = {
       id: null,
-      term: ''
+      term: '',
+      isActive: true
     };
     this.detailSearchInput
       .deleteRules.push(emptyDeleteRule);
@@ -291,7 +295,8 @@ export class SearchInputDetailComponent implements OnInit {
             id: upDownRule.id,
             term: upDownRule.term,
             upDownType: smm.upDownDropdownDefinitionMappings[upDownRule.upDownDropdownDefinitionMapping].upDownType,
-            boostMalusValue: smm.upDownDropdownDefinitionMappings[upDownRule.upDownDropdownDefinitionMapping].boostMalusValue
+            boostMalusValue: smm.upDownDropdownDefinitionMappings[upDownRule.upDownDropdownDefinitionMapping].boostMalusValue,
+            isActive: upDownRule.isActive
           }
         });
       }

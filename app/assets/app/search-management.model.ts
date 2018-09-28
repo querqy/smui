@@ -8,6 +8,7 @@ export class SynonymRule {
   id: number;
   synonymType: number;
   term: string;
+  isActive: boolean;
 }
 
 export class UpDownRule {
@@ -17,6 +18,7 @@ export class UpDownRule {
   term: string;
   upDownDropdownDefinitionMapping?: number;
   suggestedSolrFieldName?: string;
+  isActive: boolean;
 }
 
 // TODO consider other persistence solution (e.g. REST)
@@ -37,11 +39,13 @@ export class FilterRule {
   id: number;
   term: string;
   suggestedSolrFieldName?: string;
+  isActive: boolean;
 }
 
 export class DeleteRule {
   id: number;
   term: string;
+  isActive: boolean;
 }
 
 export class SearchInput {

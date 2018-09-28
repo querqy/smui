@@ -78,12 +78,28 @@
 
     <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.synonymRules.length > 0)">
       <table style="width:100%">
-        <tr *ngFor="let synonymRule of detailSearchInput.synonymRules; let idxSynonymRules = index">
+        <tr *ngFor="let synonymRule of detailSearchInput.synonymRules; let idxSynonymRules = index"
+            [class.smui-disabled-rule-line]="synonymRule.isActive ? null : true">
+          <!--
+          TODO evaluate the use of this nicer Bootstrap toggle button instead of `input type="checkbox"` ...
+
+          <td style="width:X%">
+          <button type="button"
+                  class="btn btn-sm float-left"
+                  [class.btn-secondary]="true"
+                  [class.btn-light]="!true"
+                  (click)="toggleSynonymRuleActive(idxSynonymRules); $event.stopPropagation();">&#10003;</button>
+          </td>
+          -->
           <td style="width:20%">
+            <input type="checkbox"
+                   class="form-check-input smui-realign-check-input"
+                   [(ngModel)]="synonymRule.isActive">
             <small style="text-transform: uppercase">Synonym Rule:</small>
           </td>
           <td style="width:20%">
-            <select class="form-control" [(ngModel)]="synonymRule.synonymType">
+            <select class="form-control"
+                    [(ngModel)]="synonymRule.synonymType">
               <option [ngValue]="0">= (undirected)</option>
               <option [ngValue]="1">-> (directed)</option>
             </select>
@@ -107,8 +123,12 @@
 
     <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.upDownRules.length > 0)">
       <table style="width:100%">
-        <tr *ngFor="let upDownRule of detailSearchInput.upDownRules; let idxUpDownRules = index">
+        <tr *ngFor="let upDownRule of detailSearchInput.upDownRules; let idxUpDownRules = index"
+            [class.smui-disabled-rule-line]="upDownRule.isActive ? null : true">
           <td style="width:20%">
+            <input type="checkbox"
+                   class="form-check-input smui-realign-check-input"
+                   [(ngModel)]="upDownRule.isActive">
             <small style="text-transform: uppercase">UP/DOWN Rule:</small>
           </td>
           <!-- Option#1: Show non combined UP/DOWN dropdown followed by boost/malus number input -->
@@ -124,15 +144,6 @@
                    id="inputUpDownBoostMalus"
                    placeholder="Boost/Malus ..."
                    [(ngModel)]="upDownRule.boostMalusValue">
-            <!-- TODO create combined select/input-number UI form component to edit upDownRule.boostMalusValue
-
-            <select class="form-control">
-              <option selected="selected">0</option>
-              <option>50</option>
-              <option>100</option>
-              <option>500</option>
-            </select>
-            -->
           </td>
           <!-- Option#2: Show combined UP(+++++) to DOWN(----) dropdown only -->
           <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()">
@@ -168,8 +179,12 @@
 
     <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.filterRules.length > 0)">
       <table style="width:100%">
-        <tr *ngFor="let filterRule of detailSearchInput.filterRules; let idxFilterRules = index">
+        <tr *ngFor="let filterRule of detailSearchInput.filterRules; let idxFilterRules = index"
+            [class.smui-disabled-rule-line]="filterRule.isActive ? null : true">
           <td style="width:20%">
+            <input type="checkbox"
+                   class="form-check-input smui-realign-check-input"
+                   [(ngModel)]="filterRule.isActive">
             <small style="text-transform: uppercase">FILTER Rule:</small>
           </td>
           <td style="width:20%" *ngIf="featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()">
@@ -198,8 +213,12 @@
 
     <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.deleteRules.length > 0)">
       <table style="width:100%">
-        <tr *ngFor="let deleteRule of detailSearchInput.deleteRules; let idxDeleteRules = index">
+        <tr *ngFor="let deleteRule of detailSearchInput.deleteRules; let idxDeleteRules = index"
+            [class.smui-disabled-rule-line]="deleteRule.isActive ? null : true">
           <td style="width:20%">
+            <input type="checkbox"
+                   class="form-check-input smui-realign-check-input"
+                   [(ngModel)]="deleteRule.isActive">
             <small style="text-transform: uppercase">DELETE Rule:</small>
           </td>
           <td style="width:75%">

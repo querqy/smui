@@ -43,8 +43,9 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
   private[models] val simpleSynonymRule = {
     get[Option[Long]]("synonym_rule.id") ~
       get[Int]("synonym_rule.synonym_type") ~
-      get[String]("synonym_rule.term") map {
-      case id~synonymType~term => SynonymRule(id, synonymType, term)
+      get[String]("synonym_rule.term") ~
+      get[Int]("synonym_rule.status") map {
+      case id~synonymType~term~status => SynonymRule(id, synonymType, term, (status & 0x01) == 0x01)
     }
   }
 
@@ -55,8 +56,9 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     get[Option[Long]]("up_down_rule.id") ~
       get[Int]("up_down_rule.up_down_type") ~
       get[Int]("up_down_rule.boost_malus_value") ~
-      get[String]("up_down_rule.term") map {
-      case id~upDownType~boostMalusValue~term => UpDownRule(id, upDownType, boostMalusValue, term)
+      get[String]("up_down_rule.term") ~
+      get[Int]("up_down_rule.status") map {
+      case id~upDownType~boostMalusValue~term~status => UpDownRule(id, upDownType, boostMalusValue, term, (status & 0x01) == 0x01)
     }
   }
 
@@ -65,8 +67,9 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     */
   private[models] val simpleFilterRule = {
     get[Option[Long]]("filter_rule.id") ~
-      get[String]("filter_rule.term") map {
-      case id~term => FilterRule(id, term)
+      get[String]("filter_rule.term") ~
+      get[Int]("filter_rule.status") map {
+      case id~term~status => FilterRule(id, term, (status & 0x01) == 0x01)
     }
   }
 
@@ -75,8 +78,9 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     */
   private[models] val simpleDeleteRule = {
     get[Option[Long]]("delete_rule.id") ~
-      get[String]("delete_rule.term") map {
-      case id~term => DeleteRule(id, term)
+      get[String]("delete_rule.term") ~
+      get[Int]("delete_rule.status") map {
+      case id~term~status => DeleteRule(id, term, (status & 0x01) == 0x01)
     }
   }
 
@@ -227,12 +231,16 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
             if (existingSynonymRule.id.get.equals(updateSynonymRuleId)) {
               SQL(
                 "update synonym_rule " +
-                  "set synonym_rule.synonym_type = {synonym_rule_type}, synonym_rule.term = {synonym_rule_term} " +
+                  "set " +
+                    "synonym_rule.synonym_type = {synonym_rule_type}, " +
+                    "synonym_rule.term = {synonym_rule_term}, " +
+                    "synonym_rule.status = {synonym_status} " +
                   "where synonym_rule.id = {synonym_rule_id}"
               )
                 .on(
                   'synonym_rule_type -> updateSynonymRule.synonymType,
                   'synonym_rule_term -> updateSynonymRule.term,
+                  'synonym_status -> (if(updateSynonymRule.isActive) 0x01 else 0x00),
                   'synonym_rule_id -> updateSynonymRuleId
                 )
                 .executeUpdate();
@@ -253,11 +261,12 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     // ... insert newly added
     for (newSynonymRule <- searchInput.synonymRules.filter(r => r.id.isEmpty)) {
       SQL(
-        "insert into synonym_rule(synonym_type, term, search_input_id) " +
-          "values ({synonym_type}, {synonym_term}, {search_input_id})")
+        "insert into synonym_rule(synonym_type, term, status, search_input_id) " +
+          "values ({synonym_type}, {synonym_term}, {synonym_status}, {search_input_id})")
         .on(
           'synonym_type -> newSynonymRule.synonymType,
           'synonym_term -> newSynonymRule.term,
+          'synonym_status -> (if(newSynonymRule.isActive) 0x01 else 0x00),
           'search_input_id -> searchInput.id.get
         )
         .executeInsert()
@@ -275,13 +284,18 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
             if (existingUpDownRule.id.get.equals(updateUpDownRuleId)) {
               SQL(
                 "update up_down_rule " +
-                  "set up_down_rule.up_down_type = {up_down_type}, boost_malus_value = {boost_malus_value}, up_down_rule.term = {up_down_rule_term} " +
+                  "set " +
+                    "up_down_rule.up_down_type = {up_down_type}, " +
+                    "up_down_rule.boost_malus_value = {boost_malus_value}, " +
+                    "up_down_rule.term = {up_down_rule_term}, " +
+                    "up_down_rule.status = {up_down_rule_status} " +
                   "where up_down_rule.id = {up_down_rule_id}"
               )
                 .on(
                   'up_down_type -> updateUpDownRule.upDownType,
                   'boost_malus_value -> updateUpDownRule.boostMalusValue,
                   'up_down_rule_term -> updateUpDownRule.term,
+                  'up_down_rule_status -> (if(updateUpDownRule.isActive) 0x01 else 0x00),
                   'up_down_rule_id -> updateUpDownRuleId
                 )
                 .executeUpdate();
@@ -302,12 +316,13 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     // ... insert newly added
     for (newUpDownRule <- searchInput.upDownRules.filter(r => r.id.isEmpty)) {
       SQL(
-        "insert into up_down_rule(up_down_type, boost_malus_value, term, search_input_id) " +
-          "values ({up_down_type}, {boost_malus_value}, {up_down_rule_term}, {search_input_id})")
+        "insert into up_down_rule(up_down_type, boost_malus_value, term, status, search_input_id) " +
+          "values ({up_down_type}, {boost_malus_value}, {up_down_rule_term}, {up_down_rule_status}, {search_input_id})")
         .on(
           'up_down_type -> newUpDownRule.upDownType,
           'boost_malus_value -> newUpDownRule.boostMalusValue,
           'up_down_rule_term -> newUpDownRule.term,
+          'up_down_rule_status -> (if(newUpDownRule.isActive) 0x01 else 0x00),
           'search_input_id -> searchInput.id.get
         )
         .executeInsert()
@@ -325,11 +340,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
             if (existingFilterRule.id.get.equals(updateFilterRuleId)) {
               SQL(
                 "update filter_rule " +
-                  "set filter_rule.term = {filter_rule_term} " +
+                  "set " +
+                    "filter_rule.term = {filter_rule_term}, " +
+                    "filter_rule.status = {filter_rule_status} " +
                   "where filter_rule.id = {filter_rule_id}"
               )
                 .on(
                   'filter_rule_term -> updateFilterRule.term,
+                  'filter_rule_status -> (if(updateFilterRule.isActive) 0x01 else 0x00),
                   'filter_rule_id -> updateFilterRuleId
                 )
                 .executeUpdate();
@@ -350,10 +368,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     // ... insert newly added
     for (newFilterRule <- searchInput.filterRules.filter(r => r.id.isEmpty)) {
       SQL(
-        "insert into filter_rule(term, search_input_id) " +
-          "values ({filter_rule_term}, {search_input_id})")
+        "insert into filter_rule(term, status, search_input_id) " +
+          "values ({filter_rule_term}, {filter_rule_status}, {search_input_id})")
         .on(
           'filter_rule_term -> newFilterRule.term,
+          'filter_rule_status -> (if(newFilterRule.isActive) 0x01 else 0x00),
           'search_input_id -> searchInput.id.get
         )
         .executeInsert()
@@ -371,11 +390,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
             if (existingDeleteRule.id.get.equals(updateDeleteRuleId)) {
               SQL(
                 "update delete_rule " +
-                  "set delete_rule.term = {delete_rule_term} " +
+                  "set " +
+                    "delete_rule.term = {delete_rule_term}, " +
+                    "delete_rule.status = {delete_rule_status} " +
                   "where delete_rule.id = {delete_rule_id}"
               )
                 .on(
                   'delete_rule_term -> updateDeleteRule.term,
+                  'delete_rule_status -> (if(updateDeleteRule.isActive) 0x01 else 0x00),
                   'delete_rule_id -> updateDeleteRuleId
                 )
                 .executeUpdate();
@@ -396,10 +418,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     // ... insert newly added
     for (newDeleteRule <- searchInput.deleteRules.filter(r => r.id.isEmpty)) {
       SQL(
-        "insert into delete_rule(term, search_input_id) " +
-          "values ({delete_rule_term}, {search_input_id})")
+        "insert into delete_rule(term, status, search_input_id) " +
+          "values ({delete_rule_term}, {delete_rule_status}, {search_input_id})")
         .on(
           'delete_rule_term -> newDeleteRule.term,
+          'delete_rule_status -> (if(newDeleteRule.isActive) 0x01 else 0x00),
           'search_input_id -> searchInput.id.get
         )
         .executeInsert()

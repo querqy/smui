@@ -10,6 +10,15 @@
 	margin-bottom: 0;
 }
 
+.smui-realign-check-input {
+	margin-left: 0;
+	position: relative;
+}
+
+.smui-disabled-rule-line {
+	background-color: #e2e3e5;
+}
+
 .dropdown-item {
 	cursor: pointer;
 }

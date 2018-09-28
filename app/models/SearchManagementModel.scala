@@ -9,18 +9,22 @@ package object SearchManagementModel {
 
   case class SynonymRule(id: Option[Long] = None,
                          synonymType: Int,
-                         term: String)
+                         term: String,
+                         isActive: Boolean)
 
   case class UpDownRule(id: Option[Long] = None,
                         upDownType: Int,
                         boostMalusValue: Int,
-                        term: String)
+                        term: String,
+                        isActive: Boolean)
 
   case class FilterRule(id: Option[Long] = None,
-                        term: String)
+                        term: String,
+                        isActive: Boolean)
 
   case class DeleteRule(id: Option[Long] = None,
-                        term: String)
+                        term: String,
+                        isActive: Boolean)
 
   // TODO rearrange SearchManagementRepository algorithms purely functional, so that no mutable var-attributes necessary
   case class SearchInput(id: Option[Long] = None,
