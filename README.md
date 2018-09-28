@@ -1,4 +1,4 @@
-# Search Management UI (SMUI) - Manual version 1.4.3
+# Search Management UI (SMUI) - Manual version 1.4.4
 
 ## INSTALLATION
 

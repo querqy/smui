@@ -9,6 +9,22 @@ import * as smm from './search-management.model';
 import { SearchManagementService } from './search-management.service';
 import { FeatureToggleService } from './feature-toggle.service';
 
+declare var $: any; // TODO include @types/jquery properly, make this workaround unnecessary
+
+// TODO consider outsourcing confirmation modal dialog to separate component, directive ...
+class Deferred<T> {
+  promise: Promise<T>;
+  resolve: (value?: T | PromiseLike<T>) => void;
+  reject:  (reason?: any) => void;
+
+  constructor() {
+    this.promise = new Promise<T>((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject  = reject;
+    });
+  }
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -20,6 +36,13 @@ export class AppComponent implements OnInit {
   // TODO consider using an more abstract component-communication model (e.g. message-service, events, etc.)
   @ViewChild('searchInputListComponent') searchInputListComponent: SearchInputListComponent;
   @ViewChild('searchInputDetailComponent') searchInputDetailComponent: SearchInputDetailComponent;
+
+  // TODO consider outsourcing confirmation modal dialog to separate component, directive ...
+  public confirmTitle = '';
+  public confirmBodyText = '';
+  public cancelText = '';
+  public okText = '';
+  public modalConfirmDeferred: Deferred<boolean>;
 
   get self(): AppComponent {
     return this;
@@ -77,6 +100,31 @@ export class AppComponent implements OnInit {
     this.toasterService.pop('error', '', msgText);
   }
 
+  // bridge angular2-to-jquery for opening the bootstrap confirmModal and map to a Promise<boolean> (modalConfirmPromise)
+  // TODO consider outsourcing modal confirmation implementation to component, service or directive ...
+
+  public openModalConfirm(title, bodyText, okText, cancelText) {
+    console.log('In AppComponent :: openModalConfirm');
+
+    this.confirmTitle = title;
+    this.confirmBodyText = bodyText;
+    this.okText = okText;
+    this.cancelText = cancelText;
+
+    $('#confirmModal').modal('show');
+    this.modalConfirmDeferred = new Deferred<boolean>();
+  }
+
+  confirmModalCancel() {
+    console.log('In AppComponent :: confirmModalCancel');
+    this.modalConfirmDeferred.resolve(false);
+  }
+
+  confirmModalOk() {
+    console.log('In AppComponent :: confirmModalOk');
+    this.modalConfirmDeferred.resolve(true);
+  }
+
   public selectSolrIndex(newSolrIndexId: number) {
     console.log('In AppComponent :: selectSolrIndex :: newSolrIndexId = ' + JSON.stringify(newSolrIndexId));
 
@@ -121,6 +169,17 @@ export class AppComponent implements OnInit {
 
   public publishToLIVE() {
     console.log('In AppComponent :: publishToLIVE');
-    this.requestPublishRulesTxtToSolr('LIVE');
+
+    this.openModalConfirm(
+      'Confirm publish to LIVE',
+      'Are you sure to publish current Search Rules to LIVE?',
+      'Yes, publish to LIVE', 'No, cancel publish');
+      this.modalConfirmDeferred.promise
+        .then(isOk => {
+          if (isOk) {
+            this.requestPublishRulesTxtToSolr('LIVE');
+          }
+        }
   }
+
 }

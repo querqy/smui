@@ -19,6 +19,7 @@ class HomeController @Inject()(cc: MessagesControllerComponents,
 
   def index(urlPath: String) = Action.async {
     Future {
+      logger.debug("In HomeController :: index");
       Ok(
         views.html.home(
           featureToggleService.getJsFrontendToogleList

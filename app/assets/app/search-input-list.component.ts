@@ -8,21 +8,6 @@ import * as smm from './search-management.model';
 import { SearchManagementService } from './search-management.service';
 import { FeatureToggleService } from './feature-toggle.service';
 
-class Deferred<T> {
-  promise: Promise<T>;
-  resolve: (value?: T | PromiseLike<T>) => void;
-  reject:  (reason?: any) => void;
-
-  constructor() {
-    this.promise = new Promise<T>((resolve, reject) => {
-      this.resolve = resolve;
-      this.reject  = reject;
-    });
-  }
-}
-
-declare var $: any; // TODO include @types/jquery properly, make this workaround unnecessary
-
 @Component({
   selector: 'smui-search-input-list',
   templateUrl: './search-input-list.component.html',
@@ -38,13 +23,7 @@ export class SearchInputListComponent implements OnInit {
   public searchInputs: smm.SearchInput[];
   public selectedSearchInputId: number = null;
   public searchInputTerm = '';
-  // TODO consider outsourcing confirmation modal dialog to separate component, directive ...
-  public confirmTitle = '';
-  public confirmBodyText = '';
-  public cancelText = '';
-  public okText = '';
   private currentSolrIndexId = -1; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
-  private modalConfirmDeferred: Deferred<boolean>;
 
   constructor(
     private searchManagementService: SearchManagementService,
@@ -158,31 +137,6 @@ export class SearchInputListComponent implements OnInit {
       .catch(error => this.handleError(error));
   }
 
-  // bridge angular2-to-jquery for opening the bootstrap confirmModal and map to a Promise<boolean> (modalConfirmPromise)
-  // TODO consider outsourcing modal confirmation implementation to component, service or directive ...
-
-  openModalConfirm(title, bodyText, okText, cancelText) {
-    console.log('In SearchInputListComponent :: openModalConfirm');
-
-    this.confirmTitle = title;
-    this.confirmBodyText = bodyText;
-    this.okText = okText;
-    this.cancelText = cancelText;
-
-    $('#confirmModal').modal('show');
-    this.modalConfirmDeferred = new Deferred<boolean>();
-  }
-
-  confirmModalCancel() {
-    console.log('In SearchInputListComponent :: confirmModalCancel');
-    this.modalConfirmDeferred.resolve(false);
-  }
-
-  confirmModalOk() {
-    console.log('In SearchInputListComponent :: confirmModalOk');
-    this.modalConfirmDeferred.resolve(true);
-  }
-
   // TODO consider dirty check for details being part of the details component instead of list
   public safeDirtyCheckAndEvtlConfirmModalExecute(executeFnOk: Function, executeFnCancel: Function) {
     console.log('In safeDirtyCheckAndEvtlConfirmModalExecute');
@@ -192,11 +146,11 @@ export class SearchInputListComponent implements OnInit {
 
     // show confirmation dialog, if detail component is dirty
     if (detailComponentsIsDirty) {
-      this.openModalConfirm(
-        'Confirmation',
+      this.parentComponent.openModalConfirm(
+        'Confirm to discard unsaved input',
         'You have unsaved input! Do you really want to Cancel Editing of Search Input or Continue with it?',
         'Yes, Cancel Editing', 'No, Continue Editing');
-      this.modalConfirmDeferred.promise
+      this.parentComponent.modalConfirmDeferred.promise
         .then(isOk => {
 //          console.log('In SearchInputListComponent :: safeDirtyCheckAndEvtlConfirmModalExecute' +
 //            ' :: then :: isOk = ' + isOk + ' -- this = ' + this);
@@ -243,8 +197,8 @@ export class SearchInputListComponent implements OnInit {
     // TODO maybe before even starting the deletion process, check if details are dirty and ask to cancel editing eventually
 
     // ask for delete confirmation
-    this.openModalConfirm(
-      'Confirmation',
+    this.parentComponent.openModalConfirm(
+      'Confirm deletion of Search Input',
       'Are you sure deleting the Search Input?',
       'Yes', 'No');
     const _this = this;
@@ -273,7 +227,7 @@ export class SearchInputListComponent implements OnInit {
         })
         .catch(error => _this.handleError(error));
     }
-    this.modalConfirmDeferred.promise
+    this.parentComponent.modalConfirmDeferred.promise
       .then(isOk => {
 //        console.log('In SearchInputListComponent :: deleteSearchInput' +
 //          ' :: then :: isOk = ' + isOk + ' -- this = ' + this);
