@@ -175,11 +175,11 @@ export class AppComponent implements OnInit {
       'Are you sure to publish current Search Rules to LIVE?',
       'Yes, publish to LIVE', 'No, cancel publish');
       this.modalConfirmDeferred.promise
-        .then(isOk => {
-          if (isOk) {
-            this.requestPublishRulesTxtToSolr('LIVE');
-          }
+      .then(isOk => {
+        if (isOk) {
+          this.requestPublishRulesTxtToSolr('LIVE');
         }
+      });
   }
 
 }
