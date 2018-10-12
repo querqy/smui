@@ -29,10 +29,10 @@ package object SearchManagementModel {
   // TODO rearrange SearchManagementRepository algorithms purely functional, so that no mutable var-attributes necessary
   case class SearchInput(id: Option[Long] = None,
                          term: String,
-                         var synonymRules: List[SynonymRule],
-                         var upDownRules: List[UpDownRule],
-                         var filterRules: List[FilterRule],
-                         var deleteRules: List[DeleteRule])
+                         var synonymRules: List[SynonymRule] = List.empty,
+                         var upDownRules: List[UpDownRule] = List.empty,
+                         var filterRules: List[FilterRule] = List.empty,
+                         var deleteRules: List[DeleteRule] = List.empty)
 
   // TODO currently not in use ...
   // TODO Consider resolving as Option field in the Rule's itself (e.g. UpDownRule.errorMsgs List[String])

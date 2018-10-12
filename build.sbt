@@ -111,6 +111,7 @@ libraryDependencies ++= {
     "com.typesafe.play" %% "anorm" % "2.5.3",
     "com.typesafe.play" %% "play-json" % "2.6.1",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
+    "org.mockito" % "mockito-all" % "1.10.19" % Test,
 
     // angular2 Dependencies
 
