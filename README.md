@@ -1,4 +1,4 @@
-# Search Management UI (SMUI) - Manual version 1.4.6
+# Search Management UI (SMUI) - Manual version 1.4.7
 
 ## INSTALLATION
 
@@ -61,8 +61,8 @@ SMUI_CONF_HTTP_PORT=8080
 
 If no config script is present, the startup script will take (in this order):
 
-1. defaults configured in the startup script (e.g. `addJava "-DLOG_BASE_PATH=/var/log`),
-2. if none given: Framework's default values
+1. values of above's variables given in the execution environment
+2. if none given, defaults configured in the startup script (e.g. `addJava "-DLOG_BASE_PATH=/var/log`),
 
 #### Configure application (Play 2.6 configuration level)
 
@@ -272,12 +272,6 @@ For running The SMUI application locally on your development machine pass the ab
 run -Dconfig.file=./smui-dev.conf 9000
 ```
 
-To open a debug port, that you can attach the IDE's debugger to, use:
-
-```
-tbd
-```
-
 Furthermore, above's configuration points to a deviant development version of the `smui2solr.sh`-script. The file `smui2solr-dev.sh` is as well excluded from the version control. The following example provides a simple custom deployment script approach, that basically just delegates the script call to the main `smui2solr.sh` one:
 
 ```
@@ -291,3 +285,6 @@ exit $?
 It can be used as a basis for extension.
 
 Hint: Remember to give it a `+x` permission for being executable to the application.
+
+## License
+Search Management UI (SMUI) is licensed under the [Apache License, Version 2](http://www.apache.org/licenses/LICENSE-2.0.html).

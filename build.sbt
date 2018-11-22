@@ -1,7 +1,7 @@
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "1.4.6"
+version := "1.4.7"
 
 scalaVersion := "2.12.4"
 
@@ -37,13 +37,6 @@ lazy val root = (project in file("."))
  |
  |  source $CLIENT1_CONF_FILE
  |
- |#  echo "SMUI customization as follows:"
- |#  echo ":: SMUI_CONF_PID_PATH = ${SMUI_CONF_PID_PATH}"
- |#  echo ":: SMUI_CONF_LOG_BASE_PATH = ${SMUI_CONF_LOG_BASE_PATH}"
- |#  echo ":: SMUI_CONF_LOGBACK_XML_PATH = ${SMUI_CONF_LOGBACK_XML_PATH}"
- |#  echo ":: SMUI_CONF_APP_CONF = ${SMUI_CONF_APP_CONF}"
- |#  echo ":: SMUI_CONF_HTTP_PORT = ${SMUI_CONF_HTTP_PORT}"
- |
  |  addJava "-Dpidfile.path=${SMUI_CONF_PID_PATH}"
  |  addJava "-DLOG_BASE_PATH=${SMUI_CONF_LOG_BASE_PATH}"
  |  addJava "-Dlogback.configurationFile=${SMUI_CONF_LOGBACK_XML_PATH}"
@@ -52,11 +45,23 @@ lazy val root = (project in file("."))
  |
  |else
  |
- |#  addJava "-Dpidfile.path=/var/run/play.pid"
- |  addJava "-DLOG_BASE_PATH=/var/log"
- |  addJava "-Dlogback.configurationFile=${app_home}/../conf/logback.xml"
- |  addJava "-Dconfig.file=${app_home}/../conf/application.conf"
- |#  addJava "-Dhttp.port=9000"
+ |  RES_SMUI_CONF_PID_PATH="/var/run/play.pid"
+ |  RES_SMUI_CONF_LOG_BASE_PATH="/var/log"
+ |  RES_SMUI_CONF_LOGBACK_XML_PATH="${app_home}/../conf/logback.xml"
+ |  RES_SMUI_CONF_APP_CONF="${app_home}/../conf/application.conf"
+ |  RES_SMUI_CONF_HTTP_PORT="9000"
+ |
+ |  if [ ! -z "${SMUI_CONF_PID_PATH}" ]; then RES_SMUI_CONF_PID_PATH="${SMUI_CONF_PID_PATH}"; fi
+ |  if [ ! -z "${SMUI_CONF_LOG_BASE_PATH}" ]; then RES_SMUI_CONF_LOG_BASE_PATH="${SMUI_CONF_LOG_BASE_PATH}"; fi
+ |  if [ ! -z "${SMUI_CONF_LOGBACK_XML_PATH}" ]; then RES_SMUI_CONF_LOGBACK_XML_PATH="${SMUI_CONF_LOGBACK_XML_PATH}"; fi
+ |  if [ ! -z "${SMUI_CONF_APP_CONF}" ]; then RES_SMUI_CONF_APP_CONF="${SMUI_CONF_APP_CONF}"; fi
+ |  if [ ! -z "${SMUI_CONF_HTTP_PORT}" ]; then RES_SMUI_CONF_HTTP_PORT="${SMUI_CONF_HTTP_PORT}"; fi
+ |
+ |  addJava "-Dpidfile.path=${RES_SMUI_CONF_PID_PATH}"
+ |  addJava "-DLOG_BASE_PATH=${RES_SMUI_CONF_LOG_BASE_PATH}"
+ |  addJava "-Dlogback.configurationFile=${RES_SMUI_CONF_LOGBACK_XML_PATH}"
+ |  addJava "-Dconfig.file=${RES_SMUI_CONF_APP_CONF}"
+ |  addJava "-Dhttp.port=${RES_SMUI_CONF_HTTP_PORT}"
  |
  |fi
  |# smui customization section - END""".stripMargin,
