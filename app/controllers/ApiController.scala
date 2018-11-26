@@ -57,14 +57,14 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
   def listAllSolrIndeces = Action.async {
     Future {
-      Ok( Json.toJson(searchManagementRepository.listAllSolrIndeces) );
+      Ok( Json.toJson(searchManagementRepository.listAllSolrIndeces) )
     }
   }
 
   def listAllSearchInputs(solrIndexId: Long) = Action.async {
     Future {
       // TODO add error handling (database connection, other exceptions)
-      Ok( Json.toJson(searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(solrIndexId)) );
+      Ok( Json.toJson(searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(solrIndexId)) )
 
       /*
       TODO remove test data output
@@ -130,38 +130,38 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     // TODO discuss if (1) contains or (2) endsWith is the right interpretation
     if(searchInput.term.trim().contains("*")) {
       if(searchInput.synonymRules.filter(r => r.synonymType == 0).size > 0) {
-        logger.error("Parsing Search Input: Wildcard *-using input ('" + searchInput.term + "') has undirected synonym rule");
-        return Some("Wildcard *-using input ('\" + searchInput.term + \"') has undirected synonym rule");
+        logger.error("Parsing Search Input: Wildcard *-using input ('" + searchInput.term + "') has undirected synonym rule")
+        return Some("Wildcard *-using input ('\" + searchInput.term + \"') has undirected synonym rule")
       }
     }
 
     // undirected synonyms must not contain *-Wildcard
     if(searchInput.synonymRules.filter(r => r.synonymType == 0 && r.term.trim().contains("*")).size > 0) {
-      logger.error("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')");
-      return Some("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')");
+      logger.error("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')")
+      Some("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')")
     }
 
     // validate against querqy parser
     // TODO outsource in separated method
 
     val singleSearchInputRule = querqyRulesTxtGenerator
-      .renderSearchInputRulesForTerm(searchInput.term, searchInput);
+      .renderSearchInputRulesForTerm(searchInput.term, searchInput)
     try {
-      logger.debug("Parsing Search Input singleSearchInputRule = >>>" + singleSearchInputRule + "<<<");
+      logger.debug("Parsing Search Input singleSearchInputRule = >>>" + singleSearchInputRule + "<<<")
 
       val simpleCommonRulesParser: SimpleCommonRulesParser = new SimpleCommonRulesParser(
         new StringReader(singleSearchInputRule),
         new WhiteSpaceQuerqyParserFactory(),
         true
-      );
-      simpleCommonRulesParser.parse();
+      )
+      simpleCommonRulesParser.parse()
 
-      logger.debug("Parsing Search Input ok! simpleCommonRulesParser = " + simpleCommonRulesParser.toString());
-      return None;
+      logger.debug("Parsing Search Input ok! simpleCommonRulesParser = " + simpleCommonRulesParser.toString())
+      return None
     } catch {
       case e: Exception => {
-        logger.error("Parsing Search Input ended in Exception e.message = " + e.getMessage());
-        return Some(e.getMessage());
+        logger.error("Parsing Search Input ended in Exception e.message = " + e.getMessage())
+        Some(e.getMessage())
       }
     }
   }
@@ -177,12 +177,12 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         val searchInput = json.as[SearchInput]
 
         // TODO transport validation result via API
-        validateSearchInputToErrMsg(searchInput);
+        validateSearchInputToErrMsg(searchInput)
 
         // TODO handle potential conflict between searchInputId and JSON-passed searchInput.id
-        searchManagementRepository.updateSearchInput(searchInput);
+        searchManagementRepository.updateSearchInput(searchInput)
         // TODO consider Update returning the updated SearchInput(...) instead of an ApiResult(...)
-        Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(searchInputId))) );
+        Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(searchInputId))) )
       }.getOrElse {
         BadRequest( Json.toJson(new ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)) )
       }
@@ -191,8 +191,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
   def deleteSearchInput(searchInputId: Long) = Action.async {
     Future {
-      searchManagementRepository.deleteSearchInput(searchInputId);
-      Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Deleting Search Input successful", None)) );
+      searchManagementRepository.deleteSearchInput(searchInputId)
+      Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Deleting Search Input successful", None)) )
     }
   }
 
@@ -206,65 +206,65 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     */
   private def performUpdateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String): play.api.mvc.Result = {
 
-    val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxt;
-    val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxtDstCpFileTo;
-    val DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = featureToggleService.getToggleRuleDeploymentCustomScript;
-    val CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = featureToggleService.getToggleRuleDeploymentCustomScriptSmui2solrShPath;
+    val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxt
+    val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxtDstCpFileTo
+    val DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = featureToggleService.getToggleRuleDeploymentCustomScript
+    val CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = featureToggleService.getToggleRuleDeploymentCustomScriptSmui2solrShPath
 
     // get necessary application.conf values (or set super-defaults)
     // TODO access method to string config variables is deprecated
-    val SRC_TMP_FILE = appConfig.getString("smui2solr.SRC_TMP_FILE").getOrElse("/tmp/search-management-ui_rules-txt.tmp");
-    val DST_CP_FILE_TO = appConfig.getString("smui2solr.DST_CP_FILE_TO").getOrElse("/usr/bin/solr/defaultCore/conf/rules.txt");
-    val SOLR_HOST = appConfig.getString("smui2solr.SOLR_HOST").getOrElse("localhost:8983");
+    val SRC_TMP_FILE = appConfig.getString("smui2solr.SRC_TMP_FILE").getOrElse("/tmp/search-management-ui_rules-txt.tmp")
+    val DST_CP_FILE_TO = appConfig.getString("smui2solr.DST_CP_FILE_TO").getOrElse("/usr/bin/solr/defaultCore/conf/rules.txt")
+    val SOLR_HOST = appConfig.getString("smui2solr.SOLR_HOST").getOrElse("localhost:8983")
 
-    val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId);
+    val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId)
 
-    logger.debug( "In ApiController :: updateRulesTxtForSolrIndex with config" );
-    logger.debug( ":: SRC_TMP_FILE = " + SRC_TMP_FILE );
-    logger.debug( ":: DST_CP_FILE_TO = " + DST_CP_FILE_TO );
-    logger.debug( ":: SOLR_HOST = " + SOLR_HOST );
-    logger.debug( ":: SOLR_CORE_NAME = " + SOLR_CORE_NAME );
-    logger.debug( ":: DO_SPLIT_DECOMPOUND_RULES_TXT = " + DO_SPLIT_DECOMPOUND_RULES_TXT );
-    logger.debug( ":: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = " + DECOMPOUND_RULES_TXT_DST_CP_FILE_TO );
-    logger.debug( ":: targetSystem = " + targetSystem );
-    logger.debug( ":: DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = " + DO_CUSTOM_SCRIPT_SMUI2SOLR_SH );
-    logger.debug( ":: CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = " + CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH );
+    logger.debug( "In ApiController :: updateRulesTxtForSolrIndex with config" )
+    logger.debug( ":: SRC_TMP_FILE = " + SRC_TMP_FILE )
+    logger.debug( ":: DST_CP_FILE_TO = " + DST_CP_FILE_TO )
+    logger.debug( ":: SOLR_HOST = " + SOLR_HOST )
+    logger.debug( ":: SOLR_CORE_NAME = " + SOLR_CORE_NAME )
+    logger.debug( ":: DO_SPLIT_DECOMPOUND_RULES_TXT = " + DO_SPLIT_DECOMPOUND_RULES_TXT )
+    logger.debug( ":: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = " + DECOMPOUND_RULES_TXT_DST_CP_FILE_TO )
+    logger.debug( ":: targetSystem = " + targetSystem )
+    logger.debug( ":: DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = " + DO_CUSTOM_SCRIPT_SMUI2SOLR_SH )
+    logger.debug( ":: CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = " + CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH )
 
     // write rules.txt output to to temp file
     def writeRulesTxtToTempFile(strRulesTxt: String, tmpFilePath: String) = {
-      val tmpFile = new java.io.File(tmpFilePath);
-      tmpFile.createNewFile();
-      val fw = new java.io.FileWriter(tmpFile);
+      val tmpFile = new java.io.File(tmpFilePath)
+      tmpFile.createNewFile()
+      val fw = new java.io.FileWriter(tmpFile)
       try {
-        fw.write(strRulesTxt);
+        fw.write(strRulesTxt)
       }
       catch {
-        case iox: java.io.IOException => logger.error("IOException while writing /tmp file: " + iox.getStackTrace);
-        case _: Throwable => logger.error("Got an unexpected error while writing /tmp file");
+        case iox: java.io.IOException => logger.error("IOException while writing /tmp file: " + iox.getStackTrace)
+        case _: Throwable => logger.error("Got an unexpected error while writing /tmp file")
       }
       finally {
-        fw.close();
+        fw.close()
       }
     }
 
     if( !DO_SPLIT_DECOMPOUND_RULES_TXT ) {
 
       // generate (one) rules.txt into temp file
-      val strRulesTxt = querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId);
-      writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE);
-      logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" );
+      val strRulesTxt = querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId)
+      writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE)
+      logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" )
 
     } else {
 
       // generate decompound-rules.txt into temp file
-      val strDecompoundRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, true);
-      writeRulesTxtToTempFile(strDecompoundRulesTxt, SRC_TMP_FILE + "-2");
-      logger.debug( "strDecompoundRulesTxt = >>>" + strDecompoundRulesTxt + "<<<" );
+      val strDecompoundRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, true)
+      writeRulesTxtToTempFile(strDecompoundRulesTxt, SRC_TMP_FILE + "-2")
+      logger.debug( "strDecompoundRulesTxt = >>>" + strDecompoundRulesTxt + "<<<" )
 
       // generate decompound-rules.txt into temp file
-      val strRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, false);
-      writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE);
-      logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" );
+      val strRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, false)
+      writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE)
+      logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" )
     }
 
     val scriptCall =
@@ -284,8 +284,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     val result = scriptCall !; // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
     logger.debug( "Script execution result: " + result );
     if (result == 0) {
-      searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem);
-      Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)) );
+      searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem)
+      Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)) )
     } else {
       // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
       BadRequest( Json.toJson(new ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Unexpected result in script execution.", None)) )
@@ -294,14 +294,14 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
   def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String) = Action.async {
     Future {
-      performUpdateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId, targetSystem);
+      performUpdateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId, targetSystem)
     }
   }
 
   def listAllSuggestedSolrFields(solrIndexId: Long) = Action.async {
     Future {
       // TODO add error handling (database connection, other exceptions)
-      Ok( Json.toJson(searchManagementRepository.listAllSuggestedSolrFields(solrIndexId)) );
+      Ok( Json.toJson(searchManagementRepository.listAllSuggestedSolrFields(solrIndexId)) )
     }
   }
 

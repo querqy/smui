@@ -14,30 +14,30 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   var DO_AUTO_DECORATE_EXPORT_HASH = false; // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
 
   private def renderSynonymRule(synonymTerm: String): String = {
-    return "\tSYNONYM: " + synonymTerm + "\n";
+    "\tSYNONYM: " + synonymTerm + "\n"
   }
 
   private def renderUpDownRule(upDownRule: UpDownRule): String = {
-    return "\t" +
+    "\t" +
       (upDownRule.upDownType match {
         case 0 => "UP"
         case 1 => "DOWN"
         // TODO handle case _ which would inferr to an inconsistent state
       }) +
       "(" + upDownRule.boostMalusValue + ")" +
-      ": " + upDownRule.term + "\n";
+      ": " + upDownRule.term + "\n"
   }
 
   private def renderFilterRule(filterRule: FilterRule): String = {
-    return "\tFILTER: " + filterRule.term + "\n";
+    "\tFILTER: " + filterRule.term + "\n"
   }
 
   private def renderDeleteRule(deleteRule: DeleteRule): String = {
-    return "\tDELETE: " + deleteRule.term + "\n";
+    "\tDELETE: " + deleteRule.term + "\n"
   }
 
   private def renderDecorateExportHash(retSearchInputRulesTxtPartial: String): String = {
-    return "\tDECORATE: [ {" +
+    "\tDECORATE: [ {" +
         "\"intent\":\"smui.auto-decorate.export-hash\", " +
         "\"payload\": { " +
           "\"ruleExportDate\":\"" + DateTime.now.toString() + "\", " +
@@ -93,9 +93,9 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       retQuerqyRulesTxtPartial.append(
         renderSearchInputRulesForTerm(inputTerm, searchInput) +
           "\n")
-    };
+    }
 
-    return retQuerqyRulesTxtPartial.toString();
+    retQuerqyRulesTxtPartial.toString()
   }
 
   /**
@@ -143,15 +143,15 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       retQuerqyRulesTxt.append( renderSearchInputRules(searchInput) );
     }
 
-    return retQuerqyRulesTxt.toString()
+    retQuerqyRulesTxt.toString()
   }
 
   def renderSingleRulesTxt(solrIndexId: Long): String = {
-    return render(solrIndexId: Long, false, false);
+    render(solrIndexId: Long, false, false)
   }
 
   def renderSeparatedRulesTxts(solrIndexId: Long, renderCompoundsRulesTxt: Boolean): String = {
-    return render(solrIndexId: Long, true, renderCompoundsRulesTxt);
+    render(solrIndexId: Long, true, renderCompoundsRulesTxt)
   }
 
 }

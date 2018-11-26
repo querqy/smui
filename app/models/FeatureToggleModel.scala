@@ -7,62 +7,62 @@ import play.api.Configuration
 package object FeatureToggleModel {
 
   trait JsFeatureToggleValue {
-    def render(): String;
+    def render(): String
   }
 
   class JsBoolFeatureToggleValue(bState: Boolean) extends JsFeatureToggleValue {
     override def render(): String = {
-      return if(bState) "true" else "false";
+      if(bState) "true" else "false"
     }
   }
 
-  case class JsFeatureToggle(toggleName: String, toggleValue: JsFeatureToggleValue);
+  case class JsFeatureToggle(toggleName: String, toggleValue: JsFeatureToggleValue)
 
   @javax.inject.Singleton
   class FeatureToggleService @Inject()(appConfig: Configuration) {
 
-    val FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED = "toggle.ui-concept.updown-rules.combined";
-    val FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS = "toggle.ui-concept.all-rules.with-solr-fields";
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_AUTO_DECORATE_EXPORT_HASH = "toggle.rule-deployment.auto-decorate.export-hash";
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT = "toggle.rule-deployment.split-decompound-rules-txt";
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO";
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT = "toggle.rule-deployment.pre-live.present";
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT = "toggle.rule-deployment.custom-script";
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = "toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH";
+    val FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED = "toggle.ui-concept.updown-rules.combined"
+    val FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS = "toggle.ui-concept.all-rules.with-solr-fields"
+    val FEATURE_TOGGLE_RULE_DEPLOYMENT_AUTO_DECORATE_EXPORT_HASH = "toggle.rule-deployment.auto-decorate.export-hash"
+    val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT = "toggle.rule-deployment.split-decompound-rules-txt"
+    val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO"
+    val FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT = "toggle.rule-deployment.pre-live.present"
+    val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT = "toggle.rule-deployment.custom-script"
+    val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = "toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH"
 
     def getJsFrontendToogleList: List[JsFeatureToggle] = {
       def jsBoolFeatureToggle(toggleKey: String, bDefault: Boolean): JsFeatureToggle = {
-        return JsFeatureToggle(
+        JsFeatureToggle(
           toggleKey,
           new JsBoolFeatureToggleValue(appConfig.getBoolean(toggleKey).getOrElse(bDefault))
-        );
+        )
       }
-      return List(
+      List(
         jsBoolFeatureToggle(FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED, true),
         jsBoolFeatureToggle(FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS, true),
         jsBoolFeatureToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT, false)
-      );
+      )
     }
 
     def getToggleRuleDeploymentAutoDecorateExportHash: Boolean = {
-      return appConfig.getBoolean(FEATURE_TOGGLE_RULE_DEPLOYMENT_AUTO_DECORATE_EXPORT_HASH).getOrElse(false);
+      appConfig.getBoolean(FEATURE_TOGGLE_RULE_DEPLOYMENT_AUTO_DECORATE_EXPORT_HASH).getOrElse(false)
     }
 
     def getToggleRuleDeploymentSplitDecompoundRulesTxt: Boolean = {
-      return appConfig.getBoolean(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT).getOrElse(false);
+      appConfig.getBoolean(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT).getOrElse(false)
     }
 
     def getToggleRuleDeploymentSplitDecompoundRulesTxtDstCpFileTo: String = {
-      return appConfig.getString(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO).getOrElse("");
+      appConfig.getString(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO).getOrElse("")
     }
 
     def getToggleRuleDeploymentCustomScript: Boolean = {
-      return appConfig.getBoolean(FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT).getOrElse(false);
+      appConfig.getBoolean(FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT).getOrElse(false)
     }
 
     def getToggleRuleDeploymentCustomScriptSmui2solrShPath: String = {
-      return appConfig.getString(FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH).getOrElse("");
+      appConfig.getString(FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH).getOrElse("")
     }
-  };
+  }
 
 }
