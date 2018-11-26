@@ -2,6 +2,7 @@ package models
 
 import models.FeatureToggleModel.FeatureToggleService
 import models.SearchManagementModel._
+import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -84,6 +85,26 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
   }
 
+
+  "Rules Text Generation" should "correctly decorate SYNONYM" in {
+    val featureToggleMock = mock[FeatureToggleService]
+    when(featureToggleMock.getToggleRuleDeploymentAutoDecorateExportHash).thenReturn(true)
+    val synonymRules = List (SynonymRule(None, 0, "mercury", true))
+
+    val classUnderTest = new QuerqyRulesTxtGenerator(searchManagementRepository, featureToggleMock)
+    val rulesTxt  = classUnderTest.renderSearchInputRulesForTerm("queen", SearchInput(term = "queen", synonymRules = synonymRules))
+    rulesTxt should startWith(
+      s"""|queen =>
+          |\tSYNONYM: mercury
+          |\tDECORATE: [ {
+          |"intent":"smui.auto-decorate.export-hash",
+          |"payload": {
+          | "ruleExportDate":"""".stripMargin)
+        .and(endWith(
+          """|"ruleExportHash":"31581570"
+             |}
+             |} ]""".stripMargin))
+  }
 
 
 }

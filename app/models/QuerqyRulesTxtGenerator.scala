@@ -14,7 +14,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   var DO_AUTO_DECORATE_EXPORT_HASH = false; // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
 
   private def renderSynonymRule(synonymTerm: String): String = {
-    "\tSYNONYM: " + synonymTerm + "\n"
+    s"\tSYNONYM: $synonymTerm\n"
   }
 
   private def renderUpDownRule(upDownRule: UpDownRule): String = {
@@ -29,20 +29,21 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   }
 
   private def renderFilterRule(filterRule: FilterRule): String = {
-    "\tFILTER: " + filterRule.term + "\n"
+    s"\tFILTER: ${filterRule.term}\n"
   }
 
   private def renderDeleteRule(deleteRule: DeleteRule): String = {
-    "\tDELETE: " + deleteRule.term + "\n"
+    s"\tDELETE: ${deleteRule.term}\n"
   }
 
   private def renderDecorateExportHash(retSearchInputRulesTxtPartial: String): String = {
-    "\tDECORATE: [ {" +
-        "\"intent\":\"smui.auto-decorate.export-hash\", " +
-        "\"payload\": { " +
-          "\"ruleExportDate\":\"" + DateTime.now.toString() + "\", " +
-          "\"ruleExportHash\":\"" + retSearchInputRulesTxtPartial.toString().hashCode() + "\" " +
-        "} } ]\n"
+    s"""|\tDECORATE: [ {
+        |"intent":"smui.auto-decorate.export-hash",
+        |"payload": {
+        | "ruleExportDate":"${DateTime.now.toString()}",
+        | "ruleExportHash":"${retSearchInputRulesTxtPartial.toString().hashCode()}"
+        |}
+        |} ]""".stripMargin
   }
 
   def renderSearchInputRulesForTerm(term: String, searchInput: SearchInput): String = {
