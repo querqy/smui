@@ -1,7 +1,7 @@
 package models
 
 import models.FeatureToggleModel.FeatureToggleService
-import models.SearchManagementModel.{DeleteRule, FilterRule, SearchInput, UpDownRule}
+import models.SearchManagementModel._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -38,6 +38,16 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
           |""".stripMargin)
   }
 
+  "Rules Text Generation" should "correctly write a undirected SYNONYM rules" in {
+    val synonymRules = List (SynonymRule(None, 0, "mercury", true))
+
+    val rulesTxt  = generator.renderSearchInputRulesForTerm("queen", SearchInput(term = "queen", synonymRules = synonymRules))
+    rulesTxt should be(
+      s"""|queen =>
+          |\tSYNONYM: mercury
+          |""".stripMargin)
+  }
+
 
   "Rules Text Generation" should "correctly add FILTER rules" in {
     val filterRules = List (FilterRule(None, "zz top", true))
@@ -49,7 +59,8 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
           |""".stripMargin)
   }
 
-  "Rules Text Generation" should "correctly combine FILTER, DELETE and UPDOWN Rules" in {
+  "Rules Text Generation" should "correctly combine SYNONYM, FILTER, DELETE and UPDOWN Rules" in {
+    val synonymRules = List (SynonymRule(None, 0, "mercury", true))
     val upDownRules = List(
       UpDownRule(None, 0, 10, "notebook", true),
       UpDownRule(None, 0, 10, "lenovo", false),
@@ -58,10 +69,12 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
     val deleteRules = List (DeleteRule(None, "freddy", true))
     val filterRules = List (FilterRule(None, "zz top", true))
     val rulesTxt  = generator.renderSearchInputRulesForTerm("aerosmith",
-      SearchInput(term = "aerosmith", filterRules = filterRules, deleteRules = deleteRules, upDownRules = upDownRules))
+      SearchInput(term = "aerosmith", filterRules = filterRules,
+        synonymRules = synonymRules, deleteRules = deleteRules, upDownRules = upDownRules))
 
     rulesTxt should be(
       s"""|aerosmith =>
+          |\tSYNONYM: mercury
           |\tUP(10): notebook
           |\tDOWN(10): battery
           |\tFILTER: zz top
