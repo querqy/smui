@@ -131,7 +131,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     if(searchInput.term.trim().contains("*")) {
       if(searchInput.synonymRules.filter(r => r.synonymType == 0).size > 0) {
         logger.error("Parsing Search Input: Wildcard *-using input ('" + searchInput.term + "') has undirected synonym rule")
-        return Some("Wildcard *-using input ('\" + searchInput.term + \"') has undirected synonym rule")
+        Some("Wildcard *-using input ('\" + searchInput.term + \"') has undirected synonym rule")
       }
     }
 
@@ -157,7 +157,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       simpleCommonRulesParser.parse()
 
       logger.debug("Parsing Search Input ok! simpleCommonRulesParser = " + simpleCommonRulesParser.toString())
-      return None
+      None
     } catch {
       case e: Exception => {
         logger.error("Parsing Search Input ended in Exception e.message = " + e.getMessage())
