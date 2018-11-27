@@ -32,7 +32,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
                               featureToggleService: FeatureToggleService)(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
-  private val logger = play.api.Logger;
+  private val logger = play.api.Logger
 
   val API_RESULT_OK = "OK"
   val API_RESULT_FAIL = "KO"
@@ -272,17 +272,19 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       (if( DO_CUSTOM_SCRIPT_SMUI2SOLR_SH )
         CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH
       else
-        Play.current.path.getAbsolutePath() + "/conf/smui2solr.sh") +
-      // add parameters to the script (in expected order, see smui2solr.sh)
-      " " +
+        Play.current.path.getAbsolutePath() + "/conf/smui2solr.sh") + " " +
+        // add parameters to the script (in expected order, see smui2solr.sh)
       SRC_TMP_FILE + " " + // smui2solr.sh param $1 - SRC_TMP_FILE
       DST_CP_FILE_TO + " " +  // smui2solr.sh param $2 - DST_CP_FILE_TO
       SOLR_HOST + " " + // smui2solr.sh param $3 - SOLR_HOST
       SOLR_CORE_NAME + " " + // smui2solr.sh param $4 - SOLR_CORE_NAME
       (if(DO_SPLIT_DECOMPOUND_RULES_TXT) DECOMPOUND_RULES_TXT_DST_CP_FILE_TO else "NONE") + " " + // smui2solr.sh param $5 - DECOMPOUND_DST_CP_FILE_TO
-      targetSystem; // smui2solr.sh param $6 - TARGET_SYSTEM
-    val result = scriptCall !; // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
-    logger.debug( "Script execution result: " + result );
+      targetSystem // smui2solr.sh param $6 - TARGET_SYSTEM
+
+    val result = scriptCall ! // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
+
+    logger.debug( "Script execution result: " + result )
+
     if (result == 0) {
       searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem)
       Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)) )
