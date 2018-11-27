@@ -218,17 +218,18 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     val SOLR_HOST = appConfig.getString("smui2solr.SOLR_HOST").getOrElse("localhost:8983")
 
     val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId)
-
-    logger.debug( "In ApiController :: updateRulesTxtForSolrIndex with config" )
-    logger.debug( ":: SRC_TMP_FILE = " + SRC_TMP_FILE )
-    logger.debug( ":: DST_CP_FILE_TO = " + DST_CP_FILE_TO )
-    logger.debug( ":: SOLR_HOST = " + SOLR_HOST )
-    logger.debug( ":: SOLR_CORE_NAME = " + SOLR_CORE_NAME )
-    logger.debug( ":: DO_SPLIT_DECOMPOUND_RULES_TXT = " + DO_SPLIT_DECOMPOUND_RULES_TXT )
-    logger.debug( ":: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = " + DECOMPOUND_RULES_TXT_DST_CP_FILE_TO )
-    logger.debug( ":: targetSystem = " + targetSystem )
-    logger.debug( ":: DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = " + DO_CUSTOM_SCRIPT_SMUI2SOLR_SH )
-    logger.debug( ":: CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = " + CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH )
+    logger.debug(s"""
+         |In ApiController :: updateRulesTxtForSolrIndex with config
+         |:: SRC_TMP_FILE = ${SRC_TMP_FILE}
+         |:: DST_CP_FILE_TO =${DST_CP_FILE_TO}
+         |:: SOLR_HOST =${SOLR_HOST}
+         |:: SOLR_CORE_NAME =${SOLR_CORE_NAME}
+         |:: DO_SPLIT_DECOMPOUND_RULES_TXT =${DO_SPLIT_DECOMPOUND_RULES_TXT}
+         |:: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO =${DECOMPOUND_RULES_TXT_DST_CP_FILE_TO}
+         |:: targetSystem =${targetSystem}
+         |:: DO_CUSTOM_SCRIPT_SMUI2SOLR_SH =${DO_CUSTOM_SCRIPT_SMUI2SOLR_SH}
+         |:: CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH =${CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH}
+       """.stripMargin)
 
     // write rules.txt output to to temp file
     def writeRulesTxtToTempFile(strRulesTxt: String, tmpFilePath: String) = {
