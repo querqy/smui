@@ -83,13 +83,13 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   }
 
   private def renderSearchInputRules(searchInput: SearchInput): String = {
-    var retQuerqyRulesTxtPartial = new StringBuilder();
+    var retQuerqyRulesTxtPartial = new StringBuilder()
 
     // take SearchInput term and according DIRECTED SynonymRule to render related rules
     val allInputTerms: List[String] = searchInput.term ::
       searchInput.synonymRules
-        .filter(r => (r.isActive) && (r.synonymType == 0) && (r.term.trim().size > 0))
-        .map(r => r.term);
+        .filter(r => r.isActive && (r.synonymType == 0) && r.term.trim().nonEmpty)
+        .map(r => r.term)
     for (inputTerm <- allInputTerms) {
       retQuerqyRulesTxtPartial.append(
         renderSearchInputRulesForTerm(inputTerm, searchInput) +
@@ -109,12 +109,12 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     */
   private def render(solrIndexId: Long, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean): String = {
 
-    var retQuerqyRulesTxt = new StringBuilder();
+    var retQuerqyRulesTxt = new StringBuilder()
 
     // retrieve all detail search input data, that have a (trimmed) input term and minimum one rule
     var listSearchInput: List[SearchInput] = searchManagementRepository
       .listAllSearchInputsInclDirectedSynonyms(solrIndexId)
-      .filter(i => i.term.trim().size > 0)
+      .filter(i => i.term.trim().nonEmpty)
       .map(i => {
         searchManagementRepository
           .getDetailedSearchInput(i.id.get)
@@ -133,15 +133,15 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     // TODO merge decompound identification login with ApiController :: validateSearchInputToErrMsg
     if( separateRulesTxts ) {
       if( renderCompoundsRulesTxt ) {
-        listSearchInput = listSearchInput.filter(i => i.term.trim().endsWith("*"));
+        listSearchInput = listSearchInput.filter(i => i.term.trim().endsWith("*"))
       } else {
-        listSearchInput = listSearchInput.filter(i => !i.term.trim().endsWith("*"));
+        listSearchInput = listSearchInput.filter(i => !i.term.trim().endsWith("*"))
       }
     }
 
     // iterate all SearchInput terms and render related rules
     for (searchInput <- listSearchInput) {
-      retQuerqyRulesTxt.append( renderSearchInputRules(searchInput) );
+      retQuerqyRulesTxt.append( renderSearchInputRules(searchInput) )
     }
 
     retQuerqyRulesTxt.toString()
