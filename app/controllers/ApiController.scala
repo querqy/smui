@@ -110,9 +110,9 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         val searchInputTerm = (json \ "term").as[String]
         val maybeSearchInputId = searchManagementRepository.addNewSearchInput(solrIndexId, searchInputTerm)
 
-        Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", maybeSearchInputId)) )
+        Ok( Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", maybeSearchInputId)) )
       }.getOrElse {
-        BadRequest( Json.toJson(new ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)) )
+        BadRequest( Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)) )
       }
     }
   }
@@ -182,9 +182,9 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         // TODO handle potential conflict between searchInputId and JSON-passed searchInput.id
         searchManagementRepository.updateSearchInput(searchInput)
         // TODO consider Update returning the updated SearchInput(...) instead of an ApiResult(...)
-        Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(searchInputId))) )
+        Ok( Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(searchInputId))) )
       }.getOrElse {
-        BadRequest( Json.toJson(new ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)) )
+        BadRequest( Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)) )
       }
     }
   }
@@ -192,7 +192,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   def deleteSearchInput(searchInputId: Long) = Action.async {
     Future {
       searchManagementRepository.deleteSearchInput(searchInputId)
-      Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Deleting Search Input successful", None)) )
+      Ok( Json.toJson(ApiResult(API_RESULT_OK, "Deleting Search Input successful", None)) )
     }
   }
 
@@ -287,10 +287,10 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
     if (result == 0) {
       searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem)
-      Ok( Json.toJson(new ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)) )
+      Ok( Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)) )
     } else {
       // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
-      BadRequest( Json.toJson(new ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Unexpected result in script execution.", None)) )
+      BadRequest( Json.toJson(ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Unexpected result in script execution.", None)) )
     }
   }
 
