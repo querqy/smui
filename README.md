@@ -1,5 +1,7 @@
 # Search Management UI (SMUI) - Manual version 1.4.7
 
+SMUI is a tool for managing Solr-based onsite search. It provides a web user interface for maintainig rules for query rewriting based on the Querqy Solr plugin for query rewriting. Please see [here](https://github.com/renekrie/querqy) for the installation of Querqy.
+
 ## INSTALLATION
 
 Please follow the above steps in this order.
