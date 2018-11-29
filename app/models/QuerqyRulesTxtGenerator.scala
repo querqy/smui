@@ -14,35 +14,36 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   var DO_AUTO_DECORATE_EXPORT_HASH = false; // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
 
   private def renderSynonymRule(synonymTerm: String): String = {
-    return "\tSYNONYM: " + synonymTerm + "\n";
+    s"\tSYNONYM: $synonymTerm\n"
   }
 
   private def renderUpDownRule(upDownRule: UpDownRule): String = {
-    return "\t" +
+    "\t" +
       (upDownRule.upDownType match {
         case 0 => "UP"
         case 1 => "DOWN"
         // TODO handle case _ which would inferr to an inconsistent state
       }) +
       "(" + upDownRule.boostMalusValue + ")" +
-      ": " + upDownRule.term + "\n";
+      ": " + upDownRule.term + "\n"
   }
 
   private def renderFilterRule(filterRule: FilterRule): String = {
-    return "\tFILTER: " + filterRule.term + "\n";
+    s"\tFILTER: ${filterRule.term}\n"
   }
 
   private def renderDeleteRule(deleteRule: DeleteRule): String = {
-    return "\tDELETE: " + deleteRule.term + "\n";
+    s"\tDELETE: ${deleteRule.term}\n"
   }
 
   private def renderDecorateExportHash(retSearchInputRulesTxtPartial: String): String = {
-    return "\tDECORATE: [ {" +
-        "\"intent\":\"smui.auto-decorate.export-hash\", " +
-        "\"payload\": { " +
-          "\"ruleExportDate\":\"" + DateTime.now.toString() + "\", " +
-          "\"ruleExportHash\":\"" + retSearchInputRulesTxtPartial.toString().hashCode() + "\" " +
-        "} } ]\n"
+    s"""|\tDECORATE: [ {
+        |"intent":"smui.auto-decorate.export-hash",
+        |"payload": {
+        | "ruleExportDate":"${DateTime.now.toString()}",
+        | "ruleExportHash":"${retSearchInputRulesTxtPartial.toString().hashCode()}"
+        |}
+        |} ]""".stripMargin
   }
 
   def renderSearchInputRulesForTerm(term: String, searchInput: SearchInput): String = {
@@ -82,20 +83,20 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   }
 
   private def renderSearchInputRules(searchInput: SearchInput): String = {
-    var retQuerqyRulesTxtPartial = new StringBuilder();
+    var retQuerqyRulesTxtPartial = new StringBuilder()
 
     // take SearchInput term and according DIRECTED SynonymRule to render related rules
     val allInputTerms: List[String] = searchInput.term ::
       searchInput.synonymRules
-        .filter(r => (r.isActive) && (r.synonymType == 0) && (r.term.trim().size > 0))
-        .map(r => r.term);
+        .filter(r => r.isActive && (r.synonymType == 0) && r.term.trim().nonEmpty)
+        .map(r => r.term)
     for (inputTerm <- allInputTerms) {
       retQuerqyRulesTxtPartial.append(
         renderSearchInputRulesForTerm(inputTerm, searchInput) +
           "\n")
-    };
+    }
 
-    return retQuerqyRulesTxtPartial.toString();
+    retQuerqyRulesTxtPartial.toString()
   }
 
   /**
@@ -108,12 +109,12 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     */
   private def render(solrIndexId: Long, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean): String = {
 
-    var retQuerqyRulesTxt = new StringBuilder();
+    var retQuerqyRulesTxt = new StringBuilder()
 
     // retrieve all detail search input data, that have a (trimmed) input term and minimum one rule
     var listSearchInput: List[SearchInput] = searchManagementRepository
       .listAllSearchInputsInclDirectedSynonyms(solrIndexId)
-      .filter(i => i.term.trim().size > 0)
+      .filter(i => i.term.trim().nonEmpty)
       .map(i => {
         searchManagementRepository
           .getDetailedSearchInput(i.id.get)
@@ -132,26 +133,26 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     // TODO merge decompound identification login with ApiController :: validateSearchInputToErrMsg
     if( separateRulesTxts ) {
       if( renderCompoundsRulesTxt ) {
-        listSearchInput = listSearchInput.filter(i => i.term.trim().endsWith("*"));
+        listSearchInput = listSearchInput.filter(i => i.term.trim().endsWith("*"))
       } else {
-        listSearchInput = listSearchInput.filter(i => !i.term.trim().endsWith("*"));
+        listSearchInput = listSearchInput.filter(i => !i.term.trim().endsWith("*"))
       }
     }
 
     // iterate all SearchInput terms and render related rules
     for (searchInput <- listSearchInput) {
-      retQuerqyRulesTxt.append( renderSearchInputRules(searchInput) );
+      retQuerqyRulesTxt.append( renderSearchInputRules(searchInput) )
     }
 
-    return retQuerqyRulesTxt.toString()
+    retQuerqyRulesTxt.toString()
   }
 
   def renderSingleRulesTxt(solrIndexId: Long): String = {
-    return render(solrIndexId: Long, false, false);
+    render(solrIndexId: Long, false, false)
   }
 
   def renderSeparatedRulesTxts(solrIndexId: Long, renderCompoundsRulesTxt: Boolean): String = {
-    return render(solrIndexId: Long, true, renderCompoundsRulesTxt);
+    render(solrIndexId: Long, true, renderCompoundsRulesTxt)
   }
 
 }

@@ -96,8 +96,8 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
 
   def getSyonymRulesForSearchInputWithId(searchInputId: Long, maybeRestrictSynonymType: Option[Int]): List[SynonymRule] = db.withConnection { implicit connection => {
       // TODO solve more elegant while adding a whole anorm-SQL-AND-clause conditionally in match/case (not only SQL-string components)
-      val STATIC_SQL_PREFIX = "select * from synonym_rule where synonym_rule.search_input_id = {search_input_id}";
-      val STATIC_SQL_SUFFIX = "order by synonym_rule.term";
+      val STATIC_SQL_PREFIX = "select * from synonym_rule where synonym_rule.search_input_id = {search_input_id}"
+      val STATIC_SQL_SUFFIX = "order by synonym_rule.term"
       return maybeRestrictSynonymType match {
         case Some(restrictSynonymType) =>
           SQL(
@@ -112,7 +112,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
           SQL(STATIC_SQL_PREFIX + " " + STATIC_SQL_SUFFIX)
             .on('search_input_id -> searchInputId)
             .as(simpleSynonymRule *)
-      };
+      }
     }
   }
 
@@ -152,7 +152,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
       .on(
         'solr_index_id -> solrIndexId
       )
-      .as(simpleSolrIndex *);
+      .as(simpleSolrIndex *)
     // TODO Handle illegal cases, if none or 1+ solr indeces selected
     return allMatchingIndeces.head.name
   }
@@ -171,14 +171,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
         .on(
           'solr_index_id -> solrIndexId
         )
-        .as(simpleSearchInput *);
+        .as(simpleSearchInput *)
 
     // TODO see SearchManagementModel.SearchInput, solve more elegant
     for (searchInput <- resultListSearchInput) {
       searchInput.synonymRules = getSyonymRulesForSearchInputWithId(searchInput.id.get, Some(0))
     }
 
-    resultListSearchInput;
+    resultListSearchInput
   }
 
   /**
@@ -207,24 +207,24 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     var resultListSearchInput: List[SearchInput] =
       SQL("select * from search_input where search_input.id = {search_input_id}")
           .on('search_input_id -> searchInputId)
-        .as(simpleSearchInput *);
+        .as(simpleSearchInput *)
 
     // TODO see SearchManagementModel.SearchInput, solve more elegant
-    resultListSearchInput(0).synonymRules = getSyonymRulesForSearchInputWithId(searchInputId, None);
-    resultListSearchInput(0).upDownRules = getUpDownRulesForSearchInputWithId(searchInputId);
-    resultListSearchInput(0).filterRules = getFilterRulesForSearchInputWithId(searchInputId);
-    resultListSearchInput(0).deleteRules = getDeleteRulesForSearchInputWithId(searchInputId);
+    resultListSearchInput(0).synonymRules = getSyonymRulesForSearchInputWithId(searchInputId, None)
+    resultListSearchInput(0).upDownRules = getUpDownRulesForSearchInputWithId(searchInputId)
+    resultListSearchInput(0).filterRules = getFilterRulesForSearchInputWithId(searchInputId)
+    resultListSearchInput(0).deleteRules = getDeleteRulesForSearchInputWithId(searchInputId)
 
     // TODO not retrieve a list, but one anorm-search_input-entry only. Check that exactly one exists.
-    resultListSearchInput(0);
+    resultListSearchInput(0)
   }
 
   def diffAndUpdateSynonymRulesOfSearchInput(searchInput: SearchInput) = db.withConnection { implicit connection =>
     // diff synonymRules
-    var unconsideredSynonymRuleIds = ListBuffer.empty[Long];
+    var unconsideredSynonymRuleIds = ListBuffer.empty[Long]
     // ... update matching
     for (existingSynonymRule <- getSyonymRulesForSearchInputWithId(searchInput.id.get, None)) {
-      var bFound = false;
+      var bFound = false
       for (updateSynonymRule <- searchInput.synonymRules) {
         updateSynonymRule.id match {
           case Some(updateSynonymRuleId) => {
@@ -243,20 +243,20 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
                   'synonym_status -> (if(updateSynonymRule.isActive) 0x01 else 0x00),
                   'synonym_rule_id -> updateSynonymRuleId
                 )
-                .executeUpdate();
-              bFound = true;
+                .executeUpdate()
+              bFound = true
             }
           }
           case None => {}
         }
       }
       if (!bFound) {
-        unconsideredSynonymRuleIds += existingSynonymRule.id.get;
+        unconsideredSynonymRuleIds += existingSynonymRule.id.get
       }
     }
     // ... delete unconsidered
     for (deleteSynonymRuleId <- unconsideredSynonymRuleIds) {
-      SQL("delete from synonym_rule where synonym_rule.id = {synonym_rule_id}").on('synonym_rule_id -> deleteSynonymRuleId).execute();
+      SQL("delete from synonym_rule where synonym_rule.id = {synonym_rule_id}").on('synonym_rule_id -> deleteSynonymRuleId).execute()
     }
     // ... insert newly added
     for (newSynonymRule <- searchInput.synonymRules.filter(r => r.id.isEmpty)) {
@@ -274,10 +274,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
   }
 
   def diffAndUpdateUpDownRulesOfSearchInput(searchInput: SearchInput) = db.withConnection { implicit connection =>
-    var unconsideredUpDownRuleIds = ListBuffer.empty[Long];
+    var unconsideredUpDownRuleIds = ListBuffer.empty[Long]
     // ... update matching
     for (existingUpDownRule <- getUpDownRulesForSearchInputWithId(searchInput.id.get)) {
-      var bFound = false;
+      var bFound = false
       for (updateUpDownRule <- searchInput.upDownRules) {
         updateUpDownRule.id match {
           case Some(updateUpDownRuleId) => {
@@ -298,20 +298,20 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
                   'up_down_rule_status -> (if(updateUpDownRule.isActive) 0x01 else 0x00),
                   'up_down_rule_id -> updateUpDownRuleId
                 )
-                .executeUpdate();
-              bFound = true;
+                .executeUpdate()
+              bFound = true
             }
           }
           case None => {}
         }
       }
       if (!bFound) {
-        unconsideredUpDownRuleIds += existingUpDownRule.id.get;
+        unconsideredUpDownRuleIds += existingUpDownRule.id.get
       }
     }
     // ... delete unconsidered
     for (deleteUpDownRuleId <- unconsideredUpDownRuleIds) {
-      SQL("delete from up_down_rule where up_down_rule.id = {up_down_rule_id}").on('up_down_rule_id -> deleteUpDownRuleId).execute();
+      SQL("delete from up_down_rule where up_down_rule.id = {up_down_rule_id}").on('up_down_rule_id -> deleteUpDownRuleId).execute()
     }
     // ... insert newly added
     for (newUpDownRule <- searchInput.upDownRules.filter(r => r.id.isEmpty)) {
@@ -330,10 +330,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
   }
 
   def diffAndUpdateFilterRulesOfSearchInput(searchInput: SearchInput) = db.withConnection { implicit connection =>
-    var unconsideredFilterRuleIds = ListBuffer.empty[Long];
+    var unconsideredFilterRuleIds = ListBuffer.empty[Long]
     // ... update matching
     for (existingFilterRule <- getFilterRulesForSearchInputWithId(searchInput.id.get)) {
-      var bFound = false;
+      var bFound = false
       for (updateFilterRule <- searchInput.filterRules) {
         updateFilterRule.id match {
           case Some(updateFilterRuleId) => {
@@ -350,20 +350,20 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
                   'filter_rule_status -> (if(updateFilterRule.isActive) 0x01 else 0x00),
                   'filter_rule_id -> updateFilterRuleId
                 )
-                .executeUpdate();
-              bFound = true;
+                .executeUpdate()
+              bFound = true
             }
           }
           case None => {}
         }
       }
       if (!bFound) {
-        unconsideredFilterRuleIds += existingFilterRule.id.get;
+        unconsideredFilterRuleIds += existingFilterRule.id.get
       }
     }
     // ... delete unconsidered
     for (deleteFilterRuleId <- unconsideredFilterRuleIds) {
-      SQL("delete from filter_rule where filter_rule.id = {filter_rule_id}").on('filter_rule_id -> deleteFilterRuleId).execute();
+      SQL("delete from filter_rule where filter_rule.id = {filter_rule_id}").on('filter_rule_id -> deleteFilterRuleId).execute()
     }
     // ... insert newly added
     for (newFilterRule <- searchInput.filterRules.filter(r => r.id.isEmpty)) {
@@ -380,10 +380,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
   }
 
   def diffAndUpdateDeleteRulesOfSearchInput(searchInput: SearchInput) = db.withConnection { implicit connection =>
-    var unconsideredDeleteRuleIds = ListBuffer.empty[Long];
+    var unconsideredDeleteRuleIds = ListBuffer.empty[Long]
     // ... update matching
     for (existingDeleteRule <- getDeleteRulesForSearchInputWithId(searchInput.id.get)) {
-      var bFound = false;
+      var bFound = false
       for (updateDeleteRule <- searchInput.deleteRules) {
         updateDeleteRule.id match {
           case Some(updateDeleteRuleId) => {
@@ -400,20 +400,20 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
                   'delete_rule_status -> (if(updateDeleteRule.isActive) 0x01 else 0x00),
                   'delete_rule_id -> updateDeleteRuleId
                 )
-                .executeUpdate();
-              bFound = true;
+                .executeUpdate()
+              bFound = true
             }
           }
           case None => {}
         }
       }
       if (!bFound) {
-        unconsideredDeleteRuleIds += existingDeleteRule.id.get;
+        unconsideredDeleteRuleIds += existingDeleteRule.id.get
       }
     }
     // ... delete unconsidered
     for (deleteDeleteRuleId <- unconsideredDeleteRuleIds) {
-      SQL("delete from delete_rule where delete_rule.id = {delete_rule_id}").on('delete_rule_id -> deleteDeleteRuleId).execute();
+      SQL("delete from delete_rule where delete_rule.id = {delete_rule_id}").on('delete_rule_id -> deleteDeleteRuleId).execute()
     }
     // ... insert newly added
     for (newDeleteRule <- searchInput.deleteRules.filter(r => r.id.isEmpty)) {
@@ -446,14 +446,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
       'search_input_id -> searchInput.id,
       'search_input_term -> searchInput.term
     )
-    .executeUpdate();
+    .executeUpdate()
 
     // TODO think about more abstract solution for SQL-update, -delete and -insert (functional-only) to avoid repetitive boilerplate code
     // TODO in this solution, verify that affected rows after execute... is plausible
-    diffAndUpdateSynonymRulesOfSearchInput(searchInput);
-    diffAndUpdateUpDownRulesOfSearchInput(searchInput);
-    diffAndUpdateFilterRulesOfSearchInput(searchInput);
-    diffAndUpdateDeleteRulesOfSearchInput(searchInput);
+    diffAndUpdateSynonymRulesOfSearchInput(searchInput)
+    diffAndUpdateUpDownRulesOfSearchInput(searchInput)
+    diffAndUpdateFilterRulesOfSearchInput(searchInput)
+    diffAndUpdateDeleteRulesOfSearchInput(searchInput)
   }
 
   /**
@@ -465,11 +465,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
   def deleteSearchInput(searchInputId: Long) = db.withConnection { implicit connection =>
     // TODO maybe realise as BatchSql
     // TODO verify amount of deleted DB entries
-    SQL("delete from delete_rule where delete_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute();
-    SQL("delete from filter_rule where filter_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute();
-    SQL("delete from up_down_rule where up_down_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute();
-    SQL("delete from synonym_rule where synonym_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute();
-    SQL("delete from search_input where search_input.id = {search_input_id}").on('search_input_id -> searchInputId).execute();
+    SQL("delete from delete_rule where delete_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute()
+    SQL("delete from filter_rule where filter_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute()
+    SQL("delete from up_down_rule where up_down_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute()
+    SQL("delete from synonym_rule where synonym_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute()
+    SQL("delete from search_input where search_input.id = {search_input_id}").on('search_input_id -> searchInputId).execute()
   }
 
   def listAllSuggestedSolrFields(solrIndexId: Long) = db.withConnection { implicit connection =>
