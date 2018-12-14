@@ -37,13 +37,13 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   }
 
   private def renderDecorateExportHash(retSearchInputRulesTxtPartial: String): String = {
-    s"""|\tDECORATE: [ {
-        |"intent":"smui.auto-decorate.export-hash",
-        |"payload": {
-        | "ruleExportDate":"${DateTime.now.toString()}",
-        | "ruleExportHash":"${retSearchInputRulesTxtPartial.toString().hashCode()}"
-        |}
-        |} ]""".stripMargin
+    // returning resulting auto-decorate for export hash - DECORATE instruction MUST BE IN ONE LINE!
+    "\tDECORATE: [ {" +
+      "\"intent\":\"smui.auto-decorate.export-hash\", " +
+      "\"payload\": { " +
+      "\"ruleExportDate\":\"" + DateTime.now.toString() + "\", " +
+      "\"ruleExportHash\":\"" + retSearchInputRulesTxtPartial.toString().hashCode() + "\" " +
+      "} } ]\n"
   }
 
   def renderSearchInputRulesForTerm(term: String, searchInput: SearchInput): String = {
