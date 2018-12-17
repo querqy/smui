@@ -96,14 +96,10 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
     rulesTxt should startWith(
       s"""|queen =>
           |\tSYNONYM: mercury
-          |\tDECORATE: [ {
-          |"intent":"smui.auto-decorate.export-hash",
-          |"payload": {
-          | "ruleExportDate":"""".stripMargin)
-        .and(endWith(
-          """|"ruleExportHash":"31581570"
-             |}
-             |} ]""".stripMargin))
+          |\tDECORATE: [ {\"intent\":\"smui.auto-decorate.export-hash\", \"payload\": { \"ruleExportDate\":"""".stripMargin)
+        .and(
+          endWith("\"ruleExportHash\":\"31581570\" } } ]\n".stripMargin)
+        )
   }
 
 
