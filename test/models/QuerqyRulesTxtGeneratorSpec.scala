@@ -142,4 +142,6 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
       (Some("Line 31: Cannot parse line: ADD AN INVALID INSTRUCTION"))
   }
 
+  // TODO add tests for validateSearchInputToErrMsg
+
 }
