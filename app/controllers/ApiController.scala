@@ -1,16 +1,11 @@
 package controllers
 
-import java.io.StringReader
 import javax.inject.Inject
 
 import models._
-import play.api.data.Forms._
-import play.api.data._
-import play.api.i18n._
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.json.Reads._
-import play.api.libs.functional.syntax._
 import play.api.Play
 import play.api.Configuration
 
@@ -19,10 +14,6 @@ import sys.process._
 import scala.concurrent.{ExecutionContext, Future}
 import models.SearchManagementModel._
 import models.FeatureToggleModel._
-
-// TODO evaluate encapsulating querqy validation to a own "models"-class or into models.SearchManagementRepository
-import querqy.rewrite.commonrules.SimpleCommonRulesParser
-import querqy.parser.WhiteSpaceQuerqyParserFactory
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
 class ApiController @Inject()(searchManagementRepository: SearchManagementRepository,
@@ -65,21 +56,6 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     Future {
       // TODO add error handling (database connection, other exceptions)
       Ok( Json.toJson(searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(solrIndexId)) )
-
-      /*
-      TODO remove test data output
-
-      Ok( Json.toJson(List[SearchInput](
-        new SearchInput(Some(1), "arbeitsministerium", List[SynonymRule](
-          new SynonymRule(Some(1), 0, "Bundesministerium für Arbeit und Soziales"),
-          new SynonymRule(Some(2), 0, "BMAS"),
-          new SynonymRule(Some(3), 1, "arbeit ministerium")
-        ), List[UpDownRule](), List[FilterRule](), List[DeleteRule]()),
-        new SearchInput(Some(2), "Betriebsverfassungsgesetz", List[SynonymRule](), List[UpDownRule](), List[FilterRule](), List[DeleteRule]()),
-        new SearchInput(Some(3), "FlexÜ", List[SynonymRule](), List[UpDownRule](), List[FilterRule](), List[DeleteRule]()),
-        new SearchInput(Some(4), "manteltarifvertrag", List[SynonymRule](), List[UpDownRule](), List[FilterRule](), List[DeleteRule]()),
-      )) )
-      */
     }
   }
 
@@ -87,16 +63,6 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     Future {
       // TODO add error handling (database connection, other exceptions)
       Ok( Json.toJson(searchManagementRepository.getDetailedSearchInput(searchInputId)) )
-
-      /*
-      TODO remove test data output
-
-      Ok(Json.toJson(new SearchInput(Some(1), "arbeitsministerium", List[SynonymRule](
-        new SynonymRule(Some(1), 0, "Bundesministerium für Arbeit und Soziales"),
-        new SynonymRule(Some(2), 0, "BMAS"),
-        new SynonymRule(Some(3), 1, "arbeit ministerium")
-      ), List[UpDownRule](), List[FilterRule](), List[DeleteRule]())))
-      */
     }
   }
 
@@ -117,55 +83,6 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  private def validateSearchInputToErrMsg(searchInput: SearchInput): Option[String] = {
-
-    // TODO !!! open-issue: validate both inputs and rules, if synonym is undirected !!!
-    // TODO validation ends with first broken rule, it should collect all errors to a line.
-    // TODO decide, if input having no rule at all is legit ... (e.g. newly created). Will currently being filtered.
-
-    // validate against SMUI rules
-    // TODO evaluate to refactor the validation implementation into models/QuerqyRulesTxtGenerator
-
-    // if input contains *-Wildcard, all synonyms must be directed
-    // TODO discuss if (1) contains or (2) endsWith is the right interpretation
-    if(searchInput.term.trim().contains("*")) {
-      if(searchInput.synonymRules.filter(r => r.synonymType == 0).size > 0) {
-        logger.error("Parsing Search Input: Wildcard *-using input ('" + searchInput.term + "') has undirected synonym rule")
-        Some("Wildcard *-using input ('\" + searchInput.term + \"') has undirected synonym rule")
-      }
-    }
-
-    // undirected synonyms must not contain *-Wildcard
-    if(searchInput.synonymRules.filter(r => r.synonymType == 0 && r.term.trim().contains("*")).size > 0) {
-      logger.error("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')")
-      Some("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')")
-    }
-
-    // validate against querqy parser
-    // TODO outsource in separated method
-
-    val singleSearchInputRule = querqyRulesTxtGenerator
-      .renderSearchInputRulesForTerm(searchInput.term, searchInput)
-    try {
-      logger.debug("Parsing Search Input singleSearchInputRule = >>>" + singleSearchInputRule + "<<<")
-
-      val simpleCommonRulesParser: SimpleCommonRulesParser = new SimpleCommonRulesParser(
-        new StringReader(singleSearchInputRule),
-        new WhiteSpaceQuerqyParserFactory(),
-        true
-      )
-      simpleCommonRulesParser.parse()
-
-      logger.debug("Parsing Search Input ok! simpleCommonRulesParser = " + simpleCommonRulesParser.toString())
-      None
-    } catch {
-      case e: Exception => {
-        logger.error("Parsing Search Input ended in Exception e.message = " + e.getMessage())
-        Some(e.getMessage())
-      }
-    }
-  }
-
   def updateSearchInput(searchInputId: Long) = Action.async { request: Request[AnyContent] =>
     Future {
 
@@ -176,8 +93,13 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       jsonBody.map { json =>
         val searchInput = json.as[SearchInput]
 
-        // TODO transport validation result via API
-        validateSearchInputToErrMsg(searchInput)
+        querqyRulesTxtGenerator.validateSearchInputToErrMsg(searchInput) match {
+          case Some(strErrMsg: String) => {
+            // TODO transport validation result via API and communicate it to the user. Evaluate not saving the searchInput in this case.
+            logger.error("updateSearchInput failed on validation of searchInput with id " + searchInputId + " - validation returned the following error output: <<<" + strErrMsg + ">>>")
+          }
+          case None => {}
+        }
 
         // TODO handle potential conflict between searchInputId and JSON-passed searchInput.id
         searchManagementRepository.updateSearchInput(searchInput)
@@ -197,41 +119,75 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   }
 
   /**
-    * Performs an update of the rules.txt (or separate rules.txt files) to the configured Solr instance
-    * while using the smui2solr.sh script.
+    * Generates a list of source to destination filenames containing the rules.txt(s) according to current application settings.
     *
-    * @param solrIndexId Id of the Solr Index in the database
-    * @param targetSystem "PRELIVE" vs. "LIVE" ... for reference @see evolutions/default/2.sql
-    * @return Ok or BadRequest, if something failed.
+    * @param solrIndexId Solr Index Id to generate the output for.
+    * @return List of {{_1}} = source filename, {{_2}} destination filename, {{_3}} rules.txt content. The first entry - by contract - does
+    *         always contain the regular rules.txt. The second one - optionally - contains the decompound-rules.txt.
     */
-  private def performUpdateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String): play.api.mvc.Result = {
+  private def generateSrcDstFilenamesToCompleteRulesTxts(solrIndexId: Long): List[(String,String,String)] = {
 
-    val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxt
-    val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxtDstCpFileTo
-    val DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = featureToggleService.getToggleRuleDeploymentCustomScript
-    val CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = featureToggleService.getToggleRuleDeploymentCustomScriptSmui2solrShPath
-
-    // get necessary application.conf values (or set super-defaults)
-    // TODO access method to string config variables is deprecated
     val SRC_TMP_FILE = appConfig.getString("smui2solr.SRC_TMP_FILE").getOrElse("/tmp/search-management-ui_rules-txt.tmp")
     val DST_CP_FILE_TO = appConfig.getString("smui2solr.DST_CP_FILE_TO").getOrElse("/usr/bin/solr/defaultCore/conf/rules.txt")
-    val SOLR_HOST = appConfig.getString("smui2solr.SOLR_HOST").getOrElse("localhost:8983")
+    val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxt
+    val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxtDstCpFileTo
 
-    val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId)
-    logger.debug(s"""
-         |In ApiController :: updateRulesTxtForSolrIndex with config
-         |:: SRC_TMP_FILE = ${SRC_TMP_FILE}
-         |:: DST_CP_FILE_TO =${DST_CP_FILE_TO}
-         |:: SOLR_HOST =${SOLR_HOST}
-         |:: SOLR_CORE_NAME =${SOLR_CORE_NAME}
-         |:: DO_SPLIT_DECOMPOUND_RULES_TXT =${DO_SPLIT_DECOMPOUND_RULES_TXT}
-         |:: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO =${DECOMPOUND_RULES_TXT_DST_CP_FILE_TO}
-         |:: targetSystem =${targetSystem}
-         |:: DO_CUSTOM_SCRIPT_SMUI2SOLR_SH =${DO_CUSTOM_SCRIPT_SMUI2SOLR_SH}
-         |:: CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH =${CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH}
-       """.stripMargin)
+    logger.debug(s""":: generateSrcDstFilenamesToCompleteRulesTxts config
+                    |:: SRC_TMP_FILE = ${SRC_TMP_FILE}
+                    |:: DST_CP_FILE_TO = ${DST_CP_FILE_TO}
+                    |:: DO_SPLIT_DECOMPOUND_RULES_TXT = ${DO_SPLIT_DECOMPOUND_RULES_TXT}
+                    |:: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = ${DECOMPOUND_RULES_TXT_DST_CP_FILE_TO}
+    """.stripMargin)
 
-    // write rules.txt output to to temp file
+    // generate one rules.txt by default or two separated, if decompound instructions are supposed to be split
+
+    // TODO test correct generation in different scenarios (one vs. two rules.txts, etc.)
+    if( !DO_SPLIT_DECOMPOUND_RULES_TXT ) {
+
+      List(
+        // generate one rules.txt for original temp file
+        (SRC_TMP_FILE, DST_CP_FILE_TO, querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId))
+      )
+
+    } else {
+
+      List(
+        // generate first (regular) rules.txt for original temp file
+        (SRC_TMP_FILE, DST_CP_FILE_TO, querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, false)),
+        // generate decompound-rules.txt for temp file (filename resulting from original temp file plus "-2" append)
+        (SRC_TMP_FILE + "-2", DECOMPOUND_RULES_TXT_DST_CP_FILE_TO, querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, true))
+      )
+
+    }
+  }
+
+  private def validateCompleteRulesTxts(srcDstFilenamesToCompleteRulesTxts: List[(String,String,String)]): Option[play.api.mvc.Result] = {
+
+    val listErrResults = srcDstFilenamesToCompleteRulesTxts.map(srcDstFilenamesToCompleteRulesTxt => {
+      logger.debug(":: validateCompleteRulesTxts for src = " + srcDstFilenamesToCompleteRulesTxt._1 + " dst = " + srcDstFilenamesToCompleteRulesTxt._2)
+      logger.debug(":: rulesTxt = <<<" + srcDstFilenamesToCompleteRulesTxt._3 + ">>>")
+      val validationResult = querqyRulesTxtGenerator.validateQuerqyRulesTxtToErrMsg(srcDstFilenamesToCompleteRulesTxt._3)
+      validationResult.map(strErrMsg =>
+        logger.debug(":: validation failed with message = " + strErrMsg)
+      )
+      validationResult
+    }).filter(validationResult =>
+      validationResult.nonEmpty
+    )
+
+    if(listErrResults.nonEmpty) {
+      // TODO Evaluate being more precise in the error communication (eg which rules.txt failed?, where? / which line?, why?, etc.)
+      Some(BadRequest(
+        Json.toJson(new ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Validation error in rules.txt.", None))
+      ))
+    } else {
+      None
+    }
+  }
+
+  private def writeRulesTxtsTempFiles(srcDstFilenamesToCompleteRulesTxts: List[(String,String,String)]) = {
+
+    // helper to write rules.txt output to to temp file
     def writeRulesTxtToTempFile(strRulesTxt: String, tmpFilePath: String) = {
       val tmpFile = new java.io.File(tmpFilePath)
       tmpFile.createNewFile()
@@ -248,25 +204,29 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       }
     }
 
-    if( !DO_SPLIT_DECOMPOUND_RULES_TXT ) {
+    // write the temp file(s)
+    srcDstFilenamesToCompleteRulesTxts.map(filenameToCompleteRulesTxt =>
+      writeRulesTxtToTempFile(filenameToCompleteRulesTxt._3, filenameToCompleteRulesTxt._1)
+    )
+  }
 
-      // generate (one) rules.txt into temp file
-      val strRulesTxt = querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId)
-      writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE)
-      logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" )
+  private def executeDeploymentScript(srcDstFilenamesToCompleteRulesTxts: List[(String,String,String)], solrIndexId: Long, targetSystem: String): Int = {
 
-    } else {
+    val SOLR_HOST = appConfig.getString("smui2solr.SOLR_HOST").getOrElse("localhost:8983")
+    val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId)
+    val DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = featureToggleService.getToggleRuleDeploymentCustomScript
+    val CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = featureToggleService.getToggleRuleDeploymentCustomScriptSmui2solrShPath
 
-      // generate decompound-rules.txt into temp file
-      val strDecompoundRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, true)
-      writeRulesTxtToTempFile(strDecompoundRulesTxt, SRC_TMP_FILE + "-2")
-      logger.debug( "strDecompoundRulesTxt = >>>" + strDecompoundRulesTxt + "<<<" )
+    logger.debug(s""":: executeDeploymentScript config
+                    |:: targetSystem = ${targetSystem}
+                    |:: SOLR_HOST = ${SOLR_HOST}
+                    |:: SOLR_CORE_NAME = ${SOLR_CORE_NAME}
+                    |:: DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = ${DO_CUSTOM_SCRIPT_SMUI2SOLR_SH}
+                    |:: CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = ${CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH}
+    """.stripMargin)
 
-      // generate decompound-rules.txt into temp file
-      val strRulesTxt = querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, false)
-      writeRulesTxtToTempFile(strRulesTxt, SRC_TMP_FILE)
-      logger.debug( "strRulesTxt = >>>" + strRulesTxt + "<<<" )
-    }
+    // TODO Evaluate other ways to deal with the strong implicit dependency / necessary knowledge from the inner structure of srcDstFilenamesToCompleteRulesTxts (generated by generateSrcDstFilenamesToCompleteRulesTxts)
+    // TODO ... same goes for the interface to the deployment script
 
     val scriptCall =
       // decide for the right script
@@ -275,29 +235,49 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       else
         Play.current.path.getAbsolutePath() + "/conf/smui2solr.sh") + " " +
         // add parameters to the script (in expected order, see smui2solr.sh)
-      SRC_TMP_FILE + " " + // smui2solr.sh param $1 - SRC_TMP_FILE
-      DST_CP_FILE_TO + " " +  // smui2solr.sh param $2 - DST_CP_FILE_TO
-      SOLR_HOST + " " + // smui2solr.sh param $3 - SOLR_HOST
-      SOLR_CORE_NAME + " " + // smui2solr.sh param $4 - SOLR_CORE_NAME
-      (if(DO_SPLIT_DECOMPOUND_RULES_TXT) DECOMPOUND_RULES_TXT_DST_CP_FILE_TO else "NONE") + " " + // smui2solr.sh param $5 - DECOMPOUND_DST_CP_FILE_TO
-      targetSystem // smui2solr.sh param $6 - TARGET_SYSTEM
-
-    val result = scriptCall ! // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
-
-    logger.debug( "Script execution result: " + result )
-
-    if (result == 0) {
-      searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem)
-      Ok( Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)) )
-    } else {
-      // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
-      BadRequest( Json.toJson(ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Unexpected result in script execution.", None)) )
-    }
+        srcDstFilenamesToCompleteRulesTxts(0)._1 + " " + // smui2solr.sh param $1 - SRC_TMP_FILE
+        srcDstFilenamesToCompleteRulesTxts(0)._2 + " " +  // smui2solr.sh param $2 - DST_CP_FILE_TO
+        SOLR_HOST + " " + // smui2solr.sh param $3 - SOLR_HOST
+        SOLR_CORE_NAME + " " + // smui2solr.sh param $4 - SOLR_CORE_NAME
+        (if(srcDstFilenamesToCompleteRulesTxts.size > 1) srcDstFilenamesToCompleteRulesTxts(1)._2 else "NONE") + " " + // smui2solr.sh param $5 - DECOMPOUND_DST_CP_FILE_TO
+        targetSystem // smui2solr.sh param $6 - TARGET_SYSTEM
+    val result = scriptCall !; // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
+    logger.debug(":: executeDeploymentScript :: Script execution result: " + result)
+    result
   }
 
+  /**
+    * Performs an update of the rules.txt (or separate rules.txt files) to the configured Solr instance
+    * while using the smui2solr.sh or a custom script.
+    *
+    * @param solrIndexId Id of the Solr Index in the database
+    * @param targetSystem "PRELIVE" vs. "LIVE" ... for reference @see evolutions/default/2.sql
+    * @return Ok or BadRequest, if something failed.
+    */
   def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String) = Action.async {
     Future {
-      performUpdateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId, targetSystem)
+      logger.debug("In ApiController :: updateRulesTxtForSolrIndex")
+
+      // generate rules.txt(s)
+      val srcDstFilenamesToCompleteRulesTxts = generateSrcDstFilenamesToCompleteRulesTxts(solrIndexId)
+
+      // validate every generated rules.txt
+      validateCompleteRulesTxts(srcDstFilenamesToCompleteRulesTxts) match {
+        case Some(errorResult: play.api.mvc.Result) => errorResult
+        case None => {
+          // write temp file(s)
+          writeRulesTxtsTempFiles(srcDstFilenamesToCompleteRulesTxts)
+
+          // execute deployment script
+          if(executeDeploymentScript(srcDstFilenamesToCompleteRulesTxts, solrIndexId, targetSystem) == 0) {
+            searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem)
+            Ok( Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)) )
+          } else {
+            // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
+            BadRequest( Json.toJson(ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Unexpected result in script execution.", None)) )
+          }
+        }
+      }
     }
   }
 

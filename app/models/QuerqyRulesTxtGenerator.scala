@@ -1,17 +1,19 @@
 package models
 
+import java.io.StringReader
 import javax.inject.Inject
 
 import org.joda.time.DateTime
-
 import models.SearchManagementModel._
 import models.FeatureToggleModel._
+import querqy.parser.WhiteSpaceQuerqyParserFactory
+import querqy.rewrite.commonrules.SimpleCommonRulesParser
 
 @javax.inject.Singleton
 class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManagementRepository,
                                         featureToggleService: FeatureToggleService) {
 
-  var DO_AUTO_DECORATE_EXPORT_HASH = false; // TODO shouldnt be necessary to define default value 'false' twice or more (see HomeController :: index)
+  // TODO make QuerqyRulesTxtGenerator independent from featureToggleService
 
   private def renderSynonymRule(synonymTerm: String): String = {
     s"\tSYNONYM: $synonymTerm\n"
@@ -154,5 +156,66 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   def renderSeparatedRulesTxts(solrIndexId: Long, renderCompoundsRulesTxt: Boolean): String = {
     render(solrIndexId: Long, true, renderCompoundsRulesTxt)
   }
+
+  /**
+    * Validate a fragment or a complete rules.txt against a Querqy instance.
+    *
+    * @param strRulesTxt string containing a fragment or a complete rules.txt
+    * @return None, if no validation error, otherwise Some(String) containing the error.
+    */
+  def validateQuerqyRulesTxtToErrMsg(strRulesTxt: String): Option[String] = {
+
+    try {
+      val simpleCommonRulesParser: SimpleCommonRulesParser = new SimpleCommonRulesParser(
+        new StringReader(strRulesTxt),
+        new WhiteSpaceQuerqyParserFactory(),
+        true
+      )
+      simpleCommonRulesParser.parse()
+      None
+    } catch {
+      case e: Exception => {
+        // TODO better parse the returned Exception and return a line-wise error object making validation errors assign-able to specific rules
+        Some(e.getMessage())
+      }
+    }
+  }
+
+  /**
+    * Validate a {{searchInput}} instance for (1) SMUI plausibility as well as (2) the resulting rules.txt fragment
+    * against Querqy.
+    *
+    * @param searchInput Input instance to be validated.
+    * @return None, if no validation error, otherwise a String containing the error.
+    */
+  def validateSearchInputToErrMsg(searchInput: SearchInput): Option[String] = {
+
+    // TODO validation ends with first broken rule, it should collect all errors to a line.
+    // TODO decide, if input having no rule at all is legit ... (e.g. newly created). Will currently being filtered.
+
+    // validate against SMUI plausibility rules
+    // TODO evaluate to refactor the validation implementation into models/QuerqyRulesTxtGenerator
+
+    // if input contains *-Wildcard, all synonyms must be directed
+    // TODO discuss if (1) contains or (2) endsWith is the right interpretation
+    if(searchInput.term.trim().contains("*")) {
+      if(searchInput.synonymRules.filter(r => r.synonymType == 0).size > 0) {
+        Some("Wildcard *-using input ('\" + searchInput.term + \"') has undirected synonym rule")
+      }
+    }
+
+    // undirected synonyms must not contain *-Wildcard
+    if(searchInput.synonymRules.filter(r => r.synonymType == 0 && r.term.trim().contains("*")).size > 0) {
+      Some("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')")
+    }
+
+    // finally validate as well against querqy parser
+
+    // TODO validate both inputs and rules, for all undirected synonym terms in this input
+    validateQuerqyRulesTxtToErrMsg(
+      this.renderSearchInputRulesForTerm(searchInput.term, searchInput)
+    )
+  }
+
 
 }

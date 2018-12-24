@@ -85,7 +85,6 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
   }
 
-
   "Rules Text Generation" should "correctly decorate SYNONYM" in {
     val featureToggleMock = mock[FeatureToggleService]
     when(featureToggleMock.getToggleRuleDeploymentAutoDecorateExportHash).thenReturn(true)
@@ -102,5 +101,45 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
         )
   }
 
+  // TODO outsource whole rules.txt file to an external test ressource
+  val VALID_RULES_TXT =s""""handy" =>
+       |	SYNONYM: smartphone
+       |	UP(100): smartphone
+       |	DECORATE: [ {"intent":"smui.auto-decorate.export-hash", "payload": { "ruleExportDate":"2018-12-24T15:31:08.949+01:00", "ruleExportHash":"221124921" } } ]
+       |
+ |cheap iphone =>
+       |	SYNONYM: iphone 3g
+       |	UP(100): * price:[* TO 50000]
+       |	DELETE: cheap
+       |	DECORATE: [ {"intent":"smui.auto-decorate.export-hash", "payload": { "ruleExportDate":"2018-12-24T15:31:08.949+01:00", "ruleExportHash":"2013811234" } } ]
+       |
+ |notebook =>
+       |	SYNONYM: laptop
+       |	SYNONYM: netbook
+       |	UP(10): asus
+       |	DOWN(100): Optical
+       |	DOWN(5): Power Cord
+       |	FILTER: * -title:accessory
+       |	FILTER: * -title:notebook
+       |	DECORATE: [ {"intent":"smui.auto-decorate.export-hash", "payload": { "ruleExportDate":"2018-12-24T15:31:08.949+01:00", "ruleExportHash":"-628253308" } } ]
+       |
+ |laptop =>
+       |	SYNONYM: notebook
+       |	SYNONYM: netbook
+       |	UP(10): asus
+       |	DOWN(100): Optical
+       |	DOWN(5): Power Cord
+       |	FILTER: * -title:accessory
+       |	FILTER: * -title:notebook
+       |	DECORATE: [ {"intent":"smui.auto-decorate.export-hash", "payload": { "ruleExportDate":"2018-12-24T15:31:08.949+01:00", "ruleExportHash":"2020738500" } } ]""".stripMargin
+
+  "rules.txt validation" should "positively validate valid rules.txt" in {
+    generator.validateQuerqyRulesTxtToErrMsg(VALID_RULES_TXT) should be (None)
+  }
+
+  "rules.txt validation" should "return an error when validating an invalid rules.txt" in {
+    generator.validateQuerqyRulesTxtToErrMsg(VALID_RULES_TXT + "\nADD AN INVALID INSTRUCTION") should be
+      (Some("Line 31: Cannot parse line: ADD AN INVALID INSTRUCTION"))
+  }
 
 }
