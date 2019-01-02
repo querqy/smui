@@ -2,6 +2,7 @@ package controllers
 
 import javax.inject.Inject
 
+import controllers.auth.AuthActionFactory
 import models._
 import play.api.mvc._
 import play.api.libs.json._
@@ -10,7 +11,6 @@ import play.api.Play
 import play.api.Configuration
 
 import sys.process._
-
 import scala.concurrent.{ExecutionContext, Future}
 import models.SearchManagementModel._
 import models.FeatureToggleModel._
@@ -20,7 +20,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
                               querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
                               cc: MessagesControllerComponents,
                               appConfig: Configuration,
-                              featureToggleService: FeatureToggleService)(implicit executionContext: ExecutionContext)
+                              featureToggleService: FeatureToggleService,
+                              authActionFactory: AuthActionFactory)(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
   private val logger = play.api.Logger
@@ -46,27 +47,27 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
   implicit val apiResultWrites = Json.writes[ApiResult]
 
-  def listAllSolrIndeces = Action.async {
+  def listAllSolrIndeces = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       Ok( Json.toJson(searchManagementRepository.listAllSolrIndeces) )
     }
   }
 
-  def listAllSearchInputs(solrIndexId: Long) = Action.async {
+  def listAllSearchInputs(solrIndexId: Long) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       // TODO add error handling (database connection, other exceptions)
       Ok( Json.toJson(searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(solrIndexId)) )
     }
   }
 
-  def getDetailedSearchInput(searchInputId: Long) = Action.async {
+  def getDetailedSearchInput(searchInputId: Long) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       // TODO add error handling (database connection, other exceptions)
       Ok( Json.toJson(searchManagementRepository.getDetailedSearchInput(searchInputId)) )
     }
   }
 
-  def addNewSearchInput(solrIndexId: Long) = Action.async { request: Request[AnyContent] =>
+  def addNewSearchInput(solrIndexId: Long) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
       val body: AnyContent = request.body
       val jsonBody: Option[JsValue] = body.asJson
@@ -83,7 +84,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def updateSearchInput(searchInputId: Long) = Action.async { request: Request[AnyContent] =>
+  def updateSearchInput(searchInputId: Long) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
 
       val body: AnyContent = request.body
@@ -111,7 +112,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def deleteSearchInput(searchInputId: Long) = Action.async {
+  def deleteSearchInput(searchInputId: Long) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       searchManagementRepository.deleteSearchInput(searchInputId)
       Ok( Json.toJson(ApiResult(API_RESULT_OK, "Deleting Search Input successful", None)) )
@@ -254,7 +255,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     * @param targetSystem "PRELIVE" vs. "LIVE" ... for reference @see evolutions/default/2.sql
     * @return Ok or BadRequest, if something failed.
     */
-  def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String) = Action.async {
+  def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       logger.debug("In ApiController :: updateRulesTxtForSolrIndex")
 
@@ -281,7 +282,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def listAllSuggestedSolrFields(solrIndexId: Long) = Action.async {
+  def listAllSuggestedSolrFields(solrIndexId: Long) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       // TODO add error handling (database connection, other exceptions)
       Ok( Json.toJson(searchManagementRepository.listAllSuggestedSolrFields(solrIndexId)) )

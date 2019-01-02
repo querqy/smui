@@ -2,22 +2,22 @@ package controllers
 
 import javax.inject.Inject
 
+import controllers.auth.AuthActionFactory
 import play.api.Configuration
 import play.api.mvc._
 
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
-
 import models.FeatureToggleModel._
 
 class HomeController @Inject()(cc: MessagesControllerComponents,
                                appConfig: Configuration,
-                               featureToggleService: FeatureToggleService)(implicit executionContext: ExecutionContext)
+                               featureToggleService: FeatureToggleService,
+                               authActionFactory: AuthActionFactory)(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
   private val logger = play.api.Logger
 
-  def index(urlPath: String) = Action.async {
+  def index(urlPath: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       logger.debug("In HomeController :: index")
       Ok(
@@ -27,5 +27,17 @@ class HomeController @Inject()(cc: MessagesControllerComponents,
       )
     }(executionContext) // TODO eval withSecurity ... because of play.filters.headers.contentSecurityPolicy (and resolve general setup in application.conf)
   }
+
+  // TODO refactor authorizationTestControllerAction into a proper controller behaviour test
+  /*
+  def authorizationTestControllerAction = Action.async {
+    Future {
+      Unauthorized(
+        "{ \"action\":\"redirect\"," +
+          "\"params\":\"https://www.example.com/loginService/?urlCallback={{CURRENT_SMUI_URL}}\"" +
+          " }")
+    }
+  }
+  */
 
 }

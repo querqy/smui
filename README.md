@@ -1,4 +1,4 @@
-# Search Management UI (SMUI) - Manual version 1.4.8
+# Search Management UI (SMUI) - Manual version 1.5.0
 
 SMUI is a tool for managing Solr-based onsite search. It provides a web user interface for maintainig rules for query rewriting based on the Querqy Solr plugin for query rewriting. Please see [here](https://github.com/renekrie/querqy) for the installation of Querqy.
 
@@ -122,6 +122,26 @@ conf key | description | default
 `toggle.rule-deployment.pre-live.present` | Make separated deployments pre-live vs. live possible. | `false`
 `toggle.rule-deployment.custom-script` | If set to `true` the below custom script (path) is used for deploying the rules.txt files. | `false`
 `toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH` | Path to an optional custom script (see above). | ``
+
+##### Configure Authentication
+
+SMUI is shipped with HTTP Basic Auth support. Basic Auth can be turned on in the extension by configuring an `smui.authAction` in the config file, e.g.:
+
+```
+# For Basic Auth authentication, use SMUI's BasicAuthAuthenticatedAction (or leave it blanked / commented out for no authentication), e.g.:
+smui.authAction = controllers.auth.BasicAuthAuthenticatedAction
+smui.BasicAuthAuthenticatedAction.user = smui_user
+smui.BasicAuthAuthenticatedAction.pass = smui_pass
+```
+
+This is telling every controller method (Home and ApiController) to use the according authentication method as well as it tells SMUI's `BasicAuthAuthenticatedAction` username and password it should use. You can also implement a custom authentication action and tell SMUI to decorate its controllers with that, e.g.:
+
+```
+smui.authAction = myOwnPackage.myOwnAuthenticatedAction
+```
+
+See "Developing Custom Authentication" for details.
+
 
 #### First time start the application
 
@@ -264,6 +284,10 @@ toggle.rule-deployment.custom-script=true
 toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH="/PATH/TO/LOCAL_DEV/smui2solr-dev.sh"
 
 play.http.secret.key="<generated local play secret>"
+
+# smui.authAction = controllers.auth.BasicAuthAuthenticatedAction
+# smui.BasicAuthAuthenticatedAction.user = smui_dev_user
+# smui.BasicAuthAuthenticatedAction.pass = smui_dev_pass
 ```
 
 As you can see, for development purposes you are recommended to have a local Solr installation running as well.
@@ -287,6 +311,40 @@ exit $?
 It can be used as a basis for extension.
 
 Hint: Remember to give it a `+x` permission for being executable to the application.
+
+### Developing Custom Authentication
+
+#### Authentication Backend
+
+If you want to extend SMUI's authentication behaviour, you can do so by supplying your own authentication implementation into the classpath of SMUI's play application instance and referencing it in the `application.conf`. Your custom authentication action offers a maximum of flexibility as it is based upon play's `ActionBuilderImpl`. In addition your custom action gets the current environment's `appConfig`, so it can use configurations defined there as well. Comply with the following protocol:
+
+```
+import play.api.Configuration
+import play.api.mvc._
+import scala.concurrent.ExecutionContext
+class myOwnAuthenticatedAction(parser: BodyParsers.Default,
+                               appConfig: Configuration)(implicit ec: ExecutionContext) extends ActionBuilderImpl(parser) {
+override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
+	...
+}
+```
+
+As an example implementation, you can check `app/controllers/auth/BasicAuthAuthenticatedAction.scala` as well.
+
+#### Frontend Behaviour for Authentication
+
+The Angular frontend comes with a built-in HTTP request authentication interceptor. Every API request is observed for returned 401 status codes. In case the backend returns 401, the backend can pass an behaviour instruction to the frontend by complying with spec defined by `SmuiAuthViolation` within `app/assets/app/http-auth-interceptor.ts`, e.g.:
+
+```
+{
+  "action": "redirect",
+  "params": "https://www.example.com/loginService/?urlCallback={{CURRENT_SMUI_URL}}"
+}
+```
+
+NOTE: The authentication interceptor only joins the game, in case the Angular application is successfully bootstrap'ed. So for SMUI's `/` route, your custom authentication method might choose a different behaviour (e.g. 302).
+
+Within exemplary `redirect` action above, you can work with the `{{CURRENT_SMUI_URL}}` placeholder, that SMUI will replace with its current location as an absolute URL before the redirect gets executed. Through this, it becomes possible for the remote login service to redirect back to SMUI once the login has succeeded.
 
 ## License
 Search Management UI (SMUI) is licensed under the [Apache License, Version 2](http://www.apache.org/licenses/LICENSE-2.0.html).
