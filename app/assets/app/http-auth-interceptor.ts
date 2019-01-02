@@ -7,7 +7,7 @@ import 'rxjs/add/observable/empty';
 
 class SmuiAuthViolation {
     action: string; // supports 'redirect' currently
-    params: string; // in case of 'redirect', param contains the relativ redirect target
+    params: string; // in case of 'redirect', param contains the redirect target (absolute URL)
 }
 
 // Implementation adopted from: https://www.illucit.com/angular/angular2-http-authentication-interceptor/
