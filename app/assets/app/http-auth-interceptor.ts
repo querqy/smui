@@ -48,7 +48,10 @@ export class HttpAuthInterceptor extends Http {
         if (options.headers == null) {
             options.headers = new Headers();
         }
+        // TODO evaluate, if central definition of Content-Type makes sense
+        /*
         options.headers.append('Content-Type', 'application/json');
+        */
         return options;
     }
 

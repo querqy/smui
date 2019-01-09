@@ -1,4 +1,4 @@
-# Search Management UI (SMUI) - Manual version 1.5.0
+# Search Management UI (SMUI) - Manual version 1.5.1
 
 ![SMUI v1.5.0 screenshot](20190103_screenshot_SMUI_v1-5-0.png)
 
