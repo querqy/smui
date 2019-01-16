@@ -1,3 +1,4 @@
+import com.typesafe.sbt.GitBranchPrompt
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
@@ -19,6 +20,15 @@ val packagingSettings = Seq(
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, RpmPlugin)
+  .enablePlugins(BuildInfoPlugin)
+  .enablePlugins(GitBranchPrompt)
+  .settings(
+    buildInfoOptions += BuildInfoOption.BuildTime,
+    buildInfoOptions += BuildInfoOption.ToJson,
+    buildInfoPackage := "models.buildInfo",
+    buildInfoKeys := Seq[BuildInfoKey](name, version, "gitHash" -> git.gitHeadCommit.value.getOrElse("emptyRepository"))
+  )
+
   .settings(packagingSettings: _*)
   .settings(
     publishArtifact in (Compile, packageDoc) := false,

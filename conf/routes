@@ -3,7 +3,8 @@
 # ~~~~
 
 # Handle Requests to the Server's root, and supply the Angular SPA
-GET     /   controllers.HomeController.index(urlPath = "")
+GET     /         controllers.HomeController.index(urlPath = "")
+GET     /health   controllers.HealthController.health
 
 # serve the API v1 Specification
 # TODO search-input URL path partially "behind" solrIndexId path component and partially not
