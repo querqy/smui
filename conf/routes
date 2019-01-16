@@ -15,7 +15,7 @@ POST    /api/v1/search-input/:searchInputId              controllers.ApiControll
 DELETE  /api/v1/search-input/:searchInputId              controllers.ApiController.deleteSearchInput(searchInputId: Long)
 POST    /api/v1/:solrIndexId/rules-txt/:targetPlatform   controllers.ApiController.updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetPlatform: String)
 GET     /api/v1/:solrIndexId/suggested-solr-field        controllers.ApiController.listAllSuggestedSolrFields(solrIndexId: Long)
-
+PUT     /api/v1/solr-index                               controllers.ApiController.addNewSolrIndex
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file   controllers.Assets.versioned(path="/public", file: Asset)

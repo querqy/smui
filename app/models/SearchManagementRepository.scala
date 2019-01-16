@@ -157,6 +157,15 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     return allMatchingIndeces.head.name
   }
 
+  def addNewSolrIndex(newSolrIndex: SolrIndex): Option[Long] = db.withConnection { implicit connection =>
+    SQL("insert into solr_index(name, description) values ({index_name}, {index_description})")
+      .on(
+        'index_name -> newSolrIndex.name,
+        'index_description -> newSolrIndex.description
+      )
+      .executeInsert()
+  }
+
   /**
     * Lists all Search Inputs including directed Synonyms belonging to them (for a list overview)
     *

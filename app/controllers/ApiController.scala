@@ -53,6 +53,26 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
+  def addNewSolrIndex = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+    Future {
+      val body: AnyContent = request.body
+      val jsonBody: Option[JsValue] = body.asJson
+
+      // Expecting json body
+      jsonBody.map { json =>
+        val searchIndexName = (json \ "name").as[String]
+        val searchIndexDescription = (json \ "description").as[String]
+        val maybeSolrIndexId = searchManagementRepository.addNewSolrIndex(
+          SolrIndex(None, searchIndexName, searchIndexDescription)
+        )
+
+        Ok( Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchIndexName + "' successful.", maybeSolrIndexId)) )
+      }.getOrElse {
+        BadRequest( Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)) )
+      }
+    }
+  }
+
   def listAllSearchInputs(solrIndexId: Long) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       // TODO add error handling (database connection, other exceptions)

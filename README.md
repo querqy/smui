@@ -1,4 +1,4 @@
-# Search Management UI (SMUI) - Manual version 1.5.1
+# Search Management UI (SMUI) - Manual version 1.5.2
 
 ![SMUI v1.5.0 screenshot](20190103_screenshot_SMUI_v1-5-0.png)
 
@@ -267,7 +267,6 @@ For developing new features and test the application with different type of conf
 ```
 include "application.conf"
 
-db.default.driver=com.mysql.jdbc.Driver
 db.default.url="jdbc:mysql://localhost/smui?autoReconnect=true&useSSL=false"
 db.default.username="local_dev_db_user"
 db.default.password="local_dev_db_pass"
