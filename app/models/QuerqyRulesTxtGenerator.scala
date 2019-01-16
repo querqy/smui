@@ -6,7 +6,7 @@ import javax.inject.Inject
 import org.joda.time.DateTime
 import models.SearchManagementModel._
 import models.FeatureToggleModel._
-import querqy.parser.WhiteSpaceQuerqyParserFactory
+import querqy.rewrite.commonrules.WhiteSpaceQuerqyParserFactory
 import querqy.rewrite.commonrules.SimpleCommonRulesParser
 
 @javax.inject.Singleton
@@ -50,7 +50,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
 
   def renderSearchInputRulesForTerm(term: String, searchInput: SearchInput): String = {
 
-    var retSearchInputRulesTxtPartial = new StringBuilder()
+    val retSearchInputRulesTxtPartial = new StringBuilder()
     retSearchInputRulesTxtPartial.append(term + " =>\n")
 
     val allSynonymTerms: List[String] = searchInput.term ::
@@ -77,7 +77,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       retSearchInputRulesTxtPartial.append(renderDeleteRule(deleteRule))
     }
 
-    if( featureToggleService.getToggleRuleDeploymentAutoDecorateExportHash ) {
+    if (featureToggleService.getToggleRuleDeploymentAutoDecorateExportHash) {
       retSearchInputRulesTxtPartial.append(renderDecorateExportHash(retSearchInputRulesTxtPartial.toString()))
     }
 
@@ -85,7 +85,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   }
 
   private def renderSearchInputRules(searchInput: SearchInput): String = {
-    var retQuerqyRulesTxtPartial = new StringBuilder()
+    val retQuerqyRulesTxtPartial = new StringBuilder()
 
     // take SearchInput term and according DIRECTED SynonymRule to render related rules
     val allInputTerms: List[String] = searchInput.term ::
@@ -104,17 +104,17 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   /**
     * TODO
     *
-    * @param solrIndexId TODO
-    * @param separateRulesTxts Whether to split rules.txt from decompound-rules.txt (true) or not (false).
+    * @param solrIndexId             TODO
+    * @param separateRulesTxts       Whether to split rules.txt from decompound-rules.txt (true) or not (false).
     * @param renderCompoundsRulesTxt Defining, if decompound-rules.txt (true) or rules.txt (false) should be rendered. Only important, if `separateRulesTxts` is `true`.
     * @return
     */
   private def render(solrIndexId: Long, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean): String = {
 
-    var retQuerqyRulesTxt = new StringBuilder()
+    val retQuerqyRulesTxt = new StringBuilder()
 
     // retrieve all detail search input data, that have a (trimmed) input term and minimum one rule
-    var listSearchInput: List[SearchInput] = searchManagementRepository
+    val listSearchInput: List[SearchInput] = searchManagementRepository
       .listAllSearchInputsInclDirectedSynonyms(solrIndexId)
       .filter(i => i.term.trim().nonEmpty)
       .map(i => {
@@ -124,26 +124,31 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       // filter all inputs, that do not have any active rule
       // TODO it needs to be ensured, that a rule not only exists in the list, are active, BUT also has a filled term (after trim)
       .filter(i =>
-        (i.synonymRules.filter(r => r.isActive).size > 0) ||
-        (i.upDownRules.filter(r => r.isActive).size > 0) ||
-        (i.filterRules.filter(r => r.isActive).size > 0) ||
-        (i.deleteRules.filter(r => r.isActive).size > 0)
-      );
+      i.synonymRules.exists(r => r.isActive) ||
+        i.upDownRules.exists(r => r.isActive) ||
+        i.filterRules.exists(r => r.isActive) ||
+        i.deleteRules.exists(r => r.isActive)
+    )
+
+    // TODO merge decompound identification login with ApiController :: validateSearchInputToErrMsg
+
 
     // separate decompound-rules.txt from rules.txt
-    // TODO could be done in the above filter statements as well, making listSearchInput a val
-    // TODO merge decompound identification login with ApiController :: validateSearchInputToErrMsg
-    if( separateRulesTxts ) {
-      if( renderCompoundsRulesTxt ) {
-        listSearchInput = listSearchInput.filter(i => i.term.trim().endsWith("*"))
+    def separateRules(listSearchInput: List[SearchInput]) = {
+      if (separateRulesTxts) {
+        if (renderCompoundsRulesTxt) {
+          listSearchInput.filter(i => i.term.trim().endsWith("*"))
+        } else {
+          listSearchInput.filter(i => !i.term.trim().endsWith("*"))
+        }
       } else {
-        listSearchInput = listSearchInput.filter(i => !i.term.trim().endsWith("*"))
+        listSearchInput
       }
     }
 
     // iterate all SearchInput terms and render related rules
-    for (searchInput <- listSearchInput) {
-      retQuerqyRulesTxt.append( renderSearchInputRules(searchInput) )
+    for (searchInput <- separateRules(listSearchInput)) {
+      retQuerqyRulesTxt.append(renderSearchInputRules(searchInput))
     }
 
     retQuerqyRulesTxt.toString()
@@ -198,23 +203,27 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
 
     // if input contains *-Wildcard, all synonyms must be directed
     // TODO discuss if (1) contains or (2) endsWith is the right interpretation
-    if(searchInput.term.trim().contains("*")) {
-      if(searchInput.synonymRules.filter(r => r.synonymType == 0).size > 0) {
+    val synonymsDirectedCheck: Option[String] = if (searchInput.term.trim().contains("*")) {
+      if (searchInput.synonymRules.exists(r => r.synonymType == 0)) {
         Some("Wildcard *-using input ('\" + searchInput.term + \"') has undirected synonym rule")
-      }
-    }
+      } else None
+    } else None
 
     // undirected synonyms must not contain *-Wildcard
-    if(searchInput.synonymRules.filter(r => r.synonymType == 0 && r.term.trim().contains("*")).size > 0) {
+    val undirectedSynonymsCheck: Option[String] = if (searchInput.synonymRules.exists(r => r.synonymType == 0 && r.term.trim().contains("*"))) {
       Some("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')")
-    }
+    } else None
 
     // finally validate as well against querqy parser
 
     // TODO validate both inputs and rules, for all undirected synonym terms in this input
-    validateQuerqyRulesTxtToErrMsg(
+    List(validateQuerqyRulesTxtToErrMsg(
       this.renderSearchInputRulesForTerm(searchInput.term, searchInput)
-    )
+    ), undirectedSynonymsCheck, synonymsDirectedCheck).foldLeft[Option[String]](None) {
+      case (Some(res), Some(error)) => Some(res + ", " + error)
+      case (Some(res), None) => Some(res)
+      case (None, errOpt) => errOpt
+    }
   }
 
 

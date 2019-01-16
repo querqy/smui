@@ -12,7 +12,7 @@ package object FeatureToggleModel {
 
   class JsBoolFeatureToggleValue(bState: Boolean) extends JsFeatureToggleValue {
     override def render(): String = {
-      if(bState) "true" else "false"
+      bState.toString
     }
   }
 
@@ -45,23 +45,23 @@ package object FeatureToggleModel {
     }
 
     def getToggleRuleDeploymentAutoDecorateExportHash: Boolean = {
-      appConfig.getBoolean(FEATURE_TOGGLE_RULE_DEPLOYMENT_AUTO_DECORATE_EXPORT_HASH).getOrElse(false)
+      appConfig.getOptional[Boolean](FEATURE_TOGGLE_RULE_DEPLOYMENT_AUTO_DECORATE_EXPORT_HASH).getOrElse(false)
     }
 
     def getToggleRuleDeploymentSplitDecompoundRulesTxt: Boolean = {
-      appConfig.getBoolean(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT).getOrElse(false)
+      appConfig.getOptional[Boolean](FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT).getOrElse(false)
     }
 
     def getToggleRuleDeploymentSplitDecompoundRulesTxtDstCpFileTo: String = {
-      appConfig.getString(FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO).getOrElse("")
+      appConfig.getOptional[String](FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO).getOrElse("")
     }
 
     def getToggleRuleDeploymentCustomScript: Boolean = {
-      appConfig.getBoolean(FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT).getOrElse(false)
+      appConfig.getOptional[Boolean](FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT).getOrElse(false)
     }
 
     def getToggleRuleDeploymentCustomScriptSmui2solrShPath: String = {
-      appConfig.getString(FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH).getOrElse("")
+      appConfig.getOptional[String](FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH).getOrElse("")
     }
   }
 

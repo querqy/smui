@@ -1,7 +1,6 @@
 package controllers
 
 import javax.inject.Inject
-
 import controllers.auth.AuthActionFactory
 import play.api.Configuration
 import play.api.mvc._
