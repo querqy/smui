@@ -1,4 +1,4 @@
-# Search Management UI (SMUI) - Manual version 1.5.3
+# Search Management UI (SMUI) - Manual version 2.0.0
 
 ![SMUI v1.5.0 screenshot](20190103_screenshot_SMUI_v1-5-0.png)
 
@@ -31,6 +31,21 @@ CREATE DATABASE smui;
 GRANT ALL PRIVILEGES ON smui.* TO 'smui'@'localhost' WITH GRANT OPTION;
 ```
 
+Supported (tested) databases:
+
+In principal SMUI database connection implementation is based on JDBC as well as only standard SQL is used, so technically every database management system supported by JDBC should be supported by SMUI as well. However as database management systems potentially come with specific features, SMUI explicity is tested (and/or productively used) only with the following database management systems:
+
+* MySQL
+* MariaDB
+* PostgreSQL
+
+#### Migrate pre 2.0.0 database versions
+As of version 2 of SMUI various database management systems are supported. With that, the daabase schema changed. To migrate the previous MySQL- or MariaDB-data to be compatible with SMUI version 2 you can use the following script, e.g.:
+
+```
+tbd
+```
+
 ### Step 3: Configure runtime and application
 
 #### Configure runtime (shell level)
@@ -43,7 +58,7 @@ variable name | description
 `SMUI_CONF_LOG_BASE_PATH` | Base path for the logs to happen.
 `SMUI_CONF_LOGBACK_XML_PATH` | logback.xml config file path.
 `SMUI_CONF_APP_CONF` | application.conf config file path.
-`SMUI_CONF_HTTP_PORT` | Application's HHTP port.
+`SMUI_CONF_HTTP_PORT` | Application's HTTP port.
 
 If present, the following file can manipulate these variables:
 
@@ -95,6 +110,8 @@ smui2solr.SOLR_HOST="localhost:8983"
 
 play.http.secret.key="generated application secret"
 ```
+
+Database URL and credentials alternatively can be passed as environment variables (e.g. `SMUI_DB_URL`, see `conf/application.conf`). Your `smui-prod.conf` in this case leaves the according config lines empty. This is especially useful when instantiating SMUI in a `docker`, `docker-compose` or cloud environment.
 
 The following sections describe application configs in more detail.
 

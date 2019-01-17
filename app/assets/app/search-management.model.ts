@@ -1,18 +1,18 @@
 export class SolrIndex {
-  id: number;
+  id: string;
   name: string;
   description: string;
 }
 
 export class SynonymRule {
-  id: number;
+  id: string;
   synonymType: number;
   term: string;
   isActive: boolean;
 }
 
 export class UpDownRule {
-  id: number;
+  id: string;
   upDownType?: number;
   boostMalusValue?: number;
   term: string;
@@ -36,20 +36,20 @@ export const upDownDropdownDefinitionMappings = [
 ];
 
 export class FilterRule {
-  id: number;
+  id: string;
   term: string;
   suggestedSolrFieldName?: string;
   isActive: boolean;
 }
 
 export class DeleteRule {
-  id: number;
+  id: string;
   term: string;
   isActive: boolean;
 }
 
 export class SearchInput {
-  id: number;
+  id: string;
   term: string;
   synonymRules: Array<SynonymRule>;
   upDownRules: Array<UpDownRule>;
@@ -58,6 +58,6 @@ export class SearchInput {
 }
 
 export class SuggestedSolrField {
-  id: number;
+  id: string;
   name: string;
 }

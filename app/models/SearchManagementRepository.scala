@@ -1,12 +1,13 @@
 package models
 
+import java.util.UUID
+import java.util.Date
 import javax.inject.Inject
 
 import anorm.SqlParser._
 import anorm._
 import play.api.db.DBApi
 
-import scala.concurrent.Future
 import models.SearchManagementModel._
 
 import scala.collection.mutable.ListBuffer
@@ -20,7 +21,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     * Parse a SearchInput from a ResultSet
     */
   private[models] val simpleSolrIndex = {
-    get[Option[Long]]("solr_index.id") ~
+    get[Option[String]]("solr_index.id") ~
       get[String]("solr_index.name") ~
       get[String]("solr_index.description") map {
       case id~name~description => SolrIndex(id, name, description)
@@ -31,7 +32,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     * Parse a SearchInput from a ResultSet
     */
   private[models] val simpleSearchInput = {
-    get[Option[Long]]("search_input.id") ~
+    get[Option[String]]("search_input.id") ~
       get[String]("search_input.term") map {
       case id~term => SearchInput(id, term, List[SynonymRule](), List[UpDownRule](), List[FilterRule](), List[DeleteRule]())
     }
@@ -41,7 +42,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     * Parse a SynonymRule from a ResultSet
     */
   private[models] val simpleSynonymRule = {
-    get[Option[Long]]("synonym_rule.id") ~
+    get[Option[String]]("synonym_rule.id") ~
       get[Int]("synonym_rule.synonym_type") ~
       get[String]("synonym_rule.term") ~
       get[Int]("synonym_rule.status") map {
@@ -53,7 +54,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     * Parse a UpDownRule from a ResultSet
     */
   private[models] val simpleUpDownRule = {
-    get[Option[Long]]("up_down_rule.id") ~
+    get[Option[String]]("up_down_rule.id") ~
       get[Int]("up_down_rule.up_down_type") ~
       get[Int]("up_down_rule.boost_malus_value") ~
       get[String]("up_down_rule.term") ~
@@ -66,7 +67,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     * Parse a FilterRule from a ResultSet
     */
   private[models] val simpleFilterRule = {
-    get[Option[Long]]("filter_rule.id") ~
+    get[Option[String]]("filter_rule.id") ~
       get[String]("filter_rule.term") ~
       get[Int]("filter_rule.status") map {
       case id~term~status => FilterRule(id, term, (status & 0x01) == 0x01)
@@ -77,7 +78,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     * Parse a DeleteRule from a ResultSet
     */
   private[models] val simpleDeleteRule = {
-    get[Option[Long]]("delete_rule.id") ~
+    get[Option[String]]("delete_rule.id") ~
       get[String]("delete_rule.term") ~
       get[Int]("delete_rule.status") map {
       case id~term~status => DeleteRule(id, term, (status & 0x01) == 0x01)
@@ -88,13 +89,13 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     * Parse a DeleteRule from a ResultSet
     */
   private[models] val simpleSuggestedSolrField = {
-    get[Option[Long]]("suggested_solr_field.id") ~
+    get[Option[String]]("suggested_solr_field.id") ~
       get[String]("suggested_solr_field.name") map {
       case id~name => SuggestedSolrField(id, name)
     }
   }
 
-  def getSyonymRulesForSearchInputWithId(searchInputId: Long, maybeRestrictSynonymType: Option[Int]): List[SynonymRule] = db.withConnection { implicit connection => {
+  def getSyonymRulesForSearchInputWithId(searchInputId: String, maybeRestrictSynonymType: Option[Int]): List[SynonymRule] = db.withConnection { implicit connection => {
       // TODO solve more elegant while adding a whole anorm-SQL-AND-clause conditionally in match/case (not only SQL-string components)
       val STATIC_SQL_PREFIX = "select * from synonym_rule where synonym_rule.search_input_id = {search_input_id}"
       val STATIC_SQL_SUFFIX = "order by synonym_rule.term"
@@ -116,19 +117,19 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     }
   }
 
-  def getUpDownRulesForSearchInputWithId(searchInputId: Long): List[UpDownRule] = db.withConnection { implicit connection =>
+  def getUpDownRulesForSearchInputWithId(searchInputId: String): List[UpDownRule] = db.withConnection { implicit connection =>
     SQL("select * from up_down_rule where up_down_rule.search_input_id = {search_input_id} order by up_down_rule.term")
     .on('search_input_id -> searchInputId)
     .as(simpleUpDownRule *)
   }
 
-  def getFilterRulesForSearchInputWithId(searchInputId: Long): List[FilterRule] = db.withConnection { implicit connection =>
+  def getFilterRulesForSearchInputWithId(searchInputId: String): List[FilterRule] = db.withConnection { implicit connection =>
     SQL("select * from filter_rule where filter_rule.search_input_id = {search_input_id} order by filter_rule.term")
       .on('search_input_id -> searchInputId)
       .as(simpleFilterRule *)
   }
 
-  def getDeleteRulesForSearchInputWithId(searchInputId: Long): List[DeleteRule] = db.withConnection { implicit connection =>
+  def getDeleteRulesForSearchInputWithId(searchInputId: String): List[DeleteRule] = db.withConnection { implicit connection =>
     SQL("select * from delete_rule where delete_rule.search_input_id = {search_input_id} order by delete_rule.term")
       .on('search_input_id -> searchInputId)
       .as(simpleDeleteRule *)
@@ -144,7 +145,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     .as(simpleSolrIndex *)
   }
 
-  def getSolrIndexName(solrIndexId: Long): String = db.withConnection { implicit connection =>
+  def getSolrIndexName(solrIndexId: String): String = db.withConnection { implicit connection =>
     val allMatchingIndeces = SQL(
         "select * from solr_index " +
         "where id = {solr_index_id}"
@@ -157,13 +158,17 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     return allMatchingIndeces.head.name
   }
 
-  def addNewSolrIndex(newSolrIndex: SolrIndex): Option[Long] = db.withConnection { implicit connection =>
-    SQL("insert into solr_index(name, description) values ({index_name}, {index_description})")
+  def addNewSolrIndex(newSolrIndex: SolrIndex): Option[String] = db.withConnection { implicit connection =>
+    val newId = UUID.randomUUID().toString()
+    SQL("insert into solr_index(id, name, description, last_update) values ({id}, {index_name}, {index_description}, {last_update})")
       .on(
+        'id -> newId,
         'index_name -> newSolrIndex.name,
-        'index_description -> newSolrIndex.description
+        'index_description -> newSolrIndex.description,
+        'last_update -> new Date()
       )
       .executeInsert()
+    Some(newId)
   }
 
   /**
@@ -171,7 +176,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     *
     * @return tbd
     */
-  def listAllSearchInputsInclDirectedSynonyms(solrIndexId: Long): List[SearchInput] = db.withConnection { implicit connection =>
+  def listAllSearchInputsInclDirectedSynonyms(solrIndexId: String): List[SearchInput] = db.withConnection { implicit connection =>
     var resultListSearchInput: List[SearchInput] =
       SQL(
         "select * from search_input " +
@@ -197,13 +202,17 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     * @param searchInputTerm
     * @return
     */
-  def addNewSearchInput(solrIndexId: Long, searchInputTerm: String): Option[Long] = db.withConnection { implicit connection =>
-    SQL("insert into search_input(term, solr_index_id) values ({synonym_term}, {solr_index_id})")
+  def addNewSearchInput(solrIndexId: String, searchInputTerm: String): Option[String] = db.withConnection { implicit connection =>
+    val newId = UUID.randomUUID().toString()
+    SQL("insert into search_input(id, term, solr_index_id, last_update) values ({id}, {synonym_term}, {solr_index_id}, {last_update})")
       .on(
+        'id -> newId,
         'synonym_term -> searchInputTerm,
-        'solr_index_id -> solrIndexId
+        'solr_index_id -> solrIndexId,
+        'last_update -> new Date()
       )
       .executeInsert()
+    Some(newId)
   }
 
   /**
@@ -212,7 +221,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     * @param searchInputId tbd
     * @return tbd
     */
-  def getDetailedSearchInput(searchInputId: Long) = db.withConnection { implicit connection =>
+  def getDetailedSearchInput(searchInputId: String) = db.withConnection { implicit connection =>
     var resultListSearchInput: List[SearchInput] =
       SQL("select * from search_input where search_input.id = {search_input_id}")
           .on('search_input_id -> searchInputId)
@@ -230,7 +239,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
 
   def diffAndUpdateSynonymRulesOfSearchInput(searchInput: SearchInput) = db.withConnection { implicit connection =>
     // diff synonymRules
-    var unconsideredSynonymRuleIds = ListBuffer.empty[Long]
+    var unconsideredSynonymRuleIds = ListBuffer.empty[String]
     // ... update matching
     for (existingSynonymRule <- getSyonymRulesForSearchInputWithId(searchInput.id.get, None)) {
       var bFound = false
@@ -243,13 +252,15 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
                   "set " +
                     "synonym_rule.synonym_type = {synonym_rule_type}, " +
                     "synonym_rule.term = {synonym_rule_term}, " +
-                    "synonym_rule.status = {synonym_status} " +
+                    "synonym_rule.status = {synonym_status}, " +
+                    "synonym_rule.last_update = {last_update} " +
                   "where synonym_rule.id = {synonym_rule_id}"
               )
                 .on(
                   'synonym_rule_type -> updateSynonymRule.synonymType,
                   'synonym_rule_term -> updateSynonymRule.term,
                   'synonym_status -> (if(updateSynonymRule.isActive) 0x01 else 0x00),
+                  'last_update -> new Date(),
                   'synonym_rule_id -> updateSynonymRuleId
                 )
                 .executeUpdate()
@@ -270,20 +281,22 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     // ... insert newly added
     for (newSynonymRule <- searchInput.synonymRules.filter(r => r.id.isEmpty)) {
       SQL(
-        "insert into synonym_rule(synonym_type, term, status, search_input_id) " +
-          "values ({synonym_type}, {synonym_term}, {synonym_status}, {search_input_id})")
+        "insert into synonym_rule(id, synonym_type, term, status, search_input_id, last_update) " +
+          "values ({id}, {synonym_type}, {synonym_term}, {synonym_status}, {search_input_id}, {last_update})")
         .on(
+          'id -> UUID.randomUUID().toString(),
           'synonym_type -> newSynonymRule.synonymType,
           'synonym_term -> newSynonymRule.term,
           'synonym_status -> (if(newSynonymRule.isActive) 0x01 else 0x00),
-          'search_input_id -> searchInput.id.get
+          'search_input_id -> searchInput.id.get,
+          'last_update -> new Date()
         )
         .executeInsert()
     }
   }
 
   def diffAndUpdateUpDownRulesOfSearchInput(searchInput: SearchInput) = db.withConnection { implicit connection =>
-    var unconsideredUpDownRuleIds = ListBuffer.empty[Long]
+    var unconsideredUpDownRuleIds = ListBuffer.empty[String]
     // ... update matching
     for (existingUpDownRule <- getUpDownRulesForSearchInputWithId(searchInput.id.get)) {
       var bFound = false
@@ -297,7 +310,8 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
                     "up_down_rule.up_down_type = {up_down_type}, " +
                     "up_down_rule.boost_malus_value = {boost_malus_value}, " +
                     "up_down_rule.term = {up_down_rule_term}, " +
-                    "up_down_rule.status = {up_down_rule_status} " +
+                    "up_down_rule.status = {up_down_rule_status}, " +
+                    "up_down_rule.last_update = {last_update} " +
                   "where up_down_rule.id = {up_down_rule_id}"
               )
                 .on(
@@ -305,6 +319,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
                   'boost_malus_value -> updateUpDownRule.boostMalusValue,
                   'up_down_rule_term -> updateUpDownRule.term,
                   'up_down_rule_status -> (if(updateUpDownRule.isActive) 0x01 else 0x00),
+                  'last_update -> new Date(),
                   'up_down_rule_id -> updateUpDownRuleId
                 )
                 .executeUpdate()
@@ -325,21 +340,23 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     // ... insert newly added
     for (newUpDownRule <- searchInput.upDownRules.filter(r => r.id.isEmpty)) {
       SQL(
-        "insert into up_down_rule(up_down_type, boost_malus_value, term, status, search_input_id) " +
-          "values ({up_down_type}, {boost_malus_value}, {up_down_rule_term}, {up_down_rule_status}, {search_input_id})")
+        "insert into up_down_rule(id, up_down_type, boost_malus_value, term, status, search_input_id, last_update) " +
+          "values ({id}, {up_down_type}, {boost_malus_value}, {up_down_rule_term}, {up_down_rule_status}, {search_input_id}, {last_update})")
         .on(
+          'id -> UUID.randomUUID().toString(),
           'up_down_type -> newUpDownRule.upDownType,
           'boost_malus_value -> newUpDownRule.boostMalusValue,
           'up_down_rule_term -> newUpDownRule.term,
           'up_down_rule_status -> (if(newUpDownRule.isActive) 0x01 else 0x00),
-          'search_input_id -> searchInput.id.get
+          'search_input_id -> searchInput.id.get,
+          'last_update -> new Date()
         )
         .executeInsert()
     }
   }
 
   def diffAndUpdateFilterRulesOfSearchInput(searchInput: SearchInput) = db.withConnection { implicit connection =>
-    var unconsideredFilterRuleIds = ListBuffer.empty[Long]
+    var unconsideredFilterRuleIds = ListBuffer.empty[String]
     // ... update matching
     for (existingFilterRule <- getFilterRulesForSearchInputWithId(searchInput.id.get)) {
       var bFound = false
@@ -351,12 +368,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
                 "update filter_rule " +
                   "set " +
                     "filter_rule.term = {filter_rule_term}, " +
-                    "filter_rule.status = {filter_rule_status} " +
+                    "filter_rule.status = {filter_rule_status}, " +
+                    "filter_rule.last_update = {last_update} " +
                   "where filter_rule.id = {filter_rule_id}"
               )
                 .on(
                   'filter_rule_term -> updateFilterRule.term,
                   'filter_rule_status -> (if(updateFilterRule.isActive) 0x01 else 0x00),
+                  'last_update -> new Date(),
                   'filter_rule_id -> updateFilterRuleId
                 )
                 .executeUpdate()
@@ -377,19 +396,21 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     // ... insert newly added
     for (newFilterRule <- searchInput.filterRules.filter(r => r.id.isEmpty)) {
       SQL(
-        "insert into filter_rule(term, status, search_input_id) " +
-          "values ({filter_rule_term}, {filter_rule_status}, {search_input_id})")
+        "insert into filter_rule(id, term, status, search_input_id, last_update) " +
+          "values ({id}, {filter_rule_term}, {filter_rule_status}, {search_input_id}, {last_update})")
         .on(
+          'id -> UUID.randomUUID().toString,
           'filter_rule_term -> newFilterRule.term,
           'filter_rule_status -> (if(newFilterRule.isActive) 0x01 else 0x00),
-          'search_input_id -> searchInput.id.get
+          'search_input_id -> searchInput.id.get,
+          'last_update -> new Date()
         )
         .executeInsert()
     }
   }
 
   def diffAndUpdateDeleteRulesOfSearchInput(searchInput: SearchInput) = db.withConnection { implicit connection =>
-    var unconsideredDeleteRuleIds = ListBuffer.empty[Long]
+    var unconsideredDeleteRuleIds = ListBuffer.empty[String]
     // ... update matching
     for (existingDeleteRule <- getDeleteRulesForSearchInputWithId(searchInput.id.get)) {
       var bFound = false
@@ -401,12 +422,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
                 "update delete_rule " +
                   "set " +
                     "delete_rule.term = {delete_rule_term}, " +
-                    "delete_rule.status = {delete_rule_status} " +
+                    "delete_rule.status = {delete_rule_status}, " +
+                    "delete_rule.last_update = {last_update}" +
                   "where delete_rule.id = {delete_rule_id}"
               )
                 .on(
                   'delete_rule_term -> updateDeleteRule.term,
                   'delete_rule_status -> (if(updateDeleteRule.isActive) 0x01 else 0x00),
+                  'last_update -> new Date(),
                   'delete_rule_id -> updateDeleteRuleId
                 )
                 .executeUpdate()
@@ -427,12 +450,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     // ... insert newly added
     for (newDeleteRule <- searchInput.deleteRules.filter(r => r.id.isEmpty)) {
       SQL(
-        "insert into delete_rule(term, status, search_input_id) " +
-          "values ({delete_rule_term}, {delete_rule_status}, {search_input_id})")
+        "insert into delete_rule(id, term, status, search_input_id, last_update) " +
+          "values ({id}, {delete_rule_term}, {delete_rule_status}, {search_input_id}, {last_update})")
         .on(
+          'id -> UUID.randomUUID().toString(),
           'delete_rule_term -> newDeleteRule.term,
           'delete_rule_status -> (if(newDeleteRule.isActive) 0x01 else 0x00),
-          'search_input_id -> searchInput.id.get
+          'search_input_id -> searchInput.id.get,
+          'last_update -> new Date()
         )
         .executeInsert()
     }
@@ -449,10 +474,13 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     // update SearchInput itself
     SQL(
       "update search_input " +
-      "set search_input.term = {search_input_term} " +
+        "set " +
+          "search_input.term = {search_input_term}, " +
+          "search_input.last_update = {last_update} " +
       "where search_input.id = {search_input_id}")
     .on(
       'search_input_id -> searchInput.id,
+      'last_update -> new Date(),
       'search_input_term -> searchInput.term
     )
     .executeUpdate()
@@ -471,7 +499,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     * @param searchInputId tbd
     * @return tbd
     */
-  def deleteSearchInput(searchInputId: Long) = db.withConnection { implicit connection =>
+  def deleteSearchInput(searchInputId: String) = db.withConnection { implicit connection =>
     // TODO maybe realise as BatchSql
     // TODO verify amount of deleted DB entries
     SQL("delete from delete_rule where delete_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute()
@@ -481,7 +509,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     SQL("delete from search_input where search_input.id = {search_input_id}").on('search_input_id -> searchInputId).execute()
   }
 
-  def listAllSuggestedSolrFields(solrIndexId: Long) = db.withConnection { implicit connection =>
+  def listAllSuggestedSolrFields(solrIndexId: String) = db.withConnection { implicit connection =>
     SQL(
       "select * from suggested_solr_field " +
       "where solr_index_id = {solr_index_id} " +
@@ -493,11 +521,26 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     .as(simpleSuggestedSolrField *)
   }
 
-  def addNewDeploymentLogOk(solrIndexId: Long, targetPlatform: String) = db.withConnection { implicit connection =>
-    SQL("insert into deployment_log(solr_index_id, target_platform) values ({solr_index_id}, {target_platform})")
+  def addNewSuggestedSolrField(solrIndexId: String, suggestedSolrFieldName: String): Option[String] = db.withConnection { implicit connection =>
+    val newId = UUID.randomUUID().toString()
+    SQL("insert into suggested_solr_field(id, name, solr_index_id, last_update) values ({id}, {name}, {solr_index_id}, {last_update})")
       .on(
+        'id -> newId,
+        'name -> suggestedSolrFieldName,
         'solr_index_id -> solrIndexId,
-        'target_platform -> targetPlatform
+        'last_update -> new Date()
+      )
+      .executeInsert()
+    Some(newId)
+  }
+
+  def addNewDeploymentLogOk(solrIndexId: String, targetPlatform: String) = db.withConnection { implicit connection =>
+    SQL("insert into deployment_log(id, solr_index_id, target_platform, last_update) values ({id}, {solr_index_id}, {target_platform}, {last_update})")
+      .on(
+        'id -> UUID.randomUUID().toString(),
+        'solr_index_id -> solrIndexId,
+        'target_platform -> targetPlatform,
+        'last_update -> new Date()
       )
       .executeInsert()
   }

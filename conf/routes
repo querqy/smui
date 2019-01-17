@@ -9,14 +9,15 @@ GET     /health   controllers.HealthController.health
 # serve the API v1 Specification
 # TODO search-input URL path partially "behind" solrIndexId path component and partially not
 GET     /api/v1/solr-index                               controllers.ApiController.listAllSolrIndeces
-GET     /api/v1/:solrIndexId/search-input                controllers.ApiController.listAllSearchInputs(solrIndexId: Long)
-GET     /api/v1/search-input/:searchInputId              controllers.ApiController.getDetailedSearchInput(searchInputId: Long)
-PUT     /api/v1/:solrIndexId/search-input                controllers.ApiController.addNewSearchInput(solrIndexId: Long)
-POST    /api/v1/search-input/:searchInputId              controllers.ApiController.updateSearchInput(searchInputId: Long)
-DELETE  /api/v1/search-input/:searchInputId              controllers.ApiController.deleteSearchInput(searchInputId: Long)
-POST    /api/v1/:solrIndexId/rules-txt/:targetPlatform   controllers.ApiController.updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetPlatform: String)
-GET     /api/v1/:solrIndexId/suggested-solr-field        controllers.ApiController.listAllSuggestedSolrFields(solrIndexId: Long)
 PUT     /api/v1/solr-index                               controllers.ApiController.addNewSolrIndex
+GET     /api/v1/:solrIndexId/search-input                controllers.ApiController.listAllSearchInputs(solrIndexId: String)
+GET     /api/v1/search-input/:searchInputId              controllers.ApiController.getDetailedSearchInput(searchInputId: String)
+PUT     /api/v1/:solrIndexId/search-input                controllers.ApiController.addNewSearchInput(solrIndexId: String)
+POST    /api/v1/search-input/:searchInputId              controllers.ApiController.updateSearchInput(searchInputId: String)
+DELETE  /api/v1/search-input/:searchInputId              controllers.ApiController.deleteSearchInput(searchInputId: String)
+POST    /api/v1/:solrIndexId/rules-txt/:targetPlatform   controllers.ApiController.updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: String, targetPlatform: String)
+GET     /api/v1/:solrIndexId/suggested-solr-field        controllers.ApiController.listAllSuggestedSolrFields(solrIndexId: String)
+PUT     /api/v1/:solrIndexId/suggested-solr-field        controllers.ApiController.addNewSuggestedSolrField(solrIndexId: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file   controllers.Assets.versioned(path="/public", file: Asset)

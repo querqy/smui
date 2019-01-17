@@ -27,7 +27,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   val API_RESULT_OK = "OK"
   val API_RESULT_FAIL = "KO"
 
-  case class ApiResult(result: String, message: String, returnId: Option[Long])
+  case class ApiResult(result: String, message: String, returnId: Option[String])
 
   implicit val solrIndexWrites = Json.writes[SolrIndex]
   implicit val suggestedSolrFieldWrites = Json.writes[SuggestedSolrField]
@@ -72,21 +72,21 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def listAllSearchInputs(solrIndexId: Long) = authActionFactory.getAuthenticatedAction(Action).async {
+  def listAllSearchInputs(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       // TODO add error handling (database connection, other exceptions)
       Ok(Json.toJson(searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(solrIndexId)))
     }
   }
 
-  def getDetailedSearchInput(searchInputId: Long) = authActionFactory.getAuthenticatedAction(Action).async {
+  def getDetailedSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       // TODO add error handling (database connection, other exceptions)
       Ok(Json.toJson(searchManagementRepository.getDetailedSearchInput(searchInputId)))
     }
   }
 
-  def addNewSearchInput(solrIndexId: Long) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def addNewSearchInput(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
       val body: AnyContent = request.body
       val jsonBody: Option[JsValue] = body.asJson
@@ -103,7 +103,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def updateSearchInput(searchInputId: Long) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def updateSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
 
       val body: AnyContent = request.body
@@ -131,7 +131,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def deleteSearchInput(searchInputId: Long) = authActionFactory.getAuthenticatedAction(Action).async {
+  def deleteSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       searchManagementRepository.deleteSearchInput(searchInputId)
       Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Search Input successful", None)))
@@ -145,7 +145,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     * @return List of {{_1}} = source filename, {{_2}} destination filename, {{_3}} rules.txt content. The first entry - by contract - does
     *         always contain the regular rules.txt. The second one - optionally - contains the decompound-rules.txt.
     */
-  private def generateSrcDstFilenamesToCompleteRulesTxts(solrIndexId: Long): List[(String, String, String)] = {
+  private def generateSrcDstFilenamesToCompleteRulesTxts(solrIndexId: String): List[(String, String, String)] = {
 
     val SRC_TMP_FILE = appConfig.getOptional[String]("smui2solr.SRC_TMP_FILE").getOrElse("/tmp/search-management-ui_rules-txt.tmp")
     val DST_CP_FILE_TO = appConfig.getOptional[String]("smui2solr.DST_CP_FILE_TO").getOrElse("/usr/bin/solr/defaultCore/conf/rules.txt")
@@ -231,7 +231,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     )
   }
 
-  private def executeDeploymentScript(srcDstFilenamesToCompleteRulesTxts: List[(String, String, String)], solrIndexId: Long, targetSystem: String): Int = {
+  private def executeDeploymentScript(srcDstFilenamesToCompleteRulesTxts: List[(String, String, String)], solrIndexId: String, targetSystem: String): Int = {
 
     val SOLR_HOST = appConfig.getOptional[String]("smui2solr.SOLR_HOST").getOrElse("localhost:8983")
     val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(solrIndexId)
@@ -273,10 +273,10 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     * while using the smui2solr.sh or a custom script.
     *
     * @param solrIndexId  Id of the Solr Index in the database
-    * @param targetSystem "PRELIVE" vs. "LIVE" ... for reference @see evolutions/default/2.sql
+    * @param targetSystem "PRELIVE" vs. "LIVE" ... for reference @see evolutions/default/1.sql
     * @return Ok or BadRequest, if something failed.
     */
-  def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: Long, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+  def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       logger.debug("In ApiController :: updateRulesTxtForSolrIndex")
 
@@ -303,10 +303,29 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def listAllSuggestedSolrFields(solrIndexId: Long): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+  def listAllSuggestedSolrFields(solrIndexId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       // TODO add error handling (database connection, other exceptions)
       Ok(Json.toJson(searchManagementRepository.listAllSuggestedSolrFields(solrIndexId)))
+    }
+  }
+
+  def addNewSuggestedSolrField(solrIndexId: String)= authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+    Future {
+      val body: AnyContent = request.body
+      val jsonBody: Option[JsValue] = body.asJson
+
+      // Expecting json body
+      jsonBody.map { json =>
+        val searchSuggestedSolrFieldName = (json \ "name").as[String]
+        val maybeSuggestedSolrFieldId = searchManagementRepository.addNewSuggestedSolrField(
+          solrIndexId, searchSuggestedSolrFieldName
+        )
+
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Suggested Field Name '" + searchSuggestedSolrFieldName + "' successful.", maybeSuggestedSolrFieldId)))
+      }.getOrElse {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Suggested Field Name failed. Unexpected body data.", None)))
+      }
     }
   }
 

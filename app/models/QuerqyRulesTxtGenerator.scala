@@ -109,7 +109,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     * @param renderCompoundsRulesTxt Defining, if decompound-rules.txt (true) or rules.txt (false) should be rendered. Only important, if `separateRulesTxts` is `true`.
     * @return
     */
-  private def render(solrIndexId: Long, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean): String = {
+  private def render(solrIndexId: String, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean): String = {
 
     val retQuerqyRulesTxt = new StringBuilder()
 
@@ -154,12 +154,12 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     retQuerqyRulesTxt.toString()
   }
 
-  def renderSingleRulesTxt(solrIndexId: Long): String = {
-    render(solrIndexId: Long, false, false)
+  def renderSingleRulesTxt(solrIndexId: String): String = {
+    render(solrIndexId, false, false)
   }
 
-  def renderSeparatedRulesTxts(solrIndexId: Long, renderCompoundsRulesTxt: Boolean): String = {
-    render(solrIndexId: Long, true, renderCompoundsRulesTxt)
+  def renderSeparatedRulesTxts(solrIndexId: String, renderCompoundsRulesTxt: Boolean): String = {
+    render(solrIndexId, true, renderCompoundsRulesTxt)
   }
 
   /**
