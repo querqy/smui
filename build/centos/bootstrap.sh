@@ -11,9 +11,8 @@ curl https://bintray.com/sbt/rpm/rpm | sudo tee /etc/yum.repos.d/bintray-sbt-rpm
 
 yum -y install sbt
 
-curl --silent --location https://rpm.nodesource.com/setup | bash -
+curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
 
-# TODO This seems to install an outdated version of nodejs/NPM (producing subsequent compile error, related to Set() object)
 yum -y install nodejs
 
 #yum -y install wget
@@ -72,4 +71,3 @@ yum -y install nodejs
 if ! grep -Fq "sbt" /home/vagrant/.profile; then
   echo 'export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"' >> /home/vagrant/.profile
 fi
-
