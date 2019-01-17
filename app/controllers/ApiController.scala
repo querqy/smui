@@ -6,7 +6,7 @@ import models._
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.json.Reads._
-import play.api.{Application, Configuration, Play}
+import play.api.{Configuration, Play}
 
 import sys.process._
 import scala.concurrent.{ExecutionContext, Future}
@@ -14,8 +14,7 @@ import models.SearchManagementModel._
 import models.FeatureToggleModel._
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
-class ApiController @Inject()(application: Application,
-                              searchManagementRepository: SearchManagementRepository,
+class ApiController @Inject()(searchManagementRepository: SearchManagementRepository,
                               querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
                               cc: MessagesControllerComponents,
                               appConfig: Configuration,
@@ -66,9 +65,9 @@ class ApiController @Inject()(application: Application,
           SolrIndex(None, searchIndexName, searchIndexDescription)
         )
 
-        Ok( Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchIndexName + "' successful.", maybeSolrIndexId)) )
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchIndexName + "' successful.", maybeSolrIndexId)))
       }.getOrElse {
-        BadRequest( Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)) )
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
       }
     }
   }
@@ -256,7 +255,7 @@ class ApiController @Inject()(application: Application,
       (if (DO_CUSTOM_SCRIPT_SMUI2SOLR_SH)
         CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH
       else
-        application.path.getAbsolutePath + "/conf/smui2solr.sh") + " " +
+        Play.current.path.getAbsolutePath() + "/conf/smui2solr.sh") + " " +
         // add parameters to the script (in expected order, see smui2solr.sh)
         srcDstFilenamesToCompleteRulesTxts.head._1 + " " + // smui2solr.sh param $1 - SRC_TMP_FILE
         srcDstFilenamesToCompleteRulesTxts.head._2 + " " + // smui2solr.sh param $2 - DST_CP_FILE_TO

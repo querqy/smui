@@ -13,7 +13,7 @@ class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Config
 
   logger.debug("In AuthActionFactory")
 
-  private def instanciateAuthAction(strClazz: String, defaultAction: ActionBuilder[MessagesRequest, AnyContent]): ActionBuilder[MessagesRequest, AnyContent] = {
+  private def instantiateAuthAction(strClazz: String, defaultAction: ActionBuilder[MessagesRequest, AnyContent]): ActionBuilder[MessagesRequest, AnyContent] = {
     try {
 
       // TODO if possible instanciate authenticatedAction only once, not with every controller call
@@ -44,7 +44,7 @@ class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Config
   def getAuthenticatedAction(defaultAction: ActionBuilder[MessagesRequest, AnyContent]): ActionBuilder[MessagesRequest, AnyContent] = {
     appConfig.getOptional[String]("smui.authAction") match {
       case Some(strClazz: String) =>
-        instanciateAuthAction(strClazz, defaultAction)
+        instantiateAuthAction(strClazz, defaultAction)
       case None =>
         defaultAction
 
