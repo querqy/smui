@@ -2,11 +2,10 @@ package controllers
 
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play._
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.ContentTypes
-import play.api.mvc.{ControllerComponents, DefaultControllerComponents, Result}
-import play.api.test.{FakeRequest, Helpers}
+import play.api.mvc.Result
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
 
 import scala.concurrent.Future
 
