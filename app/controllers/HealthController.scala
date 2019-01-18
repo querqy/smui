@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 
 
-class HealthController @Inject()(cc: MessagesControllerComponents) extends MessagesAbstractController(cc) {
+class HealthController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
   val health = Action {
     Ok(Json.parse(models.buildInfo.BuildInfo.toJson))
