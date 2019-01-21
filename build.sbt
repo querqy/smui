@@ -123,7 +123,7 @@ libraryDependencies ++= {
 
 //    "com.h2database" % "h2" % "1.4.194",
     "mysql" % "mysql-connector-java" % "8.0.13", // TODO verify use of mysql-connector over explicit mariaDB connector instead
-    "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
+    "org.postgresql" % "postgresql" % "42.2.5",
     "com.typesafe.play" %% "anorm" % "2.5.3",
     "com.typesafe.play" %% "play-json" % "2.6.1",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
