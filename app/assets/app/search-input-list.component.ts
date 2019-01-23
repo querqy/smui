@@ -23,7 +23,7 @@ export class SearchInputListComponent implements OnInit {
   public searchInputs: smm.SearchInput[];
   public selectedSearchInputId: string = null;
   public searchInputTerm = '';
-  private currentSolrIndexId: string = "-1"; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
+  private currentSolrIndexId = '-1'; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
 
   constructor(
     private searchManagementService: SearchManagementService,

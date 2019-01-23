@@ -35,7 +35,7 @@ export class SearchInputDetailComponent implements OnInit {
   detailSearchInput: smm.SearchInput = null;
   private initDetailSearchInputHashForDirtyState: string = null;
   private suggestedSolrFieldNames = null;
-  private currentSolrIndexId: string = "-1"; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
+  private currentSolrIndexId = '-1'; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
 
   // TODO open typeahead popup on focus -- focus$ = new Subject<string>();
   searchSuggestedSolrFieldNames = (text$: Observable<string>) =>
