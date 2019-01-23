@@ -182,6 +182,20 @@ resolveFromWebjarsNodeModulesDir := true
   ng2LintRulesDir.value //codelyzer uses 'cssauron' which can't resolve 'through' see https://github.com/chrisdickinson/cssauron/pull/10
 ))
 
+mainClass in assembly := Some("play.core.server.ProdServerStart")
+fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value)
+
+assemblyMergeStrategy in assembly := {
+  case manifest if manifest.contains("MANIFEST.MF") =>
+    // We don't need manifest files since sbt-assembly will create
+    // one with the given settings
+    MergeStrategy.discard
+  case "play/reference-overrides.conf" => MergeStrategy.concat
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
+
 // the naming conventions of our test files
 //jasmineFilter in jasmine := GlobFilter("*Test.js") | GlobFilter("*Spec.js") | GlobFilter("*.spec.js")
 //logLevel in jasmine := Level.Info
