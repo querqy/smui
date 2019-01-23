@@ -211,7 +211,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
         'solr_index_id -> solrIndexId,
         'last_update -> new Date()
       )
-      .executeInsert()
+      .execute()
     Some(newId)
   }
 
@@ -291,7 +291,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
           'search_input_id -> searchInput.id.get,
           'last_update -> new Date()
         )
-        .executeInsert()
+        .execute()
     }
   }
 
@@ -351,7 +351,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
           'search_input_id -> searchInput.id.get,
           'last_update -> new Date()
         )
-        .executeInsert()
+        .execute()
     }
   }
 
@@ -405,7 +405,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
           'search_input_id -> searchInput.id.get,
           'last_update -> new Date()
         )
-        .executeInsert()
+        .execute()
     }
   }
 
@@ -459,7 +459,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
           'search_input_id -> searchInput.id.get,
           'last_update -> new Date()
         )
-        .executeInsert()
+        .execute()
     }
   }
 
@@ -530,7 +530,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
         'solr_index_id -> solrIndexId,
         'last_update -> new Date()
       )
-      .executeInsert()
+      .execute()
     Some(newId)
   }
 
@@ -542,7 +542,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
         'target_platform -> targetPlatform,
         'last_update -> new Date()
       )
-      .executeInsert()
+      .execute()
   }
 
 }
