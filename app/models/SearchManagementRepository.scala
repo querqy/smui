@@ -167,7 +167,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
         'index_description -> newSolrIndex.description,
         'last_update -> new Date()
       )
-      .executeInsert()
+      .execute()
     Some(newId)
   }
 
