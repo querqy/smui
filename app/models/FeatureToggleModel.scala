@@ -1,8 +1,8 @@
 package models
 
 import javax.inject.Inject
-
 import play.api.Configuration
+import play.twirl.api.utils.StringEscapeUtils
 
 package object FeatureToggleModel {
 
@@ -14,6 +14,10 @@ package object FeatureToggleModel {
     override def render(): String = {
       bState.toString
     }
+  }
+
+  class JsStringFeatureToggleValue(value: String) extends JsFeatureToggleValue {
+    override def render(): String = s""""${StringEscapeUtils.escapeEcmaScript(value)}""""
   }
 
   case class JsFeatureToggle(toggleName: String, toggleValue: JsFeatureToggleValue)
@@ -29,6 +33,7 @@ package object FeatureToggleModel {
     val FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT = "toggle.rule-deployment.pre-live.present"
     val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT = "toggle.rule-deployment.custom-script"
     val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = "toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH"
+    val FEATURE_TOGGLE_HEADLINE = "toggle.headline"
 
     def getJsFrontendToogleList: List[JsFeatureToggle] = {
       def jsBoolFeatureToggle(toggleKey: String, bDefault: Boolean): JsFeatureToggle = {
@@ -40,7 +45,9 @@ package object FeatureToggleModel {
       List(
         jsBoolFeatureToggle(FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED, true),
         jsBoolFeatureToggle(FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS, true),
-        jsBoolFeatureToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT, false)
+        jsBoolFeatureToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT, false),
+        JsFeatureToggle(FEATURE_TOGGLE_HEADLINE, new JsStringFeatureToggleValue(
+          appConfig.getOptional[String](FEATURE_TOGGLE_HEADLINE).getOrElse("Search Mangement UI")))
       )
     }
 

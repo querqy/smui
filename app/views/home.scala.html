@@ -15,7 +15,7 @@ var FEATURE_TOGGLE_LIST = [
 @for( featureToggle <- listFeatureToggle ) {
   {
     "toggleName": "@featureToggle.toggleName",
-    "toggleValue": @featureToggle.toggleValue.render
+    "toggleValue": @Html(featureToggle.toggleValue.render)
   },
 }
 ];
