@@ -35,7 +35,7 @@ export class SearchInputDetailComponent implements OnInit {
   detailSearchInput: smm.SearchInput = null;
   private initDetailSearchInputHashForDirtyState: string = null;
   private suggestedSolrFieldNames = null;
-  private currentSolrIndexId = -1; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
+  private currentSolrIndexId = '-1'; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
 
   // TODO open typeahead popup on focus -- focus$ = new Subject<string>();
   searchSuggestedSolrFieldNames = (text$: Observable<string>) =>
@@ -61,7 +61,7 @@ export class SearchInputDetailComponent implements OnInit {
     console.log(':: parentComponent = ' + this.parentComponent);
   }
 
-  public loadSuggestedSolrFieldsForSolrIndexWithId(solrIndexId: number) {
+  public loadSuggestedSolrFieldsForSolrIndexWithId(solrIndexId: string) {
     console.log('In SearchInputDetailComponent :: loadSuggestedSolrFieldsForSolrIndexWithId');
     console.log(':: solrIndexId = ' + JSON.stringify(solrIndexId));
     this.currentSolrIndexId = solrIndexId;
@@ -143,7 +143,7 @@ export class SearchInputDetailComponent implements OnInit {
     }
   }
 
-  public showDetailsForSearchInputWithId(searchInputId: number) {
+  public showDetailsForSearchInputWithId(searchInputId: string) {
     console.log('In SearchInputDetailComponent :: showDetailsForSearchInputWithId :: searchInputId = ' + searchInputId);
 
     if (searchInputId === null) {

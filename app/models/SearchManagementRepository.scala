@@ -167,7 +167,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
         'index_description -> newSolrIndex.description,
         'last_update -> new Date()
       )
-      .executeInsert()
+      .execute()
     Some(newId)
   }
 
@@ -211,7 +211,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
         'solr_index_id -> solrIndexId,
         'last_update -> new Date()
       )
-      .executeInsert()
+      .execute()
     Some(newId)
   }
 
@@ -250,11 +250,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
               SQL(
                 "update synonym_rule " +
                   "set " +
-                    "synonym_rule.synonym_type = {synonym_rule_type}, " +
-                    "synonym_rule.term = {synonym_rule_term}, " +
-                    "synonym_rule.status = {synonym_status}, " +
-                    "synonym_rule.last_update = {last_update} " +
-                  "where synonym_rule.id = {synonym_rule_id}"
+                    "synonym_type = {synonym_rule_type}, " +
+                    "term = {synonym_rule_term}, " +
+                    "status = {synonym_status}, " +
+                    "last_update = {last_update} " +
+                  "where id = {synonym_rule_id}"
               )
                 .on(
                   'synonym_rule_type -> updateSynonymRule.synonymType,
@@ -291,7 +291,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
           'search_input_id -> searchInput.id.get,
           'last_update -> new Date()
         )
-        .executeInsert()
+        .execute()
     }
   }
 
@@ -307,12 +307,12 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
               SQL(
                 "update up_down_rule " +
                   "set " +
-                    "up_down_rule.up_down_type = {up_down_type}, " +
-                    "up_down_rule.boost_malus_value = {boost_malus_value}, " +
-                    "up_down_rule.term = {up_down_rule_term}, " +
-                    "up_down_rule.status = {up_down_rule_status}, " +
-                    "up_down_rule.last_update = {last_update} " +
-                  "where up_down_rule.id = {up_down_rule_id}"
+                    "up_down_type = {up_down_type}, " +
+                    "boost_malus_value = {boost_malus_value}, " +
+                    "term = {up_down_rule_term}, " +
+                    "status = {up_down_rule_status}, " +
+                    "last_update = {last_update} " +
+                  "where id = {up_down_rule_id}"
               )
                 .on(
                   'up_down_type -> updateUpDownRule.upDownType,
@@ -351,7 +351,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
           'search_input_id -> searchInput.id.get,
           'last_update -> new Date()
         )
-        .executeInsert()
+        .execute()
     }
   }
 
@@ -367,10 +367,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
               SQL(
                 "update filter_rule " +
                   "set " +
-                    "filter_rule.term = {filter_rule_term}, " +
-                    "filter_rule.status = {filter_rule_status}, " +
-                    "filter_rule.last_update = {last_update} " +
-                  "where filter_rule.id = {filter_rule_id}"
+                    "term = {filter_rule_term}, " +
+                    "status = {filter_rule_status}, " +
+                    "last_update = {last_update} " +
+                  "where id = {filter_rule_id}"
               )
                 .on(
                   'filter_rule_term -> updateFilterRule.term,
@@ -405,7 +405,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
           'search_input_id -> searchInput.id.get,
           'last_update -> new Date()
         )
-        .executeInsert()
+        .execute()
     }
   }
 
@@ -421,10 +421,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
               SQL(
                 "update delete_rule " +
                   "set " +
-                    "delete_rule.term = {delete_rule_term}, " +
-                    "delete_rule.status = {delete_rule_status}, " +
-                    "delete_rule.last_update = {last_update}" +
-                  "where delete_rule.id = {delete_rule_id}"
+                    "term = {delete_rule_term}, " +
+                    "status = {delete_rule_status}, " +
+                    "last_update = {last_update}" +
+                  "where id = {delete_rule_id}"
               )
                 .on(
                   'delete_rule_term -> updateDeleteRule.term,
@@ -459,7 +459,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
           'search_input_id -> searchInput.id.get,
           'last_update -> new Date()
         )
-        .executeInsert()
+        .execute()
     }
   }
 
@@ -475,9 +475,9 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     SQL(
       "update search_input " +
         "set " +
-          "search_input.term = {search_input_term}, " +
-          "search_input.last_update = {last_update} " +
-      "where search_input.id = {search_input_id}")
+          "term = {search_input_term}, " +
+          "last_update = {last_update} " +
+      "where id = {search_input_id}")
     .on(
       'search_input_id -> searchInput.id,
       'last_update -> new Date(),
@@ -530,7 +530,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
         'solr_index_id -> solrIndexId,
         'last_update -> new Date()
       )
-      .executeInsert()
+      .execute()
     Some(newId)
   }
 
@@ -542,7 +542,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
         'target_platform -> targetPlatform,
         'last_update -> new Date()
       )
-      .executeInsert()
+      .execute()
   }
 
 }

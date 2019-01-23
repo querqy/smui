@@ -15,7 +15,7 @@ const SUGGESTED_SOLR_FIELD_API_URL = 'suggested-solr-field';
 export class SearchManagementServiceResult {
   result: string;
   message: string;
-  returnId: number;
+  returnId: string;
 }
 
 @Injectable()
@@ -34,7 +34,7 @@ export class SearchManagementService {
       .catch(this.handleError);
   }
 
-  listAllSearchInputsInclSynonyms(solrIndexId: number): Promise<Array<smm.SearchInput>> {
+  listAllSearchInputsInclSynonyms(solrIndexId: string): Promise<Array<smm.SearchInput>> {
     return this.http
       .get(SEARCH_MANAGEMENT_API_BASE_URL + '/' + solrIndexId + '/' + SEARCH_INPUT_API_URL)
       .toPromise()
@@ -44,7 +44,7 @@ export class SearchManagementService {
       .catch(this.handleError);
   }
 
-  addNewSearchInput(solrIndexId: number, searchInputTerm: string): Promise<SearchManagementServiceResult> {
+  addNewSearchInput(solrIndexId: string, searchInputTerm: string): Promise<SearchManagementServiceResult> {
     const headers = new Headers({
       'Content-Type': 'application/json'
     });
@@ -69,7 +69,7 @@ export class SearchManagementService {
       .catch(this.handleError); // TODO error handling mit anzeige einer nachricht
   }
 
-  getDetailedSearchInput(searchInputId: number): Promise<smm.SearchInput> {
+  getDetailedSearchInput(searchInputId: string): Promise<smm.SearchInput> {
     return this.http
       .get(SEARCH_MANAGEMENT_API_BASE_URL + '/' + SEARCH_INPUT_API_URL + '/' + searchInputId)
       .toPromise()
@@ -122,7 +122,7 @@ export class SearchManagementService {
       .catch(this.handleError);
   }
 
-  updateRulesTxtForSolrIndex(solrIndexId: number, targetPlatform: string): Promise<SearchManagementServiceResult> {
+  updateRulesTxtForSolrIndex(solrIndexId: string, targetPlatform: string): Promise<SearchManagementServiceResult> {
     const headers = new Headers({
       'Content-Type': 'application/json'
     });
@@ -150,7 +150,7 @@ export class SearchManagementService {
       .catch(this.handleError); // TODO error handling mit anzeige einer nachricht
   }
 
-  listAllSuggestedSolrFields(solrIndexId: number): Promise<Array<smm.SuggestedSolrField>> {
+  listAllSuggestedSolrFields(solrIndexId: string): Promise<Array<smm.SuggestedSolrField>> {
     return this.http
       .get(SEARCH_MANAGEMENT_API_BASE_URL + '/' + solrIndexId + '/' + SUGGESTED_SOLR_FIELD_API_URL)
       .toPromise()

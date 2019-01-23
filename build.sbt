@@ -123,7 +123,7 @@ libraryDependencies ++= {
 
 //    "com.h2database" % "h2" % "1.4.194",
     "mysql" % "mysql-connector-java" % "8.0.13", // TODO verify use of mysql-connector over explicit mariaDB connector instead
-    "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
+    "org.postgresql" % "postgresql" % "42.2.5",
     "com.typesafe.play" %% "anorm" % "2.5.3",
     "com.typesafe.play" %% "play-json" % "2.6.1",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
@@ -181,6 +181,20 @@ resolveFromWebjarsNodeModulesDir := true
   tslintEslintRulesDir.value,
   ng2LintRulesDir.value //codelyzer uses 'cssauron' which can't resolve 'through' see https://github.com/chrisdickinson/cssauron/pull/10
 ))
+
+mainClass in assembly := Some("play.core.server.ProdServerStart")
+fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value)
+
+assemblyMergeStrategy in assembly := {
+  case manifest if manifest.contains("MANIFEST.MF") =>
+    // We don't need manifest files since sbt-assembly will create
+    // one with the given settings
+    MergeStrategy.discard
+  case "play/reference-overrides.conf" => MergeStrategy.concat
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
 
 // the naming conventions of our test files
 //jasmineFilter in jasmine := GlobFilter("*Test.js") | GlobFilter("*Spec.js") | GlobFilter("*.spec.js")

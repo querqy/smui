@@ -104,31 +104,27 @@ class ApiController @Inject()(environment: Environment,
     }
   }
 
-  def updateSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
-    Future {
+  def updateSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
+    val body: AnyContent = request.body
+    val jsonBody: Option[JsValue] = body.asJson
 
-      val body: AnyContent = request.body
-      val jsonBody: Option[JsValue] = body.asJson
+    // Expecting json body
+    jsonBody.map { json =>
+      val searchInput = json.as[SearchInput]
 
-      // Expecting json body
-      jsonBody.map { json =>
-        val searchInput = json.as[SearchInput]
-
-        querqyRulesTxtGenerator.validateSearchInputToErrMsg(searchInput) match {
-          case Some(strErrMsg: String) => {
-            // TODO transport validation result via API and communicate it to the user. Evaluate not saving the searchInput in this case.
-            logger.error("updateSearchInput failed on validation of searchInput with id " + searchInputId + " - validation returned the following error output: <<<" + strErrMsg + ">>>")
-          }
-          case None => {}
-        }
-
-        // TODO handle potential conflict between searchInputId and JSON-passed searchInput.id
-        searchManagementRepository.updateSearchInput(searchInput)
-        // TODO consider Update returning the updated SearchInput(...) instead of an ApiResult(...)
-        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(searchInputId))))
-      }.getOrElse {
-        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
+      querqyRulesTxtGenerator.validateSearchInputToErrMsg(searchInput) match {
+        case Some(strErrMsg: String) =>
+          // TODO transport validation result via API and communicate it to the user. Evaluate not saving the searchInput in this case.
+          logger.error("updateSearchInput failed on validation of searchInput with id " + searchInputId + " - validation returned the following error output: <<<" + strErrMsg + ">>>")
+        case None =>
       }
+
+      // TODO handle potential conflict between searchInputId and JSON-passed searchInput.id
+      searchManagementRepository.updateSearchInput(searchInput)
+      // TODO consider Update returning the updated SearchInput(...) instead of an ApiResult(...)
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(searchInputId))))
+    }.getOrElse {
+      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
     }
   }
 

@@ -21,9 +21,9 @@ export class SearchInputListComponent implements OnInit {
   @Input() parentComponent: AppComponent;
 
   public searchInputs: smm.SearchInput[];
-  public selectedSearchInputId: number = null;
+  public selectedSearchInputId: string = null;
   public searchInputTerm = '';
-  private currentSolrIndexId = -1; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
+  private currentSolrIndexId = '-1'; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
 
   constructor(
     private searchManagementService: SearchManagementService,
@@ -86,7 +86,7 @@ export class SearchInputListComponent implements OnInit {
     this.safeDirtyCheckAndEvtlConfirmModalExecute( executeAddNewSearchInput, null );
   }
 
-  public updateSearchInputListAndSelectNewlyAddedItemWithId(selectSearchInputId: number) {
+  public updateSearchInputListAndSelectNewlyAddedItemWithId(selectSearchInputId: string) {
     console.log('In SearchInputListComponent :: updateSearchInputListAndSelectNewlyAddedItemWithId :: ' +
       'selectSearchInputId = ' + JSON.stringify(selectSearchInputId));
 
@@ -112,7 +112,7 @@ export class SearchInputListComponent implements OnInit {
       .catch(error => this.handleError(error));
   }
 
-  public loadSearchInputListForSolrIndexWithId(solrIndexId: number) {
+  public loadSearchInputListForSolrIndexWithId(solrIndexId: string) {
     console.log('In SearchInputListComponent :: loadSearchInputListForSolrIndexWithId :: solrIndexId = ' + JSON.stringify(solrIndexId));
     this.currentSolrIndexId = solrIndexId;
     this.searchManagementService
@@ -167,7 +167,7 @@ export class SearchInputListComponent implements OnInit {
     }
   }
 
-  public selectSearchInputWidthId(searchInputId: number) {
+  public selectSearchInputWidthId(searchInputId: string) {
     console.log('In SearchInputListComponent :: clickSearchInput :: searchInputId = ' + searchInputId);
 
     // preserve this and outsource functional implementation of selectSearchInput into execure... method
