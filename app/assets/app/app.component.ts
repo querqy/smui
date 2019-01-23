@@ -50,8 +50,8 @@ export class AppComponent implements OnInit {
 
   public listSolrIndeces: smm.SolrIndex[];
   // TODO avoid to not separately keep currentSolrIndexId and according select-option model solrIndexSelectOptionModel
-  public currentSolrIndexId: number = null;
-  public solrIndexSelectOptionModel: number = null;
+  public currentSolrIndexId: string = null;
+  public solrIndexSelectOptionModel: string = null;
 
   public toasterConfig: ToasterConfig =
     new ToasterConfig({
@@ -125,7 +125,7 @@ export class AppComponent implements OnInit {
     this.modalConfirmDeferred.resolve(true);
   }
 
-  public selectSolrIndex(newSolrIndexId: number) {
+  public selectSolrIndex(newSolrIndexId: string) {
     console.log('In AppComponent :: selectSolrIndex :: newSolrIndexId = ' + JSON.stringify(newSolrIndexId));
 
     // ask for user acceptance eventually (modal confirmation) when changing solrIndex and reloading list, if detail's state is dirty

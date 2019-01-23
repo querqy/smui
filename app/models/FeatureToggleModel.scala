@@ -34,7 +34,7 @@ package object FeatureToggleModel {
       def jsBoolFeatureToggle(toggleKey: String, bDefault: Boolean): JsFeatureToggle = {
         JsFeatureToggle(
           toggleKey,
-          new JsBoolFeatureToggleValue(appConfig.getBoolean(toggleKey).getOrElse(bDefault))
+          new JsBoolFeatureToggleValue(appConfig.getOptional[Boolean](toggleKey).getOrElse(bDefault))
         )
       }
       List(
