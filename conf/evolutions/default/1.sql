@@ -79,15 +79,6 @@ create table deployment_log (
     last_update timestamp not null,
     result int not null
 );
--- target_platform
--- ~~~~~~~~~~~~~~~
--- 'PRELIVE' - deployment done to a staging or pre-live environment (only possible, if activated, see README.md)
--- 'LIVE' - deployment done to the live environment
---
--- result
--- ~~~~~~
--- 0 - OK
--- 1 - ERROR
 
 # --- !Downs
 
