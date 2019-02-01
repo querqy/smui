@@ -22,6 +22,10 @@ create table search_input (
 -- 1 - active (deploy the rule normally)
 -- ... other bits, reserved for future stati
 
+-- synonym_type
+-- ~~~~~~~~~~~~
+-- 0 - undirected synonym
+-- 1 - directed synonym
 create table synonym_rule (
 	id varchar(36) not null primary key,
 	synonym_type int not null,
@@ -30,11 +34,11 @@ create table synonym_rule (
 	last_update timestamp not null,
 	status int not null
 );
--- synonym_type
--- ~~~~~~~~~~~~
--- 0 - undirected synonym
--- 1 - directed synonym
 
+-- up_down_type
+-- ~~~~~~~~~~~~
+-- 0 - UP
+-- 1 - DOWN
 create table up_down_rule (
 	id varchar(36) not null primary key,
 	up_down_type int not null,
@@ -44,10 +48,6 @@ create table up_down_rule (
 	last_update timestamp not null,
 	status int not null
 );
--- up_down_type
--- ~~~~~~~~~~~~
--- 0 - UP
--- 1 - DOWN
 
 create table filter_rule (
 	id varchar(36) not null primary key,
@@ -72,6 +72,15 @@ create table suggested_solr_field (
 	last_update timestamp not null
 );
 
+-- target_platform
+-- ~~~~~~~~~~~~~~~
+-- 'PRELIVE' - deployment done to a staging or pre-live environment (only possible, if activated, see README.md)
+-- 'LIVE' - deployment done to the live environment
+--
+-- result
+-- ~~~~~~
+-- 0 - OK
+-- 1 - ERROR
 create table deployment_log (
 	id varchar(36) not null primary key,
 	solr_index_id varchar(36) not null,
