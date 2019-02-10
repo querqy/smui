@@ -196,7 +196,9 @@ class ApiController @Inject()(environment: Environment,
     if (listErrResults.nonEmpty) {
       // TODO Evaluate being more precise in the error communication (eg which rules.txt failed?, where? / which line?, why?, etc.)
       Some(BadRequest(
-        Json.toJson(new ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Validation error in rules.txt.", None))
+        Json.toJson(
+          ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Validation error in rules.txt.", None)
+        )
       ))
     } else {
       None
@@ -290,10 +292,18 @@ class ApiController @Inject()(environment: Environment,
           // execute deployment script
           if (executeDeploymentScript(srcDstFilenamesToCompleteRulesTxts, solrIndexId, targetSystem) == 0) {
             searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem)
-            Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)))
+            Ok(
+              Json.toJson(
+                ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)
+              )
+            )
           } else {
             // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
-            BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Unexpected result in script execution.", None)))
+            BadRequest(
+              Json.toJson(
+                ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Unexpected result in script execution.", None)
+              )
+            )
           }
         }
       }

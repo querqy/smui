@@ -44,10 +44,10 @@ class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Config
   def getAuthenticatedAction(defaultAction: ActionBuilder[MessagesRequest, AnyContent]): ActionBuilder[MessagesRequest, AnyContent] = {
     appConfig.getOptional[String]("smui.authAction") match {
       case Some(strClazz: String) =>
-        instantiateAuthAction(strClazz, defaultAction)
+        if(strClazz.trim().equals("scala.None")) defaultAction
+        else instantiateAuthAction(strClazz, defaultAction)
       case None =>
         defaultAction
-
     }
   }
 

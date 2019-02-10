@@ -535,12 +535,13 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
   }
 
   def addNewDeploymentLogOk(solrIndexId: String, targetPlatform: String) = db.withConnection { implicit connection =>
-    SQL("insert into deployment_log(id, solr_index_id, target_platform, last_update) values ({id}, {solr_index_id}, {target_platform}, {last_update})")
+    SQL("insert into deployment_log(id, solr_index_id, target_platform, last_update, result) values ({id}, {solr_index_id}, {target_platform}, {last_update}, {result})")
       .on(
         'id -> UUID.randomUUID().toString(),
         'solr_index_id -> solrIndexId,
         'target_platform -> targetPlatform,
-        'last_update -> new Date()
+        'last_update -> new Date(),
+        'result -> 0
       )
       .execute()
   }
