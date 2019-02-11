@@ -2,21 +2,40 @@
 
   <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" />
 
-  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-    <file>logs/application.log</file>
-    <encoder>
-      <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
-    </encoder>
-  </appender>
-
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%coloredLevel %logger{15} - %message%n%xException{10}</pattern>
-    </encoder>
+    <if condition='property("SMUI_LOG_FORMAT").equals("JSON")'>
+      <then>
+          <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <fieldNames>
+              <timestamp>ts</timestamp>
+            </fieldNames>
+            <customFields>
+              {
+                "service": "${SMUI_LOG_SERVICE_NAME:-smui}",
+                "service-version": "${SMUI_LOG_SERVICE_VERSION:-unknown}"
+              }
+            </customFields>
+          </encoder>
+      </then>
+      <else>
+          <encoder>
+            <pattern>%coloredLevel %logger{15} - %message%n%xException{10}</pattern>
+          </encoder>
+      </else>
+    </if>
   </appender>
 
   <logger name="play" level="INFO" />
-  <logger name="application" level="DEBUG" />
+
+  <if condition='property("SMUI_LOG_LEVEL").equals("INFO")'>
+    <then>
+      <logger name="application" level="INFO" />
+    </then>
+    <else>
+      <logger name="application" level="DEBUG" />
+    </else>
+  </if>
+
 
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourself -->
   <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />
@@ -28,7 +47,21 @@
 
   <root level="INFO">
     <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
   </root>
+
+  <if condition='!property("SMUI_SKIP_FILE_LOGGING").equals("true")'>
+    <then>
+      <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/application.log</file>
+        <encoder>
+          <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
+        </encoder>
+      </appender>
+
+      <root level="INFO">
+        <appender-ref ref="FILE" />
+      </root>
+    </then>
+  </if>
 
 </configuration>
