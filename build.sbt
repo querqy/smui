@@ -114,6 +114,11 @@ libraryDependencies ++= {
     ehcache,
     jdbc,
     evolutions,
+    
+    // JSON logging:
+    "net.logstash.logback" % "logstash-logback-encoder" % "5.3",
+    // For using conditions in logback.xml:
+    "org.codehaus.janino" % "janino" % "3.0.8",
 
     // querqy dependency
 
