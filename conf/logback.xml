@@ -12,7 +12,7 @@
             <customFields>
               {
                 "service": "${SMUI_LOG_SERVICE_NAME:-smui}",
-                "service-version": "${SMUI_LOG_SERVICE_VERSION:-unknown}"
+                "service_version": "${SMUI_LOG_SERVICE_VERSION:-unknown}"
               }
             </customFields>
           </encoder>
