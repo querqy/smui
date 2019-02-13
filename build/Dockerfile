@@ -25,10 +25,14 @@ RUN --mount=target=/root/.ivy2,type=cache sbt assembly
 
 FROM openjdk:8-alpine
 
+ARG VERSION
+ARG SCALA_VERSION
+ENV SMUI_VERSION=$VERSION
+
 WORKDIR /smui
 
-COPY --from=builder /smui/target/scala-2.12/search-management-ui-assembly-2.0.1.jar .
+COPY --from=builder /smui/target/scala-$SCALA_VERSION/search-management-ui-assembly-$VERSION.jar .
 
 EXPOSE 9000
 
-CMD ["java", "-jar", "/smui/search-management-ui-assembly-2.0.1.jar"]
+CMD java -jar /smui/search-management-ui-assembly-$SMUI_VERSION.jar
