@@ -167,7 +167,10 @@ libraryDependencies ++= {
     "org.webjars.npm" % "types__jasmine" % "2.5.53" % "test",
 
     // test
-    "org.webjars.npm" % "jasmine-core" % "2.6.4"
+    "org.webjars.npm" % "jasmine-core" % "2.6.4",
+
+    // H2 DB for testing
+    "com.h2database" % "h2" % "1.4.197"
   )
 }
 dependencyOverrides ++= Seq(

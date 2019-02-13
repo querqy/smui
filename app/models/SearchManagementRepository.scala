@@ -159,7 +159,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
   }
 
   def addNewSolrIndex(newSolrIndex: SolrIndex): Option[String] = db.withConnection { implicit connection =>
-    val newId = UUID.randomUUID().toString()
+    val newId = newSolrIndex.id.getOrElse(UUID.randomUUID().toString)
     SQL("insert into solr_index(id, name, description, last_update) values ({id}, {index_name}, {index_description}, {last_update})")
       .on(
         'id -> newId,

@@ -11,8 +11,6 @@ class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Config
 
   private val logger = play.api.Logger
 
-  logger.debug("In AuthActionFactory")
-
   private def instantiateAuthAction(strClazz: String, defaultAction: ActionBuilder[MessagesRequest, AnyContent]): ActionBuilder[MessagesRequest, AnyContent] = {
     try {
 
