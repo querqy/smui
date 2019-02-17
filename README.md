@@ -366,3 +366,8 @@ Within exemplary `redirect` action above, you can work with the `{{CURRENT_SMUI_
 
 ## License
 Search Management UI (SMUI) is licensed under the [Apache License, Version 2](http://www.apache.org/licenses/LICENSE-2.0.html).
+
+### Contributors
+
+ - [Paul M. Bartusch](https://github.com/pbartusch), Committer/Maintainer
+ - [Michael Gottschalk](https://github.com/migo)

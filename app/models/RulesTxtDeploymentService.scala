@@ -34,6 +34,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     *
     * @param solrIndexId Solr Index Id to generate the output for.
     */
+  // TODO evaluate, if logDebug should be used to prevent verbose logging of the whole generated rules.txt (for zip download especially)
   def generateRulesTxtContentWithFilenames(solrIndexId: String, logDebug: Boolean = true): RulesTxtsForSolrIndex = {
 
     val SRC_TMP_FILE = appConfig.get[String]("smui2solr.SRC_TMP_FILE")
