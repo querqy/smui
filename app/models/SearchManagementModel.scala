@@ -2,6 +2,8 @@ package models
 
 package object SearchManagementModel {
 
+  // TODO make id not optional, force (1) either definition on object creation (2) or create a UUID (see models.SearchManagementRepository)
+
   // TODO evaluate model adjustment for SolrIndex being leading construct and containts a List[SearchInput]
   case class SolrIndex(id: Option[String] = None,
                        name: String,

@@ -2,7 +2,7 @@ import com.typesafe.sbt.GitBranchPrompt
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "2.0.1"
+version := "2.0.3"
 
 scalaVersion := "2.12.4"
 
@@ -167,7 +167,10 @@ libraryDependencies ++= {
     "org.webjars.npm" % "types__jasmine" % "2.5.53" % "test",
 
     // test
-    "org.webjars.npm" % "jasmine-core" % "2.6.4"
+    "org.webjars.npm" % "jasmine-core" % "2.6.4",
+
+    // H2 DB for testing
+    "com.h2database" % "h2" % "1.4.197"
   )
 }
 dependencyOverrides ++= Seq(
