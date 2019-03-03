@@ -11,7 +11,7 @@ docker-build:
 
 docker-run:
 	mkdir -p var
-	docker run -v$(pwd)/var:/var/smui -p9000:9000 --rm -it --name smui \
+	docker run -v`pwd`/var:/var/smui -p9000:9000 --rm -it --name smui \
 		-eSMUI_DB_URL=jdbc:sqlite:/var/smui/test.db -eSMUI_DB_JDBC_DRIVER=org.sqlite.JDBC \
 		$(IMAGE):$(VERSION)
 

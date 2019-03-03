@@ -32,7 +32,18 @@ ENV SMUI_VERSION=$VERSION
 WORKDIR /smui
 
 COPY --from=builder /smui/target/scala-$SCALA_VERSION/search-management-ui-assembly-$VERSION.jar .
+COPY conf/logback.xml /smui/logback.xml
 
-EXPOSE 9000
+ENV SMUI_CONF_PID_PATH=/var/run/play.pid
+ENV SMUI_CONF_LOG_BASE_PATH=/var/log
+ENV SMUI_CONF_HTTP_PORT=9000
+ENV SMUI_CONF_LOGBACK_XML_PATH=/smui/logback.xml
 
-CMD java -jar /smui/search-management-ui-assembly-$SMUI_VERSION.jar
+EXPOSE $SMUI_CONF_HTTP_PORT
+
+CMD java \
+  -Dpidfile.path=$SMUI_CONF_PID_PATH \
+  -DLOG_BASE_PATH=$SMUI_CONF_LOG_BASE_PATH \
+  -Dlogback.configurationFile=$SMUI_CONF_LOGBACK_XML_PATH \
+  -Dhttp.port=$SMUI_CONF_HTTP_PORT \
+  -jar /smui/search-management-ui-assembly-$SMUI_VERSION.jar
