@@ -47,7 +47,7 @@ package object FeatureToggleModel {
         jsBoolFeatureToggle(FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS, true),
         jsBoolFeatureToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT, false),
         JsFeatureToggle(FEATURE_TOGGLE_HEADLINE, new JsStringFeatureToggleValue(
-          appConfig.getOptional[String](FEATURE_TOGGLE_HEADLINE).getOrElse("Search Mangement UI")))
+          appConfig.getOptional[String](FEATURE_TOGGLE_HEADLINE).getOrElse("Search Management UI")))
       )
     }
 
