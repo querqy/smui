@@ -181,7 +181,7 @@ Once the database scheme has been established, the initial data can be inserted.
 There must exist a minimum of 1 Solr Collection, that Search Management rules are maintained for. This must be created before the application can be used. Example script (SQL):
 
 ```
-INSERT INTO solr_index (name, description) VALUES ('core_name1', 'Solr Search Index/Core');
+INSERT INTO solr_index (id, name, description) VALUES (1, 'core_name1', 'Solr Search Index/Core');
 [...]
 ```
 
