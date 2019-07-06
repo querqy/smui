@@ -36,6 +36,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   implicit val upDownRuleWrites = Json.writes[UpDownRule]
   implicit val filterRuleWrites = Json.writes[FilterRule]
   implicit val deleteWrites = Json.writes[DeleteRule]
+  implicit val redirectWrites = Json.writes[RedirectRule]
   implicit val searchInputWrites = Json.writes[SearchInput]
 
   // TODO for all Json.reads, that "id" = null JSON values are converted to Option.None
@@ -43,6 +44,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   implicit val upDownRuleReads = Json.reads[UpDownRule]
   implicit val filterRuleReads = Json.reads[FilterRule]
   implicit val deleteReads = Json.reads[DeleteRule]
+  implicit val redirectReads = Json.reads[RedirectRule]
   implicit val searchInputReads = Json.reads[SearchInput]
 
   implicit val apiResultWrites = Json.writes[ApiResult]

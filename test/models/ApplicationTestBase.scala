@@ -47,6 +47,11 @@ trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
     val id = repo.addNewSearchInput(core1Id, "aerosmith")
     val searchInput = SearchInput(id, "aerosmith", synonymRules, upDownRules, filterRules)
     repo.updateSearchInput(searchInput)
+
+    val shippingId = repo.addNewSearchInput(core1Id, "shipping")
+    val redirectRule = RedirectRule(None, "http://xyz.com/shipping", isActive = true)
+    val searchInputForRedirect = SearchInput(shippingId, "shipping", redirectRules = List(redirectRule))
+    repo.updateSearchInput(searchInputForRedirect)
   }
 
   override protected def afterAll(): Unit = {

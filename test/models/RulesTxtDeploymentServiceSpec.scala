@@ -27,7 +27,10 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
                            |	SYNONYM: aerosmith
                            |	DOWN(10): battery
                            |	UP(10): notebook
-                           |	FILTER: zz top""".stripMargin
+                           |	FILTER: zz top
+                           |
+                           |shipping =>
+                           |	DECORATE: REDIRECT http://xyz.com/shipping""".stripMargin
 
   "RulesTxtDeploymentService" should "generate rules files with correct file names" in {
     val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)

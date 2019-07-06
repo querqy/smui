@@ -34,7 +34,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
   private[models] val simpleSearchInput = {
     get[Option[String]]("search_input.id") ~
       get[String]("search_input.term") map {
-      case id~term => SearchInput(id, term, List[SynonymRule](), List[UpDownRule](), List[FilterRule](), List[DeleteRule]())
+      case id~term => SearchInput(id, term)
     }
   }
 
@@ -86,6 +86,17 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
   }
 
   /**
+    * Parse a RedirectRule from a ResultSet
+    */
+  private[models] val simpleRedirectRule = {
+    get[Option[String]]("redirect_rule.id") ~
+      get[String]("redirect_rule.target") ~
+      get[Int]("redirect_rule.status") map {
+      case id~target~status => RedirectRule(id, target, (status & 0x01) == 0x01)
+    }
+  }
+
+  /**
     * Parse a DeleteRule from a ResultSet
     */
   private[models] val simpleSuggestedSolrField = {
@@ -133,6 +144,12 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     SQL("select * from delete_rule where delete_rule.search_input_id = {search_input_id} order by delete_rule.term")
       .on('search_input_id -> searchInputId)
       .as(simpleDeleteRule *)
+  }
+
+  def getRedirectRulesForSearchInputWithId(searchInputId: String): List[RedirectRule] = db.withConnection { implicit connection =>
+    SQL("select * from redirect_rule where redirect_rule.search_input_id = {search_input_id} order by redirect_rule.target")
+      .on('search_input_id -> searchInputId)
+      .as(simpleRedirectRule *)
   }
 
   /**
@@ -232,6 +249,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     resultListSearchInput(0).upDownRules = getUpDownRulesForSearchInputWithId(searchInputId)
     resultListSearchInput(0).filterRules = getFilterRulesForSearchInputWithId(searchInputId)
     resultListSearchInput(0).deleteRules = getDeleteRulesForSearchInputWithId(searchInputId)
+    resultListSearchInput(0).redirectRules = getRedirectRulesForSearchInputWithId(searchInputId)
 
     // TODO not retrieve a list, but one anorm-search_input-entry only. Check that exactly one exists.
     resultListSearchInput(0)
@@ -463,6 +481,60 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     }
   }
 
+  def diffAndUpdateRedirectRulesOfSearchInput(searchInput: SearchInput) = db.withConnection { implicit connection =>
+    var unconsideredRedirectRuleIds = ListBuffer.empty[String]
+    // ... update matching
+    for (existingRedirectRule <- getRedirectRulesForSearchInputWithId(searchInput.id.get)) {
+      var bFound = false
+      for (updateRedirectRule <- searchInput.redirectRules) {
+        updateRedirectRule.id match {
+          case Some(updateRedirectRuleId) => {
+            if (existingRedirectRule.id.get.equals(updateRedirectRuleId)) {
+              SQL(
+                "update redirect_rule " +
+                  "set " +
+                  "target = {redirect_rule_target}, " +
+                  "status = {redirect_rule_status}, " +
+                  "last_update = {last_update}" +
+                  "where id = {redirect_rule_id}"
+              )
+                .on(
+                  'redirect_rule_target -> updateRedirectRule.target,
+                  'redirect_rule_status -> (if(updateRedirectRule.isActive) 0x01 else 0x00),
+                  'last_update -> new Date(),
+                  'redirect_rule_id -> updateRedirectRuleId
+                )
+                .executeUpdate()
+              bFound = true
+            }
+          }
+          case None => {}
+        }
+      }
+      if (!bFound) {
+        unconsideredRedirectRuleIds += existingRedirectRule.id.get
+      }
+    }
+    // ... delete unconsidered
+    for (deleteRedirectRuleId <- unconsideredRedirectRuleIds) {
+      SQL("delete from redirect_rule where redirect_rule.id = {redirect_rule_id}").on('redirect_rule_id -> deleteRedirectRuleId).execute()
+    }
+    // ... insert newly added
+    for (newRedirectRule <- searchInput.redirectRules.filter(r => r.id.isEmpty)) {
+      SQL(
+        "insert into redirect_rule(id, target, status, search_input_id, last_update) " +
+          "values ({id}, {redirect_rule_target}, {redirect_rule_status}, {search_input_id}, {last_update})")
+        .on(
+          'id -> UUID.randomUUID().toString(),
+          'redirect_rule_target -> newRedirectRule.target,
+          'redirect_rule_status -> (if(newRedirectRule.isActive) 0x01 else 0x00),
+          'search_input_id -> searchInput.id.get,
+          'last_update -> new Date()
+        )
+        .execute()
+    }
+  }
+
   /**
     * tbd
     *
@@ -491,6 +563,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
     diffAndUpdateUpDownRulesOfSearchInput(searchInput)
     diffAndUpdateFilterRulesOfSearchInput(searchInput)
     diffAndUpdateDeleteRulesOfSearchInput(searchInput)
+    diffAndUpdateRedirectRulesOfSearchInput(searchInput)
   }
 
   /**
@@ -502,6 +575,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseEx
   def deleteSearchInput(searchInputId: String) = db.withConnection { implicit connection =>
     // TODO maybe realise as BatchSql
     // TODO verify amount of deleted DB entries
+    SQL("delete from redirect_rule where redirect_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute()
     SQL("delete from delete_rule where delete_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute()
     SQL("delete from filter_rule where filter_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute()
     SQL("delete from up_down_rule where up_down_rule.search_input_id = {search_input_id}").on('search_input_id -> searchInputId).execute()
