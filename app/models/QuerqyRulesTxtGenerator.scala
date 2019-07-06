@@ -226,14 +226,17 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       Some("Parsing Search Input: Wildcard *-using undirected synonym for Input ('" + searchInput.term + "')")
     } else None
 
+    val redirectRuleErrors = searchInput.redirectRules.map(r => validateRedirectTarget(r.target))
+
+    val querqyRuleValidationError = validateQuerqyRulesTxtToErrMsg(renderSearchInputRulesForTerm(searchInput.term, searchInput))
+
+    val errors = List(querqyRuleValidationError, undirectedSynonymsCheck, synonymsDirectedCheck) ++ redirectRuleErrors
     //
 
     // finally validate as well against querqy parser
 
     // TODO validate both inputs and rules, for all undirected synonym terms in this input
-    List(validateQuerqyRulesTxtToErrMsg(
-      this.renderSearchInputRulesForTerm(searchInput.term, searchInput)
-    ), undirectedSynonymsCheck, synonymsDirectedCheck).foldLeft[Option[String]](None) {
+    errors.foldLeft[Option[String]](None) {
       case (Some(res), Some(error)) => Some(res + ", " + error)
       case (Some(res), None) => Some(res)
       case (None, errOpt) => errOpt
