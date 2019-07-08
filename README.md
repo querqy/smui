@@ -243,6 +243,19 @@ To  : --
 
 Hint: Other querqy compatible rules not editable with SMUI (e.g. DECORATE) must be removed to have a proper converted SQL script ready.
 
+## SEARCH RULES
+
+SMUI supports the following search rules, that can be deployed to a Querqy supporting search engine (like [Solr](https://lucene.apache.org/solr/)):
+
+* SYNONYM (directed & undirected)
+* UP / DOWN
+* FILTER
+* DELETE
+
+Please see [here](https://github.com/renekrie/querqy) for a description of those rules. Furthermore, SMUI comes with built in DECORATE rules for certain use cases:
+
+* REDIRECT (as Querqy/DECORATE) to a specific target URL
+
 ## MAINTENANCE
 
 ## Log data
