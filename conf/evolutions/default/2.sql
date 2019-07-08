@@ -1,6 +1,6 @@
 # --- !Ups
 
---- Adding REDIRECT rule table
+-- Adding REDIRECT rule table
 
 create table redirect_rule (
 	id varchar(36) not null primary key,
@@ -9,7 +9,6 @@ create table redirect_rule (
 	last_update timestamp not null,
 	status int not null
 );
-
 
 # --- !Downs
 
