@@ -28,13 +28,18 @@ package object SearchManagementModel {
                         term: String,
                         isActive: Boolean)
 
+  case class RedirectRule(id: Option[String] = None,
+                          target: String,
+                          isActive: Boolean)
+
   // TODO rearrange SearchManagementRepository algorithms purely functional, so that no mutable var-attributes necessary
   case class SearchInput(id: Option[String] = None,
                          term: String,
                          var synonymRules: List[SynonymRule] = List.empty,
                          var upDownRules: List[UpDownRule] = List.empty,
                          var filterRules: List[FilterRule] = List.empty,
-                         var deleteRules: List[DeleteRule] = List.empty)
+                         var deleteRules: List[DeleteRule] = List.empty,
+                         var redirectRules: List[RedirectRule] = List.empty)
 
   // TODO currently not in use ...
   // TODO Consider resolving as Option field in the Rule's itself (e.g. UpDownRule.errorMsgs List[String])
@@ -42,7 +47,8 @@ package object SearchManagementModel {
                                          synonymRulesErrorMsg: List[Map[Long, String]],
                                          upDownRulesErrorMsg: List[Map[Long, String]],
                                          filterRulesErrorMsg: List[Map[Long, String]],
-                                         deleteRulesErrorMsg: List[Map[Long, String]])
+                                         deleteRulesErrorMsg: List[Map[Long, String]],
+                                         redirectRulesErrorMsg: List[Map[Long, String]])
 
   case class SuggestedSolrField(id: Option[String] = None,
                                 name: String)

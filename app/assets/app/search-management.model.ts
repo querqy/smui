@@ -48,6 +48,12 @@ export class DeleteRule {
   isActive: boolean;
 }
 
+export class RedirectRule {
+  id: string;
+  target: string;
+  isActive: boolean;
+}
+
 export class SearchInput {
   id: string;
   term: string;
@@ -55,6 +61,7 @@ export class SearchInput {
   upDownRules: Array<UpDownRule>;
   filterRules: Array<FilterRule>;
   deleteRules: Array<DeleteRule>;
+  redirectRules: Array<RedirectRule>;
 }
 
 export class SuggestedSolrField {

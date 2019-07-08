@@ -1,5 +1,6 @@
 -- empty existing data
 
+--delete from redirect_rule;
 --delete from delete_rule;
 --delete from filter_rule;
 --delete from up_down_rule;

@@ -58,6 +58,7 @@
           <span class="dropdown-item" (click)="addNewUpDownRule()">UP/DOWN Rule</span>
           <span class="dropdown-item" (click)="addNewFilterRule()">FILTER Rule</span>
           <span class="dropdown-item" (click)="addNewDeleteRule()">DELETE Rule</span>
+          <span class="dropdown-item" (click)="addNewRedirectRule()">REDIRECT Rule</span>
         </div>
 
       </div>
@@ -238,7 +239,36 @@
       </table>
     </ng-container>
 
-    <div class="alert alert-danger smui-no-bottom-margin" role="alert" *ngIf="(detailSearchInput !== null) && ((detailSearchInput.synonymRules.length < 1) && (detailSearchInput.upDownRules.length < 1) && (detailSearchInput.filterRules.length < 1) && (detailSearchInput.deleteRules.length < 1))">
+    <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.redirectRules.length > 0)">
+      <table style="width:100%">
+        <tr *ngFor="let redirectRule of detailSearchInput.redirectRules; let idxDeleteRules = index"
+            [class.smui-disabled-rule-line]="redirectRule.isActive ? null : true">
+          <td style="width:20%">
+            <input type="checkbox"
+                   class="form-check-input smui-realign-check-input"
+                   [(ngModel)]="redirectRule.isActive">
+            <small style="text-transform: uppercase">REDIRECT Rule:</small>
+          </td>
+          <td style="width:75%">
+            <input type="text"
+                   class="form-control"
+                   id="inputRedirectTarget"
+                   placeholder="Redirect Target"
+                   [(ngModel)]="redirectRule.target"
+                   (keyup.enter)="saveSearchInputDetails()">
+          </td>
+          <td style="width:5%">
+            <button type="button"
+                    class="btn btn-danger btn-sm float-right"
+                    (click)="deleteRedirectRule(idxRedirectRules); $event.stopPropagation();">-</button>
+          </td>
+        </tr>
+      </table>
+    </ng-container>
+
+    <div class="alert alert-danger smui-no-bottom-margin" role="alert" *ngIf="(detailSearchInput !== null) &&
+        ((detailSearchInput.synonymRules.length < 1) && (detailSearchInput.upDownRules.length < 1) && (detailSearchInput.filterRules.length < 1) &&
+        (detailSearchInput.deleteRules.length < 1) && (detailSearchInput.redirectRules.length < 1))">
       No Rules maintained for Search Input. This Search Input will therefore not being included to rules.txt on deployment to Solr.
     </div>
 

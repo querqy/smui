@@ -273,6 +273,24 @@ export class SearchInputDetailComponent implements OnInit {
     this.detailSearchInput.deleteRules.splice(index, 1);
   }
 
+  public addNewRedirectRule() {
+    console.log('In SearchInputDetailComponent :: addNewRedirectRule');
+
+    const emptyRedirectRule: smm.RedirectRule = {
+      id: null,
+      target: '',
+      isActive: true
+    };
+    this.detailSearchInput
+        .redirectRules.push(emptyRedirectRule);
+  }
+
+  public deleteRedirectRule(index: number) {
+    console.log('In SearchInputDetailComponent :: deleteRedirectRule :: index = ' + index);
+
+    this.detailSearchInput.redirectRules.splice(index, 1);
+  }
+
   public saveSearchInputDetails() {
     console.log('In SearchInputDetailComponent :: saveSearchInputDetails');
 
