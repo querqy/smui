@@ -382,3 +382,4 @@ Search Management UI (SMUI) is licensed under the [Apache License, Version 2](ht
 
  - [Paul M. Bartusch](https://github.com/pbartusch), Committer/Maintainer
  - [Michael Gottschalk](https://github.com/migo)
+ - [Matthias Krüger](https://github.com/mkr)
