@@ -305,7 +305,7 @@ smui2solr.SOLR_HOST="localhost:8983"
 
 toggle.ui-concept.updown-rules.combined=true
 toggle.ui-concept.all-rules.with-solr-fields=true
-toggle.rule-deployment.auto-decorate.log-rule-id=true
+toggle.rule-deployment.log-rule-id=true
 toggle.rule-deployment.split-decompound-rules-txt=true
 toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO="/PATH/TO/LOCAL_DEV/SOLR/CORE/CONF/decompound-rules.txt"
 toggle.rule-deployment.pre-live.present=true
