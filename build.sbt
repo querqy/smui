@@ -122,7 +122,7 @@ libraryDependencies ++= {
 
     // querqy dependency
 
-    "querqy" % "querqy-core" % "3.0.7",
+    "querqy" % "querqy-core" % "3.3.0",
 
     // Additional Play Framework Dependencies
 
