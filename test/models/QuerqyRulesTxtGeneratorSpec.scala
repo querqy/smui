@@ -85,33 +85,29 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
   }
 
-  "Rules Text Generation" should "correctly decorate SYNONYM" in {
-    val featureToggleMock = mock[FeatureToggleService]
-    when(featureToggleMock.getToggleRuleDeploymentAutoDecorateExportHash).thenReturn(true)
+  "Rules Text Generation" should "add an @_log decorator with the id of the rule" in {
     val synonymRules = List (SynonymRule(None, 0, "mercury", true))
 
-    val classUnderTest = new QuerqyRulesTxtGenerator(searchManagementRepository, featureToggleMock)
-    val rulesTxt  = classUnderTest.renderSearchInputRulesForTerm("queen", SearchInput(term = "queen", synonymRules = synonymRules))
-    rulesTxt should startWith(
+    val rulesTxt  = generator.renderSearchInputRulesForTerm("queen",
+      SearchInput(id = Some("rule-id"), "queen", synonymRules = synonymRules))
+    rulesTxt should be(
       s"""|queen =>
           |\tSYNONYM: mercury
-          |\tDECORATE: [ {\"intent\":\"smui.auto-decorate.export-hash\", \"payload\": { \"ruleExportDate\":"""".stripMargin)
-        .and(
-          endWith("\"ruleExportHash\":\"31581570\" } } ]\n".stripMargin)
-        )
+          |\t@_log: "rule-id"
+          |""".stripMargin)
   }
 
   // TODO outsource whole rules.txt file to an external test ressource
   val VALID_RULES_TXT =s""""handy" =>
        |	SYNONYM: smartphone
        |	UP(100): smartphone
-       |	DECORATE: [ {"intent":"smui.auto-decorate.export-hash", "payload": { "ruleExportDate":"2018-12-24T15:31:08.949+01:00", "ruleExportHash":"221124921" } } ]
+       |	@_log: "5b683c9e-d2df-11e9-bb65-2a2ae2dbcce4"
        |
  |cheap iphone =>
        |	SYNONYM: iphone 3g
        |	UP(100): * price:[* TO 50000]
        |	DELETE: cheap
-       |	DECORATE: [ {"intent":"smui.auto-decorate.export-hash", "payload": { "ruleExportDate":"2018-12-24T15:31:08.949+01:00", "ruleExportHash":"2013811234" } } ]
+       |	@_log: "884c067a-48b7-4170-a0d9-a1d5e70bbf80"
        |
  |notebook =>
        |	SYNONYM: laptop
@@ -121,7 +117,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
        |	DOWN(5): Power Cord
        |	FILTER: * -title:accessory
        |	FILTER: * -title:notebook
-       |	DECORATE: [ {"intent":"smui.auto-decorate.export-hash", "payload": { "ruleExportDate":"2018-12-24T15:31:08.949+01:00", "ruleExportHash":"-628253308" } } ]
+       |	@_log: "ea16b373-6776-469c-9cc7-1449a97f1a79"
        |
  |laptop =>
        |	SYNONYM: notebook
@@ -131,7 +127,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
        |	DOWN(5): Power Cord
        |	FILTER: * -title:accessory
        |	FILTER: * -title:notebook
-       |	DECORATE: [ {"intent":"smui.auto-decorate.export-hash", "payload": { "ruleExportDate":"2018-12-24T15:31:08.949+01:00", "ruleExportHash":"2020738500" } } ]""".stripMargin
+       |	@_log: "88bb6558-e6af-45fc-a862-0dbbe6dec32f"""".stripMargin
 
   "rules.txt validation" should "positively validate valid rules.txt" in {
     generator.validateQuerqyRulesTxtToErrMsg(VALID_RULES_TXT) should be (None)
@@ -139,7 +135,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
   "rules.txt validation" should "return an error when validating an invalid rules.txt" in {
     generator.validateQuerqyRulesTxtToErrMsg(VALID_RULES_TXT + "\nADD AN INVALID INSTRUCTION") should be
-      (Some("Line 31: Cannot parse line: ADD AN INVALID INSTRUCTION"))
+      Some("Line 31: Cannot parse line: ADD AN INVALID INSTRUCTION")
   }
 
   // TODO add tests for validateSearchInputToErrMsg

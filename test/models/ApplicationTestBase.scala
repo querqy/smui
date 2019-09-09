@@ -34,7 +34,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
     repo.addNewSolrIndex(SolrIndex(Some("2"), "core2", "Second core"))
   }
 
-  protected def createTestRule(): Unit = {
+  protected def createTestRule(): Seq[String] = {
     val synonymRules = List (SynonymRule(None, 0, "mercury", isActive = true))
     val upDownRules = List(
       UpDownRule(None, 0, 10, "notebook", isActive = true),
@@ -52,6 +52,8 @@ trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
     val redirectRule = RedirectRule(None, "http://xyz.com/shipping", isActive = true)
     val searchInputForRedirect = SearchInput(shippingId, "shipping", redirectRules = List(redirectRule))
     repo.updateSearchInput(searchInputForRedirect)
+
+    Seq(id.get, shippingId.get)
   }
 
   override protected def afterAll(): Unit = {
