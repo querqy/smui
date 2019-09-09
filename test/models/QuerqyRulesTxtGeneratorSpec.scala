@@ -86,9 +86,13 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
   }
 
   "Rules Text Generation" should "add an @_log decorator with the id of the rule" in {
+    val featureToggleMock = mock[FeatureToggleService]
+    when(featureToggleMock.getToggleRuleDeploymentLogRuleId).thenReturn(true)
+
     val synonymRules = List (SynonymRule(None, 0, "mercury", true))
 
-    val rulesTxt  = generator.renderSearchInputRulesForTerm("queen",
+    val classUnderTest = new QuerqyRulesTxtGenerator(searchManagementRepository, featureToggleMock)
+    val rulesTxt  = classUnderTest.renderSearchInputRulesForTerm("queen",
       SearchInput(id = Some("rule-id"), "queen", synonymRules = synonymRules))
     rulesTxt should be(
       s"""|queen =>

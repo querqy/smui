@@ -79,7 +79,10 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       .filter(r => r.isActive && r.target.trim().nonEmpty)) {
       retSearchInputRulesTxtPartial.append(renderRedirectRule(redirectRule))
     }
-    for (id <- searchInput.id){
+    for (
+      id <- searchInput.id
+      if featureToggleService.getToggleRuleDeploymentLogRuleId
+    ){
       retSearchInputRulesTxtPartial.append(renderInfoLog(id))
     }
 
