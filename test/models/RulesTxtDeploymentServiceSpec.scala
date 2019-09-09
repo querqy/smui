@@ -9,34 +9,38 @@ import org.scalatest.{FlatSpec, Matchers}
 class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with ApplicationTestBase {
 
   private lazy val service = injector.instanceOf[RulesTxtDeploymentService]
+  private var inputIds: Seq[String] = Seq.empty
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
 
     createTestCores()
-    createTestRule()
+    inputIds = createTestRule()
   }
 
-  private val rulesFileContent = """aerosmith =>
+  private def rulesFileContent(ruleIds: Seq[String]): String = s"""aerosmith =>
                            |	SYNONYM: mercury
                            |	DOWN(10): battery
                            |	UP(10): notebook
                            |	FILTER: zz top
+                           |	@_log: "${ruleIds.head}"
                            |
                            |mercury =>
                            |	SYNONYM: aerosmith
                            |	DOWN(10): battery
                            |	UP(10): notebook
                            |	FILTER: zz top
+                           |	@_log: "${ruleIds.head}"
                            |
                            |shipping =>
-                           |	DECORATE: REDIRECT http://xyz.com/shipping""".stripMargin
+                           |	DECORATE: REDIRECT http://xyz.com/shipping
+                           |	@_log: "${ruleIds.last}"""".stripMargin
 
   "RulesTxtDeploymentService" should "generate rules files with correct file names" in {
     val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
     rulesTxt.solrIndexId shouldBe core1Id
     rulesTxt.decompoundRules shouldBe empty
-    rulesTxt.regularRules.content.trim shouldBe rulesFileContent
+    rulesTxt.regularRules.content.trim shouldBe rulesFileContent(inputIds)
 
     rulesTxt.regularRules.sourceFileName shouldBe "/tmp/search-management-ui_rules-txt.tmp"
     rulesTxt.regularRules.destinationFileName shouldBe "/usr/bin/solr/defaultCore/conf/rules.txt"
@@ -58,7 +62,7 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
     val zipStream = new ZipInputStream(new ByteArrayInputStream(bytes))
     val firstEntry = zipStream.getNextEntry
     firstEntry.getName shouldBe "rules_core1.txt"
-    IOUtils.toString(zipStream, "UTF-8").trim shouldBe rulesFileContent
+    IOUtils.toString(zipStream, "UTF-8").trim shouldBe rulesFileContent(inputIds)
     val secondEntry = zipStream.getNextEntry
     secondEntry.getName shouldBe "rules_core2.txt"
     IOUtils.toString(zipStream, "UTF-8").trim shouldBe ""

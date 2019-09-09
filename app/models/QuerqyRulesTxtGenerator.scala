@@ -4,11 +4,9 @@ import java.io.StringReader
 import java.net.{URI, URISyntaxException}
 
 import javax.inject.Inject
-import org.joda.time.DateTime
-import models.SearchManagementModel._
 import models.FeatureToggleModel._
-import querqy.rewrite.commonrules.WhiteSpaceQuerqyParserFactory
-import querqy.rewrite.commonrules.SimpleCommonRulesParser
+import models.SearchManagementModel._
+import querqy.rewrite.commonrules.{SimpleCommonRulesParser, WhiteSpaceQuerqyParserFactory}
 
 import scala.util.{Failure, Success, Try}
 
@@ -45,14 +43,8 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     s"\tDECORATE: REDIRECT ${redirectRule.target}\n"
   }
 
-  private def renderDecorateExportHash(retSearchInputRulesTxtPartial: String): String = {
-    // returning resulting auto-decorate for export hash - DECORATE instruction MUST BE IN ONE LINE!
-    "\tDECORATE: [ {" +
-      "\"intent\":\"smui.auto-decorate.export-hash\", " +
-      "\"payload\": { " +
-      "\"ruleExportDate\":\"" + DateTime.now.toString() + "\", " +
-      "\"ruleExportHash\":\"" + retSearchInputRulesTxtPartial.toString().hashCode() + "\" " +
-      "} } ]\n"
+  private def renderRuleIdLog(ruleId: String): String = {
+    "\t@_log: \"" + ruleId + "\"\n"
   }
 
   def renderSearchInputRulesForTerm(term: String, searchInput: SearchInput): String = {
@@ -87,9 +79,11 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       .filter(r => r.isActive && r.target.trim().nonEmpty)) {
       retSearchInputRulesTxtPartial.append(renderRedirectRule(redirectRule))
     }
-
-    if (featureToggleService.getToggleRuleDeploymentAutoDecorateExportHash) {
-      retSearchInputRulesTxtPartial.append(renderDecorateExportHash(retSearchInputRulesTxtPartial.toString()))
+    for (
+      id <- searchInput.id
+      if featureToggleService.getToggleRuleDeploymentLogRuleId
+    ){
+      retSearchInputRulesTxtPartial.append(renderRuleIdLog(id))
     }
 
     retSearchInputRulesTxtPartial.toString()

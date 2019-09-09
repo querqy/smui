@@ -2,7 +2,7 @@ import com.typesafe.sbt.GitBranchPrompt
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "2.1.0"
+version := "3.0.0"
 
 scalaVersion := "2.12.4"
 
@@ -122,7 +122,7 @@ libraryDependencies ++= {
 
     // querqy dependency
 
-    "querqy" % "querqy-core" % "3.0.7",
+    "querqy" % "querqy-core" % "3.3.0",
 
     // Additional Play Framework Dependencies
 
