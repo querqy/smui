@@ -43,7 +43,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     s"\tDECORATE: REDIRECT ${redirectRule.target}\n"
   }
 
-  private def renderInfoLog(ruleId: String): String = {
+  private def renderRuleIdLog(ruleId: String): String = {
     "\t@_log: \"" + ruleId + "\"\n"
   }
 
@@ -83,7 +83,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       id <- searchInput.id
       if featureToggleService.getToggleRuleDeploymentLogRuleId
     ){
-      retSearchInputRulesTxtPartial.append(renderInfoLog(id))
+      retSearchInputRulesTxtPartial.append(renderRuleIdLog(id))
     }
 
     retSearchInputRulesTxtPartial.toString()
