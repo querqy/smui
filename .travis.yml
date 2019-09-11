@@ -6,6 +6,11 @@ addons:
     packages:
       - docker-ce
 
+install:
+  - docker run --name buildkit --rm -d --privileged -p 1234:1234 tonistiigi/buildkit --addr tcp://0.0.0.0:1234
+  - sudo docker cp buildkit:/usr/bin/buildctl /usr/bin/
+  - export BUILDKIT_HOST=tcp://0.0.0.0:1234
+
 jobs:
   include:
     - stage: build and push docker image
