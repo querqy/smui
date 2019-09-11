@@ -16,11 +16,21 @@ env:
     - BUILDKIT_HOST=tcp://0.0.0.0:1234
     - DOCKER_CLI_EXPERIMENTAL=enabled
 
+
 jobs:
   include:
     - stage: build and push SMUI docker image
       script:
         - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
         - sudo service docker restart
-        - sudo make docker-build > /dev/null
-        - sudo make docker-push
+
+        - touch build1.log
+        - while sleep 5m; do echo "=====[ $SECONDS seconds, buildroot still building... ]====="; tail --lines=50 build1.log; done &
+        - time make docker-build > build1.log 2>&1
+        - kill %1
+
+        #- sudo make docker-build > build1.log 2>&1
+        #- tail --lines=200 build1.log
+
+        - sudo make docker-push > build2.log 2>&1
+        - tail --lines=200 build2.log
