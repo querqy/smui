@@ -1,16 +1,10 @@
 services:
   - docker
 
-install:
-  - docker run --name buildkit --rm -d --privileged -p 1234:1234 tonistiigi/buildkit --addr tcp://0.0.0.0:1234
-  - sudo docker cp buildkit:/usr/bin/buildctl /usr/bin/
-  - export BUILDKIT_HOST=tcp://0.0.0.0:1234
-
-#before_install:
-#  - sudo docker run --privileged linuxkit/binfmt:v0.6
-#  - sudo docker run -d --privileged -p 1234:1234 --name buildkit moby/buildkit:latest --addr tcp://0.0.0.0:1234 --oci-worker-platform linux/amd64 --oci-worker-platform linux/armhf
-#  - sudo docker cp buildkit:/usr/bin/buildctl /usr/bin/
-#  - export BUILDKIT_HOST=tcp://0.0.0.0:1234
+addons:
+  apt:
+    packages:
+      - docker-ce
 
 jobs:
   include:
