@@ -2,13 +2,8 @@ services:
   - docker
 
 before_install:
-  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  - sudo apt-get update
-  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-
-install:
-  - docker run --name buildkit --rm -d --privileged -p 1234:1234 $REPO_SLUG_ORIGIN --debug --addr tcp://0.0.0.0:1234 --oci-worker-gc=false
+  - sudo docker run --privileged linuxkit/binfmt:v0.6
+  - sudo docker run -d --privileged -p 1234:1234 --name buildkit moby/buildkit:latest --addr tcp://0.0.0.0:1234 --oci-worker-platform linux/amd64 --oci-worker-platform linux/armhf
   - sudo docker cp buildkit:/usr/bin/buildctl /usr/bin/
   - export BUILDKIT_HOST=tcp://0.0.0.0:1234
 
