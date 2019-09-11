@@ -5,6 +5,6 @@ jobs:
   include:
     - stage: build and push docker image
       script:
-        - echo "Make SMUI docker image and push it to docker.hub"
+        - echo "Make SMUI docker image and push it to Docker Hub"
         - make docker-build
         - make docker-push
