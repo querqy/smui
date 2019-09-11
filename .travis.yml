@@ -16,7 +16,7 @@ env:
   - secure: XJkZIENDd8TqQAet3XyPXnyG8arl6gbI4pYWvQi9MoHG4iCiGW4sBfn+DBr1kVfB3ee5t+rGt8dvaWAmUZEZY0K8zVXldQaNQiT6kyd+vSjDUCh0me+ykz2Y7sroDSNowcxdy1MMVntz2kmLxShKgERoprjVeZ95Z0eL+YQMGzcI4bSynm1caWOybT+L8m+cgb/2DHyvrdrfgVFL6aVkSkjAlaeAS4H7Ewun1zOhNba6H8CjI/csDrMk3VJSBjYblInRNvPQAsSiAopmnwT3GIlEfTvp6QqRwl9YrzfPvcgg42GPDx8VmewQDMtyHQEOU9/P2XtQOLwwMrfm8GXD8DERBerBkerJ0CIRQN/OzirTYRyZeo8jdB6ycH264kmQ22+PjbOoJVoopW3DJbEFoaAlqSH/1/WnRda2mD2WQYy0JiBif3Ksa2gk/nsOSCu2LljiKB7NMLBVkD7qfgObq5UMZXwCFwtZ2dsdYPOWP3YNT2Djs9W2NcgsZgYDAU0GH2di/MT5mEFkmsWxGwhZvhuXQm50oHuKw9zPU2k6dWzGjdVzzjgo40Oxk7mdYH49vYyk0ZN7eYWxxaR6b6+yk1+UGzTc7epuZ4tw9iu2FBNqcB87AjCp+cPjKYFuO2O3/I3Q+RgluXTCCNGp7D6QKzkOXLpMIP2eyDPF5pp8SYE=
 
 after_failure:
-- tail --lines=500 build.log
+- tail --lines=1000 build.log
 
 jobs:
   include:
@@ -24,9 +24,11 @@ jobs:
     script:
     - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
     - sudo service docker restart
-    - touch build.log
-    - while sleep 30s; do tail --lines=50 build.log; done &
-    - time make docker-build > build.log 2>&1
-    - kill %1
+#    - touch build.log
+#    - while sleep 30s; do tail --lines=50 build.log; done &
+#    - time make docker-build > build.log 2>&1
+#    - kill %1
+    - make docker-build > build.log 2>&1
+    - tail --lines=1000 build.log
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - sudo make docker-push
