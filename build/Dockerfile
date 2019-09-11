@@ -15,6 +15,11 @@ RUN yum -y install nodejs
 
 RUN yum clean all
 
+RUN npm i graceful-fs
+RUN npm i resolve
+RUN npm i esutils
+RUN npm i semver
+
 COPY . /smui
 WORKDIR /smui
 

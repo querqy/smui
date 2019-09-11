@@ -1,0 +1,10 @@
+services:
+  - docker
+
+jobs:
+  include:
+    - stage: build and push docker image
+      script:
+        - echo "Make SMUI docker image and push it to docker.hub"
+        - make docker-build
+        - make docker-push

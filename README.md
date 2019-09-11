@@ -9,12 +9,34 @@ SMUI is a tool for managing Solr-based onsite search. It provides a web user int
 * Auto-DECORATE do not exist any more. Please migrate any usage to Auto-Log-Rule-ID
 * SMUI for that feature depends now on v3.3 of [here](https://github.com/renekrie/querqy)
 
+## Major changes in v2 (compared to v1)
+
+* Database schema definition (SQL) implemented more lightweight, so that SMUI can be operated with every standard SQL database (entity IDs therefore needed to be adjusted, see "Migrate pre-v2 SMUI databases" for details)
+
 ## INSTALLATION
 
-Please follow the above steps in this order.
+### Step 1: Install SMUI application (recommended: using docker image or Docker Hub repository)
 
-### Step 1: Install RPM
+#### Build and start as a docker container
 
+You can use `make` to build and run SMUI as or into a docker container (see [Makefile]), e.g. (command line):
+
+```
+make docker-build
+make docker-run
+```
+
+#### Use SMUI docker image from Docker Hub
+
+SMUI is also integrated into a Travis CI build pipeline, that provides a Docker Hub SMUI image. You can pull the latest SMUI (master branch) from its public Docker Hub repository (command line):
+
+```
+docker pull pbartusch/smui:latest
+```
+
+### Step 1 / alternative (deprecated): Install SMUI from an RPM image
+
+This section describes, how to install SMUI from an RPM image.
 Example script (command line):
 
 ```
@@ -26,9 +48,11 @@ Note:
 * Ensure `search-management-ui` service is being included to your Server's start up sequence (e.g. `init.d`).
 * It might be necessary to execute command with root rights.
 
+WARNING: Installing SMUI from an RPM image is deprecated (as of sep/2019). Use a docker setup instead.
+
 ### Step 2: Create and configure database (SQL level)
 
-Create MariaDB- or MySQL-database, user and assign according permissions. Example script (SQL):
+Create SMUI database, user and assign according permissions. Example script (SQL, MariaDB / MySQL):
 
 ```
 CREATE USER 'smui'@'localhost' IDENTIFIED BY 'smui';
@@ -44,16 +68,69 @@ In principal SMUI database connection implementation is based on JDBC as well as
 * MariaDB
 * PostgreSQL
 
-#### Migrate pre 2.0.0 database versions
-As of version 2 of SMUI various database management systems are supported. With that, the daabase schema changed. To migrate the previous MySQL- or MariaDB-data to be compatible with SMUI version 2 you can use the following script, e.g.:
+#### Migrate pre-v2 SMUI databases
 
-```
-tbd
-```
+As of version 2 of SMUI various database management systems are supported. With that, the database schema changed, IDs became UUIDs. To migrate pre-v2 SMUI databases (e.g. using a MySQL or MariaDB setup), those IDs especially need to be adjusted (contact the author for details).
 
 ### Step 3: Configure runtime and application
 
-#### Configure runtime (shell level)
+SMUI is configured passing environment variables to the docker container SMUI runs on. The following section describes all parameters, that you can configure SMUI with. Mappings of config keys to environment variables can be found in [conf/application.conf] (e.g. `SMUI_DB_JDBC_DRIVER` environment variable sets `db.default.driver`).
+
+Note: Environment variables are the preferred way to configure your production environment whereas using a local `smui-dev.conf` is recommended, when developing (see "DEVELOPMENT SETUP").
+
+The following sections describe application configs in more detail.
+
+##### Configure basic settings
+
+The following settings can (and should) be overwritten on application.conf in your own `smui-prod.conf` level:
+
+config key | description | default
+--- | ---
+`db.default.driver` | JDBC database driver | MySQL database on localhost for smui:smui
+`db.default.url` | Database host and optional connection parameters (JDBC connection string) | MySQL database on localhost for smui:smui
+`db.default.username` `db.default.password` | Database credentials | MySQL database on localhost for smui:smui
+`smui2solr.SRC_TMP_FILE` | Path to temp file (when rules.txt generation happens) | local /tmp file in docker container (recommended: leave default)
+`smui2solr.DST_CP_FILE_TO` | Path to productive querqy rules.txt (within Solr context) | virtual local Solr instance (deprecated as of sep/2019 for production use)
+`smui2solr.SOLR_HOST` | Solr host | virtual local Solr instance (deprecated as of sep/2019 for production use)
+`play.http.secret.key` | Encryption key for server/client communication (Play 2.6 standard) | unsecure default
+
+##### Configure Feature Toggle (application behaviour)
+
+Optional. The following settings in the `application.conf` define its (frontend) behaviour:
+
+config key | description | default
+--- | --- | ---
+`toggle.ui-concept.updown-rules.combined` | Show UP(+++) fields instead of separated rule and intensity fields. | `true`
+`toggle.ui-concept.all-rules.with-solr-fields` | Offer a separated "Solr Field" input to the user (UP/DOWN, FILTER). | `true`
+`toggle.rule-deployment.log-rule-id` | With every exported search input, add an additional @_log line that identifies the ID of the rule (if info logging in the search-engine / Solr for querqy is activated, see `querqy.infoLogging=on`, it is being communicated in the search-engine's / Solr response). | `false`
+`toggle.rule-deployment.split-decompound-rule-txt` | Separate decompound synonyms (SOME* => SOME $1) into an own rules.txt file. WARNING: Activating this results in the need of having the second special-purpose-DST_CP_FILE_TO configured (see below). Temp file path for this purpose will be generated by adding a `-2` to `smui2solr.SRC_TMP_FILE`. | `false`
+`toggle.rule-deployment.split-decompound-rule-txt-DST_CP_FILE_TO` | Path to productive querqy decompound-rules.txt (within Solr context). | ``
+`toggle.rule-deployment.pre-live.present` | Make separated deployments pre-live vs. live possible (and display a button for that on the frontend). | `false`
+`toggle.rule-deployment.custom-script` | If set to `true` the below custom script (path) is used for deploying the rules.txt files. | `false`
+`toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH` | Path to an optional custom script (see above). | ``
+
+##### Configure Authentication
+
+SMUI is shipped with HTTP Basic Auth support. Basic Auth can be turned on in the extension by configuring an `smui.authAction` in the config file, e.g.:
+
+```
+# For Basic Auth authentication, use SMUI's BasicAuthAuthenticatedAction (or leave it blanked / commented out for no authentication), e.g.:
+smui.authAction = controllers.auth.BasicAuthAuthenticatedAction
+smui.BasicAuthAuthenticatedAction.user = smui_user
+smui.BasicAuthAuthenticatedAction.pass = smui_pass
+```
+
+This is telling every controller method (Home and ApiController) to use the according authentication method as well as it tells SMUI's `BasicAuthAuthenticatedAction` username and password it should use. You can also implement a custom authentication action and tell SMUI to decorate its controllers with that, e.g.:
+
+```
+smui.authAction = myOwnPackage.myOwnAuthenticatedAction
+```
+
+See "Developing Custom Authentication" for details.
+
+### Step 3 / alternative (deprecated): Configure runtime and application (for installed service from RPM)
+
+#### Configure runtime (command line)
 
 The following settings can be made on (JVM) runtime level:
 
@@ -116,57 +193,6 @@ smui2solr.SOLR_HOST="localhost:8983"
 play.http.secret.key="generated application secret"
 ```
 
-Database URL and credentials alternatively can be passed as environment variables (e.g. `SMUI_DB_URL`, see `conf/application.conf`). Your `smui-prod.conf` in this case leaves the according config lines empty. This is especially useful when instantiating SMUI in a `docker`, `docker-compose` or cloud environment.
-
-The following sections describe application configs in more detail.
-
-##### Configure basic settings
-
-The following settings can (and should) be overwritten on application.conf in your own `smui-prod.conf` level:
-
-conf key | description
---- | ---
-`db.default.*` | Login host and credentials to the database (connection string)
-`smui2solr.SRC_TMP_FILE` | Path to temp file (when rules.txt generation happens)
-`smui2solr.DST_CP_FILE_TO` | Path to productive querqy rules.txt (within Solr context)
-`smui2solr.SOLR_HOST` | Solr host
-`play.http.secret.key` | Encryption key for server/client communication (Play 2.6 standard)
-
-##### Configure Feature Toggle (application behaviour)
-
-Optional. The following settings in the `application.conf` define its (frontend) behaviour:
-
-conf key | description | default
---- | --- | ---
-`toggle.ui-concept.updown-rules.combined` | Show UP(+++) fields instead of separated rule and intensity fields. | `true`
-`toggle.ui-concept.all-rules.with-solr-fields` | Offer a separated "Solr Field" input to the user (UP/DOWN, FILTER). | `true`
-`toggle.rule-deployment.log-rule-id` | With every exported search input, add an additional @_log line that identifies the ID of the rule (if info logging in the search-engine / Solr for querqy is activated, see `querqy.infoLogging=on`, it is being communicated in the search-engine's / Solr response). | `false`
-`toggle.rule-deployment.split-decompound-rule-txt` | Separate decompound synonyms (SOME* => SOME $1) into an own rules.txt file. WARNING: Activating this results in the need of having the second special-purpose-DST_CP_FILE_TO configured (see below). Temp file path for this purpose will be generated by adding a `-2` to `smui2solr.SRC_TMP_FILE`. | `false`
-`toggle.rule-deployment.split-decompound-rule-txt-DST_CP_FILE_TO` | Path to productive querqy decompound-rules.txt (within Solr context). | ``
-`toggle.rule-deployment.pre-live.present` | Make separated deployments pre-live vs. live possible (and display a button for that on the frontend). | `false`
-`toggle.rule-deployment.custom-script` | If set to `true` the below custom script (path) is used for deploying the rules.txt files. | `false`
-`toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH` | Path to an optional custom script (see above). | ``
-
-##### Configure Authentication
-
-SMUI is shipped with HTTP Basic Auth support. Basic Auth can be turned on in the extension by configuring an `smui.authAction` in the config file, e.g.:
-
-```
-# For Basic Auth authentication, use SMUI's BasicAuthAuthenticatedAction (or leave it blanked / commented out for no authentication), e.g.:
-smui.authAction = controllers.auth.BasicAuthAuthenticatedAction
-smui.BasicAuthAuthenticatedAction.user = smui_user
-smui.BasicAuthAuthenticatedAction.pass = smui_pass
-```
-
-This is telling every controller method (Home and ApiController) to use the according authentication method as well as it tells SMUI's `BasicAuthAuthenticatedAction` username and password it should use. You can also implement a custom authentication action and tell SMUI to decorate its controllers with that, e.g.:
-
-```
-smui.authAction = myOwnPackage.myOwnAuthenticatedAction
-```
-
-See "Developing Custom Authentication" for details.
-
-
 #### First time start the application
 
 Then first time start the service. Example script (command line):
@@ -177,7 +203,9 @@ search-management-ui &
 
 Or via `service` command, or automatic startup after reboot respectively. Now navigate to SMUI application in the browser (e.g. `http://smui-server:9000/`) and make sure you see the application running (the application needs to bootstrap the database scheme).
 
-### Step 4: Create initial data (REST interface)
+WARNING: Manually changing SMUI's service environment and starting it as a OS service is deprecated (as of sep/2019). Deploy and start a docker container instead. The docker image instead will ensure basic runtime integrity.
+
+### Step 4: Create SMUI admin data initially (REST interface)
 
 Once the database scheme has been established, the initial data can be inserted. SMUI supports a REST interface to PUT admin entities (like the following) into the database.
 
@@ -204,6 +232,23 @@ curl -X PUT -H "Content-Type: application/json" -d '{"name":"solr-field-1"}' htt
 Where `solr-field-1` refers to the field in your configured Solr schema you would like to make addressable to the Search Manager. `{SOLR_INDEX_ID}` refers to the index ID created by the `solr-index` call above.
 
 Refresh Browser window and you should be ready to go.
+
+## USING SMUI
+
+### Search Rules
+
+SMUI supports the following search rules, that can be deployed to a Querqy supporting search engine (like [Solr](https://lucene.apache.org/solr/)):
+
+* SYNONYM (directed & undirected)
+* UP / DOWN
+* FILTER
+* DELETE
+
+Please see [here](https://github.com/renekrie/querqy) for a description of those rules. Furthermore, SMUI comes with built in DECORATE rules for certain use cases:
+
+* REDIRECT (as Querqy/DECORATE) to a specific target URL
+
+SMUI might as well leverages querqy's `@_log` property to communicate SMUI's rule ID back to the search-engine (Solr) querying instance.
 
 #### Convert existing rules.txt
 
@@ -248,23 +293,7 @@ To  : --
 
 Hint: Other querqy compatible rules not editable with SMUI (e.g. DECORATE) must be removed to have a proper converted SQL script ready.
 
-## SEARCH RULES
-
-SMUI supports the following search rules, that can be deployed to a Querqy supporting search engine (like [Solr](https://lucene.apache.org/solr/)):
-
-* SYNONYM (directed & undirected)
-* UP / DOWN
-* FILTER
-* DELETE
-
-Please see [here](https://github.com/renekrie/querqy) for a description of those rules. Furthermore, SMUI comes with built in DECORATE rules for certain use cases:
-
-* REDIRECT (as Querqy/DECORATE) to a specific target URL
-* It as well leverages querqy's `@_log` property to communicate SMUI's rule ID back to the search-engine (Solr) querying instance
-
-## MAINTENANCE
-
-## Log data
+### Log data
 
 The Log file(s) by default is/are located under the following path:
 
@@ -276,22 +305,6 @@ Server log can be watched by example script (command line):
 
 ```
 tail -f /var/log/search-management-ui/search-management-ui.log
-```
-
-### Add a new Solr Collection (SQL level)
-
-See "Step 4". Example script (bash):
-
-```
-TODO
-```
-
-### Add new Solr Fields (SQL level)
-
-See "Step 4". Example script (bash):
-
-```
-TODO
 ```
 
 ## DEVELOPMENT SETUP
