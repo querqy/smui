@@ -18,5 +18,7 @@ jobs:
   include:
     - stage: build and push SMUI docker image
       script:
+        - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+        - sudo service docker restart
         - sudo make docker-build
         - sudo make docker-push
