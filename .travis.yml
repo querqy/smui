@@ -1,4 +1,5 @@
 # fixed docker version and setup (for multi stage build with experimental commands) like suggested in https://www.sanisimov.com/2019/03/building-docker-images-for-multiple-architectures/
+# using workaround suggested in https://blog.humphd.org/building-large-code-on-travis/ to reduce docker build output
 
 sudo: required
 dist: xenial
@@ -15,7 +16,11 @@ env:
   global:
     - BUILDKIT_HOST=tcp://0.0.0.0:1234
     - DOCKER_CLI_EXPERIMENTAL=enabled
+    - DOCKER_USERNAME=user
+    - DOCKER_PASSWORD=pass
 
+after_failure:
+  - tail --lines=500 build.log
 
 jobs:
   include:
@@ -24,13 +29,13 @@ jobs:
         - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
         - sudo service docker restart
 
-        - touch build1.log
-        - while sleep 5m; do echo "=====[ $SECONDS seconds, buildroot still building... ]====="; tail --lines=50 build1.log; done &
-        - time make docker-build > build1.log 2>&1
+        - touch build.log
+        - while sleep 30s; do tail --lines=50 build.log; done &
+        - time make docker-build > build.log 2>&1
         - kill %1
 
         #- sudo make docker-build > build1.log 2>&1
         #- tail --lines=200 build1.log
 
-        - sudo make docker-push > build2.log 2>&1
-        - tail --lines=200 build2.log
+        - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        - sudo make docker-push
