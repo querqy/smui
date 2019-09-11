@@ -1,3 +1,5 @@
+# fixed docker version and setup (for multi stage build with experimental commands) like suggested in https://www.sanisimov.com/2019/03/building-docker-images-for-multiple-architectures/
+
 sudo: required
 dist: xenial
 
@@ -20,5 +22,5 @@ jobs:
       script:
         - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
         - sudo service docker restart
-        - sudo make docker-build
+        - sudo make docker-build > /dev/null
         - sudo make docker-push
