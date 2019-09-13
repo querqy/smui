@@ -2,12 +2,12 @@
 
 ![SMUI v1.5.0 screenshot](20190103_screenshot_SMUI_v1-5-0.png)
 
-SMUI is a tool for managing Solr-based onsite search. It provides a web user interface for maintainig rules for query rewriting based on the Querqy Solr plugin for query rewriting. Please see [here](https://github.com/renekrie/querqy) for the installation of Querqy.
+SMUI is a tool for managing Solr-based onsite search. It provides a web user interface for maintainig rules for query rewriting based on the Querqy Solr plugin for query rewriting. Please see [querqy](https://github.com/renekrie/querqy) for the installation of Querqy.
 
 ## Major changes in v3 (compared to v2)
 
 * Auto-DECORATE do not exist any more. Please migrate any usage to Auto-Log-Rule-ID
-* SMUI for that feature depends now on v3.3 of [here](https://github.com/renekrie/querqy)
+* SMUI for that feature depends now on v3.3 of [querqy](https://github.com/renekrie/querqy)
 
 ## Major changes in v2 (compared to v1)
 
@@ -19,7 +19,7 @@ SMUI is a tool for managing Solr-based onsite search. It provides a web user int
 
 #### Build and start as a docker container
 
-You can use `make` to build and run SMUI as or into a docker container (see [Makefile]), e.g. (command line):
+You can use `make` to build and run SMUI as or into a docker container (see [Makefile](Makefile)), e.g. (command line):
 
 ```
 make docker-build
@@ -74,7 +74,7 @@ As of version 2 of SMUI various database management systems are supported. With 
 
 ### Step 3: Configure runtime and application
 
-SMUI is configured passing environment variables to the docker container SMUI runs on. The following section describes all parameters, that you can configure SMUI with. Mappings of config keys to environment variables can be found in [conf/application.conf] (e.g. `SMUI_DB_JDBC_DRIVER` environment variable sets `db.default.driver`).
+SMUI is configured passing environment variables to the docker container SMUI runs on. The following section describes all parameters, that you can configure SMUI with. Mappings of config keys to environment variables can be found in [application.conf](conf/application.conf) (e.g. `SMUI_DB_JDBC_DRIVER` environment variable sets `db.default.driver`).
 
 Note: Environment variables are the preferred way to configure your production environment whereas using a local `smui-dev.conf` is recommended, when developing (see "DEVELOPMENT SETUP").
 
@@ -85,7 +85,7 @@ The following sections describe application configs in more detail.
 The following settings can (and should) be overwritten on application.conf in your own `smui-prod.conf` level:
 
 config key | description | default
---- | ---
+--- | --- | ---
 `db.default.driver` | JDBC database driver | MySQL database on localhost for smui:smui
 `db.default.url` | Database host and optional connection parameters (JDBC connection string) | MySQL database on localhost for smui:smui
 `db.default.username` `db.default.password` | Database credentials | MySQL database on localhost for smui:smui
@@ -244,7 +244,7 @@ SMUI supports the following search rules, that can be deployed to a Querqy suppo
 * FILTER
 * DELETE
 
-Please see [here](https://github.com/renekrie/querqy) for a description of those rules. Furthermore, SMUI comes with built in DECORATE rules for certain use cases:
+Please see [querqy](https://github.com/renekrie/querqy) for a description of those rules. Furthermore, SMUI comes with built in DECORATE rules for certain use cases:
 
 * REDIRECT (as Querqy/DECORATE) to a specific target URL
 
