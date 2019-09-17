@@ -19,6 +19,7 @@ import { SearchManagementService } from './search-management.service';
 import { FeatureToggleService } from './feature-toggle.service';
 
 const DEFAULT_IDX_UP_DOWN_DROPDOWN_DEFINITION_MAPPING = 4;
+declare var $: any; // For jquery
 
 @Component({
   selector: 'smui-search-input-detail',
@@ -35,7 +36,10 @@ export class SearchInputDetailComponent implements OnInit {
   detailSearchInput: smm.SearchInput = null;
   private initDetailSearchInputHashForDirtyState: string = null;
   private suggestedSolrFieldNames = null;
+  private showTags: Boolean = false;
+  private availableTags: smm.InputTag[] = [];
   private currentSolrIndexId = '-1'; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
+  private previousTagEventHandler = null;
 
   // TODO open typeahead popup on focus -- focus$ = new Subject<string>();
   searchSuggestedSolrFieldNames = (text$: Observable<string>) =>
@@ -59,6 +63,10 @@ export class SearchInputDetailComponent implements OnInit {
   ngOnInit() {
     console.log('In SearchInputDetailComponent :: ngOnInit');
     console.log(':: parentComponent = ' + this.parentComponent);
+  }
+
+  private availableTagsForCurrentSolrIndex() {
+    return this.parentComponent.allInputTags.filter(tag => !tag.solrIndexId || tag.solrIndexId === this.currentSolrIndexId);
   }
 
   public loadSuggestedSolrFieldsForSolrIndexWithId(solrIndexId: string) {
@@ -87,6 +95,32 @@ export class SearchInputDetailComponent implements OnInit {
   // TODO consider evaluate a more elegant solution to dispatch upDownDropdownDefinitionMappings from smm to the template
   public upDownDropdownDefinitionMappings() {
     return smm.upDownDropdownDefinitionMappings;
+  }
+
+  private initTags(tags: smm.InputTag[]) {
+    this.availableTags = this.availableTagsForCurrentSolrIndex();
+    this.showTags = this.featureToggleService.isRuleTaggingActive();
+    
+    const elem = $('.inputTags')
+    if (this.previousTagEventHandler) {
+      elem.off('tokenize:tokens:added tokenize:tokens:remove', this.previousTagEventHandler);
+    }
+
+    // Create tag input from multiselect input
+    elem.tokenize2({ placeholder: 'Tags', dropdownMaxItems: 20, searchFromStart: false });
+    // Remove previous event handlers that update the model
+    //elem.off('tokenize:tokens:added	tokenize:tokens:remove')
+    // Remove all previously selected tags and add all current tags
+    elem.tokenize2().trigger('tokenize:clear');
+    tags.forEach(tag => {
+      elem.tokenize2().trigger('tokenize:tokens:add', [tag.id, tag.displayValue, true]);
+    });
+    const handler = () => {
+      this.updateSelectedTagsInModel();
+    }
+    this.previousTagEventHandler = handler;
+    // Register event handlers that update the model value on change
+    elem.on('tokenize:tokens:added tokenize:tokens:remove', handler);
   }
 
   // Helper to find the closest matching mapping to an existing persisted UP/DOWN rule
@@ -148,11 +182,13 @@ export class SearchInputDetailComponent implements OnInit {
 
     if (searchInputId === null) {
       this.detailSearchInput = null;
+      this.showTags = false;
     } else {
       this.searchManagementService
         .getDetailedSearchInput(searchInputId)
         .then(retSearchInput => {
 
+          this.initTags(retSearchInput.tags)
           this.detailSearchInput = retSearchInput;
 
           // take care of extracted Solr syntax
@@ -194,7 +230,7 @@ export class SearchInputDetailComponent implements OnInit {
     console.log('In SearchInputDetailComponent :: addNewSynonym');
 
     const emptySynonymRule: smm.SynonymRule = {
-      id: null,
+      id: this.randomUUID(),
       synonymType: 0,
       term: '',
       isActive: true
@@ -213,7 +249,7 @@ export class SearchInputDetailComponent implements OnInit {
     console.log('In SearchInputDetailComponent :: addNewUpDownRule');
 
     const emptyUpDownRule: smm.UpDownRule = {
-      id: null,
+      id: this.randomUUID(),
       term: '',
       isActive: true
     };
@@ -238,7 +274,7 @@ export class SearchInputDetailComponent implements OnInit {
     console.log('In SearchInputDetailComponent :: addNewFilterRule');
 
     const emptyFilterRule: smm.FilterRule = {
-      id: null,
+      id: this.randomUUID(),
       term: '',
       isActive: true
     };
@@ -259,12 +295,22 @@ export class SearchInputDetailComponent implements OnInit {
     console.log('In SearchInputDetailComponent :: addNewDeleteRule');
 
     const emptyDeleteRule: smm.DeleteRule = {
-      id: null,
+      id: this.randomUUID(),
       term: '',
       isActive: true
     };
     this.detailSearchInput
       .deleteRules.push(emptyDeleteRule);
+  }
+
+  // taken from https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+  private randomUUID() {
+    /* tslint:disable */
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+    /* tslint:enable */
   }
 
   public deleteDeleteRule(index: number) {
@@ -273,11 +319,20 @@ export class SearchInputDetailComponent implements OnInit {
     this.detailSearchInput.deleteRules.splice(index, 1);
   }
 
+  private currentlySelectedTags() {
+    const ids: string[] = $('.inputTags').val();
+    return this.availableTagsForCurrentSolrIndex().filter(tag => ids.indexOf(tag.id) !== -1)
+  }
+
+  private updateSelectedTagsInModel() {
+    this.detailSearchInput.tags = this.currentlySelectedTags()
+  }
+
   public addNewRedirectRule() {
     console.log('In SearchInputDetailComponent :: addNewRedirectRule');
 
     const emptyRedirectRule: smm.RedirectRule = {
-      id: null,
+      id: this.randomUUID(),
       target: '',
       isActive: true
     };
@@ -302,6 +357,8 @@ export class SearchInputDetailComponent implements OnInit {
       this.integrateSuggestedSolrFieldName(this.detailSearchInput.upDownRules);
       this.integrateSuggestedSolrFieldName(this.detailSearchInput.filterRules);
     }
+
+    this.updateSelectedTagsInModel()
 
     // take care of UP/DOWN mappings
     console.log(':: this.detailSearchInput.upDownRules = ' + this.detailSearchInput.upDownRules);

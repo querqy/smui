@@ -12,8 +12,6 @@ import play.api.libs.json._
 import play.api.libs.json.Reads._
 
 import scala.concurrent.{ExecutionContext, Future}
-import models.SearchManagementModel._
-import play.api.http.HttpEntity
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
 class ApiController @Inject()(searchManagementRepository: SearchManagementRepository,
@@ -29,28 +27,11 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   val API_RESULT_FAIL = "KO"
 
   case class ApiResult(result: String, message: String, returnId: Option[String])
-
-  implicit val solrIndexWrites = Json.writes[SolrIndex]
-  implicit val suggestedSolrFieldWrites = Json.writes[SuggestedSolrField]
-  implicit val searchSynonymWrites = Json.writes[SynonymRule]
-  implicit val upDownRuleWrites = Json.writes[UpDownRule]
-  implicit val filterRuleWrites = Json.writes[FilterRule]
-  implicit val deleteWrites = Json.writes[DeleteRule]
-  implicit val redirectWrites = Json.writes[RedirectRule]
-  implicit val searchInputWrites = Json.writes[SearchInput]
-
-  // TODO for all Json.reads, that "id" = null JSON values are converted to Option.None
-  implicit val searchSynonymReads = Json.reads[SynonymRule]
-  implicit val upDownRuleReads = Json.reads[UpDownRule]
-  implicit val filterRuleReads = Json.reads[FilterRule]
-  implicit val deleteReads = Json.reads[DeleteRule]
-  implicit val redirectReads = Json.reads[RedirectRule]
-  implicit val searchInputReads = Json.reads[SearchInput]
-
   implicit val apiResultWrites = Json.writes[ApiResult]
 
+
   def listAllSolrIndeces = authActionFactory.getAuthenticatedAction(Action) {
-    Ok(Json.toJson(searchManagementRepository.listAllSolrIndeces))
+    Ok(Json.toJson(searchManagementRepository.listAllSolrIndexes))
   }
 
   def addNewSolrIndex = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
@@ -61,11 +42,11 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     jsonBody.map { json =>
       val searchIndexName = (json \ "name").as[String]
       val searchIndexDescription = (json \ "description").as[String]
-      val maybeSolrIndexId = searchManagementRepository.addNewSolrIndex(
-        SolrIndex(None, searchIndexName, searchIndexDescription)
+      val solrIndexId = searchManagementRepository.addNewSolrIndex(
+        SolrIndex(name = searchIndexName, description = searchIndexDescription)
       )
 
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchIndexName + "' successful.", maybeSolrIndexId)))
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchIndexName + "' successful.", Some(solrIndexId.toString))))
     }.getOrElse {
       BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
     }
@@ -84,18 +65,18 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     StreamConverters.fromInputStream(() => in)
   }
 
-  def listAllSearchInputs(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
-    Future {
-      // TODO add error handling (database connection, other exceptions)
-      Ok(Json.toJson(searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(solrIndexId)))
-    }
+  def listAllSearchInputs(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action) {
+    // TODO add error handling (database connection, other exceptions)
+    Ok(Json.toJson(searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))))
   }
 
-  def getDetailedSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action).async {
-    Future {
-      // TODO add error handling (database connection, other exceptions)
-      Ok(Json.toJson(searchManagementRepository.getDetailedSearchInput(searchInputId)))
-    }
+  def listAllInputTags(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+    Ok(Json.toJson(searchManagementRepository.listAllInputTags()))
+  }
+
+  def getDetailedSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action) {
+    // TODO add error handling (database connection, other exceptions)
+    Ok(Json.toJson(searchManagementRepository.getDetailedSearchInput(SearchInputId(searchInputId))))
   }
 
   def addNewSearchInput(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
@@ -106,9 +87,9 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       // Expecting json body
       jsonBody.map { json =>
         val searchInputTerm = (json \ "term").as[String]
-        val maybeSearchInputId = searchManagementRepository.addNewSearchInput(solrIndexId, searchInputTerm)
+        val searchInputId = searchManagementRepository.addNewSearchInput(SolrIndexId(solrIndexId), searchInputTerm)
 
-        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", maybeSearchInputId)))
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", Some(searchInputId.toString))))
       }.getOrElse {
         BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
       }
@@ -121,7 +102,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
     // Expecting json body
     jsonBody.map { json =>
-      val searchInput = json.as[SearchInput]
+      val searchInput = json.as[SearchInputWithRules]
 
       querqyRulesTxtGenerator.validateSearchInputToErrMsg(searchInput) match {
         case Some(strErrMsg: String) =>
@@ -158,7 +139,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     logger.debug("In ApiController :: updateRulesTxtForSolrIndex")
 
     // generate rules.txt(s)
-    val rulesFiles = rulesTxtDeploymentService.generateRulesTxtContentWithFilenames(solrIndexId)
+    val rulesFiles = rulesTxtDeploymentService.generateRulesTxtContentWithFilenames(SolrIndexId(solrIndexId))
 
     // validate every generated rules.txt
     rulesTxtDeploymentService.validateCompleteRulesTxts(rulesFiles) match {

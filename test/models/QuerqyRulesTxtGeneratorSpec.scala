@@ -1,7 +1,7 @@
 package models
 
 import models.FeatureToggleModel.FeatureToggleService
-import models.SearchManagementModel._
+import models.rules._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
@@ -15,11 +15,12 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
   "Rules Text Generation" should "consider up/down rules correctly" in {
     val upDownRules = List(
-      UpDownRule(None, 0, 10, "notebook", true),
-      UpDownRule(None, 0, 10, "lenovo", false),
-      UpDownRule(None, 1, 10, "battery", true)
+      UpDownRule(UpDownRuleId(), 0, 10, "notebook", true),
+      UpDownRule(UpDownRuleId(), 0, 10, "lenovo", false),
+      UpDownRule(UpDownRuleId(), 1, 10, "battery", true)
     )
-    val rulesTxt = generator.renderSearchInputRulesForTerm("laptop", SearchInput(term = "laptop", upDownRules = upDownRules))
+    val rulesTxt = generator.renderSearchInputRulesForTerm("laptop",
+      SearchInputWithRules(SearchInputId(), term = "laptop", upDownRules = upDownRules))
 
     rulesTxt should be(
       s"""|laptop =>
@@ -30,9 +31,10 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
 
   "Rules Text Generation" should "correctly write a DELETE rules" in {
-    val deleteRules = List (DeleteRule(None, "freddy", true))
+    val deleteRules = List (DeleteRule(DeleteRuleId(), "freddy", true))
 
-    val rulesTxt  = generator.renderSearchInputRulesForTerm("queen", SearchInput(term = "queen", deleteRules = deleteRules))
+    val rulesTxt  = generator.renderSearchInputRulesForTerm("queen",
+      SearchInputWithRules(SearchInputId(), term = "queen", deleteRules = deleteRules))
     rulesTxt should be(
       s"""|queen =>
           |\tDELETE: freddy
@@ -40,9 +42,10 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
   }
 
   "Rules Text Generation" should "correctly write a undirected SYNONYM rules" in {
-    val synonymRules = List (SynonymRule(None, 0, "mercury", true))
+    val synonymRules = List (SynonymRule(SynonymRuleId(), 0, "mercury", true))
 
-    val rulesTxt  = generator.renderSearchInputRulesForTerm("queen", SearchInput(term = "queen", synonymRules = synonymRules))
+    val rulesTxt  = generator.renderSearchInputRulesForTerm("queen",
+      SearchInputWithRules(SearchInputId(), term = "queen", synonymRules = synonymRules))
     rulesTxt should be(
       s"""|queen =>
           |\tSYNONYM: mercury
@@ -51,9 +54,10 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
 
   "Rules Text Generation" should "correctly add FILTER rules" in {
-    val filterRules = List (FilterRule(None, "zz top", true))
+    val filterRules = List (FilterRule(FilterRuleId(), "zz top", true))
 
-    val rulesTxt  = generator.renderSearchInputRulesForTerm("abba", SearchInput(term = "abba", filterRules = filterRules))
+    val rulesTxt  = generator.renderSearchInputRulesForTerm("abba",
+      SearchInputWithRules(SearchInputId(), term = "abba", filterRules = filterRules))
     rulesTxt should be(
       s"""|abba =>
           |\tFILTER: zz top
@@ -61,16 +65,16 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
   }
 
   "Rules Text Generation" should "correctly combine SYNONYM, FILTER, DELETE and UPDOWN Rules" in {
-    val synonymRules = List (SynonymRule(None, 0, "mercury", true))
+    val synonymRules = List (SynonymRule(SynonymRuleId(), 0, "mercury", true))
     val upDownRules = List(
-      UpDownRule(None, 0, 10, "notebook", true),
-      UpDownRule(None, 0, 10, "lenovo", false),
-      UpDownRule(None, 1, 10, "battery", true)
+      UpDownRule(UpDownRuleId(), 0, 10, "notebook", true),
+      UpDownRule(UpDownRuleId(), 0, 10, "lenovo", false),
+      UpDownRule(UpDownRuleId(), 1, 10, "battery", true)
     )
-    val deleteRules = List (DeleteRule(None, "freddy", true))
-    val filterRules = List (FilterRule(None, "zz top", true))
+    val deleteRules = List (DeleteRule(DeleteRuleId(), "freddy", true))
+    val filterRules = List (FilterRule(FilterRuleId(), "zz top", true))
     val rulesTxt  = generator.renderSearchInputRulesForTerm("aerosmith",
-      SearchInput(term = "aerosmith", filterRules = filterRules,
+      SearchInputWithRules(SearchInputId(), term = "aerosmith", filterRules = filterRules,
         synonymRules = synonymRules, deleteRules = deleteRules, upDownRules = upDownRules))
 
     rulesTxt should be(
@@ -89,16 +93,47 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
     val featureToggleMock = mock[FeatureToggleService]
     when(featureToggleMock.getToggleRuleDeploymentLogRuleId).thenReturn(true)
 
-    val synonymRules = List (SynonymRule(None, 0, "mercury", true))
+    val synonymRules = List(SynonymRule(SynonymRuleId(), 0, "mercury", true))
 
     val classUnderTest = new QuerqyRulesTxtGenerator(searchManagementRepository, featureToggleMock)
     val rulesTxt  = classUnderTest.renderSearchInputRulesForTerm("queen",
-      SearchInput(id = Some("rule-id"), "queen", synonymRules = synonymRules))
+      SearchInputWithRules(SearchInputId("rule-id"), "queen", synonymRules = synonymRules))
     rulesTxt should be(
       s"""|queen =>
           |\tSYNONYM: mercury
-          |\t@_log: "rule-id"
+          |\t@{
+          |\t  "_log" : "rule-id"
+          |\t}@
           |""".stripMargin)
+  }
+
+  it should "add tags to the rules as json properties if rule tagging is active" in {
+    val featureToggleMock = mock[FeatureToggleService]
+    when(featureToggleMock.getToggleRuleDeploymentLogRuleId).thenReturn(true)
+    when(featureToggleMock.isRuleTaggingActive).thenReturn(true)
+
+    val synonymRules = List(SynonymRule(SynonymRuleId(), 0, "mercury", isActive = true))
+    val input = SearchInputWithRules(SearchInputId("rule-id"), "queen", synonymRules = synonymRules,
+      tags = Seq(
+        InputTag.create(None, Some("tenant"), "MO", exported = true),
+        InputTag.create(None, Some("tenant"), "MO_AT", exported = true),
+        InputTag.create(None, Some("color"), "red", exported = true),
+        InputTag.create(None, None, "dummy", exported = true), // should not be exported, since no property is set
+        InputTag.create(None, Some("notExported"), "value", exported = false)
+      ))
+
+    val classUnderTest = new QuerqyRulesTxtGenerator(searchManagementRepository, featureToggleMock)
+    val rulesTxt  = classUnderTest.renderSearchInputRulesForTerm("queen", input)
+    rulesTxt should be(
+      s"""|queen =>
+          |\tSYNONYM: mercury
+          |\t@{
+          |\t  "_log" : "rule-id",
+          |\t  "tenant" : [ "MO", "MO_AT" ],
+          |\t  "color" : [ "red" ]
+          |\t}@
+          |""".stripMargin)
+
   }
 
   // TODO outsource whole rules.txt file to an external test ressource

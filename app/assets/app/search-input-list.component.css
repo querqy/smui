@@ -17,3 +17,11 @@ li.list-group-item.active > .text-muted {
 	max-height: calc(100vh - 140px);
 	overflow-y: scroll;
 }
+
+.smui-tags-container {
+	margin-left: 5px;
+}
+
+.smui-tag {
+	margin-left: 5px;
+}

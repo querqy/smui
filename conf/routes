@@ -10,6 +10,7 @@ GET     /health   controllers.HealthController.health
 # TODO search-input URL path partially "behind" solrIndexId path component and partially not
 GET     /api/v1/solr-index                               controllers.ApiController.listAllSolrIndeces
 PUT     /api/v1/solr-index                               controllers.ApiController.addNewSolrIndex
+GET     /api/v1/inputTags                                controllers.ApiController.listAllInputTags
 GET     /api/v1/:solrIndexId/search-input                controllers.ApiController.listAllSearchInputs(solrIndexId: String)
 GET     /api/v1/search-input/:searchInputId              controllers.ApiController.getDetailedSearchInput(searchInputId: String)
 PUT     /api/v1/:solrIndexId/search-input                controllers.ApiController.addNewSearchInput(solrIndexId: String)

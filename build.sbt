@@ -111,7 +111,6 @@ libraryDependencies ++= {
     // Play Framework Dependencies
 
     guice,
-    ehcache,
     jdbc,
     evolutions,
     
@@ -129,8 +128,8 @@ libraryDependencies ++= {
     "mysql" % "mysql-connector-java" % "8.0.13", // TODO verify use of mysql-connector over explicit mariaDB connector instead
     "org.postgresql" % "postgresql" % "42.2.5",
     "org.xerial" % "sqlite-jdbc" % "3.25.2",
-    "com.typesafe.play" %% "anorm" % "2.5.3",
-    "com.typesafe.play" %% "play-json" % "2.6.1",
+    "org.playframework.anorm" %% "anorm" % "2.6.4",
+    "com.typesafe.play" %% "play-json" % "2.6.12",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
     "org.mockito" % "mockito-all" % "1.10.19" % Test,
 
@@ -142,6 +141,7 @@ libraryDependencies ++= {
     "org.webjars.npm" % "angular__http" % ngVersion,
     "org.webjars.npm" % "angular__forms" % ngVersion,
     "org.webjars.npm" % "angular__router" % ngVersion,
+    "org.webjars.npm" % "angular__animations" % ngVersion,
     "org.webjars.npm" % "angular__platform-browser-dynamic" % ngVersion,
     "org.webjars.npm" % "angular__platform-browser" % ngVersion,
     "org.webjars.npm" % "systemjs" % "0.20.14",
@@ -155,6 +155,7 @@ libraryDependencies ++= {
 
     "org.webjars.npm" % "ng-bootstrap__ng-bootstrap" % "1.0.0",
     "org.webjars.npm" % "angular2-toaster" % "2.0.0", // TODO consider native Angular2/Bootstrap "growl" or "toast" library
+    "org.webjars.npm" % "tokenize2" % "1.3.0", // Tag input
 
     "org.webjars" % "jquery" % "3.2.1",
     "org.webjars" % "bootstrap" % "4.0.0-beta.2",

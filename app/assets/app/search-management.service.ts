@@ -34,6 +34,16 @@ export class SearchManagementService {
       .catch(this.handleError);
   }
 
+  listAllInputTags(): Promise<Array<smm.InputTag>> {
+    return this.http
+      .get(SEARCH_MANAGEMENT_API_BASE_URL + '/inputTags')
+      .toPromise()
+      .then(res => {
+        return res.json() as smm.InputTag[];
+      })
+      .catch(this.handleError);
+  }
+
   listAllSearchInputsInclSynonyms(solrIndexId: string): Promise<Array<smm.SearchInput>> {
     return this.http
       .get(SEARCH_MANAGEMENT_API_BASE_URL + '/' + solrIndexId + '/' + SEARCH_INPUT_API_URL)

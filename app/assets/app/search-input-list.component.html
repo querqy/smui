@@ -31,6 +31,12 @@
       </small>
     </ng-container>
 
+    <span class="smui-tags-container">
+      <span *ngFor="let tag of searchInput.tags" class="badge badge-pill badge-info smui-tag">
+        {{ tag.displayValue }}
+      </span>
+    </span>
+
     <button type="button" class="btn btn-danger btn-sm float-right" (click)="deleteSearchInputWithId(searchInput.id); $event.stopPropagation();">-</button>
   </li>
 

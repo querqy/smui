@@ -34,6 +34,10 @@ export class FeatureToggleService {
     }
   }
 
+  isRuleTaggingActive(): Boolean {
+    return this.getSync('toggle.rule-tagging')
+  }
+
   // TODO rethink if interfacing like this is generic enough
 
   getSyncToggleUiConceptUpDownRulesCombined(): any {

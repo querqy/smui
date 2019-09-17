@@ -1,6 +1,6 @@
 package models
 
-import models.SearchManagementModel._
+import models.rules._
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import play.api.{Application, Mode}
 import play.api.db.{Database, Databases}
@@ -27,33 +27,33 @@ trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
 
   protected lazy val repo: SearchManagementRepository = injector.instanceOf[SearchManagementRepository]
 
-  protected val core1Id = "1"
+  protected val (core1Id, core2Id) = (SolrIndexId(), SolrIndexId())
 
   protected def createTestCores(): Unit = {
-    repo.addNewSolrIndex(SolrIndex(Some(core1Id), "core1", "First core"))
-    repo.addNewSolrIndex(SolrIndex(Some("2"), "core2", "Second core"))
+    repo.addNewSolrIndex(SolrIndex(core1Id, "core1", "First core"))
+    repo.addNewSolrIndex(SolrIndex(core2Id, "core2", "Second core"))
   }
 
-  protected def createTestRule(): Seq[String] = {
-    val synonymRules = List (SynonymRule(None, 0, "mercury", isActive = true))
+  protected def createTestRule(): Seq[SearchInputId] = {
+    val synonymRules = List (SynonymRule(SynonymRuleId(), 0, "mercury", isActive = true))
     val upDownRules = List(
-      UpDownRule(None, 0, 10, "notebook", isActive = true),
-      UpDownRule(None, 0, 10, "lenovo", isActive = false),
-      UpDownRule(None, 1, 10, "battery", isActive = true)
+      UpDownRule(UpDownRuleId(), 0, 10, "notebook", isActive = true),
+      UpDownRule(UpDownRuleId(), 0, 10, "lenovo", isActive = false),
+      UpDownRule(UpDownRuleId(), 1, 10, "battery", isActive = true)
     )
-    val deleteRules = List(DeleteRule(None, "freddy", isActive = true))
-    val filterRules = List(FilterRule(None, "zz top", isActive = true))
+    val deleteRules = List(DeleteRule(DeleteRuleId(), "freddy", isActive = true))
+    val filterRules = List(FilterRule(FilterRuleId(), "zz top", isActive = true))
 
     val id = repo.addNewSearchInput(core1Id, "aerosmith")
-    val searchInput = SearchInput(id, "aerosmith", synonymRules, upDownRules, filterRules)
+    val searchInput = SearchInputWithRules(id, "aerosmith", synonymRules, upDownRules, filterRules)
     repo.updateSearchInput(searchInput)
 
     val shippingId = repo.addNewSearchInput(core1Id, "shipping")
-    val redirectRule = RedirectRule(None, "http://xyz.com/shipping", isActive = true)
-    val searchInputForRedirect = SearchInput(shippingId, "shipping", redirectRules = List(redirectRule))
+    val redirectRule = RedirectRule(RedirectRuleId(), "http://xyz.com/shipping", isActive = true)
+    val searchInputForRedirect = SearchInputWithRules(shippingId, "shipping", redirectRules = List(redirectRule))
     repo.updateSearchInput(searchInputForRedirect)
 
-    Seq(id.get, shippingId.get)
+    Seq(id, shippingId)
   }
 
   override protected def afterAll(): Unit = {

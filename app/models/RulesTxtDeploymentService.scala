@@ -17,7 +17,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
 
   private val logger = play.api.Logger
 
-  case class RulesTxtsForSolrIndex(solrIndexId: String,
+  case class RulesTxtsForSolrIndex(solrIndexId: SolrIndexId,
                                    regularRules: RulesTxtWithFileNames,
                                    decompoundRules: Option[RulesTxtWithFileNames]) {
 
@@ -35,7 +35,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     * @param solrIndexId Solr Index Id to generate the output for.
     */
   // TODO evaluate, if logDebug should be used to prevent verbose logging of the whole generated rules.txt (for zip download especially)
-  def generateRulesTxtContentWithFilenames(solrIndexId: String, logDebug: Boolean = true): RulesTxtsForSolrIndex = {
+  def generateRulesTxtContentWithFilenames(solrIndexId: SolrIndexId, logDebug: Boolean = true): RulesTxtsForSolrIndex = {
 
     val SRC_TMP_FILE = appConfig.get[String]("smui2solr.SRC_TMP_FILE")
     val DST_CP_FILE_TO = appConfig.get[String]("smui2solr.DST_CP_FILE_TO")
@@ -143,8 +143,8 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
   def writeAllRulesTxtFilesAsZipFileToStream(out: OutputStream): Unit = {
     val zipStream = new ZipOutputStream(out)
     try {
-      for (index <- searchManagementRepository.listAllSolrIndeces) {
-        val rules = generateRulesTxtContentWithFilenames(index.id.get, logDebug = false)
+      for (index <- searchManagementRepository.listAllSolrIndexes) {
+        val rules = generateRulesTxtContentWithFilenames(index.id, logDebug = false)
         zipStream.putNextEntry(new ZipEntry(s"rules_${index.name}.txt"))
         zipStream.write(rules.regularRules.content.getBytes("UTF-8"))
         zipStream.closeEntry()

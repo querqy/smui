@@ -9,7 +9,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with ApplicationTestBase {
 
   private lazy val service = injector.instanceOf[RulesTxtDeploymentService]
-  private var inputIds: Seq[String] = Seq.empty
+  private var inputIds: Seq[SearchInputId] = Seq.empty
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
@@ -18,23 +18,29 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
     inputIds = createTestRule()
   }
 
-  private def rulesFileContent(ruleIds: Seq[String]): String = s"""aerosmith =>
+  private def rulesFileContent(ruleIds: Seq[SearchInputId]): String = s"""aerosmith =>
                            |	SYNONYM: mercury
                            |	DOWN(10): battery
                            |	UP(10): notebook
                            |	FILTER: zz top
-                           |	@_log: "${ruleIds.head}"
+                           |	@{
+                           |	  "_log" : "${ruleIds.head}"
+                           |	}@
                            |
                            |mercury =>
                            |	SYNONYM: aerosmith
                            |	DOWN(10): battery
                            |	UP(10): notebook
                            |	FILTER: zz top
-                           |	@_log: "${ruleIds.head}"
+                           |	@{
+                           |	  "_log" : "${ruleIds.head}"
+                           |	}@
                            |
                            |shipping =>
                            |	DECORATE: REDIRECT http://xyz.com/shipping
-                           |	@_log: "${ruleIds.last}"""".stripMargin
+                           |	@{
+                           |	  "_log" : "${ruleIds.last}"
+                           |	}@""".stripMargin
 
   "RulesTxtDeploymentService" should "generate rules files with correct file names" in {
     val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)

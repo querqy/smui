@@ -22,3 +22,15 @@
 .dropdown-item {
 	cursor: pointer;
 }
+
+.smui-tags-container {
+	padding: 6px 12px;
+}
+
+.smui-tags-container /deep/ .tokens-container {
+	margin-bottom: 0 !important; 
+}
+
+.smui-tags-container /deep/ .token {
+	font-size: 12px; 
+}

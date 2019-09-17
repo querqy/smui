@@ -8,7 +8,7 @@
               <td style="width:20%">
                 <small style="text-transform: uppercase">Input Term:</small>
               </td>
-              <td style="width:55%">
+              <td [style.width]="showTags ? '30%' : '55%'">
                 <!-- TODO Could be solved more elegant while having a conditional expression within <input>, that respects detailSearchInput might be null -->
                 <ng-container *ngIf="detailSearchInput !== null">
                   <input type="text"
@@ -25,6 +25,12 @@
                          placeholder="Edit Search Input ..."
                          disabled="disabled">
                 </ng-container>
+              </td>
+              <td [style.display]="showTags ? 'table-cell': 'none'" style="width:25%" class="smui-tags-container">
+                  <select class="inputTags" multiple>
+                    <option *ngFor="let tag of availableTags"
+                      [value]="tag.id">{{tag.displayValue}}</option>
+                  </select>
               </td>
               <td style="width:25%">
                 <button type="button" class="btn btn-outline-secondary col" data-toggle="modal" data-target="#detailHelpModal">
