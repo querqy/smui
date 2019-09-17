@@ -25,15 +25,17 @@ package object FeatureToggleModel {
   @javax.inject.Singleton
   class FeatureToggleService @Inject()(appConfig: Configuration) {
 
-    val FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED = "toggle.ui-concept.updown-rules.combined"
-    val FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS = "toggle.ui-concept.all-rules.with-solr-fields"
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_LOG_RULE_ID = "toggle.rule-deployment.log-rule-id"
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT = "toggle.rule-deployment.split-decompound-rules-txt"
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO"
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT = "toggle.rule-deployment.pre-live.present"
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT = "toggle.rule-deployment.custom-script"
-    val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = "toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH"
-    val FEATURE_TOGGLE_HEADLINE = "toggle.headline"
+    private val FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED = "toggle.ui-concept.updown-rules.combined"
+    private val FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS = "toggle.ui-concept.all-rules.with-solr-fields"
+    private val FEATURE_TOGGLE_RULE_DEPLOYMENT_LOG_RULE_ID = "toggle.rule-deployment.log-rule-id"
+    private val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT = "toggle.rule-deployment.split-decompound-rules-txt"
+    private val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO"
+    private val FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT = "toggle.rule-deployment.pre-live.present"
+    private val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT = "toggle.rule-deployment.custom-script"
+    private val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = "toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH"
+    private val FEATURE_TOGGLE_HEADLINE = "toggle.headline"
+    private val ACTIVATE_RULE_TAGGING = "toggle.rule-tagging"
+    private val PREDEFINED_TAGS_FILE = "toggle.predefined-tags-file"
 
     def getJsFrontendToogleList: List[JsFeatureToggle] = {
       def jsBoolFeatureToggle(toggleKey: String, bDefault: Boolean): JsFeatureToggle = {
@@ -46,6 +48,7 @@ package object FeatureToggleModel {
         jsBoolFeatureToggle(FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED, true),
         jsBoolFeatureToggle(FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS, true),
         jsBoolFeatureToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT, false),
+        jsBoolFeatureToggle(ACTIVATE_RULE_TAGGING, false),
         JsFeatureToggle(FEATURE_TOGGLE_HEADLINE, new JsStringFeatureToggleValue(
           appConfig.getOptional[String](FEATURE_TOGGLE_HEADLINE).getOrElse("Search Management UI")))
       )
@@ -69,6 +72,14 @@ package object FeatureToggleModel {
 
     def getToggleRuleDeploymentCustomScriptSmui2solrShPath: String = {
       appConfig.getOptional[String](FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH).getOrElse("")
+    }
+
+    def isRuleTaggingActive: Boolean = {
+      appConfig.get[Boolean](ACTIVATE_RULE_TAGGING)
+    }
+
+    def predefinedTagsFileName: Option[String] = {
+      appConfig.getOptional[String](PREDEFINED_TAGS_FILE).filter(_.nonEmpty)
     }
   }
 

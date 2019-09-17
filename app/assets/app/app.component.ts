@@ -49,6 +49,7 @@ export class AppComponent implements OnInit {
   }
 
   public listSolrIndeces: smm.SolrIndex[];
+  public allInputTags: smm.InputTag[];
   // TODO avoid to not separately keep currentSolrIndexId and according select-option model solrIndexSelectOptionModel
   public currentSolrIndexId: string = null;
   public solrIndexSelectOptionModel: string = null;
@@ -84,6 +85,10 @@ export class AppComponent implements OnInit {
           .loadSuggestedSolrFieldsForSolrIndexWithId(this.currentSolrIndexId);
       })
       .catch(error => this.handleError(error));
+
+    this.searchManagementService.listAllInputTags().then(tags => {
+      this.allInputTags = tags;
+    })
   }
 
   handleError(error: any) {

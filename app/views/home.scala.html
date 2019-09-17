@@ -33,6 +33,10 @@ var FEATURE_TOGGLE_LIST = [
     <script type='text/javascript' src='@routes.Assets.versioned("lib/zone.js/dist/zone.js")'></script>
     <script type='text/javascript' src='@routes.Assets.versioned("lib/systemjs/dist/system.src.js")'></script>
     <script type='text/javascript' src='@routes.Assets.versioned("systemjs.config.js")'></script>
+
+    <link rel='stylesheet' href='@routes.Assets.versioned("lib/tokenize2/dist/tokenize2.min.css")'>
+    <script type='text/javascript' src='@routes.Assets.versioned("lib/tokenize2/dist/tokenize2.min.js")'></script>
+
     @* our app is downloaded as individual javascript files by SystemJs after compilation by sbt-typescript *@
     <script>
     System.import('assets/app/main.js')

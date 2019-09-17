@@ -4,6 +4,14 @@ export class SolrIndex {
   description: string;
 }
 
+export class InputTag {
+  id: string;
+  solrIndexId?: string;
+  property?: string;
+  value: string;
+  displayValue: string
+}
+
 export class SynonymRule {
   id: string;
   synonymType: number;
@@ -62,6 +70,7 @@ export class SearchInput {
   filterRules: Array<FilterRule>;
   deleteRules: Array<DeleteRule>;
   redirectRules: Array<RedirectRule>;
+  tags: Array<InputTag>;
 }
 
 export class SuggestedSolrField {

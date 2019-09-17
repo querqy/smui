@@ -5,9 +5,12 @@ import java.net.{URI, URISyntaxException}
 
 import javax.inject.Inject
 import models.FeatureToggleModel._
-import models.SearchManagementModel._
+import models.rules._
+import play.api.libs.json.Json.JsValueWrapper
+import play.api.libs.json.{JsString, Json}
 import querqy.rewrite.commonrules.{SimpleCommonRulesParser, WhiteSpaceQuerqyParserFactory}
 
+import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
 @javax.inject.Singleton
@@ -43,11 +46,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     s"\tDECORATE: REDIRECT ${redirectRule.target}\n"
   }
 
-  private def renderRuleIdLog(ruleId: String): String = {
-    "\t@_log: \"" + ruleId + "\"\n"
-  }
-
-  def renderSearchInputRulesForTerm(term: String, searchInput: SearchInput): String = {
+  def renderSearchInputRulesForTerm(term: String, searchInput: SearchInputWithRules): String = {
 
     val retSearchInputRulesTxtPartial = new StringBuilder()
     retSearchInputRulesTxtPartial.append(term + " =>\n")
@@ -59,7 +58,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
         .filter(t => t.trim().nonEmpty)
     for (synonymTerm <- allSynonymTerms) {
       // TODO equals on term-level, evaluate if synonym-term identity should be transferred on id-level
-      if (!synonymTerm.equals(term)) {
+      if (synonymTerm != term) {
         retSearchInputRulesTxtPartial.append(renderSynonymRule(synonymTerm))
       }
     }
@@ -79,23 +78,36 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       .filter(r => r.isActive && r.target.trim().nonEmpty)) {
       retSearchInputRulesTxtPartial.append(renderRedirectRule(redirectRule))
     }
-    for (
-      id <- searchInput.id
-      if featureToggleService.getToggleRuleDeploymentLogRuleId
-    ){
-      retSearchInputRulesTxtPartial.append(renderRuleIdLog(id))
+
+    val jsonProperties = ListBuffer[(String, JsValueWrapper)]()
+    if (featureToggleService.getToggleRuleDeploymentLogRuleId) {
+      jsonProperties += (("_log", JsString(searchInput.id.id)))
+    }
+    if (featureToggleService.isRuleTaggingActive) {
+      val tagsByProperty = searchInput.tags.filter(i => i.exported && i.property.nonEmpty).groupBy(_.property.get)
+      jsonProperties ++= tagsByProperty.mapValues(tags => Json.toJsFieldJsValueWrapper(tags.map(_.value))).toSeq
+    }
+
+    if (jsonProperties.nonEmpty) {
+      retSearchInputRulesTxtPartial.append(renderJsonProperties(jsonProperties))
     }
 
     retSearchInputRulesTxtPartial.toString()
   }
 
-  private def renderSearchInputRules(searchInput: SearchInput): String = {
+  private def renderJsonProperties(properties: Seq[(String, JsValueWrapper)]): String = {
+    val jsonString = Json.prettyPrint(Json.obj(properties: _*)).split('\n').map(s => s"\t$s").mkString("\n").trim()
+
+    s"\t@$jsonString@\n"
+  }
+
+  private def renderSearchInputRules(searchInput: SearchInputWithRules): String = {
     val retQuerqyRulesTxtPartial = new StringBuilder()
 
-    // take SearchInput term and according DIRECTED SynonymRule to render related rules
+    // take SearchInput term and all undirected SynonymRules to render related rules
     val allInputTerms: List[String] = searchInput.term ::
       searchInput.synonymRules
-        .filter(r => r.isActive && (r.synonymType == 0) && r.term.trim().nonEmpty)
+        .filter(r => r.isActive && (r.synonymType == SynonymRule.TYPE_UNDIRECTED) && r.term.trim().nonEmpty)
         .map(r => r.term)
     for (inputTerm <- allInputTerms) {
       retQuerqyRulesTxtPartial.append(
@@ -114,38 +126,27 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     * @param renderCompoundsRulesTxt Defining, if decompound-rules.txt (true) or rules.txt (false) should be rendered. Only important, if `separateRulesTxts` is `true`.
     * @return
     */
-  private def render(solrIndexId: String, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean): String = {
+  private def render(solrIndexId: SolrIndexId, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean): String = {
 
     val retQuerqyRulesTxt = new StringBuilder()
 
     // retrieve all detail search input data, that have a (trimmed) input term and minimum one rule
-    val listSearchInput: List[SearchInput] = searchManagementRepository
-      .listAllSearchInputsInclDirectedSynonyms(solrIndexId)
-      .filter(i => i.term.trim().nonEmpty)
-      .map(i => {
-        searchManagementRepository
-          .getDetailedSearchInput(i.id.get)
-      })
-      // filter all inputs, that do not have any active rule
+    val listSearchInput: Seq[SearchInputWithRules] = searchManagementRepository
+      .loadAllInputIdsForSolrIndex(solrIndexId)
+      .flatMap(id => searchManagementRepository.getDetailedSearchInput(id))
+      .filter(i => i.trimmedTerm.nonEmpty)
       // TODO it needs to be ensured, that a rule not only exists in the list, are active, BUT also has a filled term (after trim)
-      .filter(i =>
-      i.synonymRules.exists(r => r.isActive) ||
-        i.upDownRules.exists(r => r.isActive) ||
-        i.filterRules.exists(r => r.isActive) ||
-        i.deleteRules.exists(r => r.isActive) ||
-        i.redirectRules.exists(r => r.isActive)
-    )
+      .filter(_.hasAnyActiveRules)
 
     // TODO merge decompound identification login with ApiController :: validateSearchInputToErrMsg
 
-
     // separate decompound-rules.txt from rules.txt
-    def separateRules(listSearchInput: List[SearchInput]) = {
+    def separateRules(listSearchInput: Seq[SearchInputWithRules]) = {
       if (separateRulesTxts) {
         if (renderCompoundsRulesTxt) {
-          listSearchInput.filter(i => i.term.trim().endsWith("*"))
+          listSearchInput.filter(_.trimmedTerm.endsWith("*"))
         } else {
-          listSearchInput.filter(i => !i.term.trim().endsWith("*"))
+          listSearchInput.filter(i => !i.trimmedTerm.endsWith("*"))
         }
       } else {
         listSearchInput
@@ -160,11 +161,11 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     retQuerqyRulesTxt.toString()
   }
 
-  def renderSingleRulesTxt(solrIndexId: String): String = {
+  def renderSingleRulesTxt(solrIndexId: SolrIndexId): String = {
     render(solrIndexId, false, false)
   }
 
-  def renderSeparatedRulesTxts(solrIndexId: String, renderCompoundsRulesTxt: Boolean): String = {
+  def renderSeparatedRulesTxts(solrIndexId: SolrIndexId, renderCompoundsRulesTxt: Boolean): String = {
     render(solrIndexId, true, renderCompoundsRulesTxt)
   }
 
@@ -199,7 +200,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     * @param searchInput Input instance to be validated.
     * @return None, if no validation error, otherwise a String containing the error.
     */
-  def validateSearchInputToErrMsg(searchInput: SearchInput): Option[String] = {
+  def validateSearchInputToErrMsg(searchInput: SearchInputWithRules): Option[String] = {
 
     // TODO validation ends with first broken rule, it should collect all errors to a line.
     // TODO decide, if input having no rule at all is legit ... (e.g. newly created). Will currently being filtered.
