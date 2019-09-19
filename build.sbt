@@ -199,6 +199,7 @@ assemblyMergeStrategy in assembly := {
     // We don't need manifest files since sbt-assembly will create
     // one with the given settings
     MergeStrategy.discard
+  case "module-info.class" => MergeStrategy.discard
   case "play/reference-overrides.conf" => MergeStrategy.concat
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
