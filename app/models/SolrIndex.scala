@@ -39,10 +39,7 @@ object SolrIndex {
   }
 
   def loadNameById(solrIndexId: SolrIndexId)(implicit connection: Connection): String = {
-    val allMatchingIndeces = SQL(
-      SQL"select * from #$TABLE_NAME " +
-        "where id = $solrIndexId"
-    ).as(sqlParser.*)
+    val allMatchingIndeces = SQL"select * from #$TABLE_NAME where id = $solrIndexId".as(sqlParser.*)
 
     // TODO Handle illegal cases, if none or 1+ solr indeces selected
     allMatchingIndeces.head.name

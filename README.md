@@ -108,6 +108,12 @@ config key | description | default
 `toggle.rule-deployment.pre-live.present` | Make separated deployments pre-live vs. live possible (and display a button for that on the frontend). | `false`
 `toggle.rule-deployment.custom-script` | If set to `true` the below custom script (path) is used for deploying the rules.txt files. | `false`
 `toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH` | Path to an optional custom script (see above). | ``
+`toggle.rule-tagging` | Should tagging feature be activated. | `false`
+`toggle.predefined-tags-file` | Path to optional file, that provides pre-defined rule tags (see "Configure predefined rule tags"). | ``
+
+##### Configure predefined rule tags (optional)
+
+Optional. You can define pre-defined rule tags, that can be used by the search manager to organise or even adjust the rules exported to the rules.txt. See [TestPredefinedTags.json](test/resources/TestPredefinedTags.json) for structure.
 
 ##### Configure Authentication
 
@@ -330,6 +336,8 @@ toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO="/PATH/TO/LOCAL
 toggle.rule-deployment.pre-live.present=true
 toggle.rule-deployment.custom-script=true
 toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH="/PATH/TO/LOCAL_DEV/smui2solr-dev.sh"
+toggle.rule-tagging=true
+toggle.predefined-tags-file="/PATH/TO/LOCAL_DEV/predefined-tags.json"
 
 play.http.secret.key="<generated local play secret>"
 

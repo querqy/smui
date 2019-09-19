@@ -22,3 +22,5 @@ activator-sbt-*-shim.sbt
 smui-dev.conf
 smui2solr-dev.sh
 var/test.db
+node_modules/
+package-lock.json
