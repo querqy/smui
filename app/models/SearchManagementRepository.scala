@@ -69,15 +69,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     */
   def listAllSearchInputsInclDirectedSynonyms(solrIndexId: SolrIndexId): List[SearchInputWithRules] = {
     db.withConnection { implicit connection =>
-      val inputs = SearchInput.loadAllForIndex(solrIndexId)
-      val rules = SynonymRule.loadUndirectedBySearchInputIds(inputs.map(_.id))
-      val tags = TagInputAssociation.loadTagsBySearchInputIds(inputs.map(_.id))
-
-      inputs.map { input =>
-        SearchInputWithRules(input.id, input.term,
-          synonymRules = rules.getOrElse(input.id, Nil).toList,
-          tags = tags.getOrElse(input.id, Seq.empty))
-      }
+      SearchInputWithRules.loadWithUndirectedSynonymsAndTagsForSolrIndexId(solrIndexId)
     }
   }
 

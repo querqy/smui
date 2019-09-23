@@ -4,21 +4,8 @@ import java.time.LocalDateTime
 
 import org.h2.jdbc.JdbcBatchUpdateException
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
-import play.api.db.evolutions.Evolutions
-import play.api.db.{Database, Databases}
 
-class InputTagSpec extends FlatSpec with Matchers with BeforeAndAfterEach {
-
-  private var db: Database = _
-
-  override protected def beforeEach(): Unit = {
-    db = Databases.inMemory(config = Map("MODE" -> "MYSQL"))
-    Evolutions.applyEvolutions(db)
-  }
-
-  override protected def afterEach(): Unit = {
-    db.shutdown()
-  }
+class InputTagSpec extends FlatSpec with Matchers with BeforeAndAfterEach with WithInMemoryDB {
 
   private val index = SolrIndex(name = "de", description = "German")
   private val inputTags = Seq(
