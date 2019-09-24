@@ -25,10 +25,10 @@ create index input_tag_predefined_index on input_tag (predefined);
 create table tag_2_input (
   tag_id varchar(36) not null,
   input_id varchar(36) not null,
-  last_update timestamp not null
+  last_update timestamp not null,
+  PRIMARY KEY (tag_id, input_id)
 );
 
-alter table tag_2_input add constraint tag_2_input_pk primary key(tag_id, input_id);
 create index tag_2_input_input_id_index on tag_2_input (input_id);
 
 # --- !Downs
