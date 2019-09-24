@@ -187,4 +187,11 @@ export class AppComponent implements OnInit {
       });
   }
 
+  public callSimpleLogoutUrl() {
+    console.log('In AppComponent :: callSimpleLogoutUrl');
+
+    // TODO redirect in a more "Angular-way" to target URL
+    window.location.href = this.featureToggleService.getSimpleLogoutButtonTargetUrl();
+  }
+
 }

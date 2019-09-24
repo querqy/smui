@@ -110,6 +110,7 @@ config key | description | default
 `toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH` | Path to an optional custom script (see above). | ``
 `toggle.rule-tagging` | Should tagging feature be activated. | `false`
 `toggle.predefined-tags-file` | Path to optional file, that provides pre-defined rule tags (see "Configure predefined rule tags"). | ``
+`smui.auth.ui-concept.simple-logout-button-target-url` | Target URL of simple logout button (see "Configure Authentication"). | ``
 
 ##### Configure predefined rule tags (optional)
 
@@ -130,6 +131,12 @@ This is telling every controller method (Home and ApiController) to use the acco
 
 ```
 smui.authAction = myOwnPackage.myOwnAuthenticatedAction
+```
+
+In this setup SMUI can provide a simple logout button, that simply sends the user to a configured target URL:
+
+```
+smui.auth.ui-concept.simple-logout-button-target-url="https://www.example.com/logoutService/"
 ```
 
 See "Developing Custom Authentication" for details.
@@ -385,11 +392,11 @@ override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[R
 }
 ```
 
-As an example implementation, you can check `app/controllers/auth/BasicAuthAuthenticatedAction.scala` as well.
+As an example implementation, you can check [BasicAuthAuthenticatedAction.scala](app/controllers/auth/BasicAuthAuthenticatedAction.scala) as well.
 
 #### Frontend Behaviour for Authentication
 
-The Angular frontend comes with a built-in HTTP request authentication interceptor. Every API request is observed for returned 401 status codes. In case the backend returns 401, the backend can pass an behaviour instruction to the frontend by complying with spec defined by `SmuiAuthViolation` within `app/assets/app/http-auth-interceptor.ts`, e.g.:
+The Angular frontend comes with a built-in HTTP request authentication interceptor. Every API request is observed for returned 401 status codes. In case the backend returns 401, the backend can pass an behaviour instruction to the frontend by complying with spec defined by `SmuiAuthViolation` within [http-auth-interceptor.ts](app/assets/app/http-auth-interceptor.ts), e.g.:
 
 ```
 {

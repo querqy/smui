@@ -20,6 +20,7 @@
                 </select>
                 <button type="button" class="btn btn-outline-secondary" (click)="publishSolrConfig()">Push Config to Solr</button>
                 <button *ngIf="featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()" type="button" class="btn btn-outline-danger" (click)="publishToLIVE()">Publish to LIVE</button>
+                <button *ngIf="featureToggleService.getSimpleLogoutButtonTargetUrl().trim().length > 0" type="button" class="btn btn-outline-secondary" (click)="callSimpleLogoutUrl()">Logout</button>
             </div>
 
         </div>
