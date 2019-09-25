@@ -23,11 +23,17 @@ abstract class Id(val id: String) {
   override def hashCode(): Int = id.hashCode
 }
 
+object Id {
+
+  implicit val jsonWrites: Writes[Id] = Writes[Id](id => JsString(id.id))
+
+}
+
 abstract class IdObject[T <: Id](fromString: String => T) {
 
   def apply(str: String): T = fromString(str)
 
-  implicit val jsonWrites: Writes[Id] = Writes[Id](id => JsString(id.id))
+  implicit val jsonWrites: Writes[T] = Id.jsonWrites
   implicit val jsonReads: Reads[T] = Reads[T](_.validate[String].map(apply))
 
   def apply(): T = apply(UUID.randomUUID().toString)

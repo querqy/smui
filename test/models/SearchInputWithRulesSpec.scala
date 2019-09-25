@@ -4,11 +4,10 @@ import java.sql.Connection
 
 import models.rules.{SynonymRule, SynonymRuleId}
 import org.scalatest.{FlatSpec, Matchers}
+import utils.WithInMemoryDB
 
-class SearchInputWithRulesSpec extends FlatSpec with Matchers with WithInMemoryDB {
+class SearchInputWithRulesSpec extends FlatSpec with Matchers with WithInMemoryDB with TestData {
 
-  private val indexDe = SolrIndex(name = "de", description = "German")
-  private val indexEn = SolrIndex(name = "en", description = "English")
   private val tag = InputTag.create(None, Some("tenant"), "MO", exported = true)
 
   "SearchInputWithRules" should "load lists with hundreds of entries successfully" in {

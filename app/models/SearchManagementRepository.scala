@@ -5,11 +5,9 @@ import java.util.UUID
 import java.util.Date
 
 import javax.inject.Inject
-import anorm.SqlParser._
 import anorm._
 import models.FeatureToggleModel.FeatureToggleService
 import play.api.db.DBApi
-import models.rules._
 
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
@@ -18,16 +16,6 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
   // On startup, always sync predefined tags with the DB
   syncPredefinedTagsWithDB()
-
-  /**
-    * Parse a DeleteRule from a ResultSet
-    */
-  private[models] val simpleSuggestedSolrField = {
-    get[SuggestedSolrFieldId]("suggested_solr_field.id") ~
-      get[String]("suggested_solr_field.name") map {
-      case id~name => SuggestedSolrField(id, name)
-    }
-  }
 
   private def syncPredefinedTagsWithDB(): Unit = {
     db.withTransaction { implicit connection =>
@@ -94,39 +82,16 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     SearchInputWithRules.update(searchInput)
   }
 
-  /**
-    * tbd
-    *
-    * @param searchInputId tbd
-    * @return tbd
-    */
   def deleteSearchInput(searchInputId: String): Int = db.withTransaction { implicit connection =>
     SearchInputWithRules.delete(SearchInputId(searchInputId))
   }
 
   def listAllSuggestedSolrFields(solrIndexId: String): List[SuggestedSolrField] = db.withConnection { implicit connection =>
-    SQL(
-      "select * from suggested_solr_field " +
-      "where solr_index_id = {solr_index_id} " +
-      "order by name asc"
-    )
-    .on(
-      'solr_index_id -> solrIndexId
-    )
-    .as(simpleSuggestedSolrField.*)
+    SuggestedSolrField.listAll(SolrIndexId(solrIndexId))
   }
 
-  def addNewSuggestedSolrField(solrIndexId: String, suggestedSolrFieldName: String): Option[String] = db.withConnection { implicit connection =>
-    val newId = UUID.randomUUID().toString
-    SQL("insert into suggested_solr_field(id, name, solr_index_id, last_update) values ({id}, {name}, {solr_index_id}, {last_update})")
-      .on(
-        'id -> newId,
-        'name -> suggestedSolrFieldName,
-        'solr_index_id -> solrIndexId,
-        'last_update -> new Date()
-      )
-      .execute()
-    Some(newId)
+  def addNewSuggestedSolrField(solrIndexId: SolrIndexId, suggestedSolrFieldName: String): SuggestedSolrField = db.withConnection { implicit connection =>
+    SuggestedSolrField.insert(solrIndexId, suggestedSolrFieldName)
   }
 
   def addNewDeploymentLogOk(solrIndexId: String, targetPlatform: String): Boolean = db.withConnection { implicit connection =>

@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 import org.h2.jdbc.JdbcBatchUpdateException
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
+import utils.WithInMemoryDB
 
 class InputTagSpec extends FlatSpec with Matchers with BeforeAndAfterEach with WithInMemoryDB {
 

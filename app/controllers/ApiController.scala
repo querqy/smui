@@ -26,7 +26,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   val API_RESULT_OK = "OK"
   val API_RESULT_FAIL = "KO"
 
-  case class ApiResult(result: String, message: String, returnId: Option[String])
+  case class ApiResult(result: String, message: String, returnId: Option[Id])
   implicit val apiResultWrites = Json.writes[ApiResult]
 
 
@@ -46,7 +46,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         SolrIndex(name = searchIndexName, description = searchIndexDescription)
       )
 
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchIndexName + "' successful.", Some(solrIndexId.toString))))
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchIndexName + "' successful.", Some(solrIndexId))))
     }.getOrElse {
       BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
     }
@@ -89,7 +89,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         val searchInputTerm = (json \ "term").as[String]
         val searchInputId = searchManagementRepository.addNewSearchInput(SolrIndexId(solrIndexId), searchInputTerm)
 
-        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", Some(searchInputId.toString))))
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", Some(searchInputId))))
       }.getOrElse {
         BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
       }
@@ -114,7 +114,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       // TODO handle potential conflict between searchInputId and JSON-passed searchInput.id
       searchManagementRepository.updateSearchInput(searchInput)
       // TODO consider Update returning the updated SearchInput(...) instead of an ApiResult(...)
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(searchInputId))))
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(SearchInputId(searchInputId)))))
     }.getOrElse {
       BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
     }
@@ -188,11 +188,11 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       // Expecting json body
       jsonBody.map { json =>
         val searchSuggestedSolrFieldName = (json \ "name").as[String]
-        val maybeSuggestedSolrFieldId = searchManagementRepository.addNewSuggestedSolrField(
-          solrIndexId, searchSuggestedSolrFieldName
+        val field = searchManagementRepository.addNewSuggestedSolrField(
+          SolrIndexId(solrIndexId), searchSuggestedSolrFieldName
         )
 
-        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Suggested Field Name '" + searchSuggestedSolrFieldName + "' successful.", maybeSuggestedSolrFieldId)))
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Suggested Field Name '" + searchSuggestedSolrFieldName + "' successful.", Some(field.id))))
       }.getOrElse {
         BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Suggested Field Name failed. Unexpected body data.", None)))
       }

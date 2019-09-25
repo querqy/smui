@@ -30,6 +30,9 @@ object UpDownRule extends RuleObjectWithTerm[UpDownRule] {
   val UP_DOWN_TYPE = "up_down_type"
   val BOOST_MALUS_VALUE = "boost_malus_value"
 
+  val TYPE_UP = 0
+  val TYPE_DOWN = 1
+
   override def fieldNames: Seq[String] = super.fieldNames ++ Seq(BOOST_MALUS_VALUE, UP_DOWN_TYPE)
 
   implicit val jsonFormat: OFormat[UpDownRule] = Json.format[UpDownRule]

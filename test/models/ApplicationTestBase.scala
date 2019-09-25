@@ -37,9 +37,9 @@ trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
   protected def createTestRule(): Seq[SearchInputId] = {
     val synonymRules = List (SynonymRule(SynonymRuleId(), 0, "mercury", isActive = true))
     val upDownRules = List(
-      UpDownRule(UpDownRuleId(), 0, 10, "notebook", isActive = true),
-      UpDownRule(UpDownRuleId(), 0, 10, "lenovo", isActive = false),
-      UpDownRule(UpDownRuleId(), 1, 10, "battery", isActive = true)
+      UpDownRule(UpDownRuleId(), UpDownRule.TYPE_UP, 10, "notebook", isActive = true),
+      UpDownRule(UpDownRuleId(), UpDownRule.TYPE_UP, 10, "lenovo", isActive = false),
+      UpDownRule(UpDownRuleId(), UpDownRule.TYPE_DOWN, 10, "battery", isActive = true)
     )
     val deleteRules = List(DeleteRule(DeleteRuleId(), "freddy", isActive = true))
     val filterRules = List(FilterRule(FilterRuleId(), "zz top", isActive = true))

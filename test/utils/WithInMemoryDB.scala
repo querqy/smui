@@ -1,8 +1,8 @@
-package models
+package utils
 
 import org.scalatest.{BeforeAndAfterEach, Suite}
-import play.api.db.{Database, Databases}
 import play.api.db.evolutions.Evolutions
+import play.api.db.{Database, Databases}
 
 trait WithInMemoryDB extends BeforeAndAfterEach { self: Suite =>
 

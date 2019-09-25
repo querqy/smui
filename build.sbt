@@ -165,13 +165,19 @@ libraryDependencies ++= {
     "org.webjars.npm" % "tslint-eslint-rules" % "3.4.0",
     "org.webjars.npm" % "tslint-microsoft-contrib" % "4.0.0",
     // "org.webjars.npm" % "codelyzer" % "3.1.1", see below
-    "org.webjars.npm" % "types__jasmine" % "2.5.53" % "test",
+    "org.webjars.npm" % "types__jasmine" % "2.5.53" % Test,
 
     // test
-    "org.webjars.npm" % "jasmine-core" % "2.6.4",
+    "org.webjars.npm" % "jasmine-core" % "2.6.4" % Test,
 
     // H2 DB for testing
-    "com.h2database" % "h2" % "1.4.197"
+    "com.h2database" % "h2" % "1.4.197" % Test,
+
+    // Other databases as docker containers for testing with specific databases
+    "com.dimafeng" %% "testcontainers-scala" % "0.32.0" % Test,
+    "org.testcontainers" % "postgresql" % "1.12.1" % Test,
+    "org.testcontainers" % "mysql" % "1.12.1" % Test,
+    "org.xerial" % "sqlite-jdbc" % "3.28.0" % Test
   )
 }
 dependencyOverrides ++= Seq(
