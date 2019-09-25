@@ -64,9 +64,10 @@ Supported (tested) databases:
 
 In principal SMUI database connection implementation is based on JDBC as well as only standard SQL is used, so technically every database management system supported by JDBC should be supported by SMUI as well. However as database management systems potentially come with specific features, SMUI explicity is tested (and/or productively used) only with the following database management systems:
 
-* MySQL
-* MariaDB
+* MySQL & MariaDB
 * PostgreSQL
+* SQLite
+* HSQLDB
 
 #### Migrate pre-v2 SMUI databases
 
