@@ -3,9 +3,9 @@ IMAGE = pbartusch/smui
 VERSION = $(shell grep -E '^version' build.sbt | cut -d'"' -f2)
 SCALA_VERSION = $(shell grep -E '^scalaVersion' build.sbt | cut -d'"' -f2 | cut -d. -f1-2)
 
-all: docker-build
+all: docker-build-only
 
-docker-build:
+docker-build-only:
 	env DOCKER_BUILDKIT=1 docker build --build-arg VERSION=$(VERSION) \
 		--build-arg SCALA_VERSION=$(SCALA_VERSION) -t $(IMAGE):$(VERSION) -f build/Dockerfile .
 

@@ -20,6 +20,9 @@ after_failure:
 
 jobs:
   include:
+  - stage: test SMUI
+    script:
+    - sbt test
   - stage: build and push SMUI docker image
     script:
     - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
@@ -28,7 +31,7 @@ jobs:
 #    - while sleep 30s; do tail --lines=50 build.log; done &
 #    - time make docker-build > build.log 2>&1
 #    - kill %1
-    - make docker-build > build.log 2>&1
+    - make docker-build-only > build.log 2>&1
     - tail --lines=1000 build.log
     - echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin
     - sudo make docker-push

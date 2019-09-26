@@ -23,7 +23,7 @@ RUN npm i semver
 COPY . /smui
 WORKDIR /smui
 
-RUN --mount=target=/root/.ivy2,type=cache sbt assembly
+RUN --mount=target=/root/.ivy2,type=cache sbt "set test in assembly := {}" clean assembly
 
 
 # Finally produce slim  application image
