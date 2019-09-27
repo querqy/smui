@@ -22,7 +22,16 @@ class InputTagSpec extends FlatSpec with Matchers with BeforeAndAfterEach with W
       InputTag.insert(inputTags: _*)
 
       val loaded = InputTag.loadAll()
-      loaded.toSet shouldBe inputTags.toSet
+
+      // Accuracy of lastUpdate before/after database insert should omit nano seconds
+      val inputTagsAdjustedTimeAccuracy = inputTags.map(inputTag =>
+        inputTag.copy(lastUpdate = inputTag.lastUpdate.withNano(0))
+      )
+      val loadedAdjustedTimeAccuracy = loaded.map(inputTag =>
+        inputTag.copy(lastUpdate = inputTag.lastUpdate.withNano(0))
+      )
+
+      loadedAdjustedTimeAccuracy.toSet shouldBe inputTagsAdjustedTimeAccuracy.toSet
     }
 
   }
