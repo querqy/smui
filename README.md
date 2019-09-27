@@ -1,3 +1,5 @@
+[![Travis CI build status](https://travis-ci.org/pbartusch/smui.svg?branch=master)](https://travis-ci.org/pbartusch/smui)
+
 # Search Management UI (SMUI)
 
 ![SMUI v1.5.0 screenshot](20190103_screenshot_SMUI_v1-5-0.png)
