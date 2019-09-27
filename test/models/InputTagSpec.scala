@@ -16,6 +16,11 @@ class InputTagSpec extends FlatSpec with Matchers with BeforeAndAfterEach with W
     InputTag.create(Some(index.id), Some("tenant"), "MO_AT", exported = true)
   )
 
+  // Accuracy of lastUpdate before/after database insert should omit nano seconds
+  def adjustedTimeAccuracy(inputTags: Seq[InputTag]): Seq[InputTag] = inputTags.map(inputTag =>
+    inputTag.copy(lastUpdate = inputTag.lastUpdate.withNano(0))
+  )
+
   "InputTag" should "be saved to the database and read out again" in {
     db.withConnection { implicit connection =>
       SolrIndex.insert(index)
@@ -23,15 +28,7 @@ class InputTagSpec extends FlatSpec with Matchers with BeforeAndAfterEach with W
 
       val loaded = InputTag.loadAll()
 
-      // Accuracy of lastUpdate before/after database insert should omit nano seconds
-      val inputTagsAdjustedTimeAccuracy = inputTags.map(inputTag =>
-        inputTag.copy(lastUpdate = inputTag.lastUpdate.withNano(0))
-      )
-      val loadedAdjustedTimeAccuracy = loaded.map(inputTag =>
-        inputTag.copy(lastUpdate = inputTag.lastUpdate.withNano(0))
-      )
-
-      loadedAdjustedTimeAccuracy.toSet shouldBe inputTagsAdjustedTimeAccuracy.toSet
+      adjustedTimeAccuracy(loaded).toSet shouldBe adjustedTimeAccuracy(inputTags).toSet
     }
 
   }
@@ -57,7 +54,7 @@ class InputTagSpec extends FlatSpec with Matchers with BeforeAndAfterEach with W
 
       TagInputAssociation.updateTagsForSearchInput(term1.id, inputTags.map(_.id))
 
-      TagInputAssociation.loadTagsBySearchInputId(term1.id).toSet shouldBe inputTags.toSet
+      adjustedTimeAccuracy(TagInputAssociation.loadTagsBySearchInputId(term1.id)).toSet shouldBe adjustedTimeAccuracy(inputTags).toSet
       TagInputAssociation.loadTagsBySearchInputId(term2.id) shouldBe Nil
 
       TagInputAssociation.updateTagsForSearchInput(term1.id, Seq(inputTags.head.id))
