@@ -58,7 +58,7 @@ class InputTagSpec extends FlatSpec with Matchers with BeforeAndAfterEach with W
       TagInputAssociation.loadTagsBySearchInputId(term2.id) shouldBe Nil
 
       TagInputAssociation.updateTagsForSearchInput(term1.id, Seq(inputTags.head.id))
-      TagInputAssociation.loadTagsBySearchInputId(term1.id) shouldBe Seq(inputTags.head)
+      adjustedTimeAccuracy(TagInputAssociation.loadTagsBySearchInputId(term1.id)) shouldBe adjustedTimeAccuracy(Seq(inputTags.head))
     }
   }
 
