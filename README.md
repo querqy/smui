@@ -121,8 +121,11 @@ Optional. You can define pre-defined rule tags, that can be used by the search m
 
 ##### Configure Authentication
 
+SMUI is shipped with HTTP Basic and JWT Authentication support.
+
 ###### Basic Authentication
-SMUI is shipped with HTTP Basic Auth support. Basic Auth can be turned on in the extension by configuring an `smui.authAction` in the config file, e.g.:
+This is telling every controller method (Home and ApiController) to use the according authentication method as well as it tells SMUI's `BasicAuthAuthenticatedAction` username and password it should use. 
+Basic Auth can be turned on in the extension by configuring an `smui.authAction` in the config file, e.g.:
 
 ```
 # For Basic Auth authentication, use SMUI's BasicAuthAuthenticatedAction (or leave it blanked / commented out for no authentication), e.g.:
@@ -166,7 +169,7 @@ smui.auth.ui-concept.simple-logout-button-target-url="https://www.example.com/lo
 ```
 
 ###### Custom Authentication
-This is telling every controller method (Home and ApiController) to use the according authentication method as well as it tells SMUI's `BasicAuthAuthenticatedAction` username and password it should use. You can also implement a custom authentication action and tell SMUI to decorate its controllers with that, e.g.:
+You can also implement a custom authentication action and tell SMUI to decorate its controllers with that, e.g.:
 
 ```
 smui.authAction = myOwnPackage.myOwnAuthenticatedAction
