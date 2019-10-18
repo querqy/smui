@@ -1,35 +1,45 @@
 package auth
 
+import java.security.{KeyPairGenerator, SecureRandom}
+import java.util.Base64
+
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import pdi.jwt.{JwtAlgorithm, JwtJson}
-import play.api.Application
+import play.api.db.{Database, Databases}
+import play.api.{Application, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.{Cookie, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import java.security.{KeyPair, KeyPairGenerator, PrivateKey, SecureRandom}
-import java.util.Base64
 
 import scala.concurrent.Future
 
 class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerTest with ScalaFutures {
 
+  protected lazy val db: Database = Databases.inMemory()
+
   private val rsaKeyPair = generateRsaKeyPair()
 
   override def fakeApplication(): Application = {
     GuiceApplicationBuilder()
+      .in(Mode.Test)
       .configure(Map(
+        "db.default.url" -> db.url,
+        "db.default.driver" -> "org.h2.Driver",
+        "db.default.username" -> "",
+        "db.default.password" -> "",
+        "smui.authAction" -> "controllers.auth.JWTJsonAuthenticatedAction",
         "smui.JWTJsonAuthenticatedAction.login.url" -> "https://redirect.com",
         "smui.JWTJsonAuthenticatedAction.cookie.name" -> "test_token",
         "smui.JWTJsonAuthenticatedAction.public.key" -> new String(Base64.getEncoder.encode(rsaKeyPair.getPublic.getEncoded)),
         "smui.JWTJsonAuthenticatedAction.algorithm" -> "rsa",
         "smui.JWTJsonAuthenticatedAction.authorization.active" -> "true",
         "smui.JWTJsonAuthenticatedAction.authorization.json.path" -> "$.roles",
-        "smui.JWTJsonAuthenticatedAction.authorization.roles" -> "admin, search-manager",
+        "smui.JWTJsonAuthenticatedAction.authorization.roles" -> "admin, search-manager"
       ))
       .build()
   }
