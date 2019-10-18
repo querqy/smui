@@ -4,7 +4,7 @@ import java.util.zip.{ZipEntry, ZipOutputStream}
 
 import javax.inject.Inject
 import models.FeatureToggleModel.FeatureToggleService
-import play.api.{Configuration, Environment}
+import play.api.{Configuration, Environment, Logging}
 
 import sys.process._
 
@@ -13,9 +13,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
                                            appConfig: Configuration,
                                            featureToggleService: FeatureToggleService,
                                            searchManagementRepository: SearchManagementRepository,
-                                           environment: Environment) {
-
-  private val logger = play.api.Logger
+                                           environment: Environment) extends Logging {
 
   case class RulesTxtsForSolrIndex(solrIndexId: SolrIndexId,
                                    regularRules: RulesTxtWithFileNames,

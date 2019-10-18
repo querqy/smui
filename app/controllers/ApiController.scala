@@ -7,6 +7,7 @@ import akka.util.ByteString
 import javax.inject.Inject
 import controllers.auth.AuthActionFactory
 import models._
+import play.api.Logging
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.json.Reads._
@@ -19,9 +20,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
                               cc: MessagesControllerComponents,
                               authActionFactory: AuthActionFactory,
                               rulesTxtDeploymentService: RulesTxtDeploymentService)(implicit executionContext: ExecutionContext)
-  extends MessagesAbstractController(cc) {
-
-  private val logger = play.api.Logger
+  extends MessagesAbstractController(cc) with Logging {
 
   val API_RESULT_OK = "OK"
   val API_RESULT_FAIL = "KO"
