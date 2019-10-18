@@ -2,7 +2,7 @@ import com.typesafe.sbt.GitBranchPrompt
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "3.1.0"
+version := "3.2.0"
 
 scalaVersion := "2.12.4"
 
@@ -30,6 +30,7 @@ lazy val root = (project in file("."))
   )
 
   .settings(packagingSettings: _*)
+  .settings(dependencyCheckSettings: _*)
   .settings(
     publishArtifact in (Compile, packageDoc) := false,
     publishArtifact in packageDoc := false,
@@ -97,6 +98,15 @@ lazy val root = (project in file("."))
 updateOptions := updateOptions.value.withCachedResolution(cachedResoluton = true)
 // we use nodejs to make our typescript build as fast as possible
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
+
+lazy val dependencyCheckSettings: Seq[Setting[_]] = {
+  import DependencyCheckPlugin.autoImport._
+  Seq(
+    dependencyCheckSuppressionFile := Some(new File("suppress-checks.xml").getAbsoluteFile),
+    dependencyCheckFormats := Seq("HTML", "JSON"),
+    dependencyCheckAssemblyAnalyzerEnabled := Some(false)
+  )
+}
 
 resolvers ++= Seq(
   Resolver.jcenterRepo,
