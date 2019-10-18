@@ -173,6 +173,9 @@ libraryDependencies ++= {
     // H2 DB for testing
     "com.h2database" % "h2" % "1.4.197" % Test,
 
+    // For jwt token parsing
+    "com.pauldijou" %% "jwt-play" % "4.1.0",
+
     // Other databases as docker containers for testing with specific databases
     "com.dimafeng" %% "testcontainers-scala" % "0.32.0" % Test,
     "org.testcontainers" % "postgresql" % "1.12.1" % Test,

@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject.Inject
 import controllers.auth.AuthActionFactory
-import play.api.Configuration
+import play.api.{Configuration, Logging}
 import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -12,9 +12,7 @@ class HomeController @Inject()(cc: MessagesControllerComponents,
                                appConfig: Configuration,
                                featureToggleService: FeatureToggleService,
                                authActionFactory: AuthActionFactory)(implicit executionContext: ExecutionContext)
-  extends MessagesAbstractController(cc) {
-
-  private val logger = play.api.Logger
+  extends MessagesAbstractController(cc) with Logging {
 
   def index(urlPath: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {

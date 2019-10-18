@@ -1,15 +1,12 @@
 package controllers.auth
 
 import javax.inject.Inject
-
-import play.api.Configuration
+import play.api.{Configuration, Logging}
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext
 
-class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext) {
-
-  private val logger = play.api.Logger
+class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext) extends Logging {
 
   private def instantiateAuthAction(strClazz: String, defaultAction: ActionBuilder[MessagesRequest, AnyContent]): ActionBuilder[MessagesRequest, AnyContent] = {
     try {
@@ -42,7 +39,7 @@ class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Config
   def getAuthenticatedAction(defaultAction: ActionBuilder[MessagesRequest, AnyContent]): ActionBuilder[MessagesRequest, AnyContent] = {
     appConfig.getOptional[String]("smui.authAction") match {
       case Some(strClazz: String) =>
-        if(strClazz.trim().equals("scala.None")) defaultAction
+        if (strClazz.trim().equals("scala.None")) defaultAction
         else instantiateAuthAction(strClazz, defaultAction)
       case None =>
         defaultAction

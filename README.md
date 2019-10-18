@@ -4,7 +4,7 @@
 
 ![SMUI v1.5.0 screenshot](20190103_screenshot_SMUI_v1-5-0.png)
 
-SMUI is a tool for managing Solr-based onsite search. It provides a web user interface for maintainig rules for query rewriting based on the Querqy Solr plugin for query rewriting. Please see [querqy](https://github.com/renekrie/querqy) for the installation of Querqy.
+SMUI is a tool for managing Solr-based onsite search. It provides a web user interface for maintaining rules for query rewriting based on the Querqy Solr plugin for query rewriting. Please see [querqy](https://github.com/renekrie/querqy) for the installation of Querqy.
 
 ## Major changes in v3 (compared to v2)
 
@@ -121,7 +121,11 @@ Optional. You can define pre-defined rule tags, that can be used by the search m
 
 ##### Configure Authentication
 
-SMUI is shipped with HTTP Basic Auth support. Basic Auth can be turned on in the extension by configuring an `smui.authAction` in the config file, e.g.:
+SMUI is shipped with HTTP Basic and JWT Authentication support.
+
+###### Basic Authentication
+This is telling every controller method (Home and ApiController) to use the according authentication method as well as it tells SMUI's `BasicAuthAuthenticatedAction` username and password it should use. 
+Basic Auth can be turned on in the extension by configuring an `smui.authAction` in the config file, e.g.:
 
 ```
 # For Basic Auth authentication, use SMUI's BasicAuthAuthenticatedAction (or leave it blanked / commented out for no authentication), e.g.:
@@ -130,16 +134,45 @@ smui.BasicAuthAuthenticatedAction.user = smui_user
 smui.BasicAuthAuthenticatedAction.pass = smui_pass
 ```
 
-This is telling every controller method (Home and ApiController) to use the according authentication method as well as it tells SMUI's `BasicAuthAuthenticatedAction` username and password it should use. You can also implement a custom authentication action and tell SMUI to decorate its controllers with that, e.g.:
+###### JWT Authentication
 
 ```
-smui.authAction = myOwnPackage.myOwnAuthenticatedAction
+smui.authAction="controllers.auth.JWTJsonAuthenticatedAction"
 ```
 
+config key | description | default
+--- | --- | ---
+`smui.JWTJsonAuthenticatedAction.login.url` | The URL to the login page (e.g. https://loginexample.com/login.html?callback=https://redirecturl.com)" | ``
+`smui.JWTJsonAuthenticatedAction.cookie.name` | Name of cookie that contains the Json Web Token (JWT) | `jwt_token`
+`smui.JWTJsonAuthenticatedAction.public.key` | The public key to verify the token signature | ``
+`smui.JWTJsonAuthenticatedAction.algorithm` | The algorithms that should be used for decoding (options: 'rsa', 'hmac', 'asymmetric', 'ecdsa') | `rsa`
+`smui.JWTJsonAuthenticatedAction.authorization.active` | Activation of authorization check | `false`
+`smui.JWTJsonAuthenticatedAction.authorization.json.path` | The JSON path to the roles saved in the JWT | `$.roles`
+`smui.JWTJsonAuthenticatedAction.authorization.roles` | Roles (comma separated) of roles that are authorized to access SMUI | `admin`
+
+Example of decoded Json Web Token:
+
+```json
+{
+  "user": "Test Admin",
+  "roles": [
+    "admin"
+  ]
+}
+```  
+
+###### Logout
 In this setup SMUI can provide a simple logout button, that simply sends the user to a configured target URL:
 
 ```
 smui.auth.ui-concept.simple-logout-button-target-url="https://www.example.com/logoutService/"
+```
+
+###### Custom Authentication
+You can also implement a custom authentication action and tell SMUI to decorate its controllers with that, e.g.:
+
+```
+smui.authAction = myOwnPackage.myOwnAuthenticatedAction
 ```
 
 See "Developing Custom Authentication" for details.

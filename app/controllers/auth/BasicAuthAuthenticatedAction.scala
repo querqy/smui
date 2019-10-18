@@ -1,16 +1,15 @@
 package controllers.auth
 
-import org.apache.commons.codec.binary.Base64.decodeBase64
-import play.api.Configuration
+import java.util.Base64
+
+import play.api.{Configuration, Logging}
 import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.Exception.allCatch
 
-class BasicAuthAuthenticatedAction(parser: BodyParsers.Default,
-                                   appConfig: Configuration)(implicit ec: ExecutionContext) extends ActionBuilderImpl(parser) {
-
-  private val logger = play.api.Logger
+class BasicAuthAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext)
+  extends ActionBuilderImpl(parser) with Logging {
 
   logger.debug("In BasicAuthAuthenticatedAction")
 
@@ -46,7 +45,7 @@ class BasicAuthAuthenticatedAction(parser: BodyParsers.Default,
       request.headers.get("Authorization") match {
         case Some(authorization: String) =>
           authorization.split(" ").drop(1).headOption.filter { encoded =>
-            val authInfo = new String(decodeBase64(encoded.getBytes)).split(":").toList
+            val authInfo = new String(Base64.getDecoder().decode(encoded.getBytes)).split(":").toList
             allCatch.opt {
               val (username, password) = (authInfo.head, authInfo(1))
               username.equals(BASIC_AUTH_USER) && password.equals(BASIC_AUTH_PASS)
