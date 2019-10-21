@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress>
+        <notes><![CDATA[
+        False positive
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/tyrex/tyrex@.*$</packageUrl>
+        <cve>CVE-2009-2704</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        False positive
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/tyrex/tyrex@.*$</packageUrl>
+        <cve>CVE-2009-2705</cve>
+    </suppress>
+</suppressions>

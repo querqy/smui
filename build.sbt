@@ -2,7 +2,7 @@ import com.typesafe.sbt.GitBranchPrompt
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "3.1.0"
+version := "3.2.1"
 
 scalaVersion := "2.12.4"
 
@@ -30,6 +30,7 @@ lazy val root = (project in file("."))
   )
 
   .settings(packagingSettings: _*)
+  .settings(dependencyCheckSettings: _*)
   .settings(
     publishArtifact in (Compile, packageDoc) := false,
     publishArtifact in packageDoc := false,
@@ -98,6 +99,15 @@ updateOptions := updateOptions.value.withCachedResolution(cachedResoluton = true
 // we use nodejs to make our typescript build as fast as possible
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
+lazy val dependencyCheckSettings: Seq[Setting[_]] = {
+  import DependencyCheckPlugin.autoImport._
+  Seq(
+    dependencyCheckSuppressionFile := Some(new File("suppress-checks.xml").getAbsoluteFile),
+    dependencyCheckFormats := Seq("HTML", "JSON"),
+    dependencyCheckAssemblyAnalyzerEnabled := Some(false)
+  )
+}
+
 resolvers ++= Seq(
   Resolver.jcenterRepo,
   Resolver.bintrayRepo("webjars", "maven"),
@@ -125,7 +135,7 @@ libraryDependencies ++= {
 
     // Additional Play Framework Dependencies
 
-    "mysql" % "mysql-connector-java" % "8.0.13", // TODO verify use of mysql-connector over explicit mariaDB connector instead
+    "mysql" % "mysql-connector-java" % "8.0.18", // TODO verify use of mysql-connector over explicit mariaDB connector instead
     "org.postgresql" % "postgresql" % "42.2.5",
     "org.xerial" % "sqlite-jdbc" % "3.25.2",
     "org.playframework.anorm" %% "anorm" % "2.6.4",
@@ -183,10 +193,17 @@ libraryDependencies ++= {
     "org.xerial" % "sqlite-jdbc" % "3.28.0" % Test
   )
 }
-dependencyOverrides ++= Seq(
-  "org.webjars.npm" % "minimatch" % "3.0.0",
-  "org.webjars.npm" % "glob" % "7.1.2"
-)
+
+
+dependencyOverrides ++= {
+  lazy val jacksonVersion = "2.9.10"
+  Seq(
+    "org.webjars.npm" % "minimatch" % "3.0.0",
+    "org.webjars.npm" % "glob" % "7.1.2",
+    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
+    "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
+  )
+}
 
 // use the webjars npm directory (target/web/node_modules ) for resolution of module imports of angular2/core etc
 resolveFromWebjarsNodeModulesDir := true

@@ -24,7 +24,7 @@ SMUI is a tool for managing Solr-based onsite search. It provides a web user int
 You can use `make` to build and run SMUI as or into a docker container (see [Makefile](Makefile)), e.g. (command line):
 
 ```
-make docker-build
+make docker-build-only
 make docker-run
 ```
 
