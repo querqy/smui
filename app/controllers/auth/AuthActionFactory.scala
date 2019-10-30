@@ -8,7 +8,7 @@ import scala.concurrent.ExecutionContext
 
 class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext) extends Logging {
 
-  private def instantiateAuthAction(strClazz: String, defaultAction: ActionBuilder[MessagesRequest, AnyContent]): ActionBuilder[MessagesRequest, AnyContent] = {
+  private def instantiateAuthAction(strClazz: String, defaultAction: ActionBuilder[Request, AnyContent]): ActionBuilder[Request, AnyContent] = {
     try {
 
       // TODO if possible instanciate authenticatedAction only once, not with every controller call
@@ -24,7 +24,7 @@ class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Config
 
       logger.debug(":: having instanciated " + authenticatedAction.toString)
 
-      authenticatedAction.asInstanceOf[ActionBuilder[MessagesRequest, AnyContent]]
+      authenticatedAction.asInstanceOf[ActionBuilder[Request, AnyContent]]
 
     } catch {
       case e: Throwable =>
@@ -36,7 +36,7 @@ class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Config
     }
   }
 
-  def getAuthenticatedAction(defaultAction: ActionBuilder[MessagesRequest, AnyContent]): ActionBuilder[MessagesRequest, AnyContent] = {
+  def getAuthenticatedAction(defaultAction: ActionBuilder[Request, AnyContent]): ActionBuilder[Request, AnyContent] = {
     appConfig.getOptional[String]("smui.authAction") match {
       case Some(strClazz: String) =>
         if (strClazz.trim().equals("scala.None")) defaultAction
