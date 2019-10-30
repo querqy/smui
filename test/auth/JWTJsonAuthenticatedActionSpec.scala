@@ -109,6 +109,17 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
         result.header.headers(LOCATION) must equal(getJwtConfiguration("login.url"))
       }
     }
+
+    "respond correct to api call" in {
+      val request = FakeRequest(GET, "/api/v1/allRulesTxtFiles")
+        .withCookies(buildJWTCookie("test_user", Seq("search-manager")))
+
+      val home: Future[Result] = route(app, request).get
+
+      whenReady(home) { result =>
+        result.header.status mustBe 200
+      }
+    }
   }
 
   private def generateRsaKeyPair() = {
