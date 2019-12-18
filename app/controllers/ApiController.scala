@@ -11,6 +11,7 @@ import play.api.Logging
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.json.Reads._
+import java.nio.file.Paths
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -196,6 +197,36 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Suggested Field Name failed. Unexpected body data.", None)))
       }
     }
+  }
+
+  //def importFromRulesTxt(solrIndexId: String) = Action(parse.multipartFormData) { request =>
+  // TODO consider making method .asynch
+  def importFromRulesTxt(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action)(parse.multipartFormData) { request =>
+    request.body
+      .file("rules_txt")
+      .map { rules_txt =>
+        // read POSTed file (like suggested in https://www.playframework.com/documentation/2.7.x/ScalaFileUpload)
+        // only get the last part of the filename
+        // otherwise someone can send a path like ../../home/foo/bar.txt to write to other files on the system
+        val filename = Paths.get(rules_txt.filename).getFileName
+        //val fileSize = rules_txt.fileSizes
+        //val contentType = rules_txt.contentType
+        val tmp_file_path = s"/tmp/$filename"
+        rules_txt.ref.copyTo(Paths.get(tmp_file_path), replace = true)
+        // process rules.txt file
+        val filePayload = scala.io.Source.fromFile(tmp_file_path).getLines.mkString("\n")
+        val importStatistics = ApiControllerHelperRulesTxt.importFromFilePayload(filePayload, SolrIndexId(solrIndexId), searchManagementRepository)
+        val apiResultMsg = "Import from rules.txt file successful with following statistics:\n" +
+          "^-- count rules.txt inputs = " + importStatistics._1 + "\n" +
+          "^-- count rules.txt lines skipped = " + importStatistics._2 + "\n" +
+          "^-- count rules.txt unknown convert = " + importStatistics._3 + "\n" +
+          "^-- count consolidated inputs (after rev engineering undirected synonyms) = " + importStatistics._4 + "\n" +
+          "^-- count total rules after consolidation = " + importStatistics._5
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, apiResultMsg, None)))
+      }
+      .getOrElse {
+        Ok(Json.toJson(ApiResult(API_RESULT_FAIL, "File rules_txt missing in request body.", None)))
+      }
   }
 
 }

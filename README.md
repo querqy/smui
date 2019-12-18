@@ -301,46 +301,22 @@ SMUI might as well leverages querqy's `@_log` property to communicate SMUI's rul
 
 #### Convert existing rules.txt
 
-Optional. The following RegEx search and replace pattern can be helpful (example search & replace regexes with Atom.io):
+As of version 3.3 SMUI supports importing an existing rules.txt file and adding its content to the SMUI database. The following steps outline the procedure
+* use an existing Solr index or create a new one
+* use the new `import-from-rules-txt` endpoint to upload / import a rules.txt file
 
-Input terms:
+e.g.:
 ```
-From: (.*?) =>
-To  : INSERT INTO search_input (term, solr_index_id) VALUES ('$1', 1);\nSET @last_id_si = LAST_INSERT_ID();
-```
-
-Synonyms (directed-only assumed):
-```
-From: ^[ \t].*?SYNONYM: (.*)
-To  : INSERT INTO synonym_rule (synonym_type, term, search_input_id) VALUES (1, '$1', @last_id_si);
-```
-
-UP/DOWN:
-```
-From: ^[ \t].*?UP\((\d*)\): (.*)
-To  : INSERT INTO up_down_rule (up_down_type, boost_malus_value, term, search_input_id) VALUES (0, $1, '$2', @last_id_si);
-
-From: ^[ \t].*?DOWN\((\d*)\): (.*)
-To  : INSERT INTO up_down_rule (up_down_type, boost_malus_value, term, search_input_id) VALUES (1, $1, '$2', @last_id_si);
+curl -X PUT  -H "Content-Type: application/json" -d '{"name": "mySolrCore", "description": "My Solr Core"}' http://localhost:9000/api/v1/solr-index
+#returns
+#> {"result":"OK","message":"Adding Search Input 'mySolrCore2' successful.","returnId":"a4aaf472-c0c0-49ac-8e34-c70fef9aa8a9"}
+#> a4aaf472-c0c0-49ac-8e34-c70fef9aa8a9 is the Id of new Solr index
+curl -F 'rules_txt=@/path/to/local/rules.txt' http://localhost:9000/api/v1/a4aaf472-c0c0-49ac-8e34-c70fef9aa8a9/import-from-rules-txt
 ```
 
-FILTER:
-```
-TODO
-```
+If you have configured SMUI with authentification, you need to pass authentification information (e.g. BasicAuth header) along the `curl` request.
 
-DELETE:
-```
-TODO
-```
-
-Replace comments:
-```
-From: #
-To  : --
-```
-
-Hint: Other querqy compatible rules not editable with SMUI (e.g. DECORATE) must be removed to have a proper converted SQL script ready.
+Warn: As of version 3.3 the rules.txt import endpoint only supports SYNONYM, UP / DOWN, FILTER and DELETE rules. Redirects, other DECORATEs, as well as Input Tags will not be migrated using the import endpoint.
 
 ### Log data
 
