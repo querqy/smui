@@ -139,7 +139,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     logger.debug("In ApiController :: updateRulesTxtForSolrIndex")
 
     // generate rules.txt(s)
-    val rulesFiles = rulesTxtDeploymentService.generateRulesTxtContentWithFilenames(SolrIndexId(solrIndexId))
+    val rulesFiles = rulesTxtDeploymentService.generateRulesTxtContentWithFilenames(SolrIndexId(solrIndexId), targetSystem)
 
     // validate every generated rules.txt
     rulesTxtDeploymentService.validateCompleteRulesTxts(rulesFiles) match {

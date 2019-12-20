@@ -30,6 +30,10 @@ RUN --mount=target=/root/.ivy2,type=cache sbt "set test in assembly := {}" clean
 
 FROM openjdk:8-alpine
 
+# TODO evaluate other deployment approaches (for remote targets) than sshpass + scp
+RUN apk add --update --no-cache sshpass
+RUN apk add --update --no-cache openssh sshpass
+
 ARG VERSION
 ARG SCALA_VERSION
 ENV SMUI_VERSION=$VERSION

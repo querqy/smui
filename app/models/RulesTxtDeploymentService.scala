@@ -33,12 +33,16 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     * @param solrIndexId Solr Index Id to generate the output for.
     */
   // TODO evaluate, if logDebug should be used to prevent verbose logging of the whole generated rules.txt (for zip download especially)
-  def generateRulesTxtContentWithFilenames(solrIndexId: SolrIndexId, logDebug: Boolean = true): RulesTxtsForSolrIndex = {
+  def generateRulesTxtContentWithFilenames(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true): RulesTxtsForSolrIndex = {
 
+    // SMUI config for (regular) LIVE deployment
     val SRC_TMP_FILE = appConfig.get[String]("smui2solr.SRC_TMP_FILE")
     val DST_CP_FILE_TO = appConfig.get[String]("smui2solr.DST_CP_FILE_TO")
     val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxt
     val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxtDstCpFileTo
+    // (additional) SMUI config for PRELIVE deployment
+    val SMUI_DEPLOY_PRELIVE_FN_RULES_TXT = appConfig.get[String]("smui2solr.deploy-prelive-fn-rules-txt")
+    val SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT = appConfig.get[String]("smui2solr.deploy-prelive-fn-decompound-txt")
 
     if (logDebug) {
       logger.debug(
@@ -47,20 +51,30 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
            |:: DST_CP_FILE_TO = $DST_CP_FILE_TO
            |:: DO_SPLIT_DECOMPOUND_RULES_TXT = $DO_SPLIT_DECOMPOUND_RULES_TXT
            |:: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = $DECOMPOUND_RULES_TXT_DST_CP_FILE_TO
+           |:: SMUI_DEPLOY_PRELIVE_FN_RULES_TXT = $SMUI_DEPLOY_PRELIVE_FN_RULES_TXT
+           |:: SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT = $SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT
       """.stripMargin)
     }
 
     // generate one rules.txt by default or two separated, if decompound instructions are supposed to be split
 
     // TODO test correct generation in different scenarios (one vs. two rules.txts, etc.)
+    val dstCpFileTo = if (targetSystem == "PRELIVE")
+      SMUI_DEPLOY_PRELIVE_FN_RULES_TXT
+    else // targetSystem == "LIVE"
+      DST_CP_FILE_TO
     if (!DO_SPLIT_DECOMPOUND_RULES_TXT) {
       RulesTxtsForSolrIndex(solrIndexId,
-        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId), SRC_TMP_FILE, DST_CP_FILE_TO), None)
+        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId), SRC_TMP_FILE, dstCpFileTo), None)
     } else {
+      val decompoundDstCpFileTo = if (targetSystem == "PRELIVE")
+        SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT
+      else // targetSystem == "LIVE"
+        DECOMPOUND_RULES_TXT_DST_CP_FILE_TO
       RulesTxtsForSolrIndex(solrIndexId,
-        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = false), SRC_TMP_FILE, DST_CP_FILE_TO),
+        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = false), SRC_TMP_FILE, dstCpFileTo),
         Some(RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = true),
-          SRC_TMP_FILE + "-2", DECOMPOUND_RULES_TXT_DST_CP_FILE_TO)))
+          SRC_TMP_FILE + "-2", decompoundDstCpFileTo)))
     }
   }
 
@@ -84,31 +98,79 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
 
   def executeDeploymentScript(rulesTxts: RulesTxtsForSolrIndex, targetSystem: String): Int = {
 
-    val SOLR_HOST = appConfig.get[String]("smui2solr.SOLR_HOST")
-    val SOLR_CORE_NAME = searchManagementRepository.getSolrIndexName(rulesTxts.solrIndexId)
+    // interface to smui2solr.sh
+    def interfaceDeploymentScript(scriptPath: String, srcTmpFile: String, dstCpFileTo: String, solrHost: String, solrCoreName: String, decompoundDstCpFileTo: String, targetSystem: String): Int = {
+      // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
+      logger.info(
+        s""":: executeDeploymentScript config
+           |:: scriptPath = $scriptPath
+           |:: srcTmpFile = $srcTmpFile
+           |:: dstCpFileTo = $dstCpFileTo
+           |:: solrHost = $solrHost
+           |:: solrCoreName = $solrCoreName
+           |:: decompoundDstCpFileTo = $decompoundDstCpFileTo
+           |:: targetSystem = $targetSystem
+      """.stripMargin)
+      // define call and add parameters to the script (in expected order, see smui2solr.sh)
+      val scriptCall =
+        scriptPath + " " +
+        // SRC_TMP_FILE=$1
+        srcTmpFile + " " +
+        // DST_CP_FILE_TO=$2
+        dstCpFileTo + " " +
+        // SOLR_HOST=$3
+        solrHost + " " +
+        // SOLR_CORE_NAME=$4
+        solrCoreName + " " +
+        // DECOMPOUND_DST_CP_FILE_TO=$5
+        decompoundDstCpFileTo + " " +
+        // TARGET_SYSTEM=$6
+        targetSystem
+      // call
+      return scriptCall.!
+    }
+
+    // determine script
     val DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = featureToggleService.getToggleRuleDeploymentCustomScript
     val CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = featureToggleService.getToggleRuleDeploymentCustomScriptSmui2solrShPath
+    val scriptPath = if (DO_CUSTOM_SCRIPT_SMUI2SOLR_SH)
+      CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH
+    else
+      environment.rootPath.getAbsolutePath + "/conf/smui2solr.sh"
 
-    logger.info(
-      s""":: executeDeploymentScript config
-         |:: targetSystem = $targetSystem
-         |:: SOLR_HOST = $SOLR_HOST
-         |:: SOLR_CORE_NAME = $SOLR_CORE_NAME
-         |:: DO_CUSTOM_SCRIPT_SMUI2SOLR_SH = $DO_CUSTOM_SCRIPT_SMUI2SOLR_SH
-         |:: CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = $CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH
-    """.stripMargin)
+    val srcTmpFile = rulesTxts.regularRules.sourceFileName
+    val dstCpFileTo = rulesTxts.regularRules.destinationFileName
+    val decompoundDstCpFileTo = if (rulesTxts.decompoundRules.isDefined)
+      rulesTxts.decompoundRules.get.destinationFileName
+    else
+      "NONE"
 
-    val scriptPath = if (DO_CUSTOM_SCRIPT_SMUI2SOLR_SH) CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH else environment.rootPath.getAbsolutePath + "/conf/smui2solr.sh"
-    val scriptCall =
-        scriptPath + " " +
-        // add parameters to the script (in expected order, see smui2solr.sh)
-        rulesTxts.regularRules.sourceFileName + " " + // smui2solr.sh param $1 - SRC_TMP_FILE
-        rulesTxts.regularRules.destinationFileName + " " + // smui2solr.sh param $2 - DST_CP_FILE_TO
-        SOLR_HOST + " " + // smui2solr.sh param $3 - SOLR_HOST
-        SOLR_CORE_NAME + " " + // smui2solr.sh param $4 - SOLR_CORE_NAME
-        (if (rulesTxts.decompoundRules.isDefined) rulesTxts.decompoundRules.get.destinationFileName else "NONE") + " " + // smui2solr.sh param $5 - DECOMPOUND_DST_CP_FILE_TO
-        targetSystem // smui2solr.sh param $6 - TARGET_SYSTEM
-    val result = scriptCall.! // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
+    // host for (optional) core reload
+    val SMUI_DEPLOY_PRELIVE_SOLR_HOST = appConfig.get[String]("smui2solr.deploy-prelive-solr-host")
+    val SMUI_DEPLOY_LIVE_SOLR_HOST = appConfig.get[String]("smui2solr.SOLR_HOST")
+    val solrHost = if (targetSystem == "PRELIVE")
+      if (SMUI_DEPLOY_PRELIVE_SOLR_HOST.isEmpty)
+        "NONE"
+      else
+        SMUI_DEPLOY_PRELIVE_SOLR_HOST
+    else // targetSystem == "LIVE"
+      if (SMUI_DEPLOY_LIVE_SOLR_HOST.isEmpty)
+        "NONE"
+      else
+        SMUI_DEPLOY_LIVE_SOLR_HOST
+    // core name from repo (optional, for core reload as well)
+    val solrCoreName = searchManagementRepository.getSolrIndexName(rulesTxts.solrIndexId)
+
+    // execute script
+    val result = interfaceDeploymentScript(
+      scriptPath,
+      srcTmpFile,
+      dstCpFileTo,
+      solrHost,
+      solrCoreName,
+      decompoundDstCpFileTo,
+      targetSystem
+    )
     logger.info(":: executeDeploymentScript :: Script execution result: " + result)
     result
   }
@@ -142,7 +204,8 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     val zipStream = new ZipOutputStream(out)
     try {
       for (index <- searchManagementRepository.listAllSolrIndexes) {
-        val rules = generateRulesTxtContentWithFilenames(index.id, logDebug = false)
+        // TODO make targetSystem configurable from ApiController.downloadAllRulesTxtFiles ... go with "LIVE" from now (as there exist no different revisions of the search management content)!
+        val rules = generateRulesTxtContentWithFilenames(index.id, "LIVE", logDebug = false)
         zipStream.putNextEntry(new ZipEntry(s"rules_${index.name}.txt"))
         zipStream.write(rules.regularRules.content.getBytes("UTF-8"))
         zipStream.closeEntry()
