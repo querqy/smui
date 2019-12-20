@@ -31,8 +31,12 @@ RUN --mount=target=/root/.ivy2,type=cache sbt "set test in assembly := {}" clean
 FROM openjdk:8-alpine
 
 # TODO evaluate other deployment approaches (for remote targets) than sshpass + scp
+RUN apk update
+RUN apk upgrade
 RUN apk add --update --no-cache sshpass
 RUN apk add --update --no-cache openssh sshpass
+RUN apk add bash
+RUN apk add curl
 
 ARG VERSION
 ARG SCALA_VERSION
@@ -42,6 +46,7 @@ WORKDIR /smui
 
 COPY --from=builder /smui/target/scala-$SCALA_VERSION/search-management-ui-assembly-$VERSION.jar .
 COPY conf/logback.xml /smui/logback.xml
+COPY conf/smui2solr.sh /smui/conf/smui2solr.sh
 
 ENV SMUI_CONF_PID_PATH=/var/run/play.pid
 ENV SMUI_CONF_LOG_BASE_PATH=/var/log

@@ -13,7 +13,7 @@ echo "^-- DST_CP_FILE_TO = $DST_CP_FILE_TO"
 echo "^-- SOLR_HOST = $SOLR_HOST"
 echo "^-- SOLR_CORE_NAME: $SOLR_CORE_NAME"
 echo "^-- DECOMPOUND_DST_CP_FILE_TO = $DECOMPOUND_DST_CP_FILE_TO"
-echo "^-- TARGET_SYSTEM = $TARGET_SYSTEM" # TODO TARGET_SYSTEM is unused within this script
+echo "^-- TARGET_SYSTEM = $TARGET_SYSTEM"
 
 # DEPLOYMENT
 #####
@@ -27,7 +27,7 @@ function deploy_rules_txt {
 	if [[ $2 =~ (.*):(.*)@(.*) ]]
 	then
 		echo "^-- ... matched remote target (regex). proceeding with remote copy ..."
-		sshpass -p "${BASH_REMATCH[2]}" scp $1 ${BASH_REMATCH[1]}@${BASH_REMATCH[3]}
+		sshpass -p "${BASH_REMATCH[2]}" scp -v -o StrictHostKeyChecking=no $1 ${BASH_REMATCH[1]}@${BASH_REMATCH[3]}
 	else
 		echo "^-- ... no match (regex). proceeding with regular cp ..."
 		cp $1 $2
