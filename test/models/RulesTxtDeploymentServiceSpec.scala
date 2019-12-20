@@ -43,7 +43,7 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
                            |	}@""".stripMargin
 
   "RulesTxtDeploymentService" should "generate rules files with correct file names" in {
-    val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
+    val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
     rulesTxt.solrIndexId shouldBe core1Id
     rulesTxt.decompoundRules shouldBe empty
     rulesTxt.regularRules.content.trim shouldBe rulesFileContent(inputIds)
@@ -53,7 +53,7 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
   }
 
   it should "validate the rules files correctly" in {
-    val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
+    val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
     service.validateCompleteRulesTxts(rulesTxt, logDebug = false) shouldBe empty
 
     val badRulesTxt = rulesTxt.copy(regularRules = rulesTxt.regularRules.copy(content = "a very bad rules file"))
