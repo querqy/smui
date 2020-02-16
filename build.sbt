@@ -2,11 +2,13 @@ import com.typesafe.sbt.GitBranchPrompt
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "3.4.4"
+version := "3.5.0"
 
 scalaVersion := "2.12.4"
 
 val globalMaintainer = "Paul M. Bartusch <paulbartusch@gmx.de>"
+
+// TODO remove RPM build option for Play application
 
 val packagingSettings = Seq(
   maintainer in Linux := globalMaintainer,
@@ -193,7 +195,6 @@ libraryDependencies ++= {
     "org.xerial" % "sqlite-jdbc" % "3.28.0" % Test
   )
 }
-
 
 dependencyOverrides ++= {
   lazy val jacksonVersion = "2.9.10"
