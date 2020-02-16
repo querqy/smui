@@ -293,6 +293,10 @@ NOTE: If you have configured SMUI with authentication, you need to pass authenti
 
 WARNING: As of version 3.3 the rules.txt import endpoint only supports `SYNONYM`, `UP` / `DOWN`, `FILTER` and `DELETE` rules. Redirects, other `DECORATE`s, as well as Input Tags will be omitted, and not be migrated using the import endpoint.
 
+### Use SMUI's REST interface to create an search input with according rules
+
+Like SMUI's (angular) frontend, you are capable of leveraging SMUI's REST interface to create and update search management rules programmatically. Rules have corresponding search inputs, that they are working on. If you want to create rules programmatically it is therefore important to keep track of the input the rules should refer to. As processing relies on parsing JSON input and output, the python script under [docs/example_rest_crud.py](docs/example_rest_crud.py) will create one search input, that will be updated with one `SYNONYM` and one `FILTER` rule as an example.
+
 ### Monitor SMUI's log file
 
 SMUI's log file is located under the following path (in the SMUI docker container):
