@@ -49,7 +49,7 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
     rulesTxt.regularRules.content.trim shouldBe rulesFileContent(inputIds)
 
     rulesTxt.regularRules.sourceFileName shouldBe "/tmp/search-management-ui_rules-txt.tmp"
-    rulesTxt.regularRules.destinationFileName shouldBe "/usr/bin/solr/defaultCore/conf/rules.txt"
+    rulesTxt.regularRules.destinationFileName shouldBe "/usr/bin/solr/liveCore/conf/rules.txt"
   }
 
   it should "validate the rules files correctly" in {
