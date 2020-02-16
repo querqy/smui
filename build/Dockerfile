@@ -37,6 +37,7 @@ RUN apk add --update --no-cache sshpass
 RUN apk add --update --no-cache openssh sshpass
 RUN apk add bash
 RUN apk add curl
+RUN apk add git
 
 ARG VERSION
 ARG SCALA_VERSION
@@ -54,6 +55,7 @@ WORKDIR /smui
 COPY --from=builder /smui/target/scala-$SCALA_VERSION/search-management-ui-assembly-$VERSION.jar .
 COPY conf/logback.xml /smui/logback.xml
 COPY conf/smui2solr.sh /smui/conf/smui2solr.sh
+COPY conf/smui2git.sh /smui/conf/smui2git.sh
 
 ENV SMUI_CONF_PID_PATH=/var/run/play.pid
 ENV SMUI_CONF_LOG_BASE_PATH=/var/log
@@ -63,6 +65,9 @@ ENV SMUI_CONF_LOGBACK_XML_PATH=/smui/logback.xml
 EXPOSE $SMUI_CONF_HTTP_PORT
 
 # add permission & ownership schema
+
+RUN mkdir /tmp/smui-git-repo
+RUN chown -R smui:smui /tmp/smui-git-repo
 
 RUN chown -R smui:smui /smui
 # TODO consider permissions within the docker container as more restrictive than 0777

@@ -169,6 +169,31 @@ In contrast to that, the PRELIVE instance of Solr resides on the `docker_host`. 
 
 NOTE: The example above also accounts for `SMUI_TOGGLE_DEPL_DECOMPOUND_DST` and `SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT`, when `SMUI_TOGGLE_DEPL_SPLIT_DECOMPOUND` is set to `true`.
 
+#### Deploy rules.txt to a git target
+
+Experimental. The SMUI docker container comes with an alternative deployment script for deployment to git, which is located under [conf/smui2git.sh](conf/smui2git.sh). This script uses the following additional environment variables:
+
+* `SMUI_GIT_REPOSITORY`
+* `SMUI_GIT_PATH` (optional)
+* `SMUI_GIT_BRANCH` (optional)
+* `SMUI_GIT_COMMIT_MSG` (optional)
+* `SMUI_GIT_CLONE_PATH` (optional)
+
+The [conf/smui2git.sh](smui2solr.sh) main deployment script uses the alternative git deployment script, in case a `GIT` deployment target is supplied (for the specific target system). You can use the following setting to force git deployment for the `LIVE` stage, e.g. (command line):
+
+```
+docker run \
+  ...
+  -e SMUI_2SOLR_DST_CP_FILE_TO=GIT \
+  -e SMUI_GIT_REPOSITORY... \
+  ...
+  pbartusch/smui
+```
+
+In the docker container the git deployment will be done in the `/tmp/smui-git-repo` path. You need to make sure, that the SMUI docker environment has an authenticated git user (e.g. providing a valid `/smui/.ssh/id_rsa`).
+
+WARNING: As of v3.5, deployment to a git target is experimental and still under testing. There might as well be a change in the interface soon.
+
 #### Configuration of authentication
 
 SMUI is shipped with HTTP Basic and JWT Authentication support.
@@ -227,7 +252,7 @@ smui.authAction = myOwnPackage.myOwnAuthenticatedAction
 
 See "Developing Custom Authentication" for details.
 
-### Step 4: Create SMUI admin data initially (REST interface)
+### Step 5: Create SMUI admin data initially (via REST interface)
 
 Once the database scheme has been established, the initial data can be inserted. SMUI supports a REST interface to PUT admin entities (like the following) into the database.
 
@@ -402,10 +427,11 @@ NOTE: The authentication interceptor only joins the game, in case the Angular ap
 
 Within exemplary `redirect` action above, you can work with the `{{CURRENT_SMUI_URL}}` placeholder, that SMUI will replace with its current location as an absolute URL before the redirect gets executed. Through this, it becomes possible for the remote login service to redirect back to SMUI once the login has succeeded.
 
-## License
+# LICENSE
+
 Search Management UI (SMUI) is licensed under the [Apache License, Version 2](http://www.apache.org/licenses/LICENSE-2.0.html).
 
-### Contributors
+## Contributors
 
  - [Paul M. Bartusch](https://github.com/pbartusch), Committer/Maintainer
  - [Michael Gottschalk](https://github.com/migo)

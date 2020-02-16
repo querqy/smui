@@ -18,6 +18,14 @@ echo "^-- TARGET_SYSTEM = $TARGET_SYSTEM"
 # DEPLOYMENT
 #####
 
+# TODO very dirty - include git deployment as part of the deployment script
+if [[ $DST_CP_FILE_TO == "GIT" ]]
+then
+	echo "^-- destination is GIT ... handing over to smui2git.sh"
+	/smui/conf/smui2git.sh $SRC_TMP_FILE
+	exit 0
+fi
+
 echo "^-- Perform rules.txt deployment (decompound-rules.txt eventually)"
 
 # $1 - from_filename
