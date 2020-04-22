@@ -11,16 +11,19 @@
 
             <ul class="navbar-nav mr-auto">
             </ul>
-
+            
+            <select class="selectpicker custom-select" #solrIndexSelect (change)="selectSolrIndex(solrIndexSelect.value)" [(ngModel)]="solrIndexSelectOptionModel">
+                <option *ngFor="let solrIndex of listSolrIndeces" [value]="solrIndex.id">
+                    {{solrIndex.description}}
+                </option>
+            </select>
             <div class="btn-group">
-                <select class="selectpicker" #solrIndexSelect (change)="selectSolrIndex(solrIndexSelect.value)" [(ngModel)]="solrIndexSelectOptionModel">
-                    <option *ngFor="let solrIndex of listSolrIndeces" [value]="solrIndex.id">
-                        {{solrIndex.description}}
-                    </option>
-                </select>
-                <button type="button" class="btn btn-outline-secondary" (click)="publishSolrConfig()">Push Config to Solr</button>
-                <button *ngIf="featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()" type="button" class="btn btn-outline-danger" (click)="publishToLIVE()">Publish to LIVE</button>
-                <button *ngIf="featureToggleService.getSimpleLogoutButtonTargetUrl().trim().length > 0" type="button" class="btn btn-outline-secondary" (click)="callSimpleLogoutUrl()">Logout</button>
+                <button type="button" class="btn btn-outline-primary" (click)="publishSolrConfig()" [attr.disabled]="deploymentRunningForStage == 'PRELIVE' ? '' : null">{{publishToPreliveButtonText()}}</button>
+                <button *ngIf="featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()" type="button" 
+                    class="btn btn-outline-danger" (click)="publishToLIVE()" 
+                    [attr.disabled]="deploymentRunningForStage == 'LIVE' ? '' : null">{{publishToLiveButtonText()}}</button>
+                <button *ngIf="featureToggleService.getSimpleLogoutButtonTargetUrl().trim().length > 0" type="button" 
+                    class="btn btn-outline-secondary" (click)="callSimpleLogoutUrl()">Logout</button>
             </div>
 
         </div>
@@ -59,6 +62,25 @@
                 <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="confirmModalOk()">{{ okText }}</button>
                 <button type="button" class="btn btn-success" data-dismiss="modal" (click)="confirmModalCancel()">{{ cancelText }}</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="errorMessageModal" tabindex="-1" role="dialog" aria-labelledby="errorMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="errorMessageModalLabel">Error</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p style="white-space: pre;">{{ errorMessageModalText }}</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          </div>
         </div>
     </div>
 </div>

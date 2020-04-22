@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/empty';
+import 'rxjs/add/observable/throw';
 
 class SmuiAuthViolation {
     action: string; // supports 'redirect' currently
