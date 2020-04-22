@@ -54,7 +54,7 @@ export class SearchManagementService {
       .catch(this.handleError);
   }
 
-  addNewSearchInput(solrIndexId: string, searchInputTerm: string): Promise<SearchManagementServiceResult> {
+  addNewSearchInput(solrIndexId: string, searchInputTerm: string, tags: string[] = []): Promise<SearchManagementServiceResult> {
     const headers = new Headers({
       'Content-Type': 'application/json'
     });
@@ -62,7 +62,7 @@ export class SearchManagementService {
     return this.http
       .put(
         SEARCH_MANAGEMENT_API_BASE_URL + '/' + solrIndexId + '/' + SEARCH_INPUT_API_URL,
-        JSON.stringify( { term: searchInputTerm }),
+        JSON.stringify( { term: searchInputTerm, tags: tags }),
         { headers: headers })
       .toPromise()
       .then(res => {

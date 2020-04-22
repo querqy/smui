@@ -255,7 +255,7 @@ object ApiControllerHelperRulesTxt {
       }
       // first create entity
       val searchInputId = searchManagementRepository.addNewSearchInput(
-        solrIndexId, searchInput.term
+        solrIndexId, searchInput.term, Seq.empty
       )
       // then update (incl rules)
       searchManagementRepository.updateSearchInput(

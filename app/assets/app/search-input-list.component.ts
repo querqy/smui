@@ -21,6 +21,8 @@ export class SearchInputListComponent implements OnInit {
   @Input() parentComponent: AppComponent;
 
   public searchInputs: smm.SearchInput[];
+  public allTags: smm.InputTag[] = [];
+  public tagFilter: smm.InputTag = null;
   public selectedSearchInputId: string = null;
   public searchInputTerm = '';
   private currentSolrIndexId = '-1'; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
@@ -42,25 +44,48 @@ export class SearchInputListComponent implements OnInit {
       .showErrorMsg('An error occurred.'); // TODO Do a more detaillied error description
   }
 
-  public getTypeaheadFilteredSearchInputs(): smm.SearchInput[] {
-    if (this.searchInputTerm.trim().length > 0) {
+  public getFilteredSearchInputs(): smm.SearchInput[] {
+    const searchTerm = this.searchInputTerm.trim().toLowerCase()
+    if (searchTerm.length > 0 || this.tagFilter) {
       return this.searchInputs.filter(i => {
-        // if term contains the searchInputTerm, we can go for this SearchInput
-        if (i.term.toLowerCase().indexOf(this.searchInputTerm.toLowerCase()) !== -1) {
-          return true;
-        }
-        // otherwise, we have a chance in the synonyms ...
-        // TODO evaluate to check for undirected synonyms (synonymType) only
-        for (const s of i.synonymRules) {
-          if (s.term.toLowerCase().indexOf(this.searchInputTerm.toLowerCase()) !== -1) {
-            return true;
-          }
-        }
-        return false;
+        return this.searchInputContainsString(i, searchTerm) && this.searchInputContainsTag(i, this.tagFilter)
       });
     } else {
       return this.searchInputs;
     }
+  }
+
+  private searchInputContainsString(i: smm.SearchInput, searchTermLower: string): Boolean {
+    if (searchTermLower.length === 0) {
+      return true;
+    }
+    if (i.term.toLowerCase().indexOf(searchTermLower) !== -1) {
+      return true;
+    }
+    // otherwise, we have a chance in the synonyms ...
+    // TODO evaluate to check for undirected synonyms (synonymType) only
+    for (const s of i.synonymRules) {
+      if (s.term.toLowerCase().indexOf(searchTermLower) !== -1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private searchInputContainsTag(i: smm.SearchInput, tag: smm.InputTag): Boolean {
+    if (!tag) {
+      return true;
+    }
+    for (const t of i.tags) {
+      if (t.id === tag.id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public isTaggingActive(): Boolean {
+    return this.featureToggleService.isRuleTaggingActive()
   }
 
   public addNewSearchInput() {
@@ -70,7 +95,8 @@ export class SearchInputListComponent implements OnInit {
     const _this = this;
     function executeAddNewSearchInput() {
 
-      _this.searchManagementService.addNewSearchInput(_this.currentSolrIndexId, _this.searchInputTerm)
+      _this.searchManagementService.addNewSearchInput(_this.currentSolrIndexId, _this.searchInputTerm, 
+        _this.tagFilter ? [_this.tagFilter.id] : [])
         .then(res => {
           console.log('In SearchInputSearchComponent :: executeAddNewSearchInput :: then :: res = ' + JSON.stringify(res));
 
@@ -93,7 +119,7 @@ export class SearchInputListComponent implements OnInit {
     this.searchManagementService
       .listAllSearchInputsInclSynonyms(this.currentSolrIndexId)
       .then(retSearchInputs => {
-        this.searchInputs = retSearchInputs
+        this.updateSearchInputs(retSearchInputs);
 
         /*
         TODO alten Code, der über den Index ging, entfernen
@@ -118,7 +144,7 @@ export class SearchInputListComponent implements OnInit {
     this.searchManagementService
       .listAllSearchInputsInclSynonyms(this.currentSolrIndexId)
       .then(retSearchInputs => {
-        this.searchInputs = retSearchInputs;
+        this.updateSearchInputs(retSearchInputs);
         this.searchInputTerm = '';
         this.selectedSearchInputId = null;
         this.detailComponent
@@ -132,9 +158,28 @@ export class SearchInputListComponent implements OnInit {
     this.searchManagementService
       .listAllSearchInputsInclSynonyms(this.currentSolrIndexId)
       .then(retSearchInputs => {
-        this.searchInputs = retSearchInputs
+        this.updateSearchInputs(retSearchInputs);
       })
       .catch(error => this.handleError(error));
+  }
+
+  private updateSearchInputs(searchInputs: smm.SearchInput[]) {
+    this.searchInputs = searchInputs;
+    const tags = new Map<string, smm.InputTag>();
+    for (const i of searchInputs) {
+      for (const t of i.tags) {
+        tags.set(t.displayValue, t);
+      }
+    }
+    this.allTags = Array.from(tags.values()).sort((a, b) => a.displayValue.localeCompare(b.displayValue));
+    // Reset tagFilter if the tag is no longer available in the current search inputs
+    if (this.tagFilter && !tags.get(this.tagFilter.displayValue)) {
+      this.tagFilter = null;
+    }
+  }
+
+  public filterByTag(tag: smm.InputTag) {
+    this.tagFilter = tag;
   }
 
   // TODO consider dirty check for details being part of the details component instead of list
@@ -212,7 +257,7 @@ export class SearchInputListComponent implements OnInit {
           _this.searchManagementService
             .listAllSearchInputsInclSynonyms(_this.currentSolrIndexId)
             .then(retSearchInputs => {
-              _this.searchInputs = retSearchInputs
+              _this.updateSearchInputs(retSearchInputs);
 
               /*
               TODO reselect selected index, if deleted entry was the selected one

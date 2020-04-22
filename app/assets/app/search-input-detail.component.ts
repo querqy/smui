@@ -38,6 +38,7 @@ export class SearchInputDetailComponent implements OnInit {
   private suggestedSolrFieldNames = null;
   private showTags: Boolean = false;
   private availableTags: smm.InputTag[] = [];
+  private saveError: string = null;
   private currentSolrIndexId = '-1'; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
   private previousTagEventHandler = null;
 
@@ -187,7 +188,7 @@ export class SearchInputDetailComponent implements OnInit {
       this.searchManagementService
         .getDetailedSearchInput(searchInputId)
         .then(retSearchInput => {
-
+          this.saveError = null
           this.initTags(retSearchInput.tags)
           this.detailSearchInput = retSearchInput;
 
@@ -391,9 +392,16 @@ export class SearchInputDetailComponent implements OnInit {
           .reloadSearchInputListAfterDetailUpdate();
 
         console.log(':: parentComponent = ' + this.parentComponent);
+        this.saveError = null;
         this.parentComponent
           .showSuccessMsg('Saving Details successful.');
       })
-      .catch(error => this.handleError(error));
+      .catch(error => {
+        if (error.status === 400) {
+          this.saveError = error.json().message
+        } else {
+          this.handleError(error);
+        }
+      });
   }
 }
