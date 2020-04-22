@@ -148,7 +148,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         rulesTxtDeploymentService.writeRulesTxtTempFiles(rulesFiles)
 
         // execute deployment script
-        if (rulesTxtDeploymentService.executeDeploymentScript(rulesFiles, targetSystem) == 0) {
+        val result = rulesTxtDeploymentService.executeDeploymentScript(rulesFiles, targetSystem)
+        if (result.success) {
           searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem)
           Ok(
             Json.toJson(
@@ -159,7 +160,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
           // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
           BadRequest(
             Json.toJson(
-              ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Unexpected result in script execution.", None)
+              ApiResult(API_RESULT_FAIL, s"Updating Solr Index failed.\nScript output:\n${result.output}", None)
             )
           )
         }
@@ -167,7 +168,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         // TODO Evaluate being more precise in the error communication (eg which rules.txt failed?, where? / which line?, why?, etc.)
         BadRequest(
           Json.toJson(
-            ApiResult(API_RESULT_FAIL, "Updating Solr Index failed. Validation error in rules.txt.", None)
+            ApiResult(API_RESULT_FAIL, s"Updating Solr Index failed. Validation errors in rules.txt:\n${errors.mkString("\n")}", None)
           )
         )
     }

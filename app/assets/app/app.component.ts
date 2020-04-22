@@ -43,6 +43,8 @@ export class AppComponent implements OnInit {
   public cancelText = '';
   public okText = '';
   public modalConfirmDeferred: Deferred<boolean>;
+  public errorMessageModalText = '';
+  public deploymentRunningForStage = null;
 
   get self(): AppComponent {
     return this;
@@ -93,7 +95,7 @@ export class AppComponent implements OnInit {
 
   handleError(error: any) {
     console.log('In AppComponent :: handleError');
-    console.log(':: error = ' + error);
+    console.log(':: error = ', error);
     this.showErrorMsg('An error occurred.'); // TODO Do a more detaillied error description
   }
 
@@ -158,13 +160,39 @@ export class AppComponent implements OnInit {
   private requestPublishRulesTxtToSolr(targetPlatform: string) {
 
     if (this.currentSolrIndexId !== null) {
+      this.deploymentRunningForStage = targetPlatform;
       this.searchManagementService
         .updateRulesTxtForSolrIndex(this.currentSolrIndexId, targetPlatform)
         .then(retApiResult => {
+          this.deploymentRunningForStage = null;
           this.showSuccessMsg( retApiResult.message );
         })
-        .catch(error => this.handleError(error));
+        .catch(error => {
+          this.deploymentRunningForStage = null;
+          this.showLongErrorMessage(error.json().message)
+        });
     } // TODO handle else-case, if no currentSolrIndexId selected
+  }
+
+  public publishToPreliveButtonText(): string {
+    if (this.deploymentRunningForStage === 'PRELIVE') {
+      return 'Pushing to Solr...';
+    } else {
+      return 'Push Config to Solr';
+    }
+  }
+
+  public publishToLiveButtonText(): string {
+    if (this.deploymentRunningForStage === 'LIVE') {
+      return 'Publishing to LIVE...';
+    } else {
+      return 'Publish to LIVE';
+    }
+  }
+
+  private showLongErrorMessage(errorMessage: string) {
+    this.errorMessageModalText = errorMessage;
+    $('#errorMessageModal').modal('show');
   }
 
   public publishSolrConfig() {

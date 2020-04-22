@@ -96,10 +96,10 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     }
   }
 
-  def executeDeploymentScript(rulesTxts: RulesTxtsForSolrIndex, targetSystem: String): Int = {
+  def executeDeploymentScript(rulesTxts: RulesTxtsForSolrIndex, targetSystem: String): DeploymentScriptResult = {
 
     // interface to smui2solr.sh
-    def interfaceDeploymentScript(scriptPath: String, srcTmpFile: String, dstCpFileTo: String, solrHost: String, solrCoreName: String, decompoundDstCpFileTo: String, targetSystem: String): Int = {
+    def interfaceDeploymentScript(scriptPath: String, srcTmpFile: String, dstCpFileTo: String, solrHost: String, solrCoreName: String, decompoundDstCpFileTo: String, targetSystem: String): DeploymentScriptResult = {
       // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
       logger.info(
         s""":: executeDeploymentScript config
@@ -111,6 +111,9 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
            |:: decompoundDstCpFileTo = $decompoundDstCpFileTo
            |:: targetSystem = $targetSystem
       """.stripMargin)
+
+      val output = new StringBuilder()
+      val processLogger = ProcessLogger(line => output.append(line + "\n"))
       // define call and add parameters to the script (in expected order, see smui2solr.sh)
       val scriptCall =
         scriptPath + " " +
@@ -127,7 +130,8 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
         // TARGET_SYSTEM=$6
         targetSystem
       // call
-      return scriptCall.!
+      val exitCode = scriptCall.!(processLogger)
+      DeploymentScriptResult(exitCode, output.toString())
     }
 
     // determine script
@@ -171,7 +175,11 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
       decompoundDstCpFileTo,
       targetSystem
     )
-    logger.info(":: executeDeploymentScript :: Script execution result: " + result)
+    if (result.success) {
+      logger.info(s"Rules.txt deployment successful:\n${result.output}")
+    } else {
+      logger.warn(s"Rules.txt deployment failed with exit code ${result.exitCode}:\n${result.output}")
+    }
     result
   }
 

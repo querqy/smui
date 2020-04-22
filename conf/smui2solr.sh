@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 SRC_TMP_FILE=$1
 DST_CP_FILE_TO=$2
 SOLR_HOST=$3
