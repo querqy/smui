@@ -18,6 +18,14 @@ li.list-group-item.active > .text-muted {
 	overflow-y: scroll;
 }
 
+.smui-number-of-results {
+	font-size: 14px;
+	margin-top: 10px;
+	margin-bottom: 3px;
+	margin-left: 5px;
+	color: #777;
+}
+
 .smui-tags-container {
 	margin-left: 5px;
 }

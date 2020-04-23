@@ -44,11 +44,11 @@ trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
     val deleteRules = List(DeleteRule(DeleteRuleId(), "freddy", isActive = true))
     val filterRules = List(FilterRule(FilterRuleId(), "zz top", isActive = true))
 
-    val id = repo.addNewSearchInput(core1Id, "aerosmith")
+    val id = repo.addNewSearchInput(core1Id, "aerosmith", Seq.empty)
     val searchInput = SearchInputWithRules(id, "aerosmith", synonymRules, upDownRules, filterRules)
     repo.updateSearchInput(searchInput)
 
-    val shippingId = repo.addNewSearchInput(core1Id, "shipping")
+    val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq.empty)
     val redirectRule = RedirectRule(RedirectRuleId(), "http://xyz.com/shipping", isActive = true)
     val searchInputForRedirect = SearchInputWithRules(shippingId, "shipping", redirectRules = List(redirectRule))
     repo.updateSearchInput(searchInputForRedirect)

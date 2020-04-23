@@ -70,8 +70,12 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   /**
     * Adds new Search Input (term) to the database table. This method only focuses the term, and does not care about any synonyms.
     */
-  def addNewSearchInput(solrIndexId: SolrIndexId, searchInputTerm: String): SearchInputId = db.withConnection { implicit connection =>
-    SearchInput.insert(solrIndexId, searchInputTerm).id
+  def addNewSearchInput(solrIndexId: SolrIndexId, searchInputTerm: String, tags: Seq[InputTagId]): SearchInputId = db.withConnection { implicit connection =>
+    val id = SearchInput.insert(solrIndexId, searchInputTerm).id
+    if (tags.nonEmpty) {
+      TagInputAssociation.updateTagsForSearchInput(id, tags)
+    }
+    id
   }
 
   def getDetailedSearchInput(searchInputId: SearchInputId): Option[SearchInputWithRules] = db.withConnection { implicit connection =>

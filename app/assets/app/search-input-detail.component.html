@@ -83,6 +83,11 @@
 
   <div class="card-body smui-no-bottom-padding">
 
+    <div class="alert alert-danger" role="alert" *ngIf="saveError">
+      <p><b>The search input could not be saved. Please fix the following errors:</b></p>
+      <p style="white-space: pre;">{{ saveError }}</p>
+    </div>
+
     <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.synonymRules.length > 0)">
       <table style="width:100%">
         <tr *ngFor="let synonymRule of detailSearchInput.synonymRules; let idxSynonymRules = index"

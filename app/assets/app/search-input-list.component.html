@@ -7,6 +7,20 @@
              placeholder="Search or Create Search Input ..."
              [(ngModel)]="searchInputTerm"
              (keyup.enter)="addNewSearchInput()">
+      <span class="input-group-btn" *ngIf="isTaggingActive() && allTags.length > 0">
+        <button id="filterTagsDropdown"
+                type="button"
+                class="btn btn-outline-primary dropdown-toggle"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false">
+          {{ tagFilter == null ? "All Tags" : tagFilter.displayValue }}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="filterTagsDropdown">
+          <span class="dropdown-item" (click)="filterByTag(null)">All Tags</span>
+          <span *ngFor="let tag of allTags" class="dropdown-item" (click)="filterByTag(tag)">{{tag.displayValue}}</span>
+        </div>
+      </span>
       <span class="input-group-btn">
         <button class="btn btn-success"
                 type="button"
@@ -18,26 +32,31 @@
   </div>
 </div>
 
-<ul class="list-group smui-search-input-list">
+<div *ngIf="getFilteredSearchInputs(); let filteredSearchInputs">
+  
+  <div class="smui-number-of-results">
+    {{filteredSearchInputs.length}} <span *ngIf="filteredSearchInputs.length !== searchInputs.length">of {{searchInputs.length}}</span> search inputs
+  </div>
+  <ul class="list-group smui-search-input-list" >
+    <li *ngFor="let searchInput of filteredSearchInputs; let idxSearchInputs = index" (click)="selectSearchInputWidthId(searchInput.id)"
+        [ngClass]="{'active': selectedSearchInputId === searchInput.id, 'list-group-item': true, 'smui-list-group-item': true}" >
+      <span>{{ searchInput.term }}</span>
 
-  <li *ngFor="let searchInput of getTypeaheadFilteredSearchInputs(); let idxSearchInputs = index" (click)="selectSearchInputWidthId(searchInput.id)"
-      [ngClass]="{'active': selectedSearchInputId === searchInput.id, 'list-group-item': true, 'smui-list-group-item': true}" >
-    <span>{{ searchInput.term }}</span>
+      <ng-container *ngFor="let searchInputSynonym of searchInput.synonymRules">
+        <!-- TODO evaluate whether to show or hide undirected synonyms, that are not active -->
+        <small class="text-muted smui-input-list-divide-synonym" *ngIf="searchInputSynonym.synonymType == 0">
+          {{ searchInputSynonym.term }}
+        </small>
+      </ng-container>
 
-    <ng-container *ngFor="let searchInputSynonym of searchInput.synonymRules">
-      <!-- TODO evaluate whether to show or hide undirected synonyms, that are not active -->
-      <small class="text-muted smui-input-list-divide-synonym" *ngIf="searchInputSynonym.synonymType == 0">
-        {{ searchInputSynonym.term }}
-      </small>
-    </ng-container>
-
-    <span class="smui-tags-container">
-      <span *ngFor="let tag of searchInput.tags" class="badge badge-pill badge-info smui-tag">
-        {{ tag.displayValue }}
+      <span class="smui-tags-container">
+        <span *ngFor="let tag of searchInput.tags" class="badge badge-pill badge-info smui-tag">
+          {{ tag.displayValue }}
+        </span>
       </span>
-    </span>
 
-    <button type="button" class="btn btn-danger btn-sm float-right" (click)="deleteSearchInputWithId(searchInput.id); $event.stopPropagation();">-</button>
-  </li>
+      <button type="button" class="btn btn-danger btn-sm float-right" (click)="deleteSearchInputWithId(searchInput.id); $event.stopPropagation();">-</button>
+    </li>
 
-</ul>
+  </ul>
+</div>

@@ -87,7 +87,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       // Expecting json body
       jsonBody.map { json =>
         val searchInputTerm = (json \ "term").as[String]
-        val searchInputId = searchManagementRepository.addNewSearchInput(SolrIndexId(solrIndexId), searchInputTerm)
+        val tags = (json \ "tags").as[Seq[String]].map(InputTagId(_))
+        val searchInputId = searchManagementRepository.addNewSearchInput(SolrIndexId(solrIndexId), searchInputTerm, tags)
 
         Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", Some(searchInputId))))
       }.getOrElse {
@@ -106,15 +107,14 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
       querqyRulesTxtGenerator.validateSearchInputToErrMsg(searchInput) match {
         case Some(strErrMsg: String) =>
-          // TODO transport validation result via API and communicate it to the user. Evaluate not saving the searchInput in this case.
           logger.error("updateSearchInput failed on validation of searchInput with id " + searchInputId + " - validation returned the following error output: <<<" + strErrMsg + ">>>")
+          BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, strErrMsg, None)))
         case None =>
+          // TODO handle potential conflict between searchInputId and JSON-passed searchInput.id
+          searchManagementRepository.updateSearchInput(searchInput)
+          // TODO consider Update returning the updated SearchInput(...) instead of an ApiResult(...)
+          Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(SearchInputId(searchInputId)))))
       }
-
-      // TODO handle potential conflict between searchInputId and JSON-passed searchInput.id
-      searchManagementRepository.updateSearchInput(searchInput)
-      // TODO consider Update returning the updated SearchInput(...) instead of an ApiResult(...)
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(SearchInputId(searchInputId)))))
     }.getOrElse {
       BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
     }
