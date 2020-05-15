@@ -1,5 +1,5 @@
 
-IMAGE = pbartusch/smui
+IMAGE = querqy/smui
 VERSION = $(shell grep -E '^version' build.sbt | cut -d'"' -f2)
 SCALA_VERSION = $(shell grep -E '^scalaVersion' build.sbt | cut -d'"' -f2 | cut -d. -f1-2)
 
