@@ -1,4 +1,4 @@
-[![Travis CI build status](https://travis-ci.org/pbartusch/smui.svg?branch=master)](https://travis-ci.org/pbartusch/smui)
+[![SMUI Build Status (on Travis CI)](https://travis-ci.org/querqy/smui.svg?branch=master)](https://travis-ci.org/querqy/smui)
 
 # Search Management UI (SMUI)
 
@@ -7,6 +7,11 @@
 SMUI is a tool for managing Solr-based onsite search. It provides a web user interface for maintaining rules for query rewriting based on the Querqy Solr plugin for query rewriting. Please see [querqy](https://github.com/renekrie/querqy) for the installation of Querqy.
 
 ## RELEASE NOTES
+
+### Major changes in v3.6
+
+* Search manager now have the possibility to deactivate (instead of deleting) a whole set of search rules, that belong to a specific input.
+* SMUI provides the possibility to comment on changes to search rules for a specific input.
 
 ### Major changes in v3.5
 

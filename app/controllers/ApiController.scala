@@ -5,15 +5,16 @@ import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
 import akka.stream.scaladsl.{Source, StreamConverters}
 import akka.util.ByteString
 import javax.inject.Inject
-import controllers.auth.AuthActionFactory
-import models._
 import play.api.Logging
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.json.Reads._
 import java.nio.file.Paths
+import java.time.format.DateTimeFormatter
 
 import scala.concurrent.{ExecutionContext, Future}
+import controllers.auth.AuthActionFactory
+import models._
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
 class ApiController @Inject()(searchManagementRepository: SearchManagementRepository,
@@ -200,7 +201,6 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  //def importFromRulesTxt(solrIndexId: String) = Action(parse.multipartFormData) { request =>
   // TODO consider making method .asynch
   def importFromRulesTxt(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action)(parse.multipartFormData) { request =>
     request.body
@@ -228,6 +228,27 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       .getOrElse {
         Ok(Json.toJson(ApiResult(API_RESULT_FAIL, "File rules_txt missing in request body.", None)))
       }
+  }
+
+  case class LogDeploymentInfo(msg: String)
+  implicit val logDeploymentInfoWrites = Json.writes[LogDeploymentInfo]
+
+  def getLatestDeploymentResult(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+    Future {
+      logger.debug("In ApiController :: updateRulesTxtForSolrIndex")
+      logger.debug(s"... solrIndexId = $solrIndexId")
+      logger.debug(s"... targetSystem = $targetSystem")
+
+      val msg = searchManagementRepository.lastDeploymentLogDetail(solrIndexId, targetSystem) match {
+        case Some(deploymentLogDetail) => {
+          val formatLastUpdate = deploymentLogDetail.lastUpdate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+          s"Last publish on $targetSystem ${formatLastUpdate} OK"
+        }
+        case None => s"No deployment event for $targetSystem"
+      }
+      val logDeploymentInfo = new LogDeploymentInfo(msg)
+      Ok(Json.toJson(logDeploymentInfo))
+    }
   }
 
 }

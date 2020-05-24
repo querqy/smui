@@ -170,6 +170,16 @@ export class SearchManagementService {
       .catch(this.handleError);
   }
 
+  lastDeploymentLogInfo(solrIndexId: string, targetSystem): Promise<smm.DeploymentLogInfo> {
+    return this.http
+      .get(SEARCH_MANAGEMENT_API_BASE_URL + '/log/deployment-info?solrIndexId=' + solrIndexId + '&targetSystem=' + targetSystem)
+      .toPromise()
+      .then(res => {
+        return res.json() as smm.SuggestedSolrField;
+      })
+      .catch(this.handleError);
+  }
+
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error);
     return Promise.reject(error.message || error);

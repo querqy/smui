@@ -46,6 +46,9 @@ export class AppComponent implements OnInit {
   public errorMessageModalText = '';
   public deploymentRunningForStage = null;
 
+  public hideDeploymentLogInfo = true;
+  public deploymentLogInfo = 'Loading info ...';
+
   get self(): AppComponent {
     return this;
   }
@@ -220,6 +223,22 @@ export class AppComponent implements OnInit {
 
     // TODO redirect in a more "Angular-way" to target URL
     window.location.href = this.featureToggleService.getSimpleLogoutButtonTargetUrl();
+  }
+
+  public loadAndShowDeploymentLogInfo(targetPlatform: string) {
+    console.log('In AppComponent :: loadAndShowDeploymentLog');
+
+    this.hideDeploymentLogInfo = false;
+    this.deploymentLogInfo = 'Loading info for ' + targetPlatform + ' ...';
+
+    this.searchManagementService
+      .lastDeploymentLogInfo(this.currentSolrIndexId, targetPlatform)
+      .then(retApiResult => {
+        this.deploymentLogInfo = retApiResult.msg;
+      })
+      .catch(error => {
+        this.showLongErrorMessage(error.json().message)
+      });
   }
 
 }

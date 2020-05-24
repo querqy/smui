@@ -71,9 +71,15 @@ export class SearchInput {
   deleteRules: Array<DeleteRule>;
   redirectRules: Array<RedirectRule>;
   tags: Array<InputTag>;
+  isActive: boolean;
+  comment: string;
 }
 
 export class SuggestedSolrField {
   id: string;
   name: string;
+}
+
+export class DeploymentLogInfo {
+  msg: string;
 }

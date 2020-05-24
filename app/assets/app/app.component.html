@@ -18,19 +18,40 @@
                     </button>
                 </li>
             </ul>
-            
+
+            <span *ngIf="!hideDeploymentLogInfo"
+                  style="font-size:x-small;margin-right:10px;width:8.5rem;">
+                {{ deploymentLogInfo }}
+            </span>
             <select class="selectpicker custom-select" #solrIndexSelect (change)="selectSolrIndex(solrIndexSelect.value)" [(ngModel)]="solrIndexSelectOptionModel">
                 <option *ngFor="let solrIndex of listSolrIndeces" [value]="solrIndex.id">
                     {{solrIndex.description}}
                 </option>
             </select>
             <div class="btn-group">
-                <button type="button" class="btn btn-outline-primary" (click)="publishSolrConfig()" [attr.disabled]="deploymentRunningForStage == 'PRELIVE' ? '' : null">{{publishToPreliveButtonText()}}</button>
-                <button *ngIf="featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()" type="button" 
-                    class="btn btn-outline-danger" (click)="publishToLIVE()" 
-                    [attr.disabled]="deploymentRunningForStage == 'LIVE' ? '' : null">{{publishToLiveButtonText()}}</button>
-                <button *ngIf="featureToggleService.getSimpleLogoutButtonTargetUrl().trim().length > 0" type="button" 
-                    class="btn btn-outline-secondary" (click)="callSimpleLogoutUrl()">Logout</button>
+                <button type="button"
+                        class="btn btn-outline-primary"
+                        (click)="publishSolrConfig()"
+                        (mouseenter)="loadAndShowDeploymentLogInfo('PRELIVE')"
+                        (mouseleave)="hideDeploymentLogInfo = true"
+                        [attr.disabled]="deploymentRunningForStage == 'PRELIVE' ? '' : null">
+                    {{publishToPreliveButtonText()}}
+                </button>
+                <button *ngIf="featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()"
+                        type="button"
+                        class="btn btn-outline-danger"
+                        (click)="publishToLIVE()"
+                        (mouseenter)="loadAndShowDeploymentLogInfo('LIVE')"
+                        (mouseleave)="hideDeploymentLogInfo = true"
+                        [attr.disabled]="deploymentRunningForStage == 'LIVE' ? '' : null">
+                    {{publishToLiveButtonText()}}
+                </button>
+                <button *ngIf="featureToggleService.getSimpleLogoutButtonTargetUrl().trim().length > 0"
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        (click)="callSimpleLogoutUrl()">
+                    Logout
+                </button>
             </div>
 
         </div>

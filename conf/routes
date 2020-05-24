@@ -21,6 +21,7 @@ GET     /api/v1/:solrIndexId/suggested-solr-field        controllers.ApiControll
 PUT     /api/v1/:solrIndexId/suggested-solr-field        controllers.ApiController.addNewSuggestedSolrField(solrIndexId: String)
 GET     /api/v1/allRulesTxtFiles                         controllers.ApiController.downloadAllRulesTxtFiles
 POST    /api/v1/:solrIndexId/import-from-rules-txt       controllers.ApiController.importFromRulesTxt(solrIndexId: String)
+GET     /api/v1/log/deployment-info                      controllers.ApiController.getLatestDeploymentResult(solrIndexId: String, targetSystem: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file   controllers.Assets.versioned(path="/public", file: Asset)
