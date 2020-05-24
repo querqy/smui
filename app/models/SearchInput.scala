@@ -12,17 +12,22 @@ object SearchInputId extends IdObject[SearchInputId](new SearchInputId(_))
 case class SearchInput(id: SearchInputId = SearchInputId(),
                        solrIndexId: SolrIndexId,
                        term: String,
-                       lastUpdate: LocalDateTime) {
+                       lastUpdate: LocalDateTime,
+                       isActive: Boolean,
+                       comment: String) {
 
   import SearchInput._
+
+  def status: Int = statusFromIsActive(isActive)
 
   def toNamedParameters: Seq[NamedParameter] = Seq(
     ID -> id,
     SOLR_INDEX_ID -> solrIndexId,
     TERM -> term,
-    LAST_UPDATE -> lastUpdate
+    LAST_UPDATE -> lastUpdate,
+    STATUS -> status,
+    COMMENT -> comment
   )
-
 
 }
 
@@ -33,19 +38,31 @@ object SearchInput {
   val TERM = "term"
   val SOLR_INDEX_ID = "solr_index_id"
   val LAST_UPDATE = "last_update"
+  val STATUS = "status"
+  val COMMENT = "comment"
+
+  def isActiveFromStatus(status: Int): Boolean = {
+    (status & 0x01) == 0x01
+  }
+
+  def statusFromIsActive(isActive: Boolean) = {
+    if (isActive) 0x01 else 0x00
+  }
 
   val sqlParser: RowParser[SearchInput] = {
     get[SearchInputId](s"$TABLE_NAME.$ID") ~
       get[String](s"$TABLE_NAME.$TERM") ~
       get[SolrIndexId](s"$TABLE_NAME.$SOLR_INDEX_ID") ~
-      get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") map { case id ~ term ~ indexId ~ lastUpdate =>
-        SearchInput(id, indexId, term, lastUpdate)
+      get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") ~
+      get[Int](s"$TABLE_NAME.$STATUS") ~
+      get[String](s"$TABLE_NAME.$COMMENT") map { case id ~ term ~ indexId ~ lastUpdate ~ status ~ comment =>
+        SearchInput(id, indexId, term, lastUpdate, isActiveFromStatus(status), comment)
     }
   }
 
   def insert(solrIndexId: SolrIndexId, term: String)(implicit connection: Connection): SearchInput = {
-    val input = SearchInput(SearchInputId(), solrIndexId, term, LocalDateTime.now())
-    SQL(s"insert into $TABLE_NAME ($ID, $TERM, $SOLR_INDEX_ID, $LAST_UPDATE) values ({$ID}, {$TERM}, {$SOLR_INDEX_ID}, {$LAST_UPDATE})")
+    val input = SearchInput(SearchInputId(), solrIndexId, term, LocalDateTime.now(), true, "")
+    SQL(s"insert into $TABLE_NAME ($ID, $TERM, $SOLR_INDEX_ID, $LAST_UPDATE, $STATUS, $COMMENT) values ({$ID}, {$TERM}, {$SOLR_INDEX_ID}, {$LAST_UPDATE}, {$STATUS}, {$COMMENT})")
       .on(input.toNamedParameters: _*).execute()
     input
   }
@@ -62,8 +79,8 @@ object SearchInput {
     SQL"select * from #$TABLE_NAME where #$ID = $id".as(sqlParser.*).headOption
   }
 
-  def update(id: SearchInputId, term: String)(implicit connection: Connection): Unit = {
-    SQL"update #$TABLE_NAME set #$TERM = $term, #$LAST_UPDATE = ${LocalDateTime.now()} where #$ID = $id".executeUpdate()
+  def update(id: SearchInputId, term: String, isActive: Boolean, comment: String)(implicit connection: Connection): Unit = {
+    SQL"update #$TABLE_NAME set #$TERM = $term, #$LAST_UPDATE = ${LocalDateTime.now()}, #$STATUS = ${statusFromIsActive(isActive)}, #$COMMENT = $comment where #$ID = $id".executeUpdate()
   }
 
   /**
@@ -73,6 +90,5 @@ object SearchInput {
   def delete(id: SearchInputId)(implicit connection: Connection): Int = {
     SQL"delete from #$TABLE_NAME where #$ID = $id".executeUpdate()
   }
-
 
 }

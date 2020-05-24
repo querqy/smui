@@ -404,4 +404,50 @@ export class SearchInputDetailComponent implements OnInit {
         }
       });
   }
+
+  // TODO logic almost 100% copy of app/search-input-list.component.ts :: deleteSearchInputWithId - refactor
+  public deleteSearchInputWithId(searchInputId: number) {
+    console.log('In SearchInputListComponent :: deleteSearchInput :: searchInputId = ' + searchInputId);
+
+    // TODO maybe before even starting the deletion process, check if details are dirty and ask to cancel editing eventually
+
+    // ask for delete confirmation
+    this.parentComponent.openModalConfirm(
+      'Confirm deletion of Search Input',
+      'Are you sure deleting the Search Input?',
+      'Yes', 'No');
+    const _this2 = this;
+    function executeDeleteSearchInput() {
+      // if user accepts deletion, proceed deleting the entry
+      _this2.searchManagementService
+        .deleteSearchInput(searchInputId)
+        .then(retApiResult => {
+
+          // Reload list and potentially re-handle selected SearchInput
+          _this2.searchManagementService
+            .listAllSearchInputsInclSynonyms(_this2.currentSolrIndexId)
+            .then(retSearchInputs => {
+              _this2.listComponent.updateSearchInputs(retSearchInputs);
+
+              /*
+              TODO reselect selected index, if deleted entry was the selected one
+              TODO reselect selected index, if deleted entry was the first one
+              */
+
+              _this2.listComponent.reloadSearchInputListAfterDetailUpdate();
+              _this2.showDetailsForSearchInputWithId(null);
+            })
+            .catch(error => _this2.handleError(error));
+        })
+        .catch(error => _this2.handleError(error));
+    }
+    this.parentComponent.modalConfirmDeferred.promise
+      .then(isOk => {
+//        console.log('In SearchInputListComponent :: deleteSearchInput' +
+//          ' :: then :: isOk = ' + isOk + ' -- this = ' + this);
+        if (isOk) {
+          executeDeleteSearchInput();
+        }});
+  }
+
 }

@@ -163,7 +163,7 @@ export class SearchInputListComponent implements OnInit {
       .catch(error => this.handleError(error));
   }
 
-  private updateSearchInputs(searchInputs: smm.SearchInput[]) {
+  public updateSearchInputs(searchInputs: smm.SearchInput[]) {
     this.searchInputs = searchInputs;
     const tags = new Map<string, smm.InputTag>();
     for (const i of searchInputs) {

@@ -32,7 +32,9 @@ abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData 
         List(FilterRule(FilterRuleId(), "filterTerm", isActive = true)),
         List(DeleteRule(DeleteRuleId(), "deleteTerm", isActive = true)),
         List(RedirectRule(RedirectRuleId(), "/testTarget", isActive = true)),
-        List(tag)
+        List(tag),
+        true,
+        "Some search input comment."
       )
       SearchInputWithRules.update(inputWithRules)
       SearchInputWithRules.loadById(input.id) shouldBe Some(inputWithRules)

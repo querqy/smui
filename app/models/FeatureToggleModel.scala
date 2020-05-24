@@ -37,6 +37,7 @@ package object FeatureToggleModel {
     private val ACTIVATE_RULE_TAGGING = "toggle.rule-tagging"
     private val PREDEFINED_TAGS_FILE = "toggle.predefined-tags-file"
     private val SMUI_AUTH_SIMPLE_LOGOUT = "smui.auth.ui-concept.simple-logout-button-target-url"
+    private val SMUI_VERSION = "smui.version"
 
     def getJsFrontendToogleList: List[JsFeatureToggle] = {
       def jsBoolFeatureToggle(toggleKey: String, bDefault: Boolean): JsFeatureToggle = {
@@ -53,7 +54,8 @@ package object FeatureToggleModel {
         JsFeatureToggle(FEATURE_TOGGLE_HEADLINE, new JsStringFeatureToggleValue(
           appConfig.getOptional[String](FEATURE_TOGGLE_HEADLINE).getOrElse("Search Management UI"))),
         JsFeatureToggle(SMUI_AUTH_SIMPLE_LOGOUT, new JsStringFeatureToggleValue(
-          appConfig.getOptional[String](SMUI_AUTH_SIMPLE_LOGOUT).getOrElse("")))
+          appConfig.getOptional[String](SMUI_AUTH_SIMPLE_LOGOUT).getOrElse(""))),
+        JsFeatureToggle(SMUI_VERSION, new JsStringFeatureToggleValue(models.buildInfo.BuildInfo.version))
       )
     }
 

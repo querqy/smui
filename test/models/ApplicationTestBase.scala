@@ -45,12 +45,12 @@ trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
     val filterRules = List(FilterRule(FilterRuleId(), "zz top", isActive = true))
 
     val id = repo.addNewSearchInput(core1Id, "aerosmith", Seq.empty)
-    val searchInput = SearchInputWithRules(id, "aerosmith", synonymRules, upDownRules, filterRules)
+    val searchInput = SearchInputWithRules(id, "aerosmith", synonymRules, upDownRules, filterRules, isActive = true, comment = "")
     repo.updateSearchInput(searchInput)
 
     val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq.empty)
     val redirectRule = RedirectRule(RedirectRuleId(), "http://xyz.com/shipping", isActive = true)
-    val searchInputForRedirect = SearchInputWithRules(shippingId, "shipping", redirectRules = List(redirectRule))
+    val searchInputForRedirect = SearchInputWithRules(shippingId, "shipping", redirectRules = List(redirectRule), isActive = true, comment = "")
     repo.updateSearchInput(searchInputForRedirect)
 
     Seq(id, shippingId)

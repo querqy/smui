@@ -20,7 +20,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
       UpDownRule(UpDownRuleId(), 1, 10, "battery", true)
     )
     val rulesTxt = generator.renderSearchInputRulesForTerm("laptop",
-      SearchInputWithRules(SearchInputId(), term = "laptop", upDownRules = upDownRules))
+      SearchInputWithRules(SearchInputId(), term = "laptop", upDownRules = upDownRules, isActive = true, comment = ""))
 
     rulesTxt should be(
       s"""|laptop =>
@@ -34,7 +34,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
     val deleteRules = List (DeleteRule(DeleteRuleId(), "freddy", true))
 
     val rulesTxt  = generator.renderSearchInputRulesForTerm("queen",
-      SearchInputWithRules(SearchInputId(), term = "queen", deleteRules = deleteRules))
+      SearchInputWithRules(SearchInputId(), term = "queen", deleteRules = deleteRules, isActive = true, comment = ""))
     rulesTxt should be(
       s"""|queen =>
           |\tDELETE: freddy
@@ -45,7 +45,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
     val synonymRules = List (SynonymRule(SynonymRuleId(), 0, "mercury", true))
 
     val rulesTxt  = generator.renderSearchInputRulesForTerm("queen",
-      SearchInputWithRules(SearchInputId(), term = "queen", synonymRules = synonymRules))
+      SearchInputWithRules(SearchInputId(), term = "queen", synonymRules = synonymRules, isActive = true, comment = ""))
     rulesTxt should be(
       s"""|queen =>
           |\tSYNONYM: mercury
@@ -57,7 +57,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
     val filterRules = List (FilterRule(FilterRuleId(), "zz top", true))
 
     val rulesTxt  = generator.renderSearchInputRulesForTerm("abba",
-      SearchInputWithRules(SearchInputId(), term = "abba", filterRules = filterRules))
+      SearchInputWithRules(SearchInputId(), term = "abba", filterRules = filterRules, isActive = true, comment = ""))
     rulesTxt should be(
       s"""|abba =>
           |\tFILTER: zz top
@@ -75,7 +75,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
     val filterRules = List (FilterRule(FilterRuleId(), "zz top", true))
     val rulesTxt  = generator.renderSearchInputRulesForTerm("aerosmith",
       SearchInputWithRules(SearchInputId(), term = "aerosmith", filterRules = filterRules,
-        synonymRules = synonymRules, deleteRules = deleteRules, upDownRules = upDownRules))
+        synonymRules = synonymRules, deleteRules = deleteRules, upDownRules = upDownRules, isActive = true, comment = ""))
 
     rulesTxt should be(
       s"""|aerosmith =>
@@ -97,7 +97,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
     val classUnderTest = new QuerqyRulesTxtGenerator(searchManagementRepository, featureToggleMock)
     val rulesTxt  = classUnderTest.renderSearchInputRulesForTerm("queen",
-      SearchInputWithRules(SearchInputId("rule-id"), "queen", synonymRules = synonymRules))
+      SearchInputWithRules(SearchInputId("rule-id"), "queen", synonymRules = synonymRules, isActive = true, comment = ""))
     rulesTxt should be(
       s"""|queen =>
           |\tSYNONYM: mercury
@@ -120,7 +120,9 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
         InputTag.create(None, Some("color"), "red", exported = true),
         InputTag.create(None, None, "dummy", exported = true), // should not be exported, since no property is set
         InputTag.create(None, Some("notExported"), "value", exported = false)
-      ))
+      ),
+      isActive = true,
+      comment = "")
 
     val classUnderTest = new QuerqyRulesTxtGenerator(searchManagementRepository, featureToggleMock)
     val rulesTxt  = classUnderTest.renderSearchInputRulesForTerm("queen", input)
@@ -134,6 +136,42 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
           |\t}@
           |""".stripMargin)
 
+  }
+
+  "Rules Text Generation" should "ignore inactive inputs completely" in {
+
+    val listSearchInput = List(
+      SearchInputWithRules(id = SearchInputId("1"), term = "notebook",
+        synonymRules = List(SynonymRule(SynonymRuleId(), 1, "laptop", true)),
+        isActive = true, comment = ""),
+      SearchInputWithRules(id = SearchInputId("2"), term = "battery",
+        synonymRules = List(SynonymRule(SynonymRuleId(), 1, "power supply", true)),
+        isActive = true, comment = ""),
+      SearchInputWithRules(id = SearchInputId("3"), term = "wolf",
+        synonymRules = List(SynonymRule(SynonymRuleId(), 0, "dog", true)),
+        isActive = false, comment = ""),
+      SearchInputWithRules(id = SearchInputId("4"), term = "cable",
+        synonymRules = List(SynonymRule(SynonymRuleId(), 0, "wire", true)),
+        isActive = true, comment = "")
+    )
+
+    val rulesTxt = generator.renderListSearchInputRules(listSearchInput)
+
+    rulesTxt should be(
+      s"""|notebook =>
+          |\tSYNONYM: laptop
+          |
+          |battery =>
+          |\tSYNONYM: power supply
+          |
+          |cable =>
+          |\tSYNONYM: wire
+          |
+          |wire =>
+          |\tSYNONYM: cable
+          |
+          |""".stripMargin
+    )
   }
 
   // TODO outsource whole rules.txt file to an external test ressource

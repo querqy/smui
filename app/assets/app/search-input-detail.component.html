@@ -4,12 +4,22 @@
       <div class="col">
         <div class="form-group smui-no-bottom-margin">
           <table style="width:100%">
-            <tr>
+            <tr [class.smui-disabled-rule-line]="((detailSearchInput !== null) && (!detailSearchInput.isActive))">
               <td style="width:20%">
+                <!-- TODO ng-container wrapping could be solved more elegant, maybe as a separate "empty detailSearchInput view"? -->
+                <ng-container *ngIf="detailSearchInput !== null">
+                  <input type="checkbox"
+                         class="form-check-input smui-realign-check-input"
+                         [(ngModel)]="detailSearchInput.isActive">
+                </ng-container>
+                <ng-container *ngIf="detailSearchInput === null">
+                  <input type="checkbox"
+                         class="form-check-input smui-realign-check-input"
+                         disabled="disabled">
+                </ng-container>
                 <small style="text-transform: uppercase">Input Term:</small>
               </td>
-              <td [style.width]="showTags ? '30%' : '55%'">
-                <!-- TODO Could be solved more elegant while having a conditional expression within <input>, that respects detailSearchInput might be null -->
+              <td [style.width]="showTags ? '30%' : '60%'">
                 <ng-container *ngIf="detailSearchInput !== null">
                   <input type="text"
                          class="form-control"
@@ -26,15 +36,18 @@
                          disabled="disabled">
                 </ng-container>
               </td>
-              <td [style.display]="showTags ? 'table-cell': 'none'" style="width:25%" class="smui-tags-container">
+              <td [style.display]="showTags ? 'table-cell': 'none'" style="width:30%" class="smui-tags-container">
                   <select class="inputTags" multiple>
                     <option *ngFor="let tag of availableTags"
                       [value]="tag.id">{{tag.displayValue}}</option>
                   </select>
               </td>
-              <td style="width:25%">
-                <button type="button" class="btn btn-outline-secondary col" data-toggle="modal" data-target="#detailHelpModal">
-                  Help
+              <td style="width:20%">
+                <button type="button"
+                        class="btn btn-danger col"
+                        (click)="deleteSearchInputWithId(detailSearchInput.id)"
+                        [attr.disabled]="detailSearchInput === null ? true : null">
+                  <i class="fa fa-minus" aria-hidden="true"></i> Permanently delete
                 </button>
               </td>
           </table>
@@ -57,7 +70,7 @@
                 aria-haspopup="true"
                 aria-expanded="false"
                 [attr.disabled]="(detailSearchInput === null) ? '' : null">
-          + Add New Search Rule for Input
+          <i class="fa fa-plus" aria-hidden="true"></i> Add new search rule for input
         </button>
         <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
           <span class="dropdown-item" (click)="addNewSynonymRule()">Synonym Rule (directed or undirected)</span>
@@ -73,7 +86,7 @@
                 class="btn btn-primary btn-block"
                 (click)="saveSearchInputDetails()"
                 [attr.disabled]="(detailSearchInput === null) ? '' : null">
-          Save Search Rules for Input
+          <i class="fa fa-floppy-o" aria-hidden="true"></i> Save search rules for input
         </button>
       </div>
     </div>
@@ -91,7 +104,7 @@
     <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.synonymRules.length > 0)">
       <table style="width:100%">
         <tr *ngFor="let synonymRule of detailSearchInput.synonymRules; let idxSynonymRules = index"
-            [class.smui-disabled-rule-line]="synonymRule.isActive ? null : true">
+            [class.smui-disabled-rule-line]="(!synonymRule.isActive) || (!detailSearchInput.isActive)">
           <!--
           TODO evaluate the use of this nicer Bootstrap toggle button instead of `input type="checkbox"` ...
 
@@ -136,7 +149,7 @@
     <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.upDownRules.length > 0)">
       <table style="width:100%">
         <tr *ngFor="let upDownRule of detailSearchInput.upDownRules; let idxUpDownRules = index"
-            [class.smui-disabled-rule-line]="upDownRule.isActive ? null : true">
+            [class.smui-disabled-rule-line]="(!upDownRule.isActive) || (!detailSearchInput.isActive)">
           <td style="width:20%">
             <input type="checkbox"
                    class="form-check-input smui-realign-check-input"
@@ -192,7 +205,7 @@
     <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.filterRules.length > 0)">
       <table style="width:100%">
         <tr *ngFor="let filterRule of detailSearchInput.filterRules; let idxFilterRules = index"
-            [class.smui-disabled-rule-line]="filterRule.isActive ? null : true">
+            [class.smui-disabled-rule-line]="(!filterRule.isActive) || (!detailSearchInput.isActive)">
           <td style="width:20%">
             <input type="checkbox"
                    class="form-check-input smui-realign-check-input"
@@ -226,7 +239,7 @@
     <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.deleteRules.length > 0)">
       <table style="width:100%">
         <tr *ngFor="let deleteRule of detailSearchInput.deleteRules; let idxDeleteRules = index"
-            [class.smui-disabled-rule-line]="deleteRule.isActive ? null : true">
+            [class.smui-disabled-rule-line]="(!deleteRule.isActive) || (!detailSearchInput.isActive)">
           <td style="width:20%">
             <input type="checkbox"
                    class="form-check-input smui-realign-check-input"
@@ -253,7 +266,7 @@
     <ng-container *ngIf="(detailSearchInput !== null) && (detailSearchInput.redirectRules.length > 0)">
       <table style="width:100%">
         <tr *ngFor="let redirectRule of detailSearchInput.redirectRules; let idxDeleteRules = index"
-            [class.smui-disabled-rule-line]="redirectRule.isActive ? null : true">
+            [class.smui-disabled-rule-line]="(!redirectRule.isActive) || (!detailSearchInput.isActive)">
           <td style="width:20%">
             <input type="checkbox"
                    class="form-check-input smui-realign-check-input"
@@ -283,6 +296,24 @@
       No Rules maintained for Search Input. This Search Input will therefore not being included to rules.txt on deployment to Solr.
     </div>
 
+    <ng-container *ngIf="detailSearchInput !== null">
+      <table style="width:100%;margin-top:20px;">
+        <tr>
+          <td width="15%">
+            <i class="fa fa-commenting-o" aria-hidden="true"></i><small style="text-transform: uppercase"> Comment:</small>
+          </td>
+          <td width="85%">
+              <input type="text"
+                     class="form-control"
+                     id="searchInputComment"
+                     placeholder="Enter a comment explaining the management of input(s) ..."
+                     [(ngModel)]="detailSearchInput.comment"
+                     (keyup.enter)="saveSearchInputDetails()">
+          </td>
+        </tr>
+      </table>
+    </ng-container>
+
   </div>
 
   <div class="card-body">
@@ -294,85 +325,10 @@
                 class="btn btn-primary btn-block"
                 (click)="saveSearchInputDetails()"
                 [attr.disabled]="(detailSearchInput === null) ? '' : null">
-          Save Search Rules for Input
+          <i class="fa fa-floppy-o" aria-hidden="true"></i> Save search rules for input
         </button>
       </div>
     </div>
   </div>
 
-</div>
-
-<div class="modal fade" id="detailHelpModal" tabindex="-1" role="dialog" aria-labelledby="detailHelpModalTitle" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="detailHelpModalLongTitle">Help on Search Management Rules</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <h6>SYNONYM RULE</h6>
-        <table>
-          <tr>
-            <td style="width:20%;vertical-align:top;"><code>= (undirected)</code></td>
-            <td>Default configuration. Makes input term match synonym term and vice versa.</td>
-          </tr>
-          <tr>
-            <td style="width:20%;vertical-align:top;"><code>-> (directed)</code></td>
-            <td>Makes only synonym term match for input term.</td>
-          </tr>
-          <tr>
-            <td style="width:20%;vertical-align:top;"><code>$1</code> placeholder</td>
-            <td>Can be used with a directed synonym in combination with <code>*</code> Wildcard. See <em>Input Matching</em>.</td>
-          </tr>
-        </table>
-        <h6>UP/DOWN RULE</h6>
-        <p>
-          Increases or decreases document ranking matching a specific term, e.g.:<br>
-          <code>UP(10): Altersteilzeit</code>, or <code>DOWN(500): englische Übersetzung</code>.<br>
-          Can be combined with native Solr field syntax. See <em>FILTER RULE</em>.
-        </p>
-        <h6>FILTER RULE</h6>
-        <p>
-          Filter exclusively documents matching a specific term or totally remove them completely.<br>
-          When term is prefixed with <code>*</code>, native Solr field syntax can be used, e.g.:<br>
-          <code>* price:[350 TO 450]</code>, <code>* microline1:Vertrag</code>, or <code>-vertrag</code>.<br>
-        </p>
-        <h6>DELETE RULE</h6>
-        <p>
-          Delete rules allow you to remove keywords from a query.
-        </p>
-        <h6>Input Matching</h6>
-        <table>
-          <tr>
-            <td style="width:20%;vertical-align:top;"><code>"personal computer"</code></td>
-            <td>Only match the exact query 'personal computer'.</td>
-          </tr>
-          <tr>
-            <td style="width:20%;vertical-align:top;"><code>"personal computer</code></td>
-            <td>Only match queries starting with 'personal computer'</td>
-          </tr>
-          <tr>
-            <td style="width:20%;vertical-align:top;"><code>personal computer"</code></td>
-            <td>Only match queries ending with 'personal computer'</td>
-          </tr>
-          <tr>
-            <td style="width:20%;vertical-align:top;"><code>urlaubs*</code></td>
-            <td>
-              Wildcard matching of queries starting with 'urlaubs' (e.g. 'urlaubsgeld' or 'urlaubszeit').<br>
-              Can be combined with <code>$1</code> placeholder in a directed synonym (e.g. <code>urlaub $1</code>).<br>
-              WARNING: Only works in combination with a directed (not undirected) synonym!
-            </td>
-          </tr>
-        </table>
-        <p>
-          For more information refer to detailled <a href="https://github.com/renekrie/querqy#getting-started-setting-up-common-rules-under-solr" target="_new">documentation of querqy</a>.
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
 </div>

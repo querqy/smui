@@ -11,7 +11,9 @@ case class SearchInputWithRules(id: SearchInputId,
                                 filterRules: List[FilterRule] = Nil,
                                 deleteRules: List[DeleteRule] = Nil,
                                 redirectRules: List[RedirectRule] = Nil,
-                                tags: Seq[InputTag] = Seq.empty) {
+                                tags: Seq[InputTag] = Seq.empty,
+                                isActive: Boolean,
+                                comment: String) {
 
   lazy val trimmedTerm: String = term.trim()
 
@@ -37,7 +39,9 @@ object SearchInputWithRules {
         filterRules = FilterRule.loadByInputId(id),
         deleteRules = DeleteRule.loadByInputId(id),
         redirectRules = RedirectRule.loadByInputId(id),
-        tags = TagInputAssociation.loadTagsBySearchInputId(id))
+        tags = TagInputAssociation.loadTagsBySearchInputId(id),
+        isActive = input.isActive,
+        comment = input.comment)
     }
   }
 
@@ -52,12 +56,14 @@ object SearchInputWithRules {
     inputs.map { input =>
       SearchInputWithRules(input.id, input.term,
         synonymRules = rules.getOrElse(input.id, Nil).toList,
-        tags = tags.getOrElse(input.id, Seq.empty))
+        tags = tags.getOrElse(input.id, Seq.empty),
+        isActive = input.isActive,
+        comment = input.comment) // TODO consider only transferring "hasComment" for list overview
     }
   }
 
   def update(searchInput: SearchInputWithRules)(implicit connection: Connection): Unit = {
-    SearchInput.update(searchInput.id, searchInput.term)
+    SearchInput.update(searchInput.id, searchInput.term, searchInput.isActive, searchInput.comment)
 
     SynonymRule.updateForSearchInput(searchInput.id, searchInput.synonymRules)
     UpDownRule.updateForSearchInput(searchInput.id, searchInput.upDownRules)

@@ -2,7 +2,7 @@ import com.typesafe.sbt.GitBranchPrompt
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "3.5.10"
+version := "3.6.0"
 
 scalaVersion := "2.12.4"
 
@@ -171,8 +171,9 @@ libraryDependencies ++= {
 
     "org.webjars" % "jquery" % "3.2.1",
     "org.webjars" % "bootstrap" % "4.0.0-beta.2",
+    "org.webjars.bower" % "fontawesome" % "4.7.0",
 
-    // tslint dependency
+  // tslint dependency
 
     "org.webjars.npm" % "tslint-eslint-rules" % "3.4.0",
     "org.webjars.npm" % "tslint-microsoft-contrib" % "4.0.0",

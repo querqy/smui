@@ -44,5 +44,34 @@ class SearchInputWithRulesSpec extends FlatSpec with Matchers with WithInMemoryD
     }
   }
 
+  "SearchInputWithRules" should "be (de)activatable" in {
+    db.withConnection { implicit conn =>
+      SolrIndex.insert(indexDe)
+
+      val input = SearchInput.insert(indexDe.id, "my input")
+      input.isActive shouldBe true
+
+      SearchInput.update(input.id, input.term, false, input.comment)
+      SearchInput.loadById(input.id).get.isActive shouldBe false
+
+      SearchInput.update(input.id, input.term, true, input.comment)
+      SearchInput.loadById(input.id).get.isActive shouldBe true
+    }
+  }
+
+  "SearchInputWithRules" should "have a modifiable comment" in {
+    db.withConnection { implicit conn =>
+      SolrIndex.insert(indexDe)
+
+      val input = SearchInput.insert(indexDe.id, "my input")
+      input.comment shouldBe ""
+
+      SearchInput.update(input.id, input.term, input.isActive, "My #magic comment.")
+      SearchInput.loadById(input.id).get.comment shouldBe "My #magic comment."
+
+      SearchInput.update(input.id, input.term, input.isActive, "My #magic comment - updated.")
+      SearchInput.loadById(input.id).get.comment shouldBe "My #magic comment - updated."
+    }
+  }
 
 }

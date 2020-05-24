@@ -118,6 +118,17 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     retQuerqyRulesTxtPartial.toString()
   }
 
+  def renderListSearchInputRules(listSearchInput: Seq[SearchInputWithRules]): String = {
+    val retQuerqyRulesTxt = new StringBuilder()
+
+    // iterate all SearchInput terms and render related (active) rules
+    for (searchInput <- listSearchInput.filter(_.isActive)) {
+      retQuerqyRulesTxt.append(renderSearchInputRules(searchInput))
+    }
+
+    retQuerqyRulesTxt.toString()
+  }
+
   /**
     * TODO
     *
@@ -126,6 +137,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     * @param renderCompoundsRulesTxt Defining, if decompound-rules.txt (true) or rules.txt (false) should be rendered. Only important, if `separateRulesTxts` is `true`.
     * @return
     */
+  // TODO resolve & test logic of render method (change interface to separate decompound from normal rules)
   private def render(solrIndexId: SolrIndexId, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean): String = {
 
     val retQuerqyRulesTxt = new StringBuilder()
@@ -153,12 +165,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       }
     }
 
-    // iterate all SearchInput terms and render related rules
-    for (searchInput <- separateRules(listSearchInput)) {
-      retQuerqyRulesTxt.append(renderSearchInputRules(searchInput))
-    }
-
-    retQuerqyRulesTxt.toString()
+    renderListSearchInputRules(separateRules(listSearchInput))
   }
 
   def renderSingleRulesTxt(solrIndexId: SolrIndexId): String = {
@@ -226,7 +233,6 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     val querqyRuleValidationError = validateQuerqyRulesTxtToErrMsg(renderSearchInputRulesForTerm(searchInput.term, searchInput))
 
     val errors = List(querqyRuleValidationError, undirectedSynonymsCheck, synonymsDirectedCheck) ++ redirectRuleErrors
-    //
 
     // finally validate as well against querqy parser
 
@@ -257,6 +263,5 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       case Failure(t: Throwable) => Some(s"Error validating $target: ${t.getMessage}")
     }
   }
-
 
 }

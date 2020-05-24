@@ -30,6 +30,10 @@ li.list-group-item.active > .text-muted {
 	margin-left: 5px;
 }
 
+.smui-strikethrough {
+	text-decoration: line-through;
+}
+
 .smui-tag {
 	margin-left: 5px;
 }

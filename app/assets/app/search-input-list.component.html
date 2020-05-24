@@ -25,7 +25,7 @@
         <button class="btn btn-success"
                 type="button"
                 (click)="addNewSearchInput()">
-          + New
+          <i class="fa fa-plus" aria-hidden="true"></i> New
         </button>
       </span>
     </div>
@@ -39,7 +39,7 @@
   </div>
   <ul class="list-group smui-search-input-list" >
     <li *ngFor="let searchInput of filteredSearchInputs; let idxSearchInputs = index" (click)="selectSearchInputWidthId(searchInput.id)"
-        [ngClass]="{'active': selectedSearchInputId === searchInput.id, 'list-group-item': true, 'smui-list-group-item': true}" >
+        [ngClass]="{'active': selectedSearchInputId === searchInput.id, 'list-group-item': true, 'smui-list-group-item': true, 'smui-strikethrough': !searchInput.isActive}">
       <span>{{ searchInput.term }}</span>
 
       <ng-container *ngFor="let searchInputSynonym of searchInput.synonymRules">
@@ -55,7 +55,16 @@
         </span>
       </span>
 
-      <button type="button" class="btn btn-danger btn-sm float-right" (click)="deleteSearchInputWithId(searchInput.id); $event.stopPropagation();">-</button>
+      <button type="button" class="btn btn-danger btn-sm float-right" (click)="deleteSearchInputWithId(searchInput.id); $event.stopPropagation();"><i class="fa fa-minus" aria-hidden="true"></i></button>
+
+      <span class="badge badge-pill badge-info"
+            *ngIf="searchInput.comment.trim().length > 0">
+        <i class="fa fa-commenting-o"
+           aria-hidden="true"
+           data-toggle="tooltip"
+           data-placement="top"
+           [title]="searchInput.comment.trim()"></i>
+      </span>
     </li>
 
   </ul>
