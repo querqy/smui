@@ -1,15 +1,21 @@
-import { Injectable } from '@angular/core';
-import { Headers, Http, Response } from '@angular/http';
+import {Injectable} from '@angular/core';
+import {Headers, Http} from '@angular/http';
 
 import * as smm from './search-management.model';
+import {ListItemType} from './search-management.model';
 
 import 'rxjs/add/operator/toPromise';
 
 const SEARCH_MANAGEMENT_API_BASE_URL = 'api/v1';
 const SOLR_INDEX_API_URL = 'solr-index';
 const SEARCH_INPUT_API_URL = 'search-input';
+const SPELLING_API_URL = 'spelling';
 const RULES_TXT_API_URL = 'rules-txt';
 const SUGGESTED_SOLR_FIELD_API_URL = 'suggested-solr-field';
+
+const apiUrlForIndex = (solrIndex, path) => `${SEARCH_MANAGEMENT_API_BASE_URL}/${solrIndex}/${path}`;
+
+const jsonHeader = new Headers({'Content-Type': 'application/json'});
 
 // TODO should this become part of the .model.ts? Is it even being referenced at (or can it be removed)?
 export class SearchManagementServiceResult {
@@ -44,6 +50,16 @@ export class SearchManagementService {
       .catch(this.handleError);
   }
 
+  getAllItemsForInputList(solrIndexId: string): Promise<Array<smm.ListItem>> {
+    return this.http
+      .get(apiUrlForIndex(solrIndexId, 'rules-and-spellings '))
+      .toPromise()
+      .then(res => {
+        return res.json() as smm.ListItem[];
+      })
+      .catch(this.handleError);
+  }
+
   listAllSearchInputsInclSynonyms(solrIndexId: string): Promise<Array<smm.SearchInput>> {
     return this.http
       .get(SEARCH_MANAGEMENT_API_BASE_URL + '/' + solrIndexId + '/' + SEARCH_INPUT_API_URL)
@@ -54,19 +70,63 @@ export class SearchManagementService {
       .catch(this.handleError);
   }
 
-  addNewSearchInput(solrIndexId: string, searchInputTerm: string, tags: string[] = []): Promise<SearchManagementServiceResult> {
+  addNewRuleItem(solrIndexId: string, searchInputTerm: string, tags: string[] = []): Promise<SearchManagementServiceResult> {
+    return this.http
+      .put(
+        SEARCH_MANAGEMENT_API_BASE_URL + '/' + solrIndexId + '/' + SEARCH_INPUT_API_URL,
+        JSON.stringify( { term: searchInputTerm, tags: tags }),
+        { headers: jsonHeader })
+      .toPromise()
+      .then(res => {
+        console.log('In SearchManagementService :: addNewSearchInput :: put :: then :: res.json() = ' + JSON.stringify(res.json()));
+        if (res.status !== 200) {
+          // TODO error Handling mit anzeige
+        }
+        const searchManagementServiceResult = res.json() as SearchManagementServiceResult;
+        if (searchManagementServiceResult.result !== 'OK') {
+          // TODO error Handling mit anzeige
+        }
+        return searchManagementServiceResult;
+      })
+      .catch(this.handleError); // TODO error handling mit anzeige einer nachricht
+  }
+
+  addNewSpellingItem(solrIndexId: string, term: string): Promise<SearchManagementServiceResult> {
+    return this.http
+      .put(apiUrlForIndex(solrIndexId, SPELLING_API_URL),
+        JSON.stringify( { term: term }),
+        { headers: jsonHeader })
+      .toPromise()
+      .then(res => {
+        console.log('In SearchManagementService :: addNewSpelling :: put :: then :: res.json() = ' + JSON.stringify(res.json()));
+        return res.json() as SearchManagementServiceResult;
+      })
+      .catch(this.handleError);
+  }
+
+  getDetailedSpelling(spellingId: string): Promise<smm.CanonicalSpelling> {
+    return this.http
+      .get(SEARCH_MANAGEMENT_API_BASE_URL + '/' + SPELLING_API_URL + '/' + spellingId)
+      .toPromise()
+      .then(res => {
+        return res.json() as smm.SearchInput;
+      })
+      .catch(this.handleError);
+  }
+
+  updateSpellingItem(solrIndexId: string, canonicalSpelling: smm.CanonicalSpelling): Promise<SearchManagementServiceResult> {
     const headers = new Headers({
       'Content-Type': 'application/json'
     });
 
     return this.http
-      .put(
-        SEARCH_MANAGEMENT_API_BASE_URL + '/' + solrIndexId + '/' + SEARCH_INPUT_API_URL,
-        JSON.stringify( { term: searchInputTerm, tags: tags }),
+      .post(
+        apiUrlForIndex(solrIndexId, `${SPELLING_API_URL}/${canonicalSpelling.id}`),
+        JSON.stringify( canonicalSpelling ),
         { headers: headers })
       .toPromise()
       .then(res => {
-        console.log('In SearchManagementService :: addNewSearchInput :: put :: then :: res.json() = ' + JSON.stringify(res.json()));
+        console.log('In SearchManagementService :: updateSpellingItem :: post :: then :: res.json() = ' + JSON.stringify(res.json()));
         if (res.status !== 200) {
           // TODO error Handling mit anzeige
         }
@@ -120,6 +180,26 @@ export class SearchManagementService {
       .toPromise()
       .then(res => {
         console.log('In SearchManagementService :: deleteSearchInput :: delete :: then :: res.json() = ' + JSON.stringify(res.json()));
+        if (res.status !== 200) {
+          // TODO error Handling mit anzeige
+        }
+        const searchManagementServiceResult = res.json() as SearchManagementServiceResult;
+        if (searchManagementServiceResult.result !== 'OK') {
+          // TODO error Handling mit anzeige
+        }
+        return searchManagementServiceResult;
+      })
+      .catch(this.handleError);
+  }
+
+  deleteItem(itemType: smm.ListItemType, id: string): Promise<SearchManagementServiceResult> {
+    const path = itemType === ListItemType.Spelling ? SPELLING_API_URL : SEARCH_INPUT_API_URL;
+
+    return this.http
+      .delete(SEARCH_MANAGEMENT_API_BASE_URL + '/' + path + '/' + id)
+      .toPromise()
+      .then(res => {
+        console.log('In SearchManagementService :: deleteItem :: delete :: then :: res.json() = ' + JSON.stringify(res.json()));
         if (res.status !== 200) {
           // TODO error Handling mit anzeige
         }

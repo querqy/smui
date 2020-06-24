@@ -37,3 +37,11 @@ li.list-group-item.active > .text-muted {
 .smui-tag {
 	margin-left: 5px;
 }
+
+.smui-spelling-item {
+	background-color: aliceblue;
+}
+
+.smui-icon {
+	margin-right: 0.5rem;
+}

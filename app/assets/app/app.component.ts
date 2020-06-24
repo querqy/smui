@@ -2,12 +2,14 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { SearchInputListComponent } from './search-input-list.component';
 import { SearchInputDetailComponent } from './search-input-detail.component';
+import { SpellingDetailComponent } from './spelling-detail.component';
 
 import { ToasterService, ToasterConfig } from 'angular2-toaster';
 
 import * as smm from './search-management.model';
 import { SearchManagementService } from './search-management.service';
 import { FeatureToggleService } from './feature-toggle.service';
+import { ListItemType } from './search-management.model';
 
 declare var $: any; // TODO include @types/jquery properly, make this workaround unnecessary
 
@@ -36,6 +38,9 @@ export class AppComponent implements OnInit {
   // TODO consider using an more abstract component-communication model (e.g. message-service, events, etc.)
   @ViewChild('searchInputListComponent') searchInputListComponent: SearchInputListComponent;
   @ViewChild('searchInputDetailComponent') searchInputDetailComponent: SearchInputDetailComponent;
+  @ViewChild('spellingDetailComponent') set ft(component: SpellingDetailComponent) {
+    this.spellingComponent = component
+  };
 
   // TODO consider outsourcing confirmation modal dialog to separate component, directive ...
   public confirmTitle = '';
@@ -48,6 +53,9 @@ export class AppComponent implements OnInit {
 
   public hideDeploymentLogInfo = true;
   public deploymentLogInfo = 'Loading info ...';
+
+  public selectedListItem = null;
+  private spellingComponent: SpellingDetailComponent = null;
 
   get self(): AppComponent {
     return this;
@@ -84,11 +92,14 @@ export class AppComponent implements OnInit {
         // TODO ensure, that minimum 1 list item exists
         this.currentSolrIndexId = this.listSolrIndeces[0].id;
         this.solrIndexSelectOptionModel = this.currentSolrIndexId;
-        this.searchInputListComponent
-          .loadSearchInputListForSolrIndexWithId(this.currentSolrIndexId)
         this.searchInputDetailComponent
           .loadSuggestedSolrFieldsForSolrIndexWithId(this.currentSolrIndexId);
-      })
+      }).then(() =>
+        this.searchInputListComponent.refreshItemsInList(this.currentSolrIndexId)
+          .then(() => {
+            this.searchInputListComponent.selectListItem(null);
+          })
+      )
       .catch(error => this.handleError(error));
 
     this.searchManagementService.listAllInputTags().then(tags => {
@@ -146,8 +157,10 @@ export class AppComponent implements OnInit {
       console.log('_this.solrIndexSelectOptionModel = ' + JSON.stringify(_this.solrIndexSelectOptionModel));
 
       _this.currentSolrIndexId = newSolrIndexId;
-      _this.searchInputListComponent
-        .loadSearchInputListForSolrIndexWithId(_this.currentSolrIndexId);
+      _this.searchInputListComponent.refreshItemsInList(newSolrIndexId)
+        .then(() => {
+          _this.searchInputListComponent.selectListItem(null);
+        });
       _this.searchInputDetailComponent
         .loadSuggestedSolrFieldsForSolrIndexWithId(_this.currentSolrIndexId);
     }
@@ -156,8 +169,11 @@ export class AppComponent implements OnInit {
       // reset the select-option model to keep in sync with currentSolrIndexId
       _this.solrIndexSelectOptionModel = _this.currentSolrIndexId;
     }
-    this.searchInputListComponent
-      .safeDirtyCheckAndEvtlConfirmModalExecute( executeSelectSolrIndexOk, executeSelectSolrIndexCancel );
+
+    this.executeWithChangeCheck({
+      executeFnOk: executeSelectSolrIndexOk,
+      executeFnCancel: executeSelectSolrIndexCancel
+    });
   }
 
   private requestPublishRulesTxtToSolr(targetPlatform: string) {
@@ -241,4 +257,61 @@ export class AppComponent implements OnInit {
       });
   }
 
+  public executeWithChangeCheck({executeFnOk, executeFnCancel}) {
+    console.log('In AppComponent :: executeWithChangeCheck');
+    const hasChanged =
+      (this.spellingComponent ? this.spellingComponent.isDirty() : false) ||
+      (this.searchInputDetailComponent ? this.searchInputDetailComponent.isDirty() : false);
+
+    if (hasChanged) {
+      this.openModalConfirm(
+        'Confirm to discard unsaved input',
+        'You have unsaved input! Do you really want to Cancel Editing of Search Input or Continue with it?',
+        'Yes, Cancel Editing', 'No, Continue Editing');
+
+      this.modalConfirmDeferred.promise
+        .then(isOk => isOk ? executeFnOk() : executeFnCancel ? executeFnCancel() : () => ({}));
+    } else {
+      executeFnOk()
+    }
+  }
+
+  public createItem({itemType, apiCall}) {
+    console.log(`In SearchInputSearchComponent :: createItem :: ${ListItemType[itemType]}`);
+
+    this.executeWithChangeCheck({
+      executeFnOk: () => apiCall()
+        .then(res => {
+          console.log('In SearchInputSearchComponent :: createItemByType :: then :: res = ' + JSON.stringify(res));
+          this.searchInputListComponent.refreshItemsInList(this.currentSolrIndexId)
+            .then(() => this.searchInputListComponent.selectListItemById(res.returnId))
+            .then(() => this.showSuccessMsg(`Adding new ${ListItemType[itemType]} successful.`))
+        })
+        .catch(error => this.handleError(error)),
+      executeFnCancel: () => ({})
+    });
+  }
+
+  public deleteItemByType({itemType, id}) {
+    console.log(`In SearchInputListComponent :: deleteItemByType :: id = ${id}; type = ${itemType}`);
+
+    this.openModalConfirm(
+      `Confirm deletion of ${itemType}`,
+      `Are you sure deleting the ${itemType}?`,
+      'Yes', 'No');
+
+    const executeDeleteItem = () => {
+      // if user accepts deletion, proceed deleting the entry
+      this.searchManagementService
+        .deleteItem(smm.ListItemType[itemType as string], id)
+        .then(() =>
+          this.searchInputListComponent.refreshItemsInList(this.currentSolrIndexId)
+            .then(() => this.searchInputListComponent.selectListItemById(id))
+        )
+        .catch(error => this.handleError(error));
+    };
+
+    this.modalConfirmDeferred.promise.then(isOk => isOk && executeDeleteItem())
+  }
 }
+

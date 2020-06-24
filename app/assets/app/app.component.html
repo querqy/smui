@@ -58,16 +58,36 @@
     </nav>
 
     <div class="row">
-
         <div class="col-4">
-            <smui-search-input-list [detailComponent]="searchInputDetailComponent"
-                                    [parentComponent]="self"
-                                    #searchInputListComponent></smui-search-input-list>
+            <smui-search-input-list
+                    [currentSolrIndexId]="currentSolrIndexId"
+                    [(selectedListItem)]="selectedListItem"
+                    (executeWithChangeCheck)="executeWithChangeCheck($event)"
+                    (showErrorMsg)="showErrorMsg($event)"
+                    (createItem)="createItem($event)"
+                    (deleteItemByType)="deleteItemByType($event)"
+                    #searchInputListComponent>
+            </smui-search-input-list>
         </div>
         <div class="col-8">
-            <smui-search-input-detail [listComponent]="searchInputListComponent"
-                                      [parentComponent]="self"
+            <smui-search-input-detail *ngIf="!selectedListItem || selectedListItem.itemType === 'RuleManagement'"
+                                      [currentSolrIndexId]="currentSolrIndexId"
+                                      [selectedListItem]="selectedListItem"
+                                      [allInputTags]="allInputTags"
+                                      (showErrorMsg)="showErrorMsg($event)"
+                                      (showSuccessMsg)="showSuccessMsg($event)"
+                                      (deleteItemByType)="deleteItemByType($event)"
+                                      (refreshItemsInList)="searchInputListComponent.refreshItemsInList($event)"
                                       #searchInputDetailComponent></smui-search-input-detail>
+
+            <smui-spelling-detail *ngIf="selectedListItem && selectedListItem.itemType === 'Spelling'"
+                                  [currentSolrIndexId]="currentSolrIndexId"
+                                  [selectedListItem]="selectedListItem"
+                                  (showErrorMsg)="showErrorMsg($event)"
+                                  (showSuccessMsg)="showSuccessMsg($event)"
+                                  (deleteItemByType)="deleteItemByType($event)"
+                                  (refreshItemsInList)="searchInputListComponent.refreshItemsInList($event)"
+                                  #spellingDetailComponent></smui-spelling-detail>
         </div>
 
     </div>

@@ -1,12 +1,11 @@
 <div class="card">
   <div class="card-body">
-
     <div class="input-group">
       <input type="text"
              class="form-control"
-             placeholder="Search or Create Search Input ..."
+             placeholder="Search or Create Item..."
              [(ngModel)]="searchInputTerm"
-             (keyup.enter)="addNewSearchInput()">
+             (keyup.enter)="openAddItemModal()">
       <span class="input-group-btn" *ngIf="isTaggingActive() && allTags.length > 0">
         <button id="filterTagsDropdown"
                 type="button"
@@ -24,7 +23,7 @@
       <span class="input-group-btn">
         <button class="btn btn-success"
                 type="button"
-                (click)="addNewSearchInput()">
+                (click)="openAddItemModal()">
           <i class="fa fa-plus" aria-hidden="true"></i> New
         </button>
       </span>
@@ -32,40 +31,82 @@
   </div>
 </div>
 
-<div *ngIf="getFilteredSearchInputs(); let filteredSearchInputs">
+<div *ngIf="getFilteredListItems(); let filteredListItems">
   
   <div class="smui-number-of-results">
-    {{filteredSearchInputs.length}} <span *ngIf="filteredSearchInputs.length !== searchInputs.length">of {{searchInputs.length}}</span> search inputs
+    {{filteredListItems.length}} <span *ngIf="filteredListItems.length !== listItems.length">of {{listItems.length}}</span> items
   </div>
   <ul class="list-group smui-search-input-list" >
-    <li *ngFor="let searchInput of filteredSearchInputs; let idxSearchInputs = index" (click)="selectSearchInputWidthId(searchInput.id)"
-        [ngClass]="{'active': selectedSearchInputId === searchInput.id, 'list-group-item': true, 'smui-list-group-item': true, 'smui-strikethrough': !searchInput.isActive}">
-      <span>{{ searchInput.term }}</span>
-
-      <ng-container *ngFor="let searchInputSynonym of searchInput.synonymRules">
-        <!-- TODO evaluate whether to show or hide undirected synonyms, that are not active -->
-        <small class="text-muted smui-input-list-divide-synonym" *ngIf="searchInputSynonym.synonymType == 0">
-          {{ searchInputSynonym.term }}
-        </small>
-      </ng-container>
-
-      <span class="smui-tags-container">
-        <span *ngFor="let tag of searchInput.tags" class="badge badge-pill badge-info smui-tag">
-          {{ tag.displayValue }}
+    <ng-container *ngFor="let listItem of filteredListItems; let idxListItem = index">
+      <li *ngIf="isShowingAllItems || (limitItemsTo > 0 && idxListItem < limitItemsTo)"
+          [ngClass]="{'active': selectedListItem && selectedListItem.id === listItem.id, 'list-group-item': true,
+          'smui-list-group-item': true, 'smui-strikethrough': !listItem.isActive,
+          'smui-spelling-item': listItem.itemType === 'Spelling' && (!selectedListItem || selectedListItem && selectedListItem.id !== listItem.id) }"
+          (click)="selectListItem(listItem)"
+      >
+        <span>
+          <i *ngIf="listItem.itemType === 'Spelling'" class="fa fa-comments-o" aria-hidden="true"></i>
+          <i *ngIf="listItem.itemType === 'RuleManagement'" class="fa fa-list" aria-hidden="true"></i>
         </span>
-      </span>
 
-      <button type="button" class="btn btn-danger btn-sm float-right" (click)="deleteSearchInputWithId(searchInput.id); $event.stopPropagation();"><i class="fa fa-minus" aria-hidden="true"></i></button>
+        <span>{{ listItem.term }}</span>
 
-      <span class="badge badge-pill badge-info"
-            *ngIf="searchInput.comment.trim().length > 0">
-        <i class="fa fa-commenting-o"
-           aria-hidden="true"
-           data-toggle="tooltip"
-           data-placement="top"
-           [title]="searchInput.comment.trim()"></i>
-      </span>
-    </li>
+        <ng-container *ngFor="let listItemSynonym of listItem.synonyms">
+          <!-- TODO evaluate whether to show or hide undirected synonyms, that are not active -->
+          <small class="text-muted smui-input-list-divide-synonym">
+            {{ listItemSynonym }}
+          </small>
+        </ng-container>
 
+        <span class="smui-tags-container">
+          <span *ngFor="let tag of listItem.tags" class="badge badge-pill badge-info smui-tag">
+            {{ tag.displayValue }}
+          </span>
+        </span>
+
+        <button type="button" class="btn btn-danger btn-sm float-right" (click)="deleteItem(listItem.itemType, listItem.id); $event.stopPropagation();">
+          <i class="fa fa-minus" aria-hidden="true"></i>
+        </button>
+
+        <span class="badge badge-pill badge-info"
+              *ngIf="listItem.comment.trim().length > 0">
+          <i class="fa fa-commenting-o"
+             aria-hidden="true"
+             data-toggle="tooltip"
+             data-placement="top"
+             [title]="listItem.comment.trim()"></i>
+        </span>
+      </li>
+    </ng-container>
   </ul>
+  <button type="button" *ngIf="showMoreButton" class="btn btn-link pull-right" (click)="toggleShowMore()">
+    <i class="fa fa-plus smui-icon"></i>Show all items
+  </button>
+  <button type="button" *ngIf="!showMoreButton && searchInputTerm === ''" class="btn btn-link pull-right" (click)="toggleShowMore()">
+    <i class="fa fa-plus smui-icon"></i>Show less items
+  </button>
+</div>
+
+<div class="modal fade" id="addItemModal" tabindex="-1" role="dialog" aria-labelledby="addItemTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addItemTitle">Add new rule management or spelling item</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Please select if you want to add a new rule management or spelling item...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="createNewSpellingItem()">
+          <i class="fa fa-comments-o smui-icon"></i>Spelling
+        </button>
+        <button type="button" class="btn btn-success" data-dismiss="modal" (click)="createNewRuleItem()">
+          <i class="fa fa-list smui-icon"></i>Rule Management
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

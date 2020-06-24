@@ -16,6 +16,7 @@ import { FeatureToggleService } from './feature-toggle.service';
 
 import { SearchInputListComponent } from './search-input-list.component';
 import { SearchInputDetailComponent } from './search-input-detail.component';
+import { SpellingDetailComponent } from './spelling-detail.component';
 
 import { Http, XHRBackend, RequestOptions } from '@angular/http';
 import { Router } from '@angular/router';
@@ -34,7 +35,8 @@ import { HttpAuthInterceptor } from './http-auth-interceptor'
   declarations: [
     AppComponent,
     SearchInputListComponent,
-    SearchInputDetailComponent
+    SearchInputDetailComponent,
+    SpellingDetailComponent
   ],
   providers: [
     SearchManagementService,

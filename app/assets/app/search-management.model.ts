@@ -83,3 +83,30 @@ export class SuggestedSolrField {
 export class DeploymentLogInfo {
   msg: string;
 }
+
+export class AlternateSpelling {
+  id: string;
+  canonicalSpellingId: string;
+  term: string
+}
+
+export class CanonicalSpelling {
+  id: string;
+  solrIndexId: string;
+  term: string;
+  alternateSpellings: Array<AlternateSpelling>;
+}
+
+export enum ListItemType {
+  RuleManagement, Spelling
+}
+
+export class ListItem {
+  id: string;
+  term: string;
+  itemType: ListItemType;
+  isActive: boolean;
+  synonyms: Array<string>;
+  tags: Array<InputTag>;
+  comment: string
+}

@@ -1,15 +1,12 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 // import { ActivatedRoute, Params } from '@angular/router';
 
-import { ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
-import { NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
 import { SearchInputListComponent } from './search-input-list.component';
@@ -29,17 +26,22 @@ declare var $: any; // For jquery
 })
 export class SearchInputDetailComponent implements OnInit {
 
-  // TODO consider using an more abstract component-communication model (e.g. message-service, events, etc.)
   @Input() listComponent: SearchInputListComponent;
-  @Input() parentComponent: AppComponent;
+  @Input() selectedListItem = null;
+  @Input() currentSolrIndexId = '-1';
+  @Input() allInputTags: smm.InputTag[] = [];
 
-  detailSearchInput: smm.SearchInput = null;
+  @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
+  @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
+  @Output() refreshItemsInList: EventEmitter<string> = new EventEmitter();
+  @Output() deleteItemByType: EventEmitter<any> = new EventEmitter();
+
+  private detailSearchInput: smm.SearchInput = null;
   private initDetailSearchInputHashForDirtyState: string = null;
   private suggestedSolrFieldNames = null;
   private showTags: Boolean = false;
   private availableTags: smm.InputTag[] = [];
   private saveError: string = null;
-  private currentSolrIndexId = '-1'; // TODO maybe take parentComponent's currentSolrIndexId instead of local copy
   private previousTagEventHandler = null;
 
   // TODO open typeahead popup on focus -- focus$ = new Subject<string>();
@@ -63,11 +65,16 @@ export class SearchInputDetailComponent implements OnInit {
 
   ngOnInit() {
     console.log('In SearchInputDetailComponent :: ngOnInit');
-    console.log(':: parentComponent = ' + this.parentComponent);
+  }
+
+  ngOnChanges() {
+    if (this.selectedListItem) {
+      this.showDetailsForSearchInputWithId(this.selectedListItem.id)
+    }
   }
 
   private availableTagsForCurrentSolrIndex() {
-    return this.parentComponent.allInputTags.filter(tag => !tag.solrIndexId || tag.solrIndexId === this.currentSolrIndexId);
+    return this.allInputTags.filter(tag => !tag.solrIndexId || tag.solrIndexId === this.currentSolrIndexId);
   }
 
   public loadSuggestedSolrFieldsForSolrIndexWithId(solrIndexId: string) {
@@ -89,8 +96,7 @@ export class SearchInputDetailComponent implements OnInit {
   handleError(error: any) {
     console.log('In SearchInputDetailComponent :: handleError');
     console.log(':: error = ' + error);
-    this.parentComponent
-      .showErrorMsg('An error occurred.'); // TODO Do a more detaillied error description
+    this.showErrorMsg.emit('An error occurred.'); // TODO Do a more detaillied error description
   }
 
   // TODO consider evaluate a more elegant solution to dispatch upDownDropdownDefinitionMappings from smm to the template
@@ -388,13 +394,10 @@ export class SearchInputDetailComponent implements OnInit {
         this.showDetailsForSearchInputWithId(this.detailSearchInput.id);
 
         // reload list for maybe updates on directed synonyms
-        this.listComponent
-          .reloadSearchInputListAfterDetailUpdate();
+        this.refreshItemsInList.emit(this.currentSolrIndexId);
 
-        console.log(':: parentComponent = ' + this.parentComponent);
         this.saveError = null;
-        this.parentComponent
-          .showSuccessMsg('Saving Details successful.');
+        this.showSuccessMsg.emit('Saving Details successful.');
       })
       .catch(error => {
         if (error.status === 400) {
@@ -405,49 +408,11 @@ export class SearchInputDetailComponent implements OnInit {
       });
   }
 
-  // TODO logic almost 100% copy of app/search-input-list.component.ts :: deleteSearchInputWithId - refactor
-  public deleteSearchInputWithId(searchInputId: number) {
-    console.log('In SearchInputListComponent :: deleteSearchInput :: searchInputId = ' + searchInputId);
-
+  public deleteSearchInputWithId(searchInputId: string) {
+    console.log(`In SearchInputListComponent :: deleteSearchInputWithId :: id = ${searchInputId}`);
     // TODO maybe before even starting the deletion process, check if details are dirty and ask to cancel editing eventually
-
-    // ask for delete confirmation
-    this.parentComponent.openModalConfirm(
-      'Confirm deletion of Search Input',
-      'Are you sure deleting the Search Input?',
-      'Yes', 'No');
-    const _this2 = this;
-    function executeDeleteSearchInput() {
-      // if user accepts deletion, proceed deleting the entry
-      _this2.searchManagementService
-        .deleteSearchInput(searchInputId)
-        .then(retApiResult => {
-
-          // Reload list and potentially re-handle selected SearchInput
-          _this2.searchManagementService
-            .listAllSearchInputsInclSynonyms(_this2.currentSolrIndexId)
-            .then(retSearchInputs => {
-              _this2.listComponent.updateSearchInputs(retSearchInputs);
-
-              /*
-              TODO reselect selected index, if deleted entry was the selected one
-              TODO reselect selected index, if deleted entry was the first one
-              */
-
-              _this2.listComponent.reloadSearchInputListAfterDetailUpdate();
-              _this2.showDetailsForSearchInputWithId(null);
-            })
-            .catch(error => _this2.handleError(error));
-        })
-        .catch(error => _this2.handleError(error));
-    }
-    this.parentComponent.modalConfirmDeferred.promise
-      .then(isOk => {
-//        console.log('In SearchInputListComponent :: deleteSearchInput' +
-//          ' :: then :: isOk = ' + isOk + ' -- this = ' + this);
-        if (isOk) {
-          executeDeleteSearchInput();
-        }});
+    // TODO reselect selected index, if deleted entry was the selected one
+    // TODO reselect selected index, if deleted entry was the first one
+    this.deleteItemByType.emit({itemType: 'RuleManagement', id: searchInputId});
   }
-
 }
