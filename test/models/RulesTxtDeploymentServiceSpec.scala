@@ -19,6 +19,7 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
   }
 
   private def rulesFileContent(ruleIds: Seq[SearchInputId]): String = s"""aerosmith =>
+                           |	SYNONYM: directed
                            |	SYNONYM: mercury
                            |	DOWN(10): battery
                            |	UP(10): notebook
@@ -29,6 +30,7 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
                            |
                            |mercury =>
                            |	SYNONYM: aerosmith
+                           |	SYNONYM: directed
                            |	DOWN(10): battery
                            |	UP(10): notebook
                            |	FILTER: zz top

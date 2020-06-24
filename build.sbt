@@ -4,7 +4,7 @@ import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars,
 name := "search-management-ui"
 version := "3.6.1"
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.12.11"
 
 val globalMaintainer = "Paul M. Bartusch <paulbartusch@gmx.de>"
 

@@ -2,14 +2,13 @@ package models
 
 import java.io.FileInputStream
 import java.time.LocalDateTime
-import java.util.UUID
-import java.util.Date
+import java.util.{Date, UUID}
 
 import anorm.SqlParser.get
-import javax.inject.Inject
 import anorm._
+import javax.inject.Inject
 import models.FeatureToggleModel.FeatureToggleService
-import models.SearchInput.ID
+import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import play.api.db.DBApi
 
 @javax.inject.Singleton
@@ -69,6 +68,35 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       SearchInput.loadAllIdsForIndex(solrIndexId)
     }
   }
+
+  /**
+    * Canonical spellings and alternative spellings
+    */
+
+  def addNewCanonicalSpelling(solrIndexId: SolrIndexId, term: String): CanonicalSpelling =
+    db.withConnection { implicit connection =>
+      CanonicalSpelling.insert(solrIndexId, term)
+    }
+
+  def getDetailedSpelling(canonicalSpellingId: String): Option[CanonicalSpellingWithAlternatives] =
+    db.withConnection { implicit connection =>
+      CanonicalSpellingWithAlternatives.loadById(CanonicalSpellingId(canonicalSpellingId))
+    }
+
+  def updateSpelling(spelling: CanonicalSpellingWithAlternatives): Unit =
+    db.withTransaction { implicit connection =>
+      CanonicalSpellingWithAlternatives.update(spelling)
+    }
+
+  def listAllSpellings(solrIndexId: SolrIndexId): List[CanonicalSpelling] =
+    db.withConnection { implicit connection =>
+      CanonicalSpelling.loadAllForIndex(solrIndexId)
+    }
+
+  def deleteSpelling(canonicalSpellingId: String): Int =
+    db.withTransaction { implicit connection =>
+      CanonicalSpellingWithAlternatives.delete(CanonicalSpellingId(canonicalSpellingId))
+    }
 
   /**
     * Adds new Search Input (term) to the database table. This method only focuses the term, and does not care about any synonyms.

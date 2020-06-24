@@ -6,6 +6,7 @@ import java.net.{URI, URISyntaxException}
 import javax.inject.Inject
 import models.FeatureToggleModel._
 import models.rules._
+import models.spellings.{AlternateSpelling, CanonicalSpellingWithAlternatives}
 import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json.{JsString, Json}
 import querqy.rewrite.commonrules.{SimpleCommonRulesParser, WhiteSpaceQuerqyParserFactory}
@@ -262,6 +263,37 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       case Failure(e: URISyntaxException) => Some(s"Not a valid URL: $target (${e.getMessage})")
       case Failure(t: Throwable) => Some(s"Error validating $target: ${t.getMessage}")
     }
+  }
+
+  def validateCanonicalSpellingsAndAlternatives(spellings: CanonicalSpellingWithAlternatives, solrIndexId: SolrIndexId): Seq[String] = {
+    Seq(
+      validateDuplicateAlternateSpellings(spellings),
+      validateAlternateSpellingEqualsCanonical(spellings),
+      validateAlternateSpellingEqualsOtherCanonical(spellings, solrIndexId)
+    ).flatten
+  }
+
+  private def validateDuplicateAlternateSpellings(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
+    val alternateSpellings = spellings.alternateSpellings.map(_.term)
+    if (alternateSpellings.toSet.size != alternateSpellings.size) {
+      Some(s"Duplicate alternate spelling for '${spellings.term}': ${alternateSpellings.toString()}")
+    } else None
+  }
+
+  private def validateAlternateSpellingEqualsCanonical(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
+    val alternateSpellings = spellings.alternateSpellings.map(_.term)
+    if(alternateSpellings.contains(spellings.term)) {
+      Some(s"Alternate spelling is same as the canonical spelling '${spellings.term}': ${alternateSpellings.toString()}")
+    } else None
+  }
+
+  private def validateAlternateSpellingEqualsOtherCanonical(spellings: CanonicalSpellingWithAlternatives, solrIndexId: SolrIndexId): Option[String] = {
+    val alternateSpellings = spellings.alternateSpellings.map(_.term)
+    val allSpellings = searchManagementRepository.listAllSpellings(solrIndexId).map(_.term)
+    val intersection = allSpellings.intersect(alternateSpellings)
+    if(intersection.nonEmpty) {
+      Some(s"Alternate spelling is same as another canonical spelling: ${intersection.toString()}")
+    } else None
   }
 
 }
