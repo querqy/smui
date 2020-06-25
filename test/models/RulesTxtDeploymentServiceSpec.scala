@@ -42,8 +42,7 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
                            |shipping =>
                            |	DECORATE: REDIRECT http://xyz.com/shipping
                            |	@{
-                           |	  "_log" : "${ruleIds.last}",
-                           |	  "testProperty" : [ "testValue" ]
+                           |	  "_log" : "${ruleIds.last}"
                            |	}@""".stripMargin
 
   private def replaceRulesFileContent(): String =
