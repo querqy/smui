@@ -67,4 +67,12 @@ object AlternateSpelling {
   def deleteByCanonicalSpelling(canonicalSpellingId: CanonicalSpellingId)(implicit connection: Connection): Int = {
     SQL"delete from #$TABLE_NAME where #$CANONICAL_SPELLING_ID = $canonicalSpellingId".executeUpdate()
   }
+
+  def loadByCanonicalSpellingIds(ids: Seq[CanonicalSpellingId])(implicit connection: Connection): Map[CanonicalSpellingId, Seq[AlternateSpelling]] = {
+    ids.grouped(100).toSeq.flatMap { idGroup =>
+      SQL"select * from #$TABLE_NAME where #$CANONICAL_SPELLING_ID in ($idGroup)".as((sqlParser ~ get[CanonicalSpellingId](CANONICAL_SPELLING_ID)).*).map { case alternateSpelling ~ id =>
+        id -> alternateSpelling
+      }
+    }.groupBy(_._1).mapValues(_.map(_._2))
+  }
 }

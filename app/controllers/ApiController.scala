@@ -131,8 +131,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
   def listAll(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action) {
     val searchInputs = searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))
-    val spellings = searchManagementRepository.listAllSpellings(SolrIndexId(solrIndexId))
-    Ok(Json.toJson(ListItem.createFromRulesAndSpellings(searchInputs, spellings)))
+    val spellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId))
+    Ok(Json.toJson(ListItem.create(searchInputs, spellings)))
   }
 
   def addNewSpelling(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>

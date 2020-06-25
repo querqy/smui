@@ -93,6 +93,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       CanonicalSpelling.loadAllForIndex(solrIndexId)
     }
 
+  def listAllSpellingsWithAlternatives(solrIndexId: SolrIndexId): List[CanonicalSpellingWithAlternatives] =
+    db.withConnection { implicit connection =>
+      CanonicalSpellingWithAlternatives.loadAllForIndex(solrIndexId)
+    }
+
   def deleteSpelling(canonicalSpellingId: String): Int =
     db.withTransaction { implicit connection =>
       CanonicalSpellingWithAlternatives.delete(CanonicalSpellingId(canonicalSpellingId))

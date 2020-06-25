@@ -56,6 +56,7 @@ class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
     listItems.find(_.term == "inactive").get.comment shouldBe "inactive"
     listItems.find(_.term == "aerosmith").get.synonyms shouldBe Seq("mercury")
     listItems.find(_.term == "shipping").get.tags.map(_.value)shouldBe Seq("testValue")
+    listItems.find(_.term == "freezer").get.additionalTermsForSearch shouldBe Seq("frezer", "freazer", "frazer")
   }
 
   "Canonical spellings" should "be added" in {

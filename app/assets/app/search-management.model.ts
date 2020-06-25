@@ -108,5 +108,6 @@ export class ListItem {
   isActive: boolean;
   synonyms: Array<string>;
   tags: Array<InputTag>;
-  comment: string
+  comment: string;
+  additionalTermsForSearch: Array<string>;
 }

@@ -47,19 +47,31 @@ export class SearchInputListComponent implements OnInit {
   }
 
   private listItemContainsString(item: smm.ListItem, searchTermLower: string): Boolean {
+    function searchTermIncludesString(s: string) {
+      return s.toLowerCase().indexOf(searchTermLower) !== -1
+    }
+
     if (searchTermLower.length === 0) {
       return true;
     }
-    if (item.term.toLowerCase().indexOf(searchTermLower) !== -1) {
+    if (searchTermIncludesString(item.term)) {
       return true;
     }
+
     // otherwise, we have a chance in the synonyms ...
     // TODO evaluate to check for undirected synonyms (synonymType) only
     for (const s of item.synonyms) {
-      if (s.toLowerCase().indexOf(searchTermLower) !== -1) {
+      if (searchTermIncludesString(s)) {
         return true;
       }
     }
+    
+    for (const at of item.additionalTermsForSearch) {
+      if (searchTermIncludesString(at)) {
+        return true;
+      }
+    }
+
     return false;
   }
 
