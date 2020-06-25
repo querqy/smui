@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card card-gap">
   <div class="card-body">
     <div class="row">
       <div class="col">
@@ -50,6 +50,40 @@
                   <i class="fa fa-minus" aria-hidden="true"></i> Permanently delete
                 </button>
               </td>
+            </tr>
+            <tr *ngIf="detailSearchInput !== null && associatedSpellings.length > 0">
+              <td style="width:20%"></td>
+              <td style="width:60%">
+                <div class="smui-associated-spellings">
+                  <div class="smui-associated-spellings-title">
+                    <small class="uppercase">Associated Spellings:</small>
+                  </div>
+                  <div class="smui-associated-spellings-list">
+                    <ul>
+                      <li *ngFor="let associatedSpelling of associatedSpellings; let idxAssociatedSpelling = index">
+                        <ng-container *ngIf="associatedSpelling.exists">
+                          <small class="underlined-dashed active"
+                                 (click)="openDetailsForSpelling(associatedSpelling.id)">
+                            {{associatedSpelling.term}}
+                          </small>
+                          <small *ngFor="let spelling of associatedSpelling.alternates; let idxAlternateSpelling = index"
+                                 class="with-pipe muted">
+                            {{spelling}}
+                          </small>
+                        </ng-container>
+                        <ng-container *ngIf="!associatedSpelling.exists">
+                          <small>{{associatedSpelling.term}}</small>
+                          <i class="fa fa-plus-circle active align-middle" aria-hidden="true"
+                             (click)="createNewSpellingItemForTerm(associatedSpelling.term)">
+                          </i>
+                        </ng-container>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+              <td style="width:20%"></td>
+            </tr>
           </table>
         </div>
         </div>

@@ -44,12 +44,12 @@
           'smui-spelling-item': listItem.itemType === 'Spelling' && (!selectedListItem || selectedListItem && selectedListItem.id !== listItem.id) }"
           (click)="selectListItem(listItem)"
       >
-        <span>
-          <i *ngIf="listItem.itemType === 'Spelling'" class="fa fa-comments-o" aria-hidden="true"></i>
-          <i *ngIf="listItem.itemType === 'RuleManagement'" class="fa fa-list" aria-hidden="true"></i>
+        <span class="smui-right-gap smui-align-middle">
+          <i *ngIf="listItem.itemType === 'Spelling'" class="fa fa-comments-o smui-align-middle" aria-hidden="true"></i>
+          <i *ngIf="listItem.itemType === 'RuleManagement'" class="fa fa-list smui-align-middle" aria-hidden="true"></i>
         </span>
 
-        <span>{{ listItem.term }}</span>
+        <span class="smui-align-middle">{{ listItem.term }}</span>
 
         <ng-container *ngFor="let listItemSynonym of listItem.synonyms">
           <!-- TODO evaluate whether to show or hide undirected synonyms, that are not active -->

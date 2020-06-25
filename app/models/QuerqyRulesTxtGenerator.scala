@@ -276,14 +276,14 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   private def validateDuplicateAlternateSpellings(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
     val alternateSpellings = spellings.alternateSpellings.map(_.term)
     if (alternateSpellings.toSet.size != alternateSpellings.size) {
-      Some(s"Duplicate alternate spelling for '${spellings.term}': ${alternateSpellings.toString()}")
+      Some(s"Duplicate alternate spelling for '${spellings.term}': ${alternateSpellings.mkString(",")}")
     } else None
   }
 
   private def validateAlternateSpellingEqualsCanonical(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
     val alternateSpellings = spellings.alternateSpellings.map(_.term)
     if(alternateSpellings.contains(spellings.term)) {
-      Some(s"Alternate spelling is same as the canonical spelling '${spellings.term}': ${alternateSpellings.toString()}")
+      Some(s"Alternate spelling is same as the canonical spelling '${spellings.term}': ${alternateSpellings.mkString(",")}")
     } else None
   }
 
@@ -292,7 +292,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     val allSpellings = searchManagementRepository.listAllSpellings(solrIndexId).map(_.term)
     val intersection = allSpellings.intersect(alternateSpellings)
     if(intersection.nonEmpty) {
-      Some(s"Alternate spelling is same as another canonical spelling: ${intersection.toString()}")
+      Some(s"Alternate spelling is same as another canonical spelling: ${intersection.mkString(",")}")
     } else None
   }
 

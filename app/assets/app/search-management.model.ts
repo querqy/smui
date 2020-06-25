@@ -111,3 +111,17 @@ export class ListItem {
   comment: string;
   additionalTermsForSearch: Array<string>;
 }
+
+export class AssociatedSpelling {
+  id: string;
+  term: string;
+  exists: boolean;
+  alternates: Array<string>;
+
+  constructor(id: string, term: string, exists: boolean, alternates: Array<string>) {
+    this.id = id;
+    this.term = term;
+    this.exists = exists;
+    this.alternates = alternates;
+  }
+}

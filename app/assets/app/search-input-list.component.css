@@ -45,3 +45,11 @@ li.list-group-item.active > .text-muted {
 .smui-icon {
 	margin-right: 0.5rem;
 }
+
+.smui-right-gap {
+	margin-right: 0.5rem;
+}
+
+.smui-align-middle {
+	vertical-align: middle;
+}

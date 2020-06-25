@@ -1,19 +1,16 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-// import { ActivatedRoute, Params } from '@angular/router';
-
-import { Observable } from 'rxjs/Observable';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 
-import { AppComponent } from './app.component';
-import { SearchInputListComponent } from './search-input-list.component';
-
 import * as smm from './search-management.model';
 import { SearchManagementService } from './search-management.service';
 import { FeatureToggleService } from './feature-toggle.service';
+import { SearchInputListComponent } from './search-input-list.component';
+// import { ActivatedRoute, Params } from '@angular/router';
 
 const DEFAULT_IDX_UP_DOWN_DROPDOWN_DEFINITION_MAPPING = 4;
 declare var $: any; // For jquery
@@ -30,11 +27,14 @@ export class SearchInputDetailComponent implements OnInit {
   @Input() selectedListItem = null;
   @Input() currentSolrIndexId = '-1';
   @Input() allInputTags: smm.InputTag[] = [];
+  @Input() searchListItems: smm.ListItem[] = [];
 
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
   @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
   @Output() refreshItemsInList: EventEmitter<string> = new EventEmitter();
   @Output() deleteItemByType: EventEmitter<any> = new EventEmitter();
+  @Output() selectListItemById: EventEmitter<string> = new EventEmitter();
+  @Output() createItem: EventEmitter<any> = new EventEmitter();
 
   private detailSearchInput: smm.SearchInput = null;
   private initDetailSearchInputHashForDirtyState: string = null;
@@ -43,6 +43,7 @@ export class SearchInputDetailComponent implements OnInit {
   private availableTags: smm.InputTag[] = [];
   private saveError: string = null;
   private previousTagEventHandler = null;
+  private associatedSpellings: smm.AssociatedSpelling[] = [];
 
   // TODO open typeahead popup on focus -- focus$ = new Subject<string>();
   searchSuggestedSolrFieldNames = (text$: Observable<string>) =>
@@ -68,6 +69,8 @@ export class SearchInputDetailComponent implements OnInit {
   }
 
   ngOnChanges() {
+    console.log('In SearchInputDetailComponent :: ngOnChanges');
+
     if (this.selectedListItem) {
       this.showDetailsForSearchInputWithId(this.selectedListItem.id)
     }
@@ -219,8 +222,39 @@ export class SearchInputDetailComponent implements OnInit {
 
           this.initDetailSearchInputHashForDirtyState = JSON.stringify(this.detailSearchInput); // TODO hash string value
         })
+        .then(() => this.findSpellingsForSearchInput())
         .catch(error => this.handleError(error));
     }
+  }
+
+  private findSpellingsForSearchInput() {
+    console.log('In SearchInputDetailComponent :: findSpellingsForSearchInput');
+
+    if (this.detailSearchInput && this.detailSearchInput.term !== '') {
+      const subTerms = this.detailSearchInput.term.split(' ');
+      this.associatedSpellings = subTerms
+        .map(subTerm => { return {
+          term: subTerm,
+          spellingItem: this.searchListItems.find(item => item.term === subTerm)}
+        })
+        .map(item => {
+          return item.spellingItem ?
+              new smm.AssociatedSpelling(item.spellingItem.id, item.term, true, item.spellingItem.additionalTermsForSearch)
+            :
+              new smm.AssociatedSpelling('', item.term, false, [])
+        })
+    } else {
+      this.associatedSpellings = []
+    }
+  }
+
+  public openDetailsForSpelling(id: string) {
+    this.selectListItemById.emit(id)
+  }
+
+  public createNewSpellingItemForTerm(term: string) {
+    const apiCall = () => this.searchManagementService.addNewSpellingItem(this.currentSolrIndexId, term);
+    this.createItem.emit({ itemType: smm.ListItemType.Spelling, apiCall })
   }
 
   public isDirty(): boolean {

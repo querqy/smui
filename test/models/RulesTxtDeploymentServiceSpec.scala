@@ -41,7 +41,8 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
                            |shipping =>
                            |	DECORATE: REDIRECT http://xyz.com/shipping
                            |	@{
-                           |	  "_log" : "${ruleIds.last}"
+                           |	  "_log" : "${ruleIds.last}",
+                           |	  "testProperty" : [ "testValue" ]
                            |	}@""".stripMargin
 
   "RulesTxtDeploymentService" should "generate rules files with correct file names" in {

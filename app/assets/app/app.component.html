@@ -74,10 +74,13 @@
                                       [currentSolrIndexId]="currentSolrIndexId"
                                       [selectedListItem]="selectedListItem"
                                       [allInputTags]="allInputTags"
+                                      [searchListItems]="searchInputListComponent.searchListItems"
                                       (showErrorMsg)="showErrorMsg($event)"
                                       (showSuccessMsg)="showSuccessMsg($event)"
                                       (deleteItemByType)="deleteItemByType($event)"
                                       (refreshItemsInList)="searchInputListComponent.refreshItemsInList($event)"
+                                      (selectListItemById)="searchInputListComponent.selectListItemById($event)"
+                                      (createItem)="createItem($event)"
                                       #searchInputDetailComponent></smui-search-input-detail>
 
             <smui-spelling-detail *ngIf="selectedListItem && selectedListItem.itemType === 'Spelling'"

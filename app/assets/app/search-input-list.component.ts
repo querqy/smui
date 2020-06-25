@@ -1,9 +1,9 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 
 import * as smm from './search-management.model';
-import {ListItem, ListItemType} from './search-management.model';
-import {SearchManagementService} from './search-management.service';
-import {FeatureToggleService} from './feature-toggle.service';
+import { ListItem, ListItemType } from './search-management.model';
+import { SearchManagementService } from './search-management.service';
+import { FeatureToggleService } from './feature-toggle.service';
 
 declare var $: any; // TODO include @types/jquery properly, make this workaround unnecessary
 
@@ -17,6 +17,7 @@ export class SearchInputListComponent implements OnInit {
 
   @Input() currentSolrIndexId = '-1';
   @Input() selectedListItem: ListItem = null;
+
   @Output() selectedListItemChange = new EventEmitter<ListItem>();
   @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
@@ -24,6 +25,7 @@ export class SearchInputListComponent implements OnInit {
   @Output() deleteItemByType: EventEmitter<any> = new EventEmitter();
 
   public allTags: smm.InputTag[] = [];
+  public searchListItems: smm.ListItem[] = [];
   private listItems: smm.ListItem[] = [];
   private tagFilter: smm.InputTag = null;
   private searchInputTerm = '';
@@ -65,7 +67,7 @@ export class SearchInputListComponent implements OnInit {
         return true;
       }
     }
-    
+
     for (const at of item.additionalTermsForSearch) {
       if (searchTermIncludesString(at)) {
         return true;
@@ -138,11 +140,18 @@ export class SearchInputListComponent implements OnInit {
       .getAllItemsForInputList(solrIndexId)
       .then(listItems => {
         this.listItems = listItems;
+        this.searchListItems = this.filterSearchListItems(listItems);
         this.searchInputTerm = '';
         return listItems
       })
       .then(listItems => this.refreshTags(listItems))
       .catch(error => this.handleError(error));
+  }
+
+  private filterSearchListItems(listItems: ListItem[]) {
+    return listItems.filter(item =>
+      item.itemType.toString() === ListItemType[ListItemType.Spelling].toString()
+    );
   }
 
   private refreshTags(listItems: smm.ListItem[]) {
