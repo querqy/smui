@@ -39,6 +39,7 @@ package object FeatureToggleModel {
     private val PREDEFINED_TAGS_FILE = "toggle.predefined-tags-file"
     private val SMUI_AUTH_SIMPLE_LOGOUT = "smui.auth.ui-concept.simple-logout-button-target-url"
     private val SMUI_VERSION = "smui.version"
+    private val FEATURE_TOGGLE_REPLACE_RULE_DEPLOYMENT = "toggle.replace-rule-deployment"
 
     def getJsFrontendToogleList: List[JsFeatureToggle] = {
       def jsBoolFeatureToggle(toggleKey: String, bDefault: Boolean): JsFeatureToggle = {
@@ -88,6 +89,10 @@ package object FeatureToggleModel {
 
     def predefinedTagsFileName: Option[String] = {
       appConfig.getOptional[String](PREDEFINED_TAGS_FILE).filter(_.nonEmpty)
+    }
+
+    def getToggleReplaceRuleDeployment: Boolean = {
+      appConfig.getOptional[Boolean](FEATURE_TOGGLE_REPLACE_RULE_DEPLOYMENT).getOrElse(false)
     }
   }
 

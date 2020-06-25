@@ -1,15 +1,17 @@
 package models
 
-import java.io.StringReader
+import java.io.{ByteArrayInputStream, InputStreamReader, StringReader}
 import java.net.{URI, URISyntaxException}
+import java.nio.charset.Charset
 
 import javax.inject.Inject
 import models.FeatureToggleModel._
 import models.rules._
-import models.spellings.{AlternateSpelling, CanonicalSpellingWithAlternatives}
+import models.spellings.CanonicalSpellingWithAlternatives
 import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json.{JsString, Json}
 import querqy.rewrite.commonrules.{SimpleCommonRulesParser, WhiteSpaceQuerqyParserFactory}
+import querqy.rewrite.contrib.replace.ReplaceRewriterParser
 
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
@@ -45,6 +47,11 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
 
   private def renderRedirectRule(redirectRule: RedirectRule): String = {
     s"\tDECORATE: REDIRECT ${redirectRule.target}\n"
+  }
+
+  def renderReplaceRule(spelling: CanonicalSpellingWithAlternatives): String = {
+    val alternateSpellings = spelling.alternateSpellings.map(_.term).mkString("; ")
+    s"${alternateSpellings} => ${spelling.term}\n"
   }
 
   def renderSearchInputRulesForTerm(term: String, searchInput: SearchInputWithRules): String = {
@@ -169,6 +176,26 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     renderListSearchInputRules(separateRules(listSearchInput))
   }
 
+  def renderReplaceRules(solrIndexId: SolrIndexId): String = {
+    val listSpellings: Seq[CanonicalSpellingWithAlternatives] = searchManagementRepository
+      .listAllSpellingsWithAlternatives(solrIndexId)
+      .filter(_.exportToReplaceFile)
+
+    renderListSpellings(listSpellings)
+  }
+
+  private def renderListSpellings(listSpellings: Seq[CanonicalSpellingWithAlternatives]): String = {
+    val retQuerqyReplaceRulesTxt = new StringBuilder()
+
+    listSpellings.foreach { spelling =>
+      retQuerqyReplaceRulesTxt.append(
+        renderReplaceRule(spelling)
+      )
+    }
+
+    retQuerqyReplaceRulesTxt.toString()
+  }
+
   def renderSingleRulesTxt(solrIndexId: SolrIndexId): String = {
     render(solrIndexId, false, false)
   }
@@ -198,6 +225,25 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
         // TODO better parse the returned Exception and return a line-wise error object making validation errors assign-able to specific rules
         Some(e.getMessage())
       }
+    }
+  }
+
+  def validateQuerqyReplaceRulesTxtToErrMsg(strRulesTxt: String): Option[String] = {
+    try {
+      val querqyParser = new WhiteSpaceQuerqyParserFactory().createParser()
+      val inputStream = new ByteArrayInputStream(strRulesTxt.getBytes(Charset.forName("UTF-8")))
+      val inputStreamReader = new InputStreamReader(inputStream)
+
+      val replaceRewriterParser = new ReplaceRewriterParser(
+        inputStreamReader, false, "\n", querqyParser
+      )
+
+      replaceRewriterParser.parseConfig()
+      None
+    } catch {
+      case e: Exception =>
+        // TODO better parse the returned Exception and return a line-wise error object making validation errors assign-able to specific rules
+        Some(e.getMessage)
     }
   }
 
@@ -267,10 +313,15 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
 
   def validateCanonicalSpellingsAndAlternatives(spellings: CanonicalSpellingWithAlternatives, solrIndexId: SolrIndexId): Seq[String] = {
     Seq(
+      validateReplaceRulesParsing(spellings),
       validateDuplicateAlternateSpellings(spellings),
       validateAlternateSpellingEqualsCanonical(spellings),
       validateAlternateSpellingEqualsOtherCanonical(spellings, solrIndexId)
     ).flatten
+  }
+
+  private def validateReplaceRulesParsing(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
+    validateQuerqyReplaceRulesTxtToErrMsg(renderReplaceRule(spellings))
   }
 
   private def validateDuplicateAlternateSpellings(spellings: CanonicalSpellingWithAlternatives): Option[String] = {

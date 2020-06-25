@@ -7,7 +7,12 @@ import play.api.libs.json.{Json, OFormat}
 
 case class CanonicalSpellingWithAlternatives(id: CanonicalSpellingId,
                                              term: String,
-                                             alternateSpellings: List[AlternateSpelling] = Nil)
+                                             alternateSpellings: List[AlternateSpelling] = Nil) {
+
+  def exportToReplaceFile: Boolean = {
+    this.term.nonEmpty && alternateSpellings.nonEmpty
+  }
+}
 
 object CanonicalSpellingWithAlternatives {
 

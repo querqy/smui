@@ -17,9 +17,12 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
 
   case class RulesTxtsForSolrIndex(solrIndexId: SolrIndexId,
                                    regularRules: RulesTxtWithFileNames,
-                                   decompoundRules: Option[RulesTxtWithFileNames]) {
+                                   decompoundRules: Option[RulesTxtWithFileNames],
+                                   replaceRules: Option[RulesTxtWithFileNames]) {
 
-    def allRulesFiles: List[RulesTxtWithFileNames] = List(regularRules) ++ decompoundRules
+    def regularAndDecompoundFiles: List[RulesTxtWithFileNames] = List(regularRules) ++ decompoundRules
+
+    def allFiles: List[RulesTxtWithFileNames] = regularAndDecompoundFiles ++ replaceRules
 
   }
 
@@ -44,6 +47,12 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     val SMUI_DEPLOY_PRELIVE_FN_RULES_TXT = appConfig.get[String]("smui2solr.deploy-prelive-fn-rules-txt")
     val SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT = appConfig.get[String]("smui2solr.deploy-prelive-fn-decompound-txt")
 
+    // Replace rules (spelling)
+    val EXPORT_REPLACE_RULES = featureToggleService.getToggleReplaceRuleDeployment
+    val REPLACE_RULES_SRC_TMP_FILE = appConfig.get[String]("smui2solr.REPLACE_RULES_TMP_FILE")
+    val REPLACE_RULES_DST_CP_FILE_TO = appConfig.get[String]("smui2solr.REPLACE_RULES_DST_CP_FILE_TO")
+    val SMUI_DEPLOY_PRELIVE_FN_REPLACE_TXT = appConfig.get[String]("smui2solr.deploy-prelive-fn-replace-txt")
+
     if (logDebug) {
       logger.debug(
         s""":: generateRulesTxtContentWithFilenames config
@@ -53,6 +62,10 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
            |:: DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = $DECOMPOUND_RULES_TXT_DST_CP_FILE_TO
            |:: SMUI_DEPLOY_PRELIVE_FN_RULES_TXT = $SMUI_DEPLOY_PRELIVE_FN_RULES_TXT
            |:: SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT = $SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT
+           |:: EXPORT_REPLACE_RULES = $EXPORT_REPLACE_RULES
+           |:: REPLACE_RULES_SRC_TMP_FILE = $REPLACE_RULES_SRC_TMP_FILE
+           |:: REPLACE_RULES_DST_CP_FILE_TO = $REPLACE_RULES_DST_CP_FILE_TO
+           |:: SMUI_DEPLOY_PRELIVE_FN_REPLACE_TXT = $SMUI_DEPLOY_PRELIVE_FN_REPLACE_TXT
       """.stripMargin)
     }
 
@@ -60,12 +73,27 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
 
     // TODO test correct generation in different scenarios (one vs. two rules.txts, etc.)
     val dstCpFileTo = if (targetSystem == "PRELIVE")
-      SMUI_DEPLOY_PRELIVE_FN_RULES_TXT
+      SMUI_DEPLOY_PRELIVE_FN_REPLACE_TXT
     else // targetSystem == "LIVE"
       DST_CP_FILE_TO
+
+    val replaceRulesDstCpFileTo =
+      if (targetSystem == "PRELIVE") SMUI_DEPLOY_PRELIVE_FN_RULES_TXT
+      else REPLACE_RULES_DST_CP_FILE_TO
+
+    val replaceRules =
+      if (EXPORT_REPLACE_RULES) {
+        Some(RulesTxtWithFileNames(
+          querqyRulesTxtGenerator.renderReplaceRules(solrIndexId), REPLACE_RULES_SRC_TMP_FILE, replaceRulesDstCpFileTo
+        ))
+      } else None
+
     if (!DO_SPLIT_DECOMPOUND_RULES_TXT) {
       RulesTxtsForSolrIndex(solrIndexId,
-        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId), SRC_TMP_FILE, dstCpFileTo), None)
+        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId), SRC_TMP_FILE, dstCpFileTo),
+        None,
+        replaceRules
+      )
     } else {
       val decompoundDstCpFileTo = if (targetSystem == "PRELIVE")
         SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT
@@ -74,7 +102,10 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
       RulesTxtsForSolrIndex(solrIndexId,
         RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = false), SRC_TMP_FILE, dstCpFileTo),
         Some(RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = true),
-          SRC_TMP_FILE + "-2", decompoundDstCpFileTo)))
+          SRC_TMP_FILE + "-2", decompoundDstCpFileTo)
+        ),
+        replaceRules
+      )
     }
   }
 
@@ -83,7 +114,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     * There are no errors if the list is empty.
     */
   def validateCompleteRulesTxts(rulesTxts: RulesTxtsForSolrIndex, logDebug: Boolean = true): List[String] = {
-    rulesTxts.allRulesFiles.flatMap { rulesFile =>
+    val rulesValidation = rulesTxts.regularAndDecompoundFiles.flatMap { rulesFile =>
       if (logDebug) {
         logger.debug(":: validateCompleteRulesTxts for src = " + rulesFile.sourceFileName + " dst = " + rulesFile.destinationFileName)
         logger.debug(":: rulesTxt = <<<" + rulesFile.content + ">>>")
@@ -94,6 +125,12 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
       }
       validationResult
     }
+
+    val replaceRulesValidation = rulesTxts.replaceRules.flatMap { replaceRules =>
+      querqyRulesTxtGenerator.validateQuerqyReplaceRulesTxtToErrMsg(replaceRules.content)
+    }.toSeq
+
+    rulesValidation ++ replaceRulesValidation
   }
 
   def executeDeploymentScript(rulesTxts: RulesTxtsForSolrIndex, targetSystem: String): DeploymentScriptResult = {
@@ -203,7 +240,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     }
 
     // write the temp file(s)
-    rulesTxts.allRulesFiles.foreach { file =>
+    rulesTxts.allFiles.foreach { file =>
       writeRulesTxtToTempFile(file.content, file.sourceFileName)
     }
   }
@@ -221,6 +258,12 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
         for (decompoundRules <- rules.decompoundRules) {
           zipStream.putNextEntry(new ZipEntry(s"rules-decompounding_${index.name}.txt"))
           zipStream.write(decompoundRules.content.getBytes("UTF-8"))
+          zipStream.closeEntry()
+        }
+
+        for (replaceRules <- rules.replaceRules) {
+          zipStream.putNextEntry(new ZipEntry(s"replace-rules_${index.name}.txt"))
+          zipStream.write(replaceRules.content.getBytes("UTF-8"))
           zipStream.closeEntry()
         }
       }
