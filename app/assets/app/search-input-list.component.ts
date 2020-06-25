@@ -28,7 +28,6 @@ export class SearchInputListComponent implements OnInit {
   private tagFilter: smm.InputTag = null;
   private searchInputTerm = '';
   private limitItemsTo = +this.featureToggleService.getSyncToggleUiListLimitItemsTo();
-  private showMoreButton = false;
   private isShowingAllItems = false;
 
   constructor(
@@ -39,10 +38,6 @@ export class SearchInputListComponent implements OnInit {
 
   ngOnInit() {
     console.log('In SearchInputSearchComponent :: ngOnInit');
-  }
-
-  valuechange(value) {
-    console.log(value)
   }
 
   handleError(error: any) {
@@ -84,9 +79,12 @@ export class SearchInputListComponent implements OnInit {
     return this.featureToggleService.isRuleTaggingActive()
   }
 
+  public filterByTag(tag: smm.InputTag) {
+    this.tagFilter = tag;
+  }
+
   public getFilteredListItems(): smm.ListItem[] {
     const searchTerm = this.searchInputTerm.trim().toLowerCase();
-    this.setShowMoreButtonState();
 
     if (searchTerm.length > 0 || this.tagFilter) {
       return this.listItems.filter(item => {
@@ -129,7 +127,6 @@ export class SearchInputListComponent implements OnInit {
       .then(listItems => {
         this.listItems = listItems;
         this.searchInputTerm = '';
-        this.setShowMoreButtonState();
         return listItems
       })
       .then(listItems => this.refreshTags(listItems))
@@ -167,16 +164,7 @@ export class SearchInputListComponent implements OnInit {
     });
   }
 
-  private setShowMoreButtonState() {
-    this.showMoreButton =
-      !this.isShowingAllItems && (
-      this.limitItemsTo > 0 &&
-      this.listItems.length > this.limitItemsTo &&
-      this.searchInputTerm === '');
-  }
-
   public toggleShowMore() {
-    this.isShowingAllItems = !this.isShowingAllItems
-    this.setShowMoreButtonState()
+    this.isShowingAllItems = !this.isShowingAllItems;
   }
 }

@@ -79,10 +79,14 @@
       </li>
     </ng-container>
   </ul>
-  <button type="button" *ngIf="showMoreButton" class="btn btn-link pull-right" (click)="toggleShowMore()">
+  <button type="button"
+          *ngIf="!this.isShowingAllItems && this.limitItemsTo > 0 && filteredListItems.length > limitItemsTo"
+          class="btn btn-link pull-right" (click)="toggleShowMore()">
     <i class="fa fa-plus smui-icon"></i>Show all items
   </button>
-  <button type="button" *ngIf="!showMoreButton && searchInputTerm === ''" class="btn btn-link pull-right" (click)="toggleShowMore()">
+  <button type="button"
+          *ngIf="this.isShowingAllItems && this.limitItemsTo > 0 && filteredListItems.length > limitItemsTo"
+          class="btn btn-link pull-right" (click)="toggleShowMore()">
     <i class="fa fa-plus smui-icon"></i>Show less items
   </button>
 </div>

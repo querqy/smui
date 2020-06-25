@@ -8,10 +8,10 @@
                             <td style="width:20%">
                                 <small style="text-transform: uppercase">Canonical Spelling:</small>
                             </td>
-                            <td style="width:40%">
+                            <td style="width:60%">
                                 <ng-container *ngIf="detailSpelling !== null">
                                     <input type="text"
-                                           class="form-control"
+                                           class="form-control smui-input"
                                            id="canonicalSpellingInput"
                                            placeholder="Edit Canonical Spelling ..."
                                            [(ngModel)]="detailSpelling.term"
@@ -19,7 +19,7 @@
                                 </ng-container>
                                 <ng-container *ngIf="detailSpelling === null">
                                     <input type="text"
-                                           class="form-control"
+                                           class="form-control smui-input"
                                            id="inputSearchInput"
                                            placeholder="Edit Search Input ..."
                                            disabled="disabled">

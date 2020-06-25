@@ -9,3 +9,7 @@
 .smui-no-bottom-margin {
     margin-bottom: 0;
 }
+
+.smui-input {
+    width: 98%;
+}
