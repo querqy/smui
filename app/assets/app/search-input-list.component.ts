@@ -28,7 +28,7 @@ export class SearchInputListComponent implements OnInit {
   private tagFilter: smm.InputTag = null;
   private searchInputTerm = '';
   private limitItemsTo = +this.featureToggleService.getSyncToggleUiListLimitItemsTo();
-  private isShowingAllItems = false;
+  private isShowingAllItems = this.limitItemsTo < 0;
 
   constructor(
     private searchManagementService: SearchManagementService,
