@@ -15,7 +15,8 @@ import java.time.format.DateTimeFormatter
 import scala.concurrent.{ExecutionContext, Future}
 import controllers.auth.AuthActionFactory
 import models._
-import models.spellings.{CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import models.querqy.QuerqyRulesTxtGenerator
+import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
 class ApiController @Inject()(searchManagementRepository: SearchManagementRepository,
@@ -165,7 +166,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     jsonBody.map { json =>
       val spellingWithAlternatives = json.as[CanonicalSpellingWithAlternatives]
 
-      querqyRulesTxtGenerator.validateCanonicalSpellingsAndAlternatives(spellingWithAlternatives, SolrIndexId(solrIndexId)) match {
+      val allSpellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId))
+      CanonicalSpellingValidator.validateCanonicalSpellingsAndAlternatives(spellingWithAlternatives, allSpellings) match {
         case Nil =>
           searchManagementRepository.updateSpelling(spellingWithAlternatives)
           Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating canonical spelling successful.", Some(CanonicalSpellingId(canonicalSpellingId)))))

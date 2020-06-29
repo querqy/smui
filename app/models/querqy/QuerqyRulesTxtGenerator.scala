@@ -1,17 +1,15 @@
-package models
+package models.querqy
 
-import java.io.{ByteArrayInputStream, InputStreamReader, StringReader}
+import java.io.StringReader
 import java.net.{URI, URISyntaxException}
-import java.nio.charset.Charset
 
 import javax.inject.Inject
 import models.FeatureToggleModel._
 import models.rules._
-import models.spellings.CanonicalSpellingWithAlternatives
+import models.{SearchInputWithRules, SearchManagementRepository, SolrIndexId}
 import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json.{JsString, Json}
 import querqy.rewrite.commonrules.{SimpleCommonRulesParser, WhiteSpaceQuerqyParserFactory}
-import querqy.rewrite.contrib.replace.ReplaceRewriterParser
 
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
@@ -47,11 +45,6 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
 
   private def renderRedirectRule(redirectRule: RedirectRule): String = {
     s"\tDECORATE: REDIRECT ${redirectRule.target}\n"
-  }
-
-  def renderReplaceRule(spelling: CanonicalSpellingWithAlternatives): String = {
-    val alternateSpellings = spelling.alternateSpellings.map(_.term).mkString("; ")
-    s"${alternateSpellings} => ${spelling.term}\n"
   }
 
   def renderSearchInputRulesForTerm(term: String, searchInput: SearchInputWithRules): String = {
@@ -176,26 +169,6 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     renderListSearchInputRules(separateRules(listSearchInput))
   }
 
-  def renderReplaceRules(solrIndexId: SolrIndexId): String = {
-    val listSpellings: Seq[CanonicalSpellingWithAlternatives] = searchManagementRepository
-      .listAllSpellingsWithAlternatives(solrIndexId)
-      .filter(_.exportToReplaceFile)
-
-    renderListSpellings(listSpellings)
-  }
-
-  private def renderListSpellings(listSpellings: Seq[CanonicalSpellingWithAlternatives]): String = {
-    val retQuerqyReplaceRulesTxt = new StringBuilder()
-
-    listSpellings.foreach { spelling =>
-      retQuerqyReplaceRulesTxt.append(
-        renderReplaceRule(spelling)
-      )
-    }
-
-    retQuerqyReplaceRulesTxt.toString()
-  }
-
   def renderSingleRulesTxt(solrIndexId: SolrIndexId): String = {
     render(solrIndexId, false, false)
   }
@@ -228,24 +201,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     }
   }
 
-  def validateQuerqyReplaceRulesTxtToErrMsg(strRulesTxt: String): Option[String] = {
-    try {
-      val querqyParser = new WhiteSpaceQuerqyParserFactory().createParser()
-      val inputStream = new ByteArrayInputStream(strRulesTxt.getBytes(Charset.forName("UTF-8")))
-      val inputStreamReader = new InputStreamReader(inputStream)
 
-      val replaceRewriterParser = new ReplaceRewriterParser(
-        inputStreamReader, false, "\n", querqyParser
-      )
-
-      replaceRewriterParser.parseConfig()
-      None
-    } catch {
-      case e: Exception =>
-        // TODO better parse the returned Exception and return a line-wise error object making validation errors assign-able to specific rules
-        Some(e.getMessage)
-    }
-  }
 
   /**
     * Validate a {{searchInput}} instance for (1) SMUI plausibility as well as (2) the resulting rules.txt fragment
@@ -311,40 +267,5 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     }
   }
 
-  def validateCanonicalSpellingsAndAlternatives(spellings: CanonicalSpellingWithAlternatives, solrIndexId: SolrIndexId): Seq[String] = {
-    Seq(
-      validateReplaceRulesParsing(spellings),
-      validateDuplicateAlternateSpellings(spellings),
-      validateAlternateSpellingEqualsCanonical(spellings),
-      validateAlternateSpellingEqualsOtherCanonical(spellings, solrIndexId)
-    ).flatten
-  }
-
-  private def validateReplaceRulesParsing(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
-    validateQuerqyReplaceRulesTxtToErrMsg(renderReplaceRule(spellings))
-  }
-
-  private def validateDuplicateAlternateSpellings(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
-    val alternateSpellings = spellings.alternateSpellings.map(_.term)
-    if (alternateSpellings.toSet.size != alternateSpellings.size) {
-      Some(s"Duplicate alternate spelling for '${spellings.term}': ${alternateSpellings.mkString(",")}")
-    } else None
-  }
-
-  private def validateAlternateSpellingEqualsCanonical(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
-    val alternateSpellings = spellings.alternateSpellings.map(_.term)
-    if(alternateSpellings.contains(spellings.term)) {
-      Some(s"Alternate spelling is same as the canonical spelling '${spellings.term}': ${alternateSpellings.mkString(",")}")
-    } else None
-  }
-
-  private def validateAlternateSpellingEqualsOtherCanonical(spellings: CanonicalSpellingWithAlternatives, solrIndexId: SolrIndexId): Option[String] = {
-    val alternateSpellings = spellings.alternateSpellings.map(_.term)
-    val allSpellings = searchManagementRepository.listAllSpellings(solrIndexId).map(_.term)
-    val intersection = allSpellings.intersect(alternateSpellings)
-    if(intersection.nonEmpty) {
-      Some(s"Alternate spelling is same as another canonical spelling: ${intersection.mkString(",")}")
-    } else None
-  }
 
 }

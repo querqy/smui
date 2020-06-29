@@ -1,6 +1,7 @@
 package models
 
 import models.FeatureToggleModel.FeatureToggleService
+import models.querqy.QuerqyRulesTxtGenerator
 import models.rules._
 import models.spellings.{AlternateSpelling, AlternateSpellingId, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import org.mockito.Mockito._
@@ -139,21 +140,6 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
   }
 
-  it should "correctly create REPLACE rules from spellings" in {
-    val canonicalSpellingId = CanonicalSpellingId()
-    val canonicalSpelling = CanonicalSpellingWithAlternatives(
-      canonicalSpellingId, "freezer", List(
-        AlternateSpelling(AlternateSpellingId(), canonicalSpellingId, "frozer"),
-        AlternateSpelling(AlternateSpellingId(), canonicalSpellingId, "frazer"),
-        AlternateSpelling(AlternateSpellingId(), canonicalSpellingId, "fräzer"),
-        AlternateSpelling(AlternateSpellingId(), canonicalSpellingId, "frsadsadsv"),
-      )
-    )
-
-    val replaceRule = generator.renderReplaceRule(canonicalSpelling)
-    replaceRule shouldBe "frozer; frazer; fräzer; frsadsadsv => freezer\n"
-  }
-
   "Rules Text Generation" should "ignore inactive inputs completely" in {
 
     val listSearchInput = List(
@@ -230,20 +216,6 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
   "rules.txt validation" should "return an error when validating an invalid rules.txt" in {
     generator.validateQuerqyRulesTxtToErrMsg(VALID_RULES_TXT + "\nADD AN INVALID INSTRUCTION") should be
     Some("Line 31: Cannot parse line: ADD AN INVALID INSTRUCTION")
-  }
-
-  val VALID_REPLACE_RULES_TXT =
-    s"""frezer; freazer; frazer => freezer
-       |machin; mechine => machine
-       |pands; pents => pants""".stripMargin
-
-  "replace-rules.txt validation" should "positively validate valid rules.txt" in {
-    generator.validateQuerqyReplaceRulesTxtToErrMsg(VALID_REPLACE_RULES_TXT) should be(None)
-  }
-
-  "replace-rules.txt validation" should "return an error when validating an invalid replace-rules.txt" in {
-    val error = generator.validateQuerqyReplaceRulesTxtToErrMsg(VALID_REPLACE_RULES_TXT + "\nADD AN INVALID INSTRUCTION")
-    error.get should include("Each non-empty line must either start with # or contain a rule")
   }
 
   // TODO add tests for validateSearchInputToErrMsg

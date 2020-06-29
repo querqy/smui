@@ -148,7 +148,7 @@ class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
     val result: Future[Result] = route(application, request).get
 
     status(result) shouldBe 400
-    (contentAsJson(result) \ "message").as[String] should include("Duplicate alternate spelling for 'freezer'")
+    (contentAsJson(result) \ "message").as[String] should include("Duplicate alternate spellings for 'freezer': frazer,frazer")
 
     db.withConnection { implicit connection =>
       val alternativeSpellings = AlternateSpelling.loadByCanonicalId(freezer.id)
@@ -198,7 +198,7 @@ class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
     val result: Future[Result] = route(application, request).get
 
     status(result) shouldBe 400
-    (contentAsJson(result) \ "message").as[String] should include("Alternate spelling is same as another canonical spelling")
+    (contentAsJson(result) \ "message").as[String] should include("Alternate spelling(s) exist as canonical spelling: machine")
 
     db.withConnection { implicit connection =>
       val alternativeSpellings = AlternateSpelling.loadByCanonicalId(freezer.id)

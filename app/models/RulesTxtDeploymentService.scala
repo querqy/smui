@@ -1,12 +1,14 @@
 package models
+
 import java.io.OutputStream
 import java.util.zip.{ZipEntry, ZipOutputStream}
 
 import javax.inject.Inject
 import models.FeatureToggleModel.FeatureToggleService
+import models.querqy.{QuerqyReplaceRulesGenerator, QuerqyRulesTxtGenerator}
 import play.api.{Configuration, Environment, Logging}
 
-import sys.process._
+import scala.sys.process._
 
 @javax.inject.Singleton
 class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
@@ -83,8 +85,11 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
 
     val replaceRules =
       if (EXPORT_REPLACE_RULES) {
+        val allCanonicalSpellings = searchManagementRepository.listAllSpellingsWithAlternatives(solrIndexId)
         Some(RulesTxtWithFileNames(
-          querqyRulesTxtGenerator.renderReplaceRules(solrIndexId), REPLACE_RULES_SRC_TMP_FILE, replaceRulesDstCpFileTo
+          QuerqyReplaceRulesGenerator.renderAllCanonicalSpellingsToReplaceRules(allCanonicalSpellings),
+          REPLACE_RULES_SRC_TMP_FILE,
+          replaceRulesDstCpFileTo
         ))
       } else None
 
@@ -127,7 +132,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     }
 
     val replaceRulesValidation = rulesTxts.replaceRules.flatMap { replaceRules =>
-      querqyRulesTxtGenerator.validateQuerqyReplaceRulesTxtToErrMsg(replaceRules.content)
+      QuerqyReplaceRulesGenerator.validateQuerqyReplaceRulesTxtToErrMsg(replaceRules.content)
     }.toSeq
 
     rulesValidation ++ replaceRulesValidation
