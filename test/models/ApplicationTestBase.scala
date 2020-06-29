@@ -24,7 +24,9 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
   protected lazy val application: Application = new GuiceApplicationBuilder().
     in(Mode.Test).
     configure("db.default.url" -> db.url, "db.default.driver" -> "org.h2.Driver",
-      "db.default.username" -> "", "db.default.password" -> "", "toggle.rule-deployment.log-rule-id" -> true).
+      "db.default.username" -> "", "db.default.password" -> "",
+      "toggle.rule-deployment.log-rule-id" -> true,
+      "toggle.activate-spelling" -> true).
     build()
 
   protected lazy val injector: Injector = application.injector
