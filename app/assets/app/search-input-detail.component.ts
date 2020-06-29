@@ -44,6 +44,7 @@ export class SearchInputDetailComponent implements OnInit {
   private saveError: string = null;
   private previousTagEventHandler = null;
   private associatedSpellings: smm.AssociatedSpelling[] = [];
+  private activateSpelling = this.featureToggleService.getSyncToggleActivateSpelling();
 
   // TODO open typeahead popup on focus -- focus$ = new Subject<string>();
   searchSuggestedSolrFieldNames = (text$: Observable<string>) =>
@@ -230,7 +231,7 @@ export class SearchInputDetailComponent implements OnInit {
   private findSpellingsForSearchInput() {
     console.log('In SearchInputDetailComponent :: findSpellingsForSearchInput');
 
-    if (this.detailSearchInput && this.detailSearchInput.term !== '') {
+    if (this.activateSpelling && this.detailSearchInput && this.detailSearchInput.term !== '') {
       const subTerms = this.detailSearchInput.term.split(' ');
       this.associatedSpellings = subTerms
         .map(subTerm => { return {

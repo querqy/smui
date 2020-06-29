@@ -8,6 +8,8 @@ SOLR_HOST=$3
 SOLR_CORE_NAME=$4
 DECOMPOUND_DST_CP_FILE_TO=$5
 TARGET_SYSTEM=$6
+REPLACE_RULES_SRC_TMP_FILE=$7
+REPLACE_RULES_DST_CP_FILE_TO=$8
 
 echo "In smui2solr.sh - script performing rules.txt update and core reload"
 echo "^-- SRC_TMP_FILE = $SRC_TMP_FILE"
@@ -16,6 +18,8 @@ echo "^-- SOLR_HOST = $SOLR_HOST"
 echo "^-- SOLR_CORE_NAME: $SOLR_CORE_NAME"
 echo "^-- DECOMPOUND_DST_CP_FILE_TO = $DECOMPOUND_DST_CP_FILE_TO"
 echo "^-- TARGET_SYSTEM = $TARGET_SYSTEM"
+echo "^-- REPLACE_RULES_SRC_TMP_FILE = $REPLACE_RULES_SRC_TMP_FILE"
+echo "^-- REPLACE_RULES_DST_CP_FILE_TO = $REPLACE_RULES_DST_CP_FILE_TO"
 
 # DEPLOYMENT
 #####
@@ -51,6 +55,12 @@ echo "^-- ... decompound-rules.txt"
 if ! [[ $DECOMPOUND_DST_CP_FILE_TO == "NONE" ]]
 then
     deploy_rules_txt "$SRC_TMP_FILE-2" $DECOMPOUND_DST_CP_FILE_TO
+fi
+
+echo "^-- ... replace-rules.txt"
+if ! [[ REPLACE_RULES_SRC_TMP_FILE == "NONE" && $REPLACE_RULES_DST_CP_FILE_TO == "NONE" ]]
+then
+    deploy_rules_txt $REPLACE_RULES_SRC_TMP_FILE $REPLACE_RULES_DST_CP_FILE_TO
 fi
 
 # CORE RELOAD

@@ -266,6 +266,4 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       case Failure(t: Throwable) => Some(s"Error validating $target: ${t.getMessage}")
     }
   }
-
-
 }

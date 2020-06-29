@@ -50,7 +50,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     val SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT = appConfig.get[String]("smui2solr.deploy-prelive-fn-decompound-txt")
 
     // Replace rules (spelling)
-    val EXPORT_REPLACE_RULES = featureToggleService.getToggleReplaceRuleDeployment
+    val EXPORT_REPLACE_RULES = featureToggleService.getToggleActivateSpelling
     val REPLACE_RULES_SRC_TMP_FILE = appConfig.get[String]("smui2solr.REPLACE_RULES_TMP_FILE")
     val REPLACE_RULES_DST_CP_FILE_TO = appConfig.get[String]("smui2solr.REPLACE_RULES_DST_CP_FILE_TO")
     val SMUI_DEPLOY_PRELIVE_FN_REPLACE_TXT = appConfig.get[String]("smui2solr.deploy-prelive-fn-replace-txt")
@@ -75,12 +75,12 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
 
     // TODO test correct generation in different scenarios (one vs. two rules.txts, etc.)
     val dstCpFileTo = if (targetSystem == "PRELIVE")
-      SMUI_DEPLOY_PRELIVE_FN_REPLACE_TXT
+      SMUI_DEPLOY_PRELIVE_FN_RULES_TXT
     else // targetSystem == "LIVE"
       DST_CP_FILE_TO
 
     val replaceRulesDstCpFileTo =
-      if (targetSystem == "PRELIVE") SMUI_DEPLOY_PRELIVE_FN_RULES_TXT
+      if (targetSystem == "PRELIVE") SMUI_DEPLOY_PRELIVE_FN_REPLACE_TXT
       else REPLACE_RULES_DST_CP_FILE_TO
 
     val replaceRules =
@@ -141,7 +141,10 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
   def executeDeploymentScript(rulesTxts: RulesTxtsForSolrIndex, targetSystem: String): DeploymentScriptResult = {
 
     // interface to smui2solr.sh
-    def interfaceDeploymentScript(scriptPath: String, srcTmpFile: String, dstCpFileTo: String, solrHost: String, solrCoreName: String, decompoundDstCpFileTo: String, targetSystem: String): DeploymentScriptResult = {
+    def interfaceDeploymentScript(scriptPath: String, srcTmpFile: String, dstCpFileTo: String, solrHost: String,
+                                  solrCoreName: String, decompoundDstCpFileTo: String, targetSystem: String,
+                                  replaceRulesSrcTmpFile: String, replaceRulesDstCpFileTo: String
+                                 ): DeploymentScriptResult = {
       // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
       logger.info(
         s""":: executeDeploymentScript config
@@ -152,6 +155,8 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
            |:: solrCoreName = $solrCoreName
            |:: decompoundDstCpFileTo = $decompoundDstCpFileTo
            |:: targetSystem = $targetSystem
+           |:: replaceRulesSrcTmpFile = $replaceRulesSrcTmpFile
+           |:: replaceRulesDstCpFileTo = $replaceRulesDstCpFileTo
       """.stripMargin)
 
       val output = new StringBuilder()
@@ -170,7 +175,12 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
         // DECOMPOUND_DST_CP_FILE_TO=$5
         decompoundDstCpFileTo + " " +
         // TARGET_SYSTEM=$6
-        targetSystem
+        targetSystem + " " +
+        // REPLACE_RULES_SRC_TMP_FILE=$7
+        replaceRulesSrcTmpFile + " " +
+        // REPLACE_RULES_DST_CP_FILE_TO=$8
+        replaceRulesDstCpFileTo
+
       // call
       val exitCode = scriptCall.!(processLogger)
       DeploymentScriptResult(exitCode, output.toString())
@@ -207,6 +217,9 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     // core name from repo (optional, for core reload as well)
     val solrCoreName = searchManagementRepository.getSolrIndexName(rulesTxts.solrIndexId)
 
+    val replaceRulesSrcTmpFile = rulesTxts.replaceRules.map(_.sourceFileName).getOrElse("NONE")
+    val replaceRulesDstCpFileTo = rulesTxts.replaceRules.map(_.destinationFileName).getOrElse("NONE")
+
     // execute script
     val result = interfaceDeploymentScript(
       scriptPath,
@@ -215,7 +228,9 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
       solrHost,
       solrCoreName,
       decompoundDstCpFileTo,
-      targetSystem
+      targetSystem,
+      replaceRulesSrcTmpFile,
+      replaceRulesDstCpFileTo
     )
     if (result.success) {
       logger.info(s"Rules.txt deployment successful:\n${result.output}")

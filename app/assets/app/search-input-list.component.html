@@ -21,11 +21,20 @@
         </div>
       </span>
       <span class="input-group-btn">
-        <button class="btn btn-success"
-                type="button"
-                (click)="openAddItemModal()">
-          <i class="fa fa-plus" aria-hidden="true"></i> New
-        </button>
+        <ng-container *ngIf="activateSpelling">
+          <button class="btn btn-success"
+                  type="button"
+                  (click)="openAddItemModal()">
+            <i class="fa fa-plus" aria-hidden="true"></i> New
+          </button>
+        </ng-container>
+        <ng-container *ngIf="!activateSpelling">
+          <button class="btn btn-success"
+                  type="button"
+                  (click)="createNewRuleItem()">
+            <i class="fa fa-plus" aria-hidden="true"></i> New
+          </button>
+        </ng-container>
       </span>
     </div>
   </div>

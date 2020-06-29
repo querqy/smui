@@ -49,7 +49,7 @@ object AlternateSpelling {
     s"insert into $TABLE_NAME ($ID, $CANONICAL_SPELLING_ID, $TERM, $LAST_UPDATE) values ({$ID}, {$CANONICAL_SPELLING_ID}, {$TERM}, {$LAST_UPDATE})"
 
   def loadByCanonicalId(canonicalSpellingId: CanonicalSpellingId)(implicit connection: Connection): List[AlternateSpelling] = {
-    SQL"select * from #$TABLE_NAME where #$CANONICAL_SPELLING_ID = $canonicalSpellingId order by #$orderByField".as(sqlParser.*)
+    SQL"select * from #$TABLE_NAME where #$CANONICAL_SPELLING_ID = $canonicalSpellingId order by lower(#$orderByField)".as(sqlParser.*)
   }
 
   def updateForCanonicalSpelling(canonicalSpellingId: CanonicalSpellingId, alternateSpellings: List[AlternateSpelling])(implicit connection: Connection): Unit = {

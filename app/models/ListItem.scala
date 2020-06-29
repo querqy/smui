@@ -23,7 +23,7 @@ case class ListItem(id: String,
 object ListItem {
   def create(searchInputs: Seq[SearchInputWithRules], spellings: Seq[CanonicalSpellingWithAlternatives]): Seq[ListItem] = {
     val listItems = listItemsForRules(searchInputs) ++ listItemsForSpellings(spellings)
-    listItems.sortBy(_.term)
+    listItems.sortBy(_.term.toLowerCase)
   }
 
   private def listItemsForRules(searchInputs: Seq[SearchInputWithRules]): Seq[ListItem] = {

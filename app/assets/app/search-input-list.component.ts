@@ -29,6 +29,7 @@ export class SearchInputListComponent implements OnInit {
   private listItems: smm.ListItem[] = [];
   private tagFilter: smm.InputTag = null;
   private searchInputTerm = '';
+  private activateSpelling = this.featureToggleService.getSyncToggleActivateSpelling();
   private limitItemsTo = +this.featureToggleService.getSyncToggleUiListLimitItemsTo();
   private isShowingAllItems = this.limitItemsTo < 0;
 
