@@ -51,8 +51,8 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
 
     // Replace rules (spelling)
     val EXPORT_REPLACE_RULES = featureToggleService.getToggleActivateSpelling
-    val REPLACE_RULES_SRC_TMP_FILE = appConfig.get[String]("smui2solr.REPLACE_RULES_TMP_FILE")
-    val REPLACE_RULES_DST_CP_FILE_TO = appConfig.get[String]("smui2solr.REPLACE_RULES_DST_CP_FILE_TO")
+    val REPLACE_RULES_SRC_TMP_FILE = appConfig.get[String]("smui2solr.replace-rules-tmp-file")
+    val REPLACE_RULES_DST_CP_FILE_TO = appConfig.get[String]("smui2solr.replace-rules-dst-cp-file-to")
     val SMUI_DEPLOY_PRELIVE_FN_REPLACE_TXT = appConfig.get[String]("smui2solr.deploy-prelive-fn-replace-txt")
 
     if (logDebug) {
