@@ -58,7 +58,7 @@ then
 fi
 
 echo "^-- ... replace-rules.txt"
-if ! [[ REPLACE_RULES_SRC_TMP_FILE == "NONE" && $REPLACE_RULES_DST_CP_FILE_TO == "NONE" ]]
+if ! [[ $REPLACE_RULES_SRC_TMP_FILE == "NONE" && $REPLACE_RULES_DST_CP_FILE_TO == "NONE" ]]
 then
     deploy_rules_txt $REPLACE_RULES_SRC_TMP_FILE $REPLACE_RULES_DST_CP_FILE_TO
 fi
