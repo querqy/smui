@@ -12,6 +12,7 @@ object CanonicalSpellingValidator {
       validateAlternativeSpellingNotCanonical(spellings),
       validateAlternativeSpellingEqualsNoOtherCanonical(spellings, allCanonicalSpellings),
       validateCanonicalEqualsNoOtherAlternative(spellings, allCanonicalSpellings),
+      validateNoMultipleAlternativesWhenWildcard(spellings),
       QuerqyReplaceRulesGenerator.validateQuerqyReplaceRulesTxtToErrMsg(spellings)
     ).flatten
   }
@@ -62,6 +63,15 @@ object CanonicalSpellingValidator {
       .mapValues(_.map(_._2))
     allSpellings.get(canonical).map { canonicalsHavingThatAlternative =>
       s"Canonical spelling $canonical is already an alternative spelling of ${canonicalsHavingThatAlternative.mkString(",")}"
+    }
+  }
+
+  def validateNoMultipleAlternativesWhenWildcard(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
+    val hasWildcard = spellings.alternativeSpellings.exists(_.term.trim.contains("*"))
+    if (hasWildcard && spellings.alternativeSpellings.length > 1) {
+      Some("For suffix and prefix rules, only one input can be defined per output, e. g. a* => b")
+    } else {
+      None
     }
   }
 

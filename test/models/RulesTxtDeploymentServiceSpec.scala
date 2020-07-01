@@ -46,7 +46,7 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
                            |	}@""".stripMargin
 
   private def replaceRulesFileContent(): String =
-    s"""frezer; freazer; frazer => freezer
+    s"""frazer; freazer; frezer => freezer
        |machin; mechine => machine
        |pands; pents => pants""".stripMargin
 

@@ -35,6 +35,16 @@ class CanonicalSpellingValidatorSpec extends FlatSpec with Matchers {
       Some("Canonical spelling zubehör is already an alternative spelling of accessoire")
   }
 
+  "Validation" should "reject spelling if a wildcard is present and multiple  other alternatives" in {
+    val accessoire = alt("accessoire", Seq("assesoire*", "zubehör"))
+    validator.validateNoMultipleAlternativesWhenWildcard(accessoire) shouldBe
+      Some("For suffix and prefix rules, only one input can be defined per output, e. g. a* => b")
+
+    val zubehoer = alt("zubehör", Seq("assesoire", "zubehor*"))
+    validator.validateNoMultipleAlternativesWhenWildcard(zubehoer) shouldBe
+      Some("For suffix and prefix rules, only one input can be defined per output, e. g. a* => b")
+  }
+
   private def alt(term: String, alternatives: Seq[String]): CanonicalSpellingWithAlternatives = {
     CanonicalSpellingWithAlternatives(
       CanonicalSpellingId("id"),

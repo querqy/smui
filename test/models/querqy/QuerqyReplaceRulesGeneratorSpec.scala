@@ -19,7 +19,7 @@ class QuerqyReplaceRulesGeneratorSpec extends FlatSpec with Matchers {
     )
 
     val replaceRule = generator.renderReplaceRule(canonicalSpelling)
-    replaceRule shouldBe "frozer; frazer; fräzer; frsadsadsv => freezer"
+    replaceRule shouldBe "frazer; frozer; frsadsadsv; fräzer => freezer"
   }
 
   val VALID_REPLACE_RULES_TXT =

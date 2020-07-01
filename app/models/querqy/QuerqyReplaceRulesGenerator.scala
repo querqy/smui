@@ -12,11 +12,11 @@ import scala.util.{Failure, Success, Try}
 object QuerqyReplaceRulesGenerator {
 
   def renderAllCanonicalSpellingsToReplaceRules(allSpellings: Seq[CanonicalSpellingWithAlternatives]): String = {
-    allSpellings.filter(_.exportToReplaceFile).map(renderReplaceRule).mkString("\n")
+    allSpellings.filter(_.exportToReplaceFile).map(renderReplaceRule).sorted.mkString("\n")
   }
 
   def renderReplaceRule(spelling: CanonicalSpellingWithAlternatives): String = {
-    val alternativeSpellings = spelling.alternativeSpellings.map(_.term).mkString("; ")
+    val alternativeSpellings = spelling.alternativeSpellings.map(_.term).sorted.mkString("; ")
     s"$alternativeSpellings => ${spelling.term}"
   }
 
