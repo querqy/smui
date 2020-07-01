@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 import { SearchManagementService } from './search-management.service';
 import { FeatureToggleService } from './feature-toggle.service';
-import { AlternateSpelling, CanonicalSpelling } from './search-management.model';
+import { AlternativeSpelling, CanonicalSpelling } from './search-management.model';
 
 @Component({
   selector: 'smui-spelling-detail',
@@ -70,23 +70,23 @@ export class SpellingDetailComponent implements OnInit {
     }
   }
 
-  public addNewAlternateSpelling() {
-    console.log('In SpellingDetailComponent :: addNewAlternateSpelling');
+  public addNewAlternativeSpelling() {
+    console.log('In SpellingDetailComponent :: addNewAlternativeSpelling');
 
-    const emptyAlternateSpelling: AlternateSpelling = {
+    const emptyAlternativeSpelling: AlternativeSpelling = {
       id: this.randomUUID(),
       canonicalSpellingId: this.detailSpelling.id,
       term: ''
     };
 
     this.detailSpelling
-      .alternateSpellings.push(emptyAlternateSpelling);
+      .alternativeSpellings.push(emptyAlternativeSpelling);
   }
 
-  public deleteAlternateSpelling(index: number) {
-    console.log(`In SpellingDetailComponent :: deleteAlternateSpelling :: index = ${index}`);
+  public deleteAlternativeSpelling(index: number) {
+    console.log(`In SpellingDetailComponent :: deleteAlternativeSpelling :: index = ${index}`);
 
-    this.detailSpelling.alternateSpellings.splice(index, 1);
+    this.detailSpelling.alternativeSpellings.splice(index, 1);
   }
 
   public saveSpellingsDetails() {

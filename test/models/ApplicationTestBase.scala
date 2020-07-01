@@ -3,7 +3,7 @@ package models
 import java.time.LocalDateTime
 
 import models.rules._
-import models.spellings.{AlternateSpelling, AlternateSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
+import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 import play.api.db.{Database, Databases}
 import play.api.inject.Injector
@@ -87,25 +87,25 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
       freezer.id, freezer.term,
       List(
-        AlternateSpelling(AlternateSpellingId(), freezer.id, "frezer"),
-        AlternateSpelling(AlternateSpellingId(), freezer.id, "freazer"),
-        AlternateSpelling(AlternateSpellingId(), freezer.id, "frazer")
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frezer"),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freazer"),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer")
       )
     ))
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
       machine.id, machine.term,
       List(
-        AlternateSpelling(AlternateSpellingId(), machine.id, "machin"),
-        AlternateSpelling(AlternateSpellingId(), machine.id, "mechine")
+        AlternativeSpelling(AlternativeSpellingId(), machine.id, "machin"),
+        AlternativeSpelling(AlternativeSpellingId(), machine.id, "mechine")
       )
     ))
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
       pants.id, pants.term,
       List(
-        AlternateSpelling(AlternateSpellingId(), pants.id, "pands"),
-        AlternateSpelling(AlternateSpellingId(), pants.id, "pents")
+        AlternativeSpelling(AlternativeSpellingId(), pants.id, "pands"),
+        AlternativeSpelling(AlternativeSpellingId(), pants.id, "pents")
       )
     ))
   }

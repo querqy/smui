@@ -16,8 +16,8 @@ object QuerqyReplaceRulesGenerator {
   }
 
   def renderReplaceRule(spelling: CanonicalSpellingWithAlternatives): String = {
-    val alternateSpellings = spelling.alternateSpellings.map(_.term).mkString("; ")
-    s"$alternateSpellings => ${spelling.term}"
+    val alternativeSpellings = spelling.alternativeSpellings.map(_.term).mkString("; ")
+    s"$alternativeSpellings => ${spelling.term}"
   }
 
   def validateQuerqyReplaceRulesTxtToErrMsg(spellings: CanonicalSpellingWithAlternatives): Option[String] = {

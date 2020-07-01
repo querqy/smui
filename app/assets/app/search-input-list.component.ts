@@ -177,13 +177,15 @@ export class SearchInputListComponent implements OnInit {
   public selectListItem(listItem: ListItem) {
     console.log(`In SearchInputListComponent :: selectListItem :: id = ${listItem ? JSON.stringify(listItem) : 'null'}`);
 
+    this.selectedListItem = listItem;
+    this.selectedListItemChange.emit(listItem);
+  }
+
+  public selectListItemWithCheck(listItem: ListItem) {
     this.executeWithChangeCheck.emit({
-      executeFnOk: () => {
-        this.selectedListItem = listItem;
-        this.selectedListItemChange.emit(listItem);
-      },
+      executeFnOk: () => this.selectListItem(listItem),
       executeFnCancel: () => ({})
-    });
+    })
   }
 
   public toggleShowMore() {

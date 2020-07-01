@@ -84,7 +84,7 @@ export class DeploymentLogInfo {
   msg: string;
 }
 
-export class AlternateSpelling {
+export class AlternativeSpelling {
   id: string;
   canonicalSpellingId: string;
   term: string
@@ -94,7 +94,7 @@ export class CanonicalSpelling {
   id: string;
   solrIndexId: string;
   term: string;
-  alternateSpellings: Array<AlternateSpelling>;
+  alternativeSpellings: Array<AlternativeSpelling>;
 }
 
 export enum ListItemType {
@@ -116,12 +116,12 @@ export class AssociatedSpelling {
   id: string;
   term: string;
   exists: boolean;
-  alternates: Array<string>;
+  alternatives: Array<string>;
 
-  constructor(id: string, term: string, exists: boolean, alternates: Array<string>) {
+  constructor(id: string, term: string, exists: boolean, alternatives: Array<string>) {
     this.id = id;
     this.term = term;
     this.exists = exists;
-    this.alternates = alternates;
+    this.alternatives = alternatives;
   }
 }

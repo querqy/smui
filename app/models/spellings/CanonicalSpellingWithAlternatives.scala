@@ -7,10 +7,10 @@ import play.api.libs.json.{Json, OFormat}
 
 case class CanonicalSpellingWithAlternatives(id: CanonicalSpellingId,
                                              term: String,
-                                             alternateSpellings: List[AlternateSpelling] = Nil) {
+                                             alternativeSpellings: List[AlternativeSpelling] = Nil) {
 
   def exportToReplaceFile: Boolean = {
-    this.term.nonEmpty && alternateSpellings.nonEmpty
+    this.term.nonEmpty && alternativeSpellings.nonEmpty
   }
 }
 
@@ -20,12 +20,12 @@ object CanonicalSpellingWithAlternatives {
 
   def loadAllForIndex(solrIndexId: SolrIndexId)(implicit connection: Connection): List[CanonicalSpellingWithAlternatives] = {
     val canonicalSpellings = CanonicalSpelling.loadAllForIndex(solrIndexId)
-    val alternateSpellings = AlternateSpelling.loadByCanonicalSpellingIds(canonicalSpellings.map(_.id))
+    val alternativeSpellings = AlternativeSpelling.loadByCanonicalSpellingIds(canonicalSpellings.map(_.id))
 
     canonicalSpellings.map { canonicalSpelling =>
       CanonicalSpellingWithAlternatives(
         canonicalSpelling.id, canonicalSpelling.term,
-        alternateSpellings.getOrElse(canonicalSpelling.id, Seq.empty).toList
+        alternativeSpellings.getOrElse(canonicalSpelling.id, Seq.empty).toList
       )
     }
   }
@@ -35,20 +35,20 @@ object CanonicalSpellingWithAlternatives {
       CanonicalSpellingWithAlternatives(
         canonicalSpelling.id,
         canonicalSpelling.term,
-        AlternateSpelling.loadByCanonicalId(id)
+        AlternativeSpelling.loadByCanonicalId(id)
       )
     }
   }
 
   def update(spellingWithAlternatives: CanonicalSpellingWithAlternatives)(implicit connection: Connection): Unit = {
     CanonicalSpelling.update(spellingWithAlternatives.id, spellingWithAlternatives.term)
-    AlternateSpelling.updateForCanonicalSpelling(spellingWithAlternatives.id, spellingWithAlternatives.alternateSpellings)
+    AlternativeSpelling.updateForCanonicalSpelling(spellingWithAlternatives.id, spellingWithAlternatives.alternativeSpellings)
   }
 
   def delete(id: CanonicalSpellingId)(implicit connection: Connection): Int = {
     val deleted = CanonicalSpelling.delete(id)
     if (deleted > 1) {
-      AlternateSpelling.deleteByCanonicalSpelling(id)
+      AlternativeSpelling.deleteByCanonicalSpelling(id)
     }
     deleted
   }

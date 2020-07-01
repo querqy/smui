@@ -8,45 +8,45 @@ object CanonicalSpellingValidator {
                                                 allCanonicalSpellings: List[CanonicalSpellingWithAlternatives]): Seq[String] = {
     Seq(
       validateNoEmptyAlternatives(spellings),
-      validateNoDuplicateAlternateSpellings(spellings),
-      validateAlternateSpellingNotCanonical(spellings),
-      validateAlternateSpellingEqualsNoOtherCanonical(spellings, allCanonicalSpellings),
+      validateNoDuplicateAlternativeSpellings(spellings),
+      validateAlternativeSpellingNotCanonical(spellings),
+      validateAlternativeSpellingEqualsNoOtherCanonical(spellings, allCanonicalSpellings),
       validateCanonicalEqualsNoOtherAlternative(spellings, allCanonicalSpellings),
       QuerqyReplaceRulesGenerator.validateQuerqyReplaceRulesTxtToErrMsg(spellings)
     ).flatten
   }
 
   def validateNoEmptyAlternatives(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
-    spellings.alternateSpellings.map(_.term.trim).find(_.isEmpty).map { _ =>
+    spellings.alternativeSpellings.map(_.term.trim).find(_.isEmpty).map { _ =>
       s"Empty alternative term for '${spellings.term}'"
     }
   }
 
-  def validateNoDuplicateAlternateSpellings(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
-    val alternateSpellingDuplicates = spellings.alternateSpellings.map(_.term.trim).groupBy(identity).filter(_._2.size > 1).values.flatten.toSeq.sorted.mkString(",")
-    if (alternateSpellingDuplicates.nonEmpty) {
-      Some(s"Duplicate alternate spellings for '${spellings.term}': $alternateSpellingDuplicates")
+  def validateNoDuplicateAlternativeSpellings(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
+    val alternativeSpellingDuplicates = spellings.alternativeSpellings.map(_.term.trim).groupBy(identity).filter(_._2.size > 1).values.flatten.toSeq.sorted.mkString(",")
+    if (alternativeSpellingDuplicates.nonEmpty) {
+      Some(s"Duplicate alternative spellings for '${spellings.term}': $alternativeSpellingDuplicates")
     } else {
       None
     }
   }
 
-  def validateAlternateSpellingNotCanonical(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
-    val alternateSpellings = spellings.alternateSpellings.map(_.term.trim)
-    if (alternateSpellings.contains(spellings.term.trim)) {
-      Some(s"Alternate spelling is same as the canonical spelling '${spellings.term}'")
+  def validateAlternativeSpellingNotCanonical(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
+    val alternativeSpellings = spellings.alternativeSpellings.map(_.term.trim)
+    if (alternativeSpellings.contains(spellings.term.trim)) {
+      Some(s"Alternative spelling is same as the canonical spelling '${spellings.term}'")
     } else {
       None
     }
   }
 
-  def validateAlternateSpellingEqualsNoOtherCanonical(spellings: CanonicalSpellingWithAlternatives,
-                                                      allCanonicalSpellings: List[CanonicalSpellingWithAlternatives]): Option[String] = {
-    val alternateSpellings = spellings.alternateSpellings.map(_.term)
+  def validateAlternativeSpellingEqualsNoOtherCanonical(spellings: CanonicalSpellingWithAlternatives,
+                                                        allCanonicalSpellings: List[CanonicalSpellingWithAlternatives]): Option[String] = {
+    val alternativeSpellings = spellings.alternativeSpellings.map(_.term)
     val allCanonicalTerms = allCanonicalSpellings.map(_.term)
-    val intersection = allCanonicalTerms.intersect(alternateSpellings)
+    val intersection = allCanonicalTerms.intersect(alternativeSpellings)
     if (intersection.nonEmpty) {
-      Some(s"Alternate spelling(s) exist as canonical spelling: ${intersection.mkString(",")}")
+      Some(s"Alternative spelling(s) exist as canonical spelling: ${intersection.mkString(",")}")
     } else {
       None
     }
@@ -57,11 +57,11 @@ object CanonicalSpellingValidator {
     val canonical = spellings.term
     // create map of all alternatives -> their canonical(s)
     val allSpellings = allCanonicalSpellings
-      .flatMap(canonical => canonical.alternateSpellings.map(alternate => alternate.term -> canonical.term))
+      .flatMap(canonical => canonical.alternativeSpellings.map(alternative => alternative.term -> canonical.term))
       .groupBy(_._1)
       .mapValues(_.map(_._2))
     allSpellings.get(canonical).map { canonicalsHavingThatAlternative =>
-      s"Canonical spelling $canonical is already a managed alternative of ${canonicalsHavingThatAlternative.mkString(",")}"
+      s"Canonical spelling $canonical is already an alternative spelling of ${canonicalsHavingThatAlternative.mkString(",")}"
     }
   }
 

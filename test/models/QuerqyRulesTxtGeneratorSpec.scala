@@ -3,7 +3,7 @@ package models
 import models.FeatureToggleModel.FeatureToggleService
 import models.querqy.QuerqyRulesTxtGenerator
 import models.rules._
-import models.spellings.{AlternateSpelling, AlternateSpellingId, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}

@@ -3,7 +3,7 @@ package models
 import java.time.LocalDateTime
 
 import models.rules._
-import models.spellings.{AlternateSpelling, AlternateSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
+import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import play.api.db.Database
 
@@ -70,9 +70,9 @@ abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData 
       val spellingWithAlternatives = CanonicalSpellingWithAlternatives(
         spelling.id, spelling.term,
         List(
-          AlternateSpelling(AlternateSpellingId(), spelling.id, "alternative1"),
-          AlternateSpelling(AlternateSpellingId(), spelling.id, "alternative2"),
-          AlternateSpelling(AlternateSpellingId(), spelling.id, "alternative3")
+          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative1"),
+          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative2"),
+          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative3")
         )
       )
 

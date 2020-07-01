@@ -50,7 +50,7 @@ object ListItem {
         spelling.id.toString,
         spelling.term,
         ListItemType.Spelling,
-        additionalTermsForSearch = spelling.alternateSpellings.map(_.term)
+        additionalTermsForSearch = spelling.alternativeSpellings.map(_.term)
       )
     }
   }

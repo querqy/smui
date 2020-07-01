@@ -66,7 +66,7 @@
                                  (click)="openDetailsForSpelling(associatedSpelling.id)">
                             {{associatedSpelling.term}}
                           </small>
-                          <small *ngFor="let spelling of associatedSpelling.alternates; let idxAlternateSpelling = index"
+                          <small *ngFor="let spelling of associatedSpelling.alternatives; let idxAlternativeSpelling = index"
                                  class="with-pipe muted">
                             {{spelling}}
                           </small>

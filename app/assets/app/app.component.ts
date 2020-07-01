@@ -164,6 +164,7 @@ export class AppComponent implements OnInit {
       _this.searchInputDetailComponent
         .loadSuggestedSolrFieldsForSolrIndexWithId(_this.currentSolrIndexId);
     }
+
     function executeSelectSolrIndexCancel() {
       console.log('In AppComponent :: selectSolrIndex :: executeSelectSolrIndexCancel');
       // reset the select-option model to keep in sync with currentSolrIndexId
@@ -257,7 +258,7 @@ export class AppComponent implements OnInit {
       });
   }
 
-  public executeWithChangeCheck({executeFnOk, executeFnCancel}) {
+  public executeWithChangeCheck({ executeFnOk, executeFnCancel }) {
     console.log('In AppComponent :: executeWithChangeCheck');
     const hasChanged =
       (this.spellingComponent ? this.spellingComponent.isDirty() : false) ||
@@ -279,17 +280,18 @@ export class AppComponent implements OnInit {
   public createItem({itemType, apiCall}) {
     console.log(`In SearchInputSearchComponent :: createItem :: ${ListItemType[itemType]}`);
 
-    this.executeWithChangeCheck({
-      executeFnOk: () => apiCall()
+    const createItemOk = () => {
+      apiCall()
         .then(res => {
           console.log('In SearchInputSearchComponent :: createItemByType :: then :: res = ' + JSON.stringify(res));
           this.searchInputListComponent.refreshItemsInList(this.currentSolrIndexId)
             .then(() => this.searchInputListComponent.selectListItemById(res.returnId))
             .then(() => this.showSuccessMsg(`Adding new ${ListItemType[itemType]} successful.`))
         })
-        .catch(error => this.handleError(error)),
-      executeFnCancel: () => ({})
-    });
+        .catch(error => this.handleError(error))
+    };
+
+    this.executeWithChangeCheck({ executeFnOk: createItemOk, executeFnCancel: () => ({}) })
   }
 
   public deleteItemByType({itemType, id}) {

@@ -1,6 +1,6 @@
 package models.querqy
 
-import models.spellings.{AlternateSpelling, AlternateSpellingId, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import org.scalatest.{FlatSpec, Matchers}
 
 class QuerqyReplaceRulesGeneratorSpec extends FlatSpec with Matchers {
@@ -11,10 +11,10 @@ class QuerqyReplaceRulesGeneratorSpec extends FlatSpec with Matchers {
     val canonicalSpellingId = CanonicalSpellingId()
     val canonicalSpelling = CanonicalSpellingWithAlternatives(
       canonicalSpellingId, "freezer", List(
-        AlternateSpelling(AlternateSpellingId(), canonicalSpellingId, "frozer"),
-        AlternateSpelling(AlternateSpellingId(), canonicalSpellingId, "frazer"),
-        AlternateSpelling(AlternateSpellingId(), canonicalSpellingId, "fräzer"),
-        AlternateSpelling(AlternateSpellingId(), canonicalSpellingId, "frsadsadsv"),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frozer"),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frazer"),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "fräzer"),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frsadsadsv"),
       )
     )
 

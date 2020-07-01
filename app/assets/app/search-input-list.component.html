@@ -51,7 +51,7 @@
           [ngClass]="{'active': selectedListItem && selectedListItem.id === listItem.id, 'list-group-item': true,
           'smui-list-group-item': true, 'smui-strikethrough': !listItem.isActive,
           'smui-spelling-item': listItem.itemType === 'Spelling' && (!selectedListItem || selectedListItem && selectedListItem.id !== listItem.id) }"
-          (click)="selectListItem(listItem)"
+          (click)="selectListItemWithCheck(listItem)"
       >
         <span class="smui-right-gap smui-align-middle">
           <i *ngIf="listItem.itemType === 'Spelling'" class="fa fa-comments-o smui-align-middle" aria-hidden="true"></i>
