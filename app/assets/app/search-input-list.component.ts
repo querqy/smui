@@ -135,7 +135,6 @@ export class SearchInputListComponent implements OnInit {
 
   public refreshItemsInList(solrIndexId: string) {
     console.log('In SearchInputListComponent :: updateItemList')
-    console.log(solrIndexId)
 
     return this.searchManagementService
       .getAllItemsForInputList(solrIndexId)
@@ -162,6 +161,7 @@ export class SearchInputListComponent implements OnInit {
         tags.set(t.displayValue, t);
       }
     }
+
     this.allTags = Array.from(tags.values()).sort((a, b) => a.displayValue.localeCompare(b.displayValue));
     // Reset tagFilter if the tag is no longer available in the current search inputs
     if (this.tagFilter && !tags.get(this.tagFilter.displayValue)) {

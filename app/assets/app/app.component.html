@@ -200,6 +200,65 @@
                         </td>
                     </tr>
                 </table>
+                <br />
+
+                <h6>SPELLING RULES</h6>
+                <p>
+                    Spelling rules are using the querqy replace rewriter to overwrite the input term. <br />
+                    Following rules can be used to replace the input term:
+                </p>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="help-table-col-1"></th>
+                            <th scope="col" class="help-table-col-2">Spelling</th>
+                            <th scope="col" class="help-table-col-3">Alternative</th>
+                            <th scope="col" class="help-table-col-4">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">simple rule</th>
+                            <td>mobile</td>
+                            <td>ombile</td>
+                            <td>
+                                <code>ombile => mobile</code><br />
+                                Simple replacement of the alternative with the spelling
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">prefix rule</th>
+                            <td>cheap</td>
+                            <td>cheap*</td>
+                            <td>
+                                <code>cheap* => cheap</code><br />
+                                Can be used to generalize spellings (e.g. cheapest pants => cheap pants).
+                                <span class="font-weight-bold">Just one suffix rule is allowed per spelling.</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">suffix rule</th>
+                            <td>phone</td>
+                            <td>*phones</td>
+                            <td>
+                                <code>sale* => sale</code><br />
+                                Can be used to generalize spellings (e.g. smartphone => phone).
+                                <span class="font-weight-bold">Just one suffix rule is allowed per spelling.</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">wildcards</th>
+                            <td>computer $1</td>
+                            <td>computer*</td>
+                            <td>
+                                <code>computer* => computer $1</code><br />
+                                Can be used to generalize and split spellings (e.g. computertable => computer table).
+                                <span class="font-weight-bold">Just one suffix rule is allowed per spelling.</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br />
                 <p>
                     For more information refer to detailled <a href="https://github.com/renekrie/querqy#getting-started-setting-up-common-rules-under-solr" target="_new">documentation of querqy</a>.
                 </p>
