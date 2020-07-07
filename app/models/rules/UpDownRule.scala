@@ -2,7 +2,7 @@ package models.rules
 
 import anorm.SqlParser.get
 import anorm.{NamedParameter, RowParser, ~}
-import models.{Id, IdObject, SearchInputId}
+import models.{Id, IdObject, SearchInputId, Status}
 import play.api.libs.json.{Json, OFormat}
 
 class UpDownRuleId(id: String) extends Id(id)
@@ -43,7 +43,7 @@ object UpDownRule extends RuleObjectWithTerm[UpDownRule] {
       get[Int](s"$TABLE_NAME.$BOOST_MALUS_VALUE") ~
       get[String](s"$TABLE_NAME.$TERM") ~
       get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ upDownType ~ boostMalusValue ~ term ~ status =>
-      UpDownRule(id, upDownType, boostMalusValue, term, isActiveFromStatus(status))
+      UpDownRule(id, upDownType, boostMalusValue, term, Status.isActiveFromStatus(status))
     }
   }
 

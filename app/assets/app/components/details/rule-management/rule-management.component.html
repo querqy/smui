@@ -5,21 +5,18 @@
         <div class="form-group smui-no-bottom-margin">
           <table style="width:100%">
             <tr [class.smui-disabled-rule-line]="((detailSearchInput !== null) && (!detailSearchInput.isActive))">
-              <td style="width:20%">
+              <td style="width:10%">
                 <!-- TODO ng-container wrapping could be solved more elegant, maybe as a separate "empty detailSearchInput view"? -->
-                <ng-container *ngIf="detailSearchInput !== null">
-                  <input type="checkbox"
-                         class="form-check-input smui-realign-check-input"
-                         [(ngModel)]="detailSearchInput.isActive">
-                </ng-container>
-                <ng-container *ngIf="detailSearchInput === null">
-                  <input type="checkbox"
-                         class="form-check-input smui-realign-check-input"
-                         disabled="disabled">
-                </ng-container>
+                <input type="checkbox"
+                       class=" smui-realign-check-input"
+                       [disabled]="detailSearchInput === null"
+                       [(ngModel)]="detailSearchInput && detailSearchInput.isActive">
                 <small style="text-transform: uppercase">Input Term:</small>
               </td>
-              <td [style.width]="showTags ? '30%' : '60%'">
+              <td
+                      [style.width]="showTags ? '30%' : '60%'"
+                      [style.padding-right]="'0.5rem'"
+              >
                 <ng-container *ngIf="detailSearchInput !== null">
                   <input type="text"
                          class="form-control"
@@ -36,7 +33,7 @@
                          disabled="disabled">
                 </ng-container>
               </td>
-              <td [style.display]="showTags ? 'table-cell': 'none'" style="width:30%" class="smui-tags-container">
+              <td [style.display]="showTags ? 'table-cell': 'none'" style="width:20%" class="smui-tags-container">
                   <select class="inputTags" multiple>
                     <option *ngFor="let tag of availableTags"
                       [value]="tag.id">{{tag.displayValue}}</option>
@@ -51,43 +48,35 @@
                 </button>
               </td>
             </tr>
-            <tr *ngIf="detailSearchInput !== null && associatedSpellings.length > 0">
-              <td style="width:20%"></td>
-              <td style="width:60%">
-                <div class="smui-associated-spellings">
-                  <div class="smui-associated-spellings-title">
-                    <small class="uppercase">Associated Spellings:</small>
-                  </div>
-                  <div class="smui-associated-spellings-list">
-                    <ul>
-                      <li *ngFor="let associatedSpelling of associatedSpellings; let idxAssociatedSpelling = index">
-                        <ng-container *ngIf="associatedSpelling.exists">
-                          <small class="underlined-dashed active"
-                                 (click)="openDetailsForSpelling(associatedSpelling.id)">
-                            {{associatedSpelling.term}}
-                          </small>
-                          <small *ngFor="let spelling of associatedSpelling.alternatives; let idxAlternativeSpelling = index"
-                                 class="with-pipe muted">
-                            {{spelling}}
-                          </small>
-                        </ng-container>
-                        <ng-container *ngIf="!associatedSpelling.exists">
-                          <small>{{associatedSpelling.term}}</small>
-                          <i class="fa fa-plus-circle active align-middle" aria-hidden="true"
-                             (click)="createNewSpellingItemForTerm(associatedSpelling.term)">
-                          </i>
-                        </ng-container>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </td>
-              <td style="width:20%"></td>
-            </tr>
           </table>
         </div>
+        <div class="smui-associated-spellings">
+          <div class="smui-associated-spellings-title">
+            <small class="uppercase">Associated Spellings:</small>
+          </div>
+          <div class="smui-associated-spellings-list">
+            <span *ngFor="let associatedSpelling of associatedSpellings; let idxAssociatedSpelling = index">
+              <ng-container *ngIf="associatedSpelling.exists">
+                <small class="underlined-dashed active"
+                       (click)="openDetailsForSpelling(associatedSpelling.id)">
+                  {{associatedSpelling.term}}
+                </small>
+                <small *ngFor="let spelling of associatedSpelling.alternatives; let idxAlternativeSpelling = index"
+                       class="with-pipe muted">
+                  {{spelling}}
+                </small>
+              </ng-container>
+              <ng-container *ngIf="!associatedSpelling.exists">
+                <small>{{associatedSpelling.term}}</small>
+                <i class="fa fa-plus-circle active align-middle" aria-hidden="true"
+                   (click)="createNewSpellingItemForTerm(associatedSpelling.term)">
+                </i>
+              </ng-container>
+            </span>
+          </div>
         </div>
       </div>
+    </div>
   </div>
 </div>
 
@@ -96,10 +85,9 @@
   <div class="card-body smui-no-bottom-padding">
     <div class="row">
       <div class="col">
-
         <button id="btnGroupDrop1"
                 type="button"
-                class="btn btn-success dropdown-toggle btn-block"
+                class="btn btn-success dropdown-toggle"
                 data-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"
@@ -117,7 +105,7 @@
       </div>
       <div class="col">
         <button type="button"
-                class="btn btn-primary btn-block"
+                class="btn btn-primary pull-right"
                 (click)="saveSearchInputDetails()"
                 [attr.disabled]="(detailSearchInput === null) ? '' : null">
           <i class="fa fa-floppy-o" aria-hidden="true"></i> Save search rules for input
@@ -152,7 +140,7 @@
           -->
           <td style="width:20%">
             <input type="checkbox"
-                   class="form-check-input smui-realign-check-input"
+                   class=" smui-realign-check-input"
                    [(ngModel)]="synonymRule.isActive">
             <small style="text-transform: uppercase">Synonym Rule:</small>
           </td>
@@ -186,7 +174,7 @@
             [class.smui-disabled-rule-line]="(!upDownRule.isActive) || (!detailSearchInput.isActive)">
           <td style="width:20%">
             <input type="checkbox"
-                   class="form-check-input smui-realign-check-input"
+                   class=" smui-realign-check-input"
                    [(ngModel)]="upDownRule.isActive">
             <small style="text-transform: uppercase">UP/DOWN Rule:</small>
           </td>
@@ -242,7 +230,7 @@
             [class.smui-disabled-rule-line]="(!filterRule.isActive) || (!detailSearchInput.isActive)">
           <td style="width:20%">
             <input type="checkbox"
-                   class="form-check-input smui-realign-check-input"
+                   class=" smui-realign-check-input"
                    [(ngModel)]="filterRule.isActive">
             <small style="text-transform: uppercase">FILTER Rule:</small>
           </td>
@@ -276,7 +264,7 @@
             [class.smui-disabled-rule-line]="(!deleteRule.isActive) || (!detailSearchInput.isActive)">
           <td style="width:20%">
             <input type="checkbox"
-                   class="form-check-input smui-realign-check-input"
+                   class=" smui-realign-check-input"
                    [(ngModel)]="deleteRule.isActive">
             <small style="text-transform: uppercase">DELETE Rule:</small>
           </td>
@@ -303,7 +291,7 @@
             [class.smui-disabled-rule-line]="(!redirectRule.isActive) || (!detailSearchInput.isActive)">
           <td style="width:20%">
             <input type="checkbox"
-                   class="form-check-input smui-realign-check-input"
+                   class=" smui-realign-check-input"
                    [(ngModel)]="redirectRule.isActive">
             <small style="text-transform: uppercase">REDIRECT Rule:</small>
           </td>
@@ -356,7 +344,7 @@
       </div>
       <div class="col">
         <button type="button"
-                class="btn btn-primary btn-block"
+                class="btn btn-primary pull-right"
                 (click)="saveSearchInputDetails()"
                 [attr.disabled]="(detailSearchInput === null) ? '' : null">
           <i class="fa fa-floppy-o" aria-hidden="true"></i> Save search rules for input

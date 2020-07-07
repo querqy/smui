@@ -1,12 +1,11 @@
 package routes
 
-import controllers.HealthController
-import models.spellings.{AlternativeSpelling, CanonicalSpelling, CanonicalSpellingWithAlternatives}
-import models.{ApplicationTestBase, ListItem, ListItemType, SearchRulesAndSpellingsForList}
+import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
+import models.{ApplicationTestBase, ListItem, ListItemType}
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.http.ContentTypes
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, _}
 
@@ -100,17 +99,22 @@ class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
     val item = contentAsJson(result).as[CanonicalSpellingWithAlternatives]
     item.id shouldBe freezer.id
     item.term shouldBe freezer.term
+    item.isActive shouldBe true
+    item.comment shouldBe ""
     item.alternativeSpellings.map(_.term) shouldBe Seq("frazer", "freazer", "frezer")
   }
 
   it should "be updated" in {
     val spellings = CanonicalSpellingWithAlternatives(
-      freezer.id, freezer.term,
+      freezer.id,
+      "new term",
+      isActive = false,
+      "This is a comment",
       List(
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "frezer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "freazer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "frazer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "freeezer")
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id,  "frezer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freeezer", false)
       )
     )
 
@@ -124,21 +128,26 @@ class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
 
     db.withConnection { implicit connection =>
       val canonicalSpellings = CanonicalSpelling.loadAllForIndex(core1Id)
-      canonicalSpellings.map(_.term) shouldBe Seq("freezer", "machine", "pants")
+      canonicalSpellings.map(_.term) shouldBe Seq("machine", "new term", "pants")
+
+      val updatedFreezer = CanonicalSpelling.loadById(freezer.id).get
+      updatedFreezer.isActive shouldBe false
+      updatedFreezer.comment shouldBe "This is a comment"
 
       val alternativeSpellings = AlternativeSpelling.loadByCanonicalId(freezer.id)
       alternativeSpellings.map(_.term) shouldBe Seq("frazer", "freazer", "freeezer", "frezer")
+      alternativeSpellings.map(_.isActive) shouldBe Seq(true, true, false, true)
     }
   }
 
   it should "not be updated if an alternative spelling is duplicated" in {
     val spellings = CanonicalSpellingWithAlternatives(
-      freezer.id, freezer.term,
+      freezer.id, freezer.term, freezer.isActive, freezer.comment,
       List(
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "frezer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "freazer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "frazer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "frazer")
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frezer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer", true)
       )
     )
 
@@ -158,12 +167,12 @@ class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
 
   it should "not be updated if an alternative spelling is equal to the canonical term" in {
     val spellings = CanonicalSpellingWithAlternatives(
-      freezer.id, freezer.term,
+      freezer.id, freezer.term, freezer.isActive, freezer.comment,
       List(
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "frezer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "freazer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "frazer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = freezer.term)
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frezer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, freezer.term, true)
       )
     )
 
@@ -183,12 +192,12 @@ class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
 
   it should "not be updated if an alternative spelling is equal to another canonical term" in {
     val spellings = CanonicalSpellingWithAlternatives(
-      freezer.id, freezer.term,
+      freezer.id, freezer.term, freezer.isActive, freezer.comment,
       List(
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "frezer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "freazer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = "frazer"),
-        AlternativeSpelling(canonicalSpellingId = freezer.id, term = machine.term)
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frezer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, machine.term, true)
       )
     )
 

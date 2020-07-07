@@ -12,8 +12,15 @@ class CanonicalSpellingValidatorSpec extends FlatSpec with Matchers {
   }
 
   "Validation" should "reject duplicate alternatives" in {
-    validator.validateNoDuplicateAlternativeSpellings(alt("accessoire", Seq("akzessor", "assesoire", "akzessor "))) shouldBe
+    validator.validateNoDuplicateAlternativeSpellingsSameCanonical(alt("accessoire", Seq("akzessor", "assesoire", "akzessor "))) shouldBe
       Some("Duplicate alternative spellings for 'accessoire': akzessor,akzessor")
+  }
+
+  "Validation" should "reject duplicate alternatives in other canonical" in {
+    val accessoire = alt("accessoire", Seq("akzessor", "assesoire"))
+    val zubehoer = alt("zubehör", Seq("akzessor"))
+    validator.validateNoDuplicateAlternativeSpellingsOtherCanonical(List(accessoire, zubehoer)) shouldBe
+      Some("Duplicate alternative spellings in other spelling 'accessoire -> akzessor, zubehör -> akzessor'")
   }
 
   "Validation" should "reject spelling alternatives that are the same as the canonical" in {
@@ -47,9 +54,8 @@ class CanonicalSpellingValidatorSpec extends FlatSpec with Matchers {
 
   private def alt(term: String, alternatives: Seq[String]): CanonicalSpellingWithAlternatives = {
     CanonicalSpellingWithAlternatives(
-      CanonicalSpellingId("id"),
-      term,
-      alternatives.map(a => AlternativeSpelling(AlternativeSpellingId("altId"), CanonicalSpellingId("id"), a)).toList)
+      CanonicalSpellingId("id"), term, isActive = true, "",
+      alternatives.map(a => AlternativeSpelling(AlternativeSpellingId("altId"), CanonicalSpellingId("id"), a, isActive = true)).toList)
   }
 
 }

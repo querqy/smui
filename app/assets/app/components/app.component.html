@@ -59,42 +59,55 @@
 
     <div class="row">
         <div class="col-4">
-            <smui-search-input-list
+            <smui-rules-search
                     [currentSolrIndexId]="currentSolrIndexId"
-                    [(selectedListItem)]="selectedListItem"
+                    [listItems]="listItems"
+                    (refreshAndSelectListItemById)="rulesListComponent.refreshAndSelectListItemById($event)"
+                    (executeWithChangeCheck)="executeWithChangeCheck($event)"
+                    (showSuccessMsg)="showSuccessMsg($event)"
+                    (showErrorMsg)="showErrorMsg($event)"
+                    [(searchInputTerm)]="searchInputTerm"
+                    [(appliedTagFilter)]="appliedTagFilter"
+                    #rulesSearchComponent
+            ></smui-rules-search>
+
+            <smui-rules-list
+                    [currentSolrIndexId]="currentSolrIndexId"
+                    [searchInputTerm]="searchInputTerm"
+                    [appliedTagFilter]="appliedTagFilter"
+                    (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
                     (executeWithChangeCheck)="executeWithChangeCheck($event)"
                     (showErrorMsg)="showErrorMsg($event)"
-                    (createItem)="createItem($event)"
-                    (deleteItemByType)="deleteItemByType($event)"
-                    #searchInputListComponent>
-            </smui-search-input-list>
+                    [(selectedListItem)]="selectedListItem"
+                    [(listItems)]="listItems"
+                    #rulesListComponent
+            ></smui-rules-list>
         </div>
         <div class="col-8">
-            <smui-search-input-detail *ngIf="!selectedListItem || selectedListItem.itemType === 'RuleManagement'"
-                                      [currentSolrIndexId]="currentSolrIndexId"
-                                      [selectedListItem]="selectedListItem"
-                                      [allInputTags]="allInputTags"
-                                      [searchListItems]="searchInputListComponent.searchListItems"
-                                      (showErrorMsg)="showErrorMsg($event)"
-                                      (showSuccessMsg)="showSuccessMsg($event)"
-                                      (deleteItemByType)="deleteItemByType($event)"
-                                      (refreshItemsInList)="searchInputListComponent.refreshItemsInList($event)"
-                                      (selectListItemById)="searchInputListComponent.selectListItemById($event)"
-                                      (createItem)="createItem($event)"
-                                      #searchInputDetailComponent></smui-search-input-detail>
-
-            <smui-spelling-detail *ngIf="selectedListItem && selectedListItem.itemType === 'Spelling'"
+            <smui-rule-management *ngIf="!selectedListItem || selectedListItem.itemType === 'RuleManagement'"
                                   [currentSolrIndexId]="currentSolrIndexId"
                                   [selectedListItem]="selectedListItem"
+                                  [listItems]="listItems"
+                                  [allTags]="allTags"
+                                  [suggestedSolrFieldNames]="suggestedSolrFieldNames"
+                                  (refreshAndSelectListItemById)="rulesListComponent.refreshAndSelectListItemById($event)"
+                                  (executeWithChangeCheck)="executeWithChangeCheck($event)"
+                                  (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
                                   (showErrorMsg)="showErrorMsg($event)"
                                   (showSuccessMsg)="showSuccessMsg($event)"
-                                  (deleteItemByType)="deleteItemByType($event)"
-                                  (refreshItemsInList)="searchInputListComponent.refreshItemsInList($event)"
-                                  #spellingDetailComponent></smui-spelling-detail>
+                                  (createItem)="createItem($event)"
+                                  #ruleManagementComponent></smui-rule-management>
+
+            <smui-spellings *ngIf="selectedListItem && selectedListItem.itemType === 'Spelling'"
+                            [currentSolrIndexId]="currentSolrIndexId"
+                            [selectedListItem]="selectedListItem"
+                            (refreshAndSelectListItemById)="rulesListComponent.refreshAndSelectListItemById($event)"
+                            (showErrorMsg)="showErrorMsg($event)"
+                            (showSuccessMsg)="showSuccessMsg($event)"
+                            (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
+                            #spellingDetailComponent></smui-spellings>
         </div>
-
     </div>
-
 </div>
 
 <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
@@ -202,6 +215,13 @@
                 </table>
                 <br />
 
+                <p>
+                    For more information refer to detailled
+                    <a href="https://docs.querqy.org/querqy/rewriters/common-rules.html" target="_new">
+                        documentation of querqy (common rules rewriter)
+                    </a>.
+                </p>
+
                 <h6>SPELLING RULES</h6>
                 <p>
                     Spelling rules are using the querqy replace rewriter to overwrite the input term. <br />
@@ -260,7 +280,10 @@
                 </table>
                 <br />
                 <p>
-                    For more information refer to detailled <a href="https://github.com/renekrie/querqy#getting-started-setting-up-common-rules-under-solr" target="_new">documentation of querqy</a>.
+                    For more information refer to detailled
+                    <a href="https://docs.querqy.org/querqy/rewriters/replace.html" target="_new">
+                        documentation of querqy (replace rewriter)
+                    </a>.
                 </p>
             </div>
             <div class="modal-footer">

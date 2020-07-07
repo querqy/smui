@@ -68,11 +68,11 @@ abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData 
       val spelling = CanonicalSpelling.insert(indexDe.id, "spelling")
 
       val spellingWithAlternatives = CanonicalSpellingWithAlternatives(
-        spelling.id, spelling.term,
+        spelling.id, spelling.term, spelling.isActive, spelling.comment,
         List(
-          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative1"),
-          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative2"),
-          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative3")
+          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative1", true),
+          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative2", true),
+          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative3", true)
         )
       )
 

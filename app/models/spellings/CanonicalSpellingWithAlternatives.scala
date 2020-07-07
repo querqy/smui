@@ -7,6 +7,8 @@ import play.api.libs.json.{Json, OFormat}
 
 case class CanonicalSpellingWithAlternatives(id: CanonicalSpellingId,
                                              term: String,
+                                             isActive: Boolean,
+                                             comment: String,
                                              alternativeSpellings: List[AlternativeSpelling] = Nil) {
 
   def exportToReplaceFile: Boolean = {
@@ -24,7 +26,7 @@ object CanonicalSpellingWithAlternatives {
 
     canonicalSpellings.map { canonicalSpelling =>
       CanonicalSpellingWithAlternatives(
-        canonicalSpelling.id, canonicalSpelling.term,
+        canonicalSpelling.id, canonicalSpelling.term, canonicalSpelling.isActive, canonicalSpelling.comment,
         alternativeSpellings.getOrElse(canonicalSpelling.id, Seq.empty).toList
       )
     }
@@ -33,15 +35,14 @@ object CanonicalSpellingWithAlternatives {
   def loadById(id: CanonicalSpellingId)(implicit connection: Connection): Option[CanonicalSpellingWithAlternatives] = {
     CanonicalSpelling.loadById(id).map { canonicalSpelling =>
       CanonicalSpellingWithAlternatives(
-        canonicalSpelling.id,
-        canonicalSpelling.term,
+        canonicalSpelling.id, canonicalSpelling.term, canonicalSpelling.isActive, canonicalSpelling.comment,
         AlternativeSpelling.loadByCanonicalId(id)
       )
     }
   }
 
   def update(spellingWithAlternatives: CanonicalSpellingWithAlternatives)(implicit connection: Connection): Unit = {
-    CanonicalSpelling.update(spellingWithAlternatives.id, spellingWithAlternatives.term)
+    CanonicalSpelling.update(spellingWithAlternatives.id, spellingWithAlternatives.term, spellingWithAlternatives.isActive, spellingWithAlternatives.comment)
     AlternativeSpelling.updateForCanonicalSpelling(spellingWithAlternatives.id, spellingWithAlternatives.alternativeSpellings)
   }
 

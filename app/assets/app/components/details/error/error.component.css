@@ -1,0 +1,11 @@
+.error-container {
+    margin-top: 2rem;
+}
+
+.error-title {
+    font-weight: bold;
+}
+
+.error-message {
+    margin-top: 0.5rem;
+}

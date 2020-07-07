@@ -1,0 +1,15 @@
+<div class="comment-row">
+    <div class="comment-label">
+        <i class="fa fa-commenting-o" aria-hidden="true"></i>
+        <small style="text-transform: uppercase">{{ label }}</small>
+    </div>
+    <div class="comment-input">
+        <input type="text"
+               class="form-control"
+               [placeholder]="placeholder"
+               [disabled]="disabled"
+               [ngModel]="comment"
+               (ngModelChange)="commentChange.emit($event)"
+               (keyup.enter)="handleSave.emit()">
+    </div>
+</div>

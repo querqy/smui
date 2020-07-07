@@ -4,7 +4,7 @@ import java.sql.Connection
 
 import anorm.SqlParser.get
 import anorm._
-import models.{Id, IdObject, SearchInputId}
+import models.{Id, IdObject, SearchInputId, Status}
 import play.api.libs.json.{Json, OFormat}
 
 class SynonymRuleId(id: String) extends Id(id)
@@ -39,7 +39,7 @@ object SynonymRule extends RuleObjectWithTerm[SynonymRule] {
       get[Int](s"$TABLE_NAME.$TYPE") ~
       get[String](s"$TABLE_NAME.$TERM") ~
       get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ synonymType ~ term ~ status =>
-        SynonymRule(id, synonymType, term, isActiveFromStatus(status))
+        SynonymRule(id, synonymType, term, Status.isActiveFromStatus(status))
     }
   }
 

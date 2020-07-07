@@ -1,26 +1,37 @@
-import { BrowserModule } from '@angular/platform-browser';
+// angular
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { AppRoutingModule } from './app-routing.module';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
-// import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToasterModule } from 'angular2-toaster';
-
-import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing.module';
-
-import { SearchManagementService } from './search-management.service';
-import { FeatureToggleService } from './feature-toggle.service';
-
-import { SearchInputListComponent } from './search-input-list.component';
-import { SearchInputDetailComponent } from './search-input-detail.component';
-import { SpellingDetailComponent } from './spelling-detail.component';
-
 import { Http, XHRBackend, RequestOptions } from '@angular/http';
 import { Router } from '@angular/router';
-import { HttpAuthInterceptor } from './http-auth-interceptor'
+
+// services
+import {
+  FeatureToggleService, ListItemsService, RuleManagementService, SpellingsService, SolrService, TagsService
+} from './services/index'
+
+// helpers
+import {
+  CommonsService, HttpAuthInterceptor
+} from './helpers/index'
+
+// components
+import {
+  AppComponent
+} from './components/app.component';
+
+import {
+  ButtonRowComponent, CardComponent, CommentComponent, ErrorComponent, DetailHeaderComponent, InputRowContainerComponent,
+  DetailInputRow, SpellingsComponent, RuleManagementComponent
+} from './components/details/index'
+
+import {
+  RulesListComponent, RulesSearchComponent
+} from './components/rules-panel/index'
 
 @NgModule({
   imports: [
@@ -28,19 +39,31 @@ import { HttpAuthInterceptor } from './http-auth-interceptor'
     FormsModule,
     AppRoutingModule,
     HttpModule,
-//     BrowserAnimationsModule,
     ToasterModule,
     NgbModule.forRoot()
   ],
   declarations: [
     AppComponent,
-    SearchInputListComponent,
-    SearchInputDetailComponent,
-    SpellingDetailComponent
+    ButtonRowComponent,
+    CardComponent,
+    CommentComponent,
+    ErrorComponent,
+    DetailHeaderComponent,
+    InputRowContainerComponent,
+    DetailInputRow,
+    SpellingsComponent,
+    RuleManagementComponent,
+    RulesListComponent,
+    RulesSearchComponent
   ],
   providers: [
-    SearchManagementService,
+    CommonsService,
     FeatureToggleService,
+    ListItemsService,
+    RuleManagementService,
+    SpellingsService,
+    SolrService,
+    TagsService,
     {
       provide: Http,
       useFactory:

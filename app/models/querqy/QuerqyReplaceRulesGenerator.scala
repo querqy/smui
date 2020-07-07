@@ -12,16 +12,24 @@ import scala.util.{Failure, Success, Try}
 object QuerqyReplaceRulesGenerator {
 
   def renderAllCanonicalSpellingsToReplaceRules(allSpellings: Seq[CanonicalSpellingWithAlternatives]): String = {
-    allSpellings.filter(_.exportToReplaceFile).map(renderReplaceRule).sorted.mkString("\n")
+    allSpellings.filter(_.exportToReplaceFile).flatMap(renderReplaceRule).sorted.mkString("\n")
   }
 
-  def renderReplaceRule(spelling: CanonicalSpellingWithAlternatives): String = {
-    val alternativeSpellings = spelling.alternativeSpellings.map(_.term).sorted.mkString("; ")
-    s"$alternativeSpellings => ${spelling.term}"
+  def renderReplaceRule(spelling: CanonicalSpellingWithAlternatives): Option[String] = {
+    val alternativeSpellings = spelling.alternativeSpellings
+      .filter(_.isActive).map(_.term).sorted.mkString("; ")
+
+    if (spelling.isActive) {
+      Some(s"$alternativeSpellings => ${spelling.term}")
+    } else None
   }
 
   def validateQuerqyReplaceRulesTxtToErrMsg(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
-    validateQuerqyReplaceRulesTxtToErrMsg(renderReplaceRule(spellings))
+    val renderedRule = renderReplaceRule(spellings)
+    renderedRule.flatMap {
+      case rule => validateQuerqyReplaceRulesTxtToErrMsg(rule)
+      case _ => None
+    }
   }
 
   def validateQuerqyReplaceRulesTxtToErrMsg(rulesString: String): Option[String] = {

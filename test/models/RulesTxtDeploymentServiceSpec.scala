@@ -47,8 +47,7 @@ class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with Applicat
 
   private def replaceRulesFileContent(): String =
     s"""frazer; freazer; frezer => freezer
-       |machin; mechine => machine
-       |pands; pents => pants""".stripMargin
+       |mechine => machine""".stripMargin
 
   "RulesTxtDeploymentService" should "generate rules files with correct file names" in {
     val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)

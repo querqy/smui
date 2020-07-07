@@ -54,10 +54,6 @@ trait RuleObject[T <: Rule] extends CommonRuleFields {
 
   val sqlParser: RowParser[T]
 
-  def isActiveFromStatus(status: Int): Boolean = {
-    (status & 0x01) == 0x01
-  }
-
   def updateForSearchInput(searchInputId: SearchInputId, rules: Seq[T])(implicit connection: Connection) {
     SQL"delete from #$TABLE_NAME where #$SEARCH_INPUT_ID = $searchInputId".execute()
 

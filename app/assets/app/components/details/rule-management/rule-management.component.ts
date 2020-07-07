@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/merge';
@@ -6,45 +6,51 @@ import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 
-import * as smm from './search-management.model';
-import { SearchManagementService } from './search-management.service';
-import { FeatureToggleService } from './feature-toggle.service';
-import { SearchInputListComponent } from './search-input-list.component';
-// import { ActivatedRoute, Params } from '@angular/router';
+import {
+  AssociatedSpelling, DeleteRule, FilterRule, InputTag, ListItem, ListItemType, RedirectRule,
+  SearchInput, SynonymRule, UpDownRule
+} from '../../../models/index';
+import {
+  FeatureToggleService,
+  RuleManagementService,
+  SolrService,
+  SpellingsService,
+  TagsService
+} from '../../../services/index';
+import {CommonsService} from '../../../helpers/index';
+
 
 const DEFAULT_IDX_UP_DOWN_DROPDOWN_DEFINITION_MAPPING = 4;
 declare var $: any; // For jquery
 
 @Component({
-  selector: 'smui-search-input-detail',
-  templateUrl: './search-input-detail.component.html',
-  styleUrls: ['./search-input-detail.component.css'],
-  providers: [FeatureToggleService]
+  selector: 'smui-rule-management',
+  templateUrl: './rule-management.component.html',
+  styleUrls: ['./rule-management.component.css']
 })
-export class SearchInputDetailComponent implements OnInit {
+export class RuleManagementComponent implements OnInit {
 
-  @Input() listComponent: SearchInputListComponent;
   @Input() selectedListItem = null;
   @Input() currentSolrIndexId = '-1';
-  @Input() allInputTags: smm.InputTag[] = [];
-  @Input() searchListItems: smm.ListItem[] = [];
+  @Input() listItems: ListItem[] = [];
+  @Input() suggestedSolrFieldNames = null;
+  @Input() allTags: InputTag[] = null;
 
+  @Output() refreshAndSelectListItemById: EventEmitter<string> = new EventEmitter();
+  @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
   @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
-  @Output() refreshItemsInList: EventEmitter<string> = new EventEmitter();
-  @Output() deleteItemByType: EventEmitter<any> = new EventEmitter();
-  @Output() selectListItemById: EventEmitter<string> = new EventEmitter();
-  @Output() createItem: EventEmitter<any> = new EventEmitter();
+  @Output() openDeleteConfirmModal: EventEmitter<any> = new EventEmitter();
 
-  private detailSearchInput: smm.SearchInput = null;
+  private detailSearchInput: SearchInput = null;
   private initDetailSearchInputHashForDirtyState: string = null;
-  private suggestedSolrFieldNames = null;
   private showTags: Boolean = false;
-  private availableTags: smm.InputTag[] = [];
+  private availableTags: InputTag[] = [];
   private saveError: string = null;
   private previousTagEventHandler = null;
-  private associatedSpellings: smm.AssociatedSpelling[] = [];
+  private associatedSpellings: AssociatedSpelling[] = [];
   private activateSpelling = this.featureToggleService.getSyncToggleActivateSpelling();
+  private searchListItems: ListItem[] = [];
 
   // TODO open typeahead popup on focus -- focus$ = new Subject<string>();
   searchSuggestedSolrFieldNames = (text$: Observable<string>) =>
@@ -60,41 +66,32 @@ export class SearchInputDetailComponent implements OnInit {
       );
 
   constructor(
-    private searchManagementService: SearchManagementService,
-    public featureToggleService: FeatureToggleService /*, TODO use or remove "route" DI
-    private route: ActivatedRoute */) {
-  }
+    private commonsService: CommonsService,
+    private ruleManagementService: RuleManagementService,
+    private spellingService: SpellingsService,
+    private solrService: SolrService,
+    private featureToggleService: FeatureToggleService,
+    private tagsService: TagsService
+  ) { }
 
   ngOnInit() {
     console.log('In SearchInputDetailComponent :: ngOnInit');
   }
 
-  ngOnChanges() {
+  ngOnChanges(changes: SimpleChanges) {
     console.log('In SearchInputDetailComponent :: ngOnChanges');
 
     if (this.selectedListItem) {
       this.showDetailsForSearchInputWithId(this.selectedListItem.id)
     }
+
+    if (changes.listItems && changes.listItems.currentValue) {
+      this.searchListItems = this.filterSearchListItems(this.listItems);
+    }
   }
 
   private availableTagsForCurrentSolrIndex() {
-    return this.allInputTags.filter(tag => !tag.solrIndexId || tag.solrIndexId === this.currentSolrIndexId);
-  }
-
-  public loadSuggestedSolrFieldsForSolrIndexWithId(solrIndexId: string) {
-    console.log('In SearchInputDetailComponent :: loadSuggestedSolrFieldsForSolrIndexWithId');
-    console.log(':: solrIndexId = ' + JSON.stringify(solrIndexId));
-    this.currentSolrIndexId = solrIndexId;
-
-    this.searchManagementService
-      .listAllSuggestedSolrFields(this.currentSolrIndexId)
-      .then(retSuggestedSolrFieldNames => {
-        console.log(':: then :: retSuggestedSolrFieldNames = ' + JSON.stringify(retSuggestedSolrFieldNames));
-        this.suggestedSolrFieldNames = retSuggestedSolrFieldNames
-          .reduce((r, s) => r.concat(s.name, '-' + s.name), [])
-        console.log(':: this.suggestedSolrFieldNames = ' + JSON.stringify(this.suggestedSolrFieldNames));
-      })
-      .catch(error => this.handleError(error));
+    return this.allTags.filter(tag => !tag.solrIndexId || tag.solrIndexId === this.currentSolrIndexId);
   }
 
   handleError(error: any) {
@@ -105,13 +102,13 @@ export class SearchInputDetailComponent implements OnInit {
 
   // TODO consider evaluate a more elegant solution to dispatch upDownDropdownDefinitionMappings from smm to the template
   public upDownDropdownDefinitionMappings() {
-    return smm.upDownDropdownDefinitionMappings;
+    return this.ruleManagementService.upDownDropdownDefinitionMappings;
   }
 
-  private initTags(tags: smm.InputTag[]) {
+  private initTags(tags: InputTag[]) {
     this.availableTags = this.availableTagsForCurrentSolrIndex();
     this.showTags = this.featureToggleService.isRuleTaggingActive();
-    
+
     const elem = $('.inputTags')
     if (this.previousTagEventHandler) {
       elem.off('tokenize:tokens:added tokenize:tokens:remove', this.previousTagEventHandler);
@@ -160,7 +157,7 @@ export class SearchInputDetailComponent implements OnInit {
 
   private extractSuggestedSolrFieldName(objList: Array<any>) {
     for (let i = 0; i < objList.length; i++) {
-      // TODO "term" and "suggestedSolrFieldName" attributes are implicitly assumed. Change approach (maybe put into model or even backend)
+      // TODO 'term' and 'suggestedSolrFieldName' attributes are implicitly assumed. Change approach (maybe put into model or even backend)
       objList[i].suggestedSolrFieldName = '';
       if (objList[i].term !== null) {
         const term = objList[i].term.trim();
@@ -181,7 +178,7 @@ export class SearchInputDetailComponent implements OnInit {
       if (objList[i].suggestedSolrFieldName) {
         if (objList[i].suggestedSolrFieldName.trim().length > 0) {
           objList[i].term = '* ' + objList[i].suggestedSolrFieldName + ':' + objList[i].term;
-          // TODO not very elegant incl. "delete" operator ... Refactor!
+          // TODO not very elegant incl. 'delete' operator ... Refactor!
           delete objList[i].suggestedSolrFieldName;
         }
       }
@@ -195,7 +192,7 @@ export class SearchInputDetailComponent implements OnInit {
       this.detailSearchInput = null;
       this.showTags = false;
     } else {
-      this.searchManagementService
+      this.ruleManagementService
         .getDetailedSearchInput(searchInputId)
         .then(retSearchInput => {
           this.saveError = null
@@ -234,44 +231,47 @@ export class SearchInputDetailComponent implements OnInit {
     if (this.activateSpelling && this.detailSearchInput && this.detailSearchInput.term !== '') {
       const subTerms = this.detailSearchInput.term.split(' ');
       this.associatedSpellings = subTerms
-        .map(subTerm => { return {
-          term: subTerm,
-          spellingItem: this.searchListItems.find(item => item.term === subTerm)}
+        .map(subTerm => {
+          const term = this.commonsService.removeQuotes(subTerm);
+          return {
+            term,
+            spellingItem: this.searchListItems.find(item =>
+              this.commonsService.removeQuotes(item.term) === term
+            )
+          }
         })
         .map(item => {
           return item.spellingItem ?
-              new smm.AssociatedSpelling(item.spellingItem.id, item.term, true, item.spellingItem.additionalTermsForSearch)
+              new AssociatedSpelling(item.spellingItem.id, item.term, true, item.spellingItem.additionalTermsForSearch)
             :
-              new smm.AssociatedSpelling('', item.term, false, [])
+              new AssociatedSpelling('', item.term, false, [])
         })
     } else {
       this.associatedSpellings = []
     }
   }
 
-  public openDetailsForSpelling(id: string) {
-    this.selectListItemById.emit(id)
-  }
-
   public createNewSpellingItemForTerm(term: string) {
-    const apiCall = () => this.searchManagementService.addNewSpellingItem(this.currentSolrIndexId, term);
-    this.createItem.emit({ itemType: smm.ListItemType.Spelling, apiCall })
+    const createSpellingItemCallback = () =>
+      this.spellingService
+      .addNewSpelling(this.currentSolrIndexId, term)
+      .then(spellingId => this.refreshAndSelectListItemById.emit(spellingId))
+      .catch(error => this.showErrorMsg.emit(error));
+
+    this.executeWithChangeCheck.emit({
+      executeFnOk: createSpellingItemCallback,
+      executeFnCancel: () => ({})
+    });
   }
 
   public isDirty(): boolean {
-    console.log('In SearchInputDetailComponent :: isDirty');
-
-    if (this.detailSearchInput === null) {
-      return false;
-    } else {
-      return JSON.stringify(this.detailSearchInput) !== this.initDetailSearchInputHashForDirtyState;
-    }
+    return this.commonsService.isDirty(this.detailSearchInput, this.initDetailSearchInputHashForDirtyState)
   }
 
   public addNewSynonymRule() {
     console.log('In SearchInputDetailComponent :: addNewSynonym');
 
-    const emptySynonymRule: smm.SynonymRule = {
+    const emptySynonymRule: SynonymRule = {
       id: this.randomUUID(),
       synonymType: 0,
       term: '',
@@ -290,13 +290,13 @@ export class SearchInputDetailComponent implements OnInit {
   public addNewUpDownRule() {
     console.log('In SearchInputDetailComponent :: addNewUpDownRule');
 
-    const emptyUpDownRule: smm.UpDownRule = {
+    const emptyUpDownRule: UpDownRule = {
       id: this.randomUUID(),
       term: '',
       isActive: true
     };
     if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()) {
-      // NOTE: the attribute "upDownDropdownDefinitionMapping" is frontend-only and not supposed to be part of REST transfer
+      // NOTE: the attribute 'upDownDropdownDefinitionMapping' is frontend-only and not supposed to be part of REST transfer
       emptyUpDownRule.upDownDropdownDefinitionMapping = DEFAULT_IDX_UP_DOWN_DROPDOWN_DEFINITION_MAPPING;
     } else {
       emptyUpDownRule.upDownType = 0;
@@ -315,7 +315,7 @@ export class SearchInputDetailComponent implements OnInit {
   public addNewFilterRule() {
     console.log('In SearchInputDetailComponent :: addNewFilterRule');
 
-    const emptyFilterRule: smm.FilterRule = {
+    const emptyFilterRule: FilterRule = {
       id: this.randomUUID(),
       term: '',
       isActive: true
@@ -336,7 +336,7 @@ export class SearchInputDetailComponent implements OnInit {
   public addNewDeleteRule() {
     console.log('In SearchInputDetailComponent :: addNewDeleteRule');
 
-    const emptyDeleteRule: smm.DeleteRule = {
+    const emptyDeleteRule: DeleteRule = {
       id: this.randomUUID(),
       term: '',
       isActive: true
@@ -373,7 +373,7 @@ export class SearchInputDetailComponent implements OnInit {
   public addNewRedirectRule() {
     console.log('In SearchInputDetailComponent :: addNewRedirectRule');
 
-    const emptyRedirectRule: smm.RedirectRule = {
+    const emptyRedirectRule: RedirectRule = {
       id: this.randomUUID(),
       target: '',
       isActive: true
@@ -394,7 +394,7 @@ export class SearchInputDetailComponent implements OnInit {
     // TODO routine directly operating on this.detailSearchInput frontend model. Therefore it flickers. Refactor!
 
     // take care of extracted Solr syntax
-    // WARNING: this must be done first (before UP/DOWN mappings) as below routine potentially removes "suggestedSolrFieldName" attribute
+    // WARNING: this must be done first (before UP/DOWN mappings) as below routine potentially removes 'suggestedSolrFieldName' attribute
     if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) {
       this.integrateSuggestedSolrFieldName(this.detailSearchInput.upDownRules);
       this.integrateSuggestedSolrFieldName(this.detailSearchInput.filterRules);
@@ -411,8 +411,12 @@ export class SearchInputDetailComponent implements OnInit {
           return {
             id: upDownRule.id,
             term: upDownRule.term,
-            upDownType: smm.upDownDropdownDefinitionMappings[upDownRule.upDownDropdownDefinitionMapping].upDownType,
-            boostMalusValue: smm.upDownDropdownDefinitionMappings[upDownRule.upDownDropdownDefinitionMapping].boostMalusValue,
+            upDownType: this.ruleManagementService.upDownDropdownDefinitionMappings[
+              upDownRule.upDownDropdownDefinitionMapping
+              ].upDownType,
+            boostMalusValue: this.ruleManagementService.upDownDropdownDefinitionMappings[
+              upDownRule.upDownDropdownDefinitionMapping
+              ].boostMalusValue,
             isActive: upDownRule.isActive
           }
         });
@@ -420,34 +424,39 @@ export class SearchInputDetailComponent implements OnInit {
     }
 
     // and persist against REST backend
-    this.searchManagementService
+    this.ruleManagementService
       .updateSearchInput(this.detailSearchInput)
-      .then(res => {
-        console.log('In SearchInputDetailComponent :: saveSearchInputDetails :: then :: res = ' + JSON.stringify(res));
-
-        // reload detailSearchInput detail's model as well for updates on order of rules
-        this.showDetailsForSearchInputWithId(this.detailSearchInput.id);
-
-        // reload list for maybe updates on directed synonyms
-        this.refreshItemsInList.emit(this.currentSolrIndexId);
-
-        this.saveError = null;
-        this.showSuccessMsg.emit('Saving Details successful.');
-      })
+      .then(spellingId => this.refreshAndSelectListItemById.emit(spellingId))
+      .then(_ => this.showSuccessMsg.emit('Saving Details successful.'))
       .catch(error => {
         if (error.status === 400) {
-          this.saveError = error.json().message
+          const msg = error.json().message;
+          this.saveError = msg.split('\n')
         } else {
-          this.handleError(error);
+          this.showErrorMsg.emit(error)
         }
-      });
+      })
   }
 
-  public deleteSearchInputWithId(searchInputId: string) {
-    console.log(`In SearchInputListComponent :: deleteSearchInputWithId :: id = ${searchInputId}`);
-    // TODO maybe before even starting the deletion process, check if details are dirty and ask to cancel editing eventually
-    // TODO reselect selected index, if deleted entry was the selected one
-    // TODO reselect selected index, if deleted entry was the first one
-    this.deleteItemByType.emit({itemType: 'RuleManagement', id: searchInputId});
+  deleteSearchInput() {
+    const deleteCallback = () =>
+      this.ruleManagementService.deleteSearchInput(this.detailSearchInput.id)
+        .then(() => this.refreshAndSelectListItemById.emit(null))
+        .catch(error => this.showErrorMsg.emit(error))
+
+    this.openDeleteConfirmModal.emit({itemType: 'rule management item', deleteCallback});
+  }
+
+  openDetailsForSpelling(spellingId: string) {
+    this.executeWithChangeCheck.emit({
+      executeFnOk: () => this.refreshAndSelectListItemById.emit(spellingId),
+      executeFnCancel: () => ({})
+    })
+  }
+
+  private filterSearchListItems(listItems: ListItem[]) {
+    return listItems.filter(item =>
+      item.itemType.toString() === ListItemType[ListItemType.Spelling].toString()
+    );
   }
 }

@@ -85,27 +85,29 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     pants = repo.addNewCanonicalSpelling(core1Id, "pants")
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
-      freezer.id, freezer.term,
+      freezer.id, freezer.term, freezer.isActive, freezer.comment,
       List(
-        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frezer"),
-        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freazer"),
-        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer")
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frezer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer", true)
       )
     ))
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
-      machine.id, machine.term,
+      machine.id, machine.term, machine.isActive, machine.comment,
       List(
-        AlternativeSpelling(AlternativeSpellingId(), machine.id, "machin"),
-        AlternativeSpelling(AlternativeSpellingId(), machine.id, "mechine")
+        AlternativeSpelling(AlternativeSpellingId(), machine.id, "machin", false),
+        AlternativeSpelling(AlternativeSpellingId(), machine.id, "mechine", true)
       )
     ))
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
       pants.id, pants.term,
+      isActive = false,
+      "This is a comment",
       List(
-        AlternativeSpelling(AlternativeSpellingId(), pants.id, "pands"),
-        AlternativeSpelling(AlternativeSpellingId(), pants.id, "pents")
+        AlternativeSpelling(AlternativeSpellingId(), pants.id, "pands", true),
+        AlternativeSpelling(AlternativeSpellingId(), pants.id, "pents", true)
       )
     ))
   }

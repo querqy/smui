@@ -23,7 +23,7 @@ case class ListItem(id: String,
 object ListItem {
   def create(searchInputs: Seq[SearchInputWithRules], spellings: Seq[CanonicalSpellingWithAlternatives]): Seq[ListItem] = {
     val listItems = listItemsForRules(searchInputs) ++ listItemsForSpellings(spellings)
-    listItems.sortBy(_.term.toLowerCase)
+    listItems.sortBy(_.term.trim.toLowerCase.replace("\"", ""))
   }
 
   private def listItemsForRules(searchInputs: Seq[SearchInputWithRules]): Seq[ListItem] = {
@@ -50,7 +50,9 @@ object ListItem {
         spelling.id.toString,
         spelling.term,
         ListItemType.Spelling,
-        additionalTermsForSearch = spelling.alternativeSpellings.map(_.term)
+        spelling.isActive,
+        additionalTermsForSearch = spelling.alternativeSpellings.map(_.term),
+        comment = spelling.comment
       )
     }
   }

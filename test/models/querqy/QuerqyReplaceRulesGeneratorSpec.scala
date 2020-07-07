@@ -10,16 +10,45 @@ class QuerqyReplaceRulesGeneratorSpec extends FlatSpec with Matchers {
   "Replace Rule Generation" should "correctly create REPLACE rules from spellings" in {
     val canonicalSpellingId = CanonicalSpellingId()
     val canonicalSpelling = CanonicalSpellingWithAlternatives(
-      canonicalSpellingId, "freezer", List(
-        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frozer"),
-        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frazer"),
-        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "fräzer"),
-        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frsadsadsv"),
+      canonicalSpellingId, "freezer", true, "", List(
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frozer", true),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "fräzer", true),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frsadsadsv", true),
       )
     )
 
     val replaceRule = generator.renderReplaceRule(canonicalSpelling)
-    replaceRule shouldBe "frazer; frozer; frsadsadsv; fräzer => freezer"
+    replaceRule shouldBe Some("frazer; frozer; frsadsadsv; fräzer => freezer")
+  }
+
+  it should "not render a replace rule if the spelling is marked inactive" in {
+    val canonicalSpellingId = CanonicalSpellingId()
+    val canonicalSpelling = CanonicalSpellingWithAlternatives(
+      canonicalSpellingId, "freezer", isActive = false, "", List(
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frozer", true),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "fräzer", true),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frsadsadsv", true),
+      )
+    )
+
+    val replaceRule = generator.renderReplaceRule(canonicalSpelling)
+    replaceRule shouldBe None
+  }
+
+  it should "not render an alternative spelling if it is inactive" in {
+    val canonicalSpellingId = CanonicalSpellingId()
+    val canonicalSpelling = CanonicalSpellingWithAlternatives(
+      canonicalSpellingId, "freezer", true, "", List(
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frozer", false),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "frazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), canonicalSpellingId, "fräzer", false),
+      )
+    )
+
+    val replaceRule = generator.renderReplaceRule(canonicalSpelling)
+    replaceRule shouldBe Some("frazer => freezer")
   }
 
   val VALID_REPLACE_RULES_TXT =

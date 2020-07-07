@@ -2,10 +2,11 @@ package models.spellings
 
 import java.sql.Connection
 import java.time.LocalDateTime
+
 import anorm.SqlParser.get
 import anorm._
 import play.api.libs.json.{Json, OFormat}
-import models.{Id, IdObject}
+import models.{Id, IdObject, Status}
 
 class AlternativeSpellingId(id: String) extends Id(id)
 
@@ -13,7 +14,8 @@ object AlternativeSpellingId extends IdObject[AlternativeSpellingId](new Alterna
 
 case class AlternativeSpelling(id: AlternativeSpellingId = AlternativeSpellingId(),
                                canonicalSpellingId: CanonicalSpellingId,
-                               term: String) {
+                               term: String,
+                               isActive: Boolean) {
 
   import AlternativeSpelling._
 
@@ -21,7 +23,8 @@ case class AlternativeSpelling(id: AlternativeSpellingId = AlternativeSpellingId
     ID -> id,
     CANONICAL_SPELLING_ID -> canonicalSpellingId,
     TERM -> term,
-    LAST_UPDATE -> LocalDateTime.now()
+    LAST_UPDATE -> LocalDateTime.now(),
+    STATUS -> Status.statusFromIsActive(isActive)
   )
 }
 
@@ -32,6 +35,7 @@ object AlternativeSpelling {
   val CANONICAL_SPELLING_ID = "canonical_spelling_id"
   val TERM = "term"
   val LAST_UPDATE = "last_update"
+  val STATUS = "status"
 
   val orderByField: String = TERM
 
@@ -40,13 +44,15 @@ object AlternativeSpelling {
   val sqlParser: RowParser[AlternativeSpelling] = {
       get[AlternativeSpellingId](s"$TABLE_NAME.$ID") ~
       get[CanonicalSpellingId](s"$TABLE_NAME.$CANONICAL_SPELLING_ID") ~
-      get[String](s"$TABLE_NAME.$TERM") map { case id ~ canonicalSpellingId ~ term =>
-      AlternativeSpelling(id, canonicalSpellingId, term)
+      get[String](s"$TABLE_NAME.$TERM") ~
+      get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ canonicalSpellingId ~ term ~ status =>
+      AlternativeSpelling(id, canonicalSpellingId, term, Status.isActiveFromStatus(status))
     }
   }
 
   val insertStatement: String =
-    s"insert into $TABLE_NAME ($ID, $CANONICAL_SPELLING_ID, $TERM, $LAST_UPDATE) values ({$ID}, {$CANONICAL_SPELLING_ID}, {$TERM}, {$LAST_UPDATE})"
+    s"insert into $TABLE_NAME ($ID, $CANONICAL_SPELLING_ID, $TERM, $STATUS, $LAST_UPDATE) " +
+      s"values ({$ID}, {$CANONICAL_SPELLING_ID}, {$TERM}, {$STATUS}, {$LAST_UPDATE})"
 
   def loadByCanonicalId(canonicalSpellingId: CanonicalSpellingId)(implicit connection: Connection): List[AlternativeSpelling] = {
     SQL"select * from #$TABLE_NAME where #$CANONICAL_SPELLING_ID = $canonicalSpellingId order by lower(#$orderByField)".as(sqlParser.*)

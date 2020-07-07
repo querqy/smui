@@ -1,0 +1,67 @@
+<smui-card>
+    <smui-detail-header
+        *ngIf="detailSpelling"
+        title="Correct spelling:"
+        placeholder="Edit Spelling..."
+        [disabled]="!detailSpelling.isActive"
+        (handleSave)="saveSpellingsDetails()"
+        (handleDelete)="deleteSpelling()"
+        [(term)]="detailSpelling.term"
+        [(active)]="detailSpelling.isActive"
+    ></smui-detail-header>
+</smui-card>
+
+<smui-card>
+    <smui-button-row
+            *ngIf="detailSpelling"
+            addLabel="Add new misspelling"
+            saveLabel="Save spellings"
+            [disabled]="!detailSpelling.isActive"
+            (handleAdd)="addNewAlternativeSpelling()"
+            (handleSave)="saveSpellingsDetails()"
+    ></smui-button-row>
+
+    <smui-error
+            *ngIf="detailSpelling && errors.length > 0"
+            title="The spellings variants could not be saved. Please fix the following errors:"
+            [errors]="errors"
+    ></smui-error>
+
+    <smui-error
+            *ngIf="detailSpelling && errors.length == 0 && detailSpelling.alternativeSpellings.length < 1"
+            title="No alternative spellings maintained for term. This Spelling item will therefore not being included on deployment to Solr."
+    ></smui-error>
+
+    <ng-container *ngIf="detailSpelling && detailSpelling.alternativeSpellings.length > 0">
+        <smui-input-row-container>
+            <ng-container *ngFor="let alternativeSpelling of detailSpelling.alternativeSpellings; let idx = index">
+                 <smui-input-row
+                         iconClass="fa-ban"
+                         label="Misspelling:"
+                         placeholder="Edit spelling variant..."
+                         [disabled]="!detailSpelling.isActive"
+                         (handleSave)="saveSpellingsDetails()"
+                         (handleDeleteRow)="deleteAlternativeSpelling(idx)"
+                         [(term)]="alternativeSpelling.term"
+                         [(active)]="alternativeSpelling.isActive"
+                 ></smui-input-row>
+            </ng-container>
+        </smui-input-row-container>
+    </ng-container>
+
+    <smui-comment
+            *ngIf="detailSpelling"
+            label="Comment:"
+            placeholder="Enter a comment explaining the management of spelling(s) (hint use #hashtags)..."
+            [disabled]="!detailSpelling.isActive"
+            (handleSave)="saveSpellingsDetails()"
+            [(comment)]="detailSpelling.comment"
+    ></smui-comment>
+
+    <smui-button-row
+            *ngIf="detailSpelling"
+            saveLabel="Save spellings"
+            [disabled]="!detailSpelling.isActive"
+            (handleSave)="saveSpellingsDetails()"
+    ></smui-button-row>
+</smui-card>

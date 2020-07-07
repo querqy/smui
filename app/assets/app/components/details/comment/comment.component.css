@@ -1,0 +1,18 @@
+.comment-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-column-gap: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.comment-label {
+    grid-column: 1;
+    align-self: center;
+    justify-self: start;
+}
+
+.comment-input{
+    grid-column: 2;
+    align-self: center;
+}

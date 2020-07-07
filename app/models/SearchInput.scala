@@ -18,7 +18,7 @@ case class SearchInput(id: SearchInputId = SearchInputId(),
 
   import SearchInput._
 
-  def status: Int = statusFromIsActive(isActive)
+  def status: Int = Status.statusFromIsActive(isActive)
 
   def toNamedParameters: Seq[NamedParameter] = Seq(
     ID -> id,
@@ -41,14 +41,6 @@ object SearchInput {
   val STATUS = "status"
   val COMMENT = "comment"
 
-  def isActiveFromStatus(status: Int): Boolean = {
-    (status & 0x01) == 0x01
-  }
-
-  def statusFromIsActive(isActive: Boolean) = {
-    if (isActive) 0x01 else 0x00
-  }
-
   val sqlParser: RowParser[SearchInput] = {
     get[SearchInputId](s"$TABLE_NAME.$ID") ~
       get[String](s"$TABLE_NAME.$TERM") ~
@@ -56,7 +48,7 @@ object SearchInput {
       get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") ~
       get[Int](s"$TABLE_NAME.$STATUS") ~
       get[String](s"$TABLE_NAME.$COMMENT") map { case id ~ term ~ indexId ~ lastUpdate ~ status ~ comment =>
-        SearchInput(id, indexId, term, lastUpdate, isActiveFromStatus(status), comment)
+        SearchInput(id, indexId, term, lastUpdate, Status.isActiveFromStatus(status), comment)
     }
   }
 
@@ -80,7 +72,7 @@ object SearchInput {
   }
 
   def update(id: SearchInputId, term: String, isActive: Boolean, comment: String)(implicit connection: Connection): Unit = {
-    SQL"update #$TABLE_NAME set #$TERM = $term, #$LAST_UPDATE = ${LocalDateTime.now()}, #$STATUS = ${statusFromIsActive(isActive)}, #$COMMENT = $comment where #$ID = $id".executeUpdate()
+    SQL"update #$TABLE_NAME set #$TERM = $term, #$LAST_UPDATE = ${LocalDateTime.now()}, #$STATUS = ${Status.statusFromIsActive(isActive)}, #$COMMENT = $comment where #$ID = $id".executeUpdate()
   }
 
   /**
