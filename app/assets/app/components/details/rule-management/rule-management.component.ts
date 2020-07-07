@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/merge';
@@ -28,7 +28,7 @@ declare var $: any; // For jquery
   templateUrl: './rule-management.component.html',
   styleUrls: ['./rule-management.component.css']
 })
-export class RuleManagementComponent implements OnInit {
+export class RuleManagementComponent implements OnChanges {
 
   @Input() selectedListItem = null;
   @Input() currentSolrIndexId = '-1';
@@ -74,15 +74,15 @@ export class RuleManagementComponent implements OnInit {
     private tagsService: TagsService
   ) { }
 
-  ngOnInit() {
-    console.log('In SearchInputDetailComponent :: ngOnInit');
-  }
-
   ngOnChanges(changes: SimpleChanges) {
     console.log('In SearchInputDetailComponent :: ngOnChanges');
 
     if (this.selectedListItem) {
       this.showDetailsForSearchInputWithId(this.selectedListItem.id)
+    }
+
+    if (changes.selectedListItem && !this.selectedListItem) {
+      this.showDetailsForSearchInputWithId(null)
     }
 
     if (changes.listItems && changes.listItems.currentValue) {

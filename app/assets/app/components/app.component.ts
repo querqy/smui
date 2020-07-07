@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, SimpleChanges } from '@angular/core';
 import { ToasterService, ToasterConfig } from 'angular2-toaster';
 
 import { RuleManagementComponent, SpellingsComponent } from './details/index';
@@ -93,6 +93,7 @@ export class AppComponent implements OnInit {
           this.listSolrIndeces = solrIndices;
           this.currentSolrIndexId = this.listSolrIndeces[0].id;
           this.solrIndexSelectOptionModel = this.currentSolrIndexId;
+          this.selectedListItem = null;
 
           this.solrService.listAllSuggestedSolrFields(this.currentSolrIndexId)
             .then(suggestedSolrFieldNames => this.suggestedSolrFieldNames = suggestedSolrFieldNames)
