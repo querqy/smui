@@ -19,7 +19,7 @@ class CanonicalSpellingValidatorSpec extends FlatSpec with Matchers {
   "Validation" should "reject duplicate alternatives in other canonical" in {
     val accessoire = alt("accessoire", Seq("akzessor", "assesoire"))
     val zubehoer = alt("zubehör", Seq("akzessor"))
-    validator.validateNoDuplicateAlternativeSpellingsOtherCanonical(List(accessoire, zubehoer)) shouldBe
+    validator.validateNoDuplicateAlternativeSpellingsOtherCanonical(accessoire, List(zubehoer)) shouldBe
       Some("Duplicate alternative spellings in other spelling 'accessoire -> akzessor, zubehör -> akzessor'")
   }
 

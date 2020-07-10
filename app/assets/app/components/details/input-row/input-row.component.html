@@ -1,10 +1,12 @@
 <div class="detail-input-row">
-    <div class="detail-input-row-icon">
+    <div class="detail-input-row-checkbox">
         <input type="checkbox"
                [disabled]="disabled"
                [ngModel]="active"
                (ngModelChange)="activeChange.emit($event)"
         />
+    </div>
+    <div class="detail-input-row-label">
         <small class="uppercase">{{ label }}</small>
     </div>
     <div class="detail-input-row-input">

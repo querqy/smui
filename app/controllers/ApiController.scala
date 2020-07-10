@@ -166,8 +166,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     jsonBody.map { json =>
       val spellingWithAlternatives = json.as[CanonicalSpellingWithAlternatives]
 
-      val allSpellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId))
-      CanonicalSpellingValidator.validateCanonicalSpellingsAndAlternatives(spellingWithAlternatives, allSpellings) match {
+      val otherSpellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId)).filter(_.id != spellingWithAlternatives.id)
+      CanonicalSpellingValidator.validateCanonicalSpellingsAndAlternatives(spellingWithAlternatives, otherSpellings) match {
         case Nil =>
           searchManagementRepository.updateSpelling(spellingWithAlternatives)
           Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating canonical spelling successful.", Some(CanonicalSpellingId(canonicalSpellingId)))))

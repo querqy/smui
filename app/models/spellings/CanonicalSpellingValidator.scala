@@ -9,7 +9,7 @@ object CanonicalSpellingValidator {
     Seq(
       validateNoEmptyAlternatives(spellings),
       validateNoDuplicateAlternativeSpellingsSameCanonical(spellings),
-      validateNoDuplicateAlternativeSpellingsOtherCanonical(allCanonicalSpellings),
+      validateNoDuplicateAlternativeSpellingsOtherCanonical(spellings, allCanonicalSpellings),
       validateAlternativeSpellingNotCanonical(spellings),
       validateAlternativeSpellingEqualsNoOtherCanonical(spellings, allCanonicalSpellings),
       validateCanonicalEqualsNoOtherAlternative(spellings, allCanonicalSpellings),
@@ -37,8 +37,9 @@ object CanonicalSpellingValidator {
     }
   }
 
-  def validateNoDuplicateAlternativeSpellingsOtherCanonical(allCanonicalSpellings: List[CanonicalSpellingWithAlternatives]): Option[String] = {
-    val allAlternativesWithCanonical: Seq[(String, String)] = allCanonicalSpellings
+  def validateNoDuplicateAlternativeSpellingsOtherCanonical(spellings: CanonicalSpellingWithAlternatives,
+                                                            allCanonicalSpellings: List[CanonicalSpellingWithAlternatives]): Option[String] = {
+    val allAlternativesWithCanonical: Seq[(String, String)] = (allCanonicalSpellings :+ spellings)
       .flatMap(spelling => spelling.alternativeSpellings.map(alternative => spelling.term.toLowerCase.trim -> alternative.term.toLowerCase.trim))
 
     val alternativeSpellingDuplicates: Seq[(String, String)] = allAlternativesWithCanonical
@@ -46,8 +47,9 @@ object CanonicalSpellingValidator {
 
     if (alternativeSpellingDuplicates.nonEmpty) {
       val canonicalsWithDuplicate = alternativeSpellingDuplicates
-        .map(duplicate => s"${duplicate._1} -> ${duplicate._2}").
-        mkString(", ")
+        .filter(_._1 != spellings.term)
+        .map(duplicate => s"${duplicate._1} -> ${duplicate._2}")
+        .mkString(", ")
 
       Some(s"Duplicate alternative spellings in other spelling '$canonicalsWithDuplicate'")
     } else {
