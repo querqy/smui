@@ -1,7 +1,9 @@
 package models
 
 import models.FeatureToggleModel.FeatureToggleService
+import models.querqy.QuerqyRulesTxtGenerator
 import models.rules._
+import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
@@ -31,9 +33,9 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
 
   "Rules Text Generation" should "correctly write a DELETE rules" in {
-    val deleteRules = List (DeleteRule(DeleteRuleId(), "freddy", true))
+    val deleteRules = List(DeleteRule(DeleteRuleId(), "freddy", true))
 
-    val rulesTxt  = generator.renderSearchInputRulesForTerm("queen",
+    val rulesTxt = generator.renderSearchInputRulesForTerm("queen",
       SearchInputWithRules(SearchInputId(), term = "queen", deleteRules = deleteRules, isActive = true, comment = ""))
     rulesTxt should be(
       s"""|queen =>
@@ -42,9 +44,9 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
   }
 
   "Rules Text Generation" should "correctly write a undirected SYNONYM rules" in {
-    val synonymRules = List (SynonymRule(SynonymRuleId(), 0, "mercury", true))
+    val synonymRules = List(SynonymRule(SynonymRuleId(), 0, "mercury", true))
 
-    val rulesTxt  = generator.renderSearchInputRulesForTerm("queen",
+    val rulesTxt = generator.renderSearchInputRulesForTerm("queen",
       SearchInputWithRules(SearchInputId(), term = "queen", synonymRules = synonymRules, isActive = true, comment = ""))
     rulesTxt should be(
       s"""|queen =>
@@ -54,9 +56,9 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
 
 
   "Rules Text Generation" should "correctly add FILTER rules" in {
-    val filterRules = List (FilterRule(FilterRuleId(), "zz top", true))
+    val filterRules = List(FilterRule(FilterRuleId(), "zz top", true))
 
-    val rulesTxt  = generator.renderSearchInputRulesForTerm("abba",
+    val rulesTxt = generator.renderSearchInputRulesForTerm("abba",
       SearchInputWithRules(SearchInputId(), term = "abba", filterRules = filterRules, isActive = true, comment = ""))
     rulesTxt should be(
       s"""|abba =>
@@ -65,15 +67,15 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
   }
 
   "Rules Text Generation" should "correctly combine SYNONYM, FILTER, DELETE and UPDOWN Rules" in {
-    val synonymRules = List (SynonymRule(SynonymRuleId(), 0, "mercury", true))
+    val synonymRules = List(SynonymRule(SynonymRuleId(), 0, "mercury", true))
     val upDownRules = List(
       UpDownRule(UpDownRuleId(), 0, 10, "notebook", true),
       UpDownRule(UpDownRuleId(), 0, 10, "lenovo", false),
       UpDownRule(UpDownRuleId(), 1, 10, "battery", true)
     )
-    val deleteRules = List (DeleteRule(DeleteRuleId(), "freddy", true))
-    val filterRules = List (FilterRule(FilterRuleId(), "zz top", true))
-    val rulesTxt  = generator.renderSearchInputRulesForTerm("aerosmith",
+    val deleteRules = List(DeleteRule(DeleteRuleId(), "freddy", true))
+    val filterRules = List(FilterRule(FilterRuleId(), "zz top", true))
+    val rulesTxt = generator.renderSearchInputRulesForTerm("aerosmith",
       SearchInputWithRules(SearchInputId(), term = "aerosmith", filterRules = filterRules,
         synonymRules = synonymRules, deleteRules = deleteRules, upDownRules = upDownRules, isActive = true, comment = ""))
 
@@ -96,7 +98,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
     val synonymRules = List(SynonymRule(SynonymRuleId(), 0, "mercury", true))
 
     val classUnderTest = new QuerqyRulesTxtGenerator(searchManagementRepository, featureToggleMock)
-    val rulesTxt  = classUnderTest.renderSearchInputRulesForTerm("queen",
+    val rulesTxt = classUnderTest.renderSearchInputRulesForTerm("queen",
       SearchInputWithRules(SearchInputId("rule-id"), "queen", synonymRules = synonymRules, isActive = true, comment = ""))
     rulesTxt should be(
       s"""|queen =>
@@ -125,7 +127,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
       comment = "")
 
     val classUnderTest = new QuerqyRulesTxtGenerator(searchManagementRepository, featureToggleMock)
-    val rulesTxt  = classUnderTest.renderSearchInputRulesForTerm("queen", input)
+    val rulesTxt = classUnderTest.renderSearchInputRulesForTerm("queen", input)
     rulesTxt should be(
       s"""|queen =>
           |\tSYNONYM: mercury
@@ -175,18 +177,19 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
   }
 
   // TODO outsource whole rules.txt file to an external test ressource
-  val VALID_RULES_TXT =s""""handy" =>
+  val VALID_RULES_TXT =
+    s""""handy" =>
        |	SYNONYM: smartphone
        |	UP(100): smartphone
        |	@_log: "5b683c9e-d2df-11e9-bb65-2a2ae2dbcce4"
        |
- |cheap iphone =>
+       |cheap iphone =>
        |	SYNONYM: iphone 3g
        |	UP(100): * price:[* TO 50000]
        |	DELETE: cheap
        |	@_log: "884c067a-48b7-4170-a0d9-a1d5e70bbf80"
        |
- |notebook =>
+       |notebook =>
        |	SYNONYM: laptop
        |	SYNONYM: netbook
        |	UP(10): asus
@@ -196,7 +199,7 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
        |	FILTER: * -title:notebook
        |	@_log: "ea16b373-6776-469c-9cc7-1449a97f1a79"
        |
- |laptop =>
+       |laptop =>
        |	SYNONYM: notebook
        |	SYNONYM: netbook
        |	UP(10): asus
@@ -207,12 +210,12 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
        |	@_log: "88bb6558-e6af-45fc-a862-0dbbe6dec32f"""".stripMargin
 
   "rules.txt validation" should "positively validate valid rules.txt" in {
-    generator.validateQuerqyRulesTxtToErrMsg(VALID_RULES_TXT) should be (None)
+    generator.validateQuerqyRulesTxtToErrMsg(VALID_RULES_TXT) should be(None)
   }
 
   "rules.txt validation" should "return an error when validating an invalid rules.txt" in {
     generator.validateQuerqyRulesTxtToErrMsg(VALID_RULES_TXT + "\nADD AN INVALID INSTRUCTION") should be
-      Some("Line 31: Cannot parse line: ADD AN INVALID INSTRUCTION")
+    Some("Line 31: Cannot parse line: ADD AN INVALID INSTRUCTION")
   }
 
   // TODO add tests for validateSearchInputToErrMsg

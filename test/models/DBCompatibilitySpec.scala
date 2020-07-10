@@ -3,20 +3,28 @@ package models
 import java.time.LocalDateTime
 
 import models.rules._
-import org.scalatest.{FlatSpec, Matchers}
+import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import play.api.db.Database
 
-abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData {
+abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData with BeforeAndAfterAll {
 
   protected def db: Database
+
+  override protected def beforeAll(): Unit = {
+    super.beforeAll()
+
+    db.withConnection { implicit conn =>
+      SolrIndex.insert(indexDe)
+    }
+  }
 
   // Set millis/nanos of second to 0 since MySQL does not save them
   // and so comparisons would fail if they were set
   private val now = LocalDateTime.now().withNano(0)
 
-  "Most important DB queries" should "work using this database" in {
+  "Most important rules DB queries" should "work using this database" in {
     db.withConnection { implicit conn =>
-      SolrIndex.insert(indexDe)
       SolrIndex.loadNameById(indexDe.id) shouldBe indexDe.name
       SolrIndex.listAll shouldBe Seq(indexDe)
 
@@ -55,4 +63,24 @@ abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData 
     }
   }
 
+  "The DB queries for spellings" should "work" in {
+    db.withConnection { implicit conn =>
+      val spelling = CanonicalSpelling.insert(indexDe.id, "spelling")
+
+      val spellingWithAlternatives = CanonicalSpellingWithAlternatives(
+        spelling.id, spelling.term, spelling.isActive, spelling.comment,
+        List(
+          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative1", true),
+          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative2", true),
+          AlternativeSpelling(AlternativeSpellingId(), spelling.id, "alternative3", true)
+        )
+      )
+
+      CanonicalSpellingWithAlternatives.update(spellingWithAlternatives)
+      CanonicalSpellingWithAlternatives.loadById(spelling.id) shouldBe Some(spellingWithAlternatives)
+
+      CanonicalSpellingWithAlternatives.delete(spelling.id)
+      CanonicalSpellingWithAlternatives.loadById(spelling.id) shouldBe None
+    }
+  }
 }

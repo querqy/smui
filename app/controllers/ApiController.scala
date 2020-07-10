@@ -15,6 +15,8 @@ import java.time.format.DateTimeFormatter
 import scala.concurrent.{ExecutionContext, Future}
 import controllers.auth.AuthActionFactory
 import models._
+import models.querqy.QuerqyRulesTxtGenerator
+import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
 class ApiController @Inject()(searchManagementRepository: SearchManagementRepository,
@@ -125,6 +127,64 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     Future {
       searchManagementRepository.deleteSearchInput(searchInputId)
       Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Search Input successful", None)))
+    }
+  }
+
+  def listAll(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action) {
+    val searchInputs = searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))
+    val spellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId))
+    Ok(Json.toJson(ListItem.create(searchInputs, spellings)))
+  }
+
+  def addNewSpelling(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+    Future {
+      val body: AnyContent = request.body
+      val jsonBody: Option[JsValue] = body.asJson
+
+      val optTerm = jsonBody.flatMap(json => (json \"term").asOpt[String])
+      optTerm.map { term =>
+        val canonicalSpelling = searchManagementRepository.addNewCanonicalSpelling(SolrIndexId(solrIndexId), term)
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding new canonical spelling '" + term + "' successful.", Some(canonicalSpelling.id))))
+      }.getOrElse {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new canonical spelling failed. Unexpected body data.", None)))
+      }
+    }
+  }
+
+  def getDetailedSpelling(canonicalSpellingId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      val spellingWithAlternatives = searchManagementRepository.getDetailedSpelling(canonicalSpellingId)
+      Ok(Json.toJson(spellingWithAlternatives))
+    }
+  }
+
+  def updateSpelling(solrIndexId: String, canonicalSpellingId: String) = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
+    val body: AnyContent = request.body
+    val jsonBody: Option[JsValue] = body.asJson
+
+    // Expecting json body
+    jsonBody.map { json =>
+      val spellingWithAlternatives = json.as[CanonicalSpellingWithAlternatives]
+
+      val otherSpellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId)).filter(_.id != spellingWithAlternatives.id)
+      CanonicalSpellingValidator.validateCanonicalSpellingsAndAlternatives(spellingWithAlternatives, otherSpellings) match {
+        case Nil =>
+          searchManagementRepository.updateSpelling(spellingWithAlternatives)
+          Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating canonical spelling successful.", Some(CanonicalSpellingId(canonicalSpellingId)))))
+        case errors =>
+          val msgs = s"Failed to update spelling ${spellingWithAlternatives.term}: " +  errors.mkString("\n")
+          logger.error(msgs)
+          BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
+      }
+    }.getOrElse {
+      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating canonical spelling failed. Unexpected body data.", None)))
+    }
+  }
+
+  def deleteSpelling(canonicalSpellingId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      searchManagementRepository.deleteSpelling(canonicalSpellingId)
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting canonical spelling with alternatives successful.", None)))
     }
   }
 

@@ -27,6 +27,7 @@ package object FeatureToggleModel {
 
     private val FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED = "toggle.ui-concept.updown-rules.combined"
     private val FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS = "toggle.ui-concept.all-rules.with-solr-fields"
+    private val FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO = "toggle.ui-list.limit-items-to"
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_LOG_RULE_ID = "toggle.rule-deployment.log-rule-id"
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT = "toggle.rule-deployment.split-decompound-rules-txt"
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO"
@@ -38,6 +39,7 @@ package object FeatureToggleModel {
     private val PREDEFINED_TAGS_FILE = "toggle.predefined-tags-file"
     private val SMUI_AUTH_SIMPLE_LOGOUT = "smui.auth.ui-concept.simple-logout-button-target-url"
     private val SMUI_VERSION = "smui.version"
+    private val FEATURE_TOGGLE_ACTIVATE_SPELLING = "toggle.activate-spelling"
 
     def getJsFrontendToogleList: List[JsFeatureToggle] = {
       def jsBoolFeatureToggle(toggleKey: String, bDefault: Boolean): JsFeatureToggle = {
@@ -55,7 +57,10 @@ package object FeatureToggleModel {
           appConfig.getOptional[String](FEATURE_TOGGLE_HEADLINE).getOrElse("Search Management UI"))),
         JsFeatureToggle(SMUI_AUTH_SIMPLE_LOGOUT, new JsStringFeatureToggleValue(
           appConfig.getOptional[String](SMUI_AUTH_SIMPLE_LOGOUT).getOrElse(""))),
-        JsFeatureToggle(SMUI_VERSION, new JsStringFeatureToggleValue(models.buildInfo.BuildInfo.version))
+        JsFeatureToggle(SMUI_VERSION, new JsStringFeatureToggleValue(models.buildInfo.BuildInfo.version)),
+        JsFeatureToggle(FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO, new JsStringFeatureToggleValue(
+          appConfig.getOptional[String](FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO).getOrElse("-1"))),
+        jsBoolFeatureToggle(FEATURE_TOGGLE_ACTIVATE_SPELLING, false)
       )
     }
 
@@ -85,6 +90,10 @@ package object FeatureToggleModel {
 
     def predefinedTagsFileName: Option[String] = {
       appConfig.getOptional[String](PREDEFINED_TAGS_FILE).filter(_.nonEmpty)
+    }
+
+    def getToggleActivateSpelling: Boolean = {
+      appConfig.getOptional[Boolean](FEATURE_TOGGLE_ACTIVATE_SPELLING).getOrElse(false)
     }
   }
 

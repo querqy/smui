@@ -1,16 +1,20 @@
 package models
 
+import java.time.LocalDateTime
+
 import models.rules._
-import org.scalatest.{BeforeAndAfterAll, Suite}
-import play.api.{Application, Mode}
+import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 import play.api.db.{Database, Databases}
 import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{Application, Mode}
 
 /**
-  * Base class for tests that start an application with an in-memory database.
-  */
-trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
+ * Base class for tests that start an application with an in-memory database.
+ */
+trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
+  self: Suite =>
 
   protected lazy val db: Database = Databases.inMemory()
 
@@ -20,7 +24,9 @@ trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
   protected lazy val application: Application = new GuiceApplicationBuilder().
     in(Mode.Test).
     configure("db.default.url" -> db.url, "db.default.driver" -> "org.h2.Driver",
-      "db.default.username" -> "", "db.default.password" -> "", "toggle.rule-deployment.log-rule-id" -> true).
+      "db.default.username" -> "", "db.default.password" -> "",
+      "toggle.rule-deployment.log-rule-id" -> true,
+      "toggle.activate-spelling" -> true).
     build()
 
   protected lazy val injector: Injector = application.injector
@@ -35,7 +41,11 @@ trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
   }
 
   protected def createTestRule(): Seq[SearchInputId] = {
-    val synonymRules = List (SynonymRule(SynonymRuleId(), 0, "mercury", isActive = true))
+    val synonymRules = List(
+      SynonymRule(SynonymRuleId(), 0, "mercury", isActive = true),
+      SynonymRule(SynonymRuleId(), 1, "directed", isActive = true),
+      SynonymRule(SynonymRuleId(), 0, "inactive", isActive = false)
+    )
     val upDownRules = List(
       UpDownRule(UpDownRuleId(), UpDownRule.TYPE_UP, 10, "notebook", isActive = true),
       UpDownRule(UpDownRuleId(), UpDownRule.TYPE_UP, 10, "lenovo", isActive = false),
@@ -48,12 +58,66 @@ trait ApplicationTestBase extends BeforeAndAfterAll { self: Suite =>
     val searchInput = SearchInputWithRules(id, "aerosmith", synonymRules, upDownRules, filterRules, isActive = true, comment = "")
     repo.updateSearchInput(searchInput)
 
-    val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq.empty)
+    val tag = InputTag(InputTagId(), Some(core1Id), Some("testProperty"), "testValue", exported = true, predefined = false, LocalDateTime.now())
+    db.withConnection { implicit connection =>
+      InputTag.insert(Seq(tag): _*)
+    }
+
+    val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq(tag.id))
     val redirectRule = RedirectRule(RedirectRuleId(), "http://xyz.com/shipping", isActive = true)
-    val searchInputForRedirect = SearchInputWithRules(shippingId, "shipping", redirectRules = List(redirectRule), isActive = true, comment = "")
+    val searchInputForRedirect = SearchInputWithRules(shippingId, "shipping", redirectRules = List(redirectRule), isActive = true, comment = "", tags = Seq(tag))
     repo.updateSearchInput(searchInputForRedirect)
 
+    val inactiveId = repo.addNewSearchInput(core1Id, "inactive", Seq.empty)
+    val inactiveSearchInput = SearchInputWithRules(inactiveId, "inactive", redirectRules = List.empty, isActive = false, comment = "inactive")
+    repo.updateSearchInput(inactiveSearchInput)
+
     Seq(id, shippingId)
+  }
+
+  var freezer: CanonicalSpelling = _
+  var machine: CanonicalSpelling = _
+  var pants: CanonicalSpelling = _
+
+  protected def createTestSpellings(): Unit = {
+    freezer = repo.addNewCanonicalSpelling(core1Id, "freezer")
+    machine = repo.addNewCanonicalSpelling(core1Id, "machine")
+    pants = repo.addNewCanonicalSpelling(core1Id, "pants")
+
+    repo.updateSpelling(CanonicalSpellingWithAlternatives(
+      freezer.id, freezer.term, freezer.isActive, freezer.comment,
+      List(
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frezer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freazer", true),
+        AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer", true)
+      )
+    ))
+
+    repo.updateSpelling(CanonicalSpellingWithAlternatives(
+      machine.id, machine.term, machine.isActive, machine.comment,
+      List(
+        AlternativeSpelling(AlternativeSpellingId(), machine.id, "machin", false),
+        AlternativeSpelling(AlternativeSpellingId(), machine.id, "mechine", true)
+      )
+    ))
+
+    repo.updateSpelling(CanonicalSpellingWithAlternatives(
+      pants.id, pants.term,
+      isActive = false,
+      "This is a comment",
+      List(
+        AlternativeSpelling(AlternativeSpellingId(), pants.id, "pands", true),
+        AlternativeSpelling(AlternativeSpellingId(), pants.id, "pents", true)
+      )
+    ))
+  }
+
+  def deleteAllSpellingsFromDB(solrIndexId: SolrIndexId): Unit = {
+    db.withConnection { implicit connection =>
+      CanonicalSpelling.loadAllForIndex(solrIndexId).foreach { canonicalSpelling =>
+        CanonicalSpellingWithAlternatives.delete(canonicalSpelling.id)
+      }
+    }
   }
 
   override protected def afterAll(): Unit = {

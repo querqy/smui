@@ -1,0 +1,30 @@
+<div class="header-container">
+    <div class="header-checkbox">
+        <input type="checkbox"
+               [ngModel]="active"
+               (ngModelChange)="activeChange.emit($event)"
+        />
+    </div>
+    <div class="header-title">
+        <small class="uppercase">{{title}}</small>
+    </div>
+    <div class="header-input">
+        <input type="text"
+               class="form-control"
+               [placeholder]="placeholder"
+               [disabled]="disabled"
+               [ngModel]="term"
+               (ngModelChange)="termChange.emit($event)"
+               (keyup.enter)="handleSave.emit()"
+        />
+    </div>
+    <div class="header-delete">
+        <button type="button"
+                class="btn btn-danger"
+                [disabled]="disabled"
+                (click)="handleDelete.emit()">
+            <i class="fa fa-minus" aria-hidden="true"></i>
+            Permanently delete
+        </button>
+    </div>
+</div>

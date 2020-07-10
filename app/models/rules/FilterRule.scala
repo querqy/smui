@@ -2,7 +2,7 @@ package models.rules
 
 import anorm.SqlParser.get
 import anorm.{RowParser, ~}
-import models.{Id, IdObject}
+import models.{Id, IdObject, Status}
 import play.api.libs.json.{Json, OFormat}
 
 class FilterRuleId(id: String) extends Id(id)
@@ -25,7 +25,7 @@ object FilterRule extends RuleObjectWithTerm[FilterRule] {
     get[FilterRuleId](s"$TABLE_NAME.$ID") ~
       get[String](s"$TABLE_NAME.$TERM") ~
       get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ term ~ status =>
-      FilterRule(id, term, isActiveFromStatus(status))
+      FilterRule(id, term, Status.isActiveFromStatus(status))
     }
   }
 

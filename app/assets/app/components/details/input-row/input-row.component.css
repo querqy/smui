@@ -1,0 +1,42 @@
+button {
+    cursor: pointer;
+}
+
+input {
+    cursor: pointer;
+}
+
+.detail-input-row {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    grid-column-gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.detail-input-row-checkbox {
+    grid-column: 1;
+    align-self: center;
+    justify-self: start;
+}
+
+.detail-input-row-checkbox > input {
+    vertical-align: middle;
+}
+
+.detail-input-row-label {
+    grid-column: 2;
+    align-self: center;
+    justify-self: start;
+    text-transform: uppercase;
+}
+
+.detail-input-row-input {
+    grid-column: 3;
+    align-self: center;
+}
+
+.detail-input-row-delete {
+    grid-column: 4;
+    align-self: center;
+    justify-self: end;
+}

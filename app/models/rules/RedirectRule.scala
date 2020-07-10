@@ -2,7 +2,7 @@ package models.rules
 
 import anorm.SqlParser.get
 import anorm.{NamedParameter, RowParser, ~}
-import models.{Id, IdObject, SearchInputId}
+import models.{Id, IdObject, SearchInputId, Status}
 import play.api.libs.json.{Json, OFormat}
 
 class RedirectRuleId(id: String) extends Id(id)
@@ -35,7 +35,7 @@ object RedirectRule extends RuleObject[RedirectRule] {
     get[RedirectRuleId](s"$TABLE_NAME.$ID") ~
       get[String](s"$TABLE_NAME.$TARGET") ~
       get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ target ~ status =>
-      RedirectRule(id, target, isActiveFromStatus(status))
+      RedirectRule(id, target, Status.isActiveFromStatus(status))
     }
   }
 
