@@ -44,8 +44,7 @@ function deploy_rules_txt {
 		sshpass -p "${BASH_REMATCH[2]}" scp -v -o StrictHostKeyChecking=no $1 ${BASH_REMATCH[1]}@${BASH_REMATCH[3]}
 	else
 		echo "^-- ... no match (regex). proceeding with regular cp ..."
-		echo $1 $2
-		docker cp $1 "f1b12789e0d0:$2"
+		cp $1 $2
 	fi
 }
 
@@ -72,7 +71,7 @@ echo "^-- Perform core reload for SOLR_HOST = $SOLR_HOST, SOLR_CORE_NAME = $SOLR
 if ! [[ $SOLR_HOST == "NONE" ]]
 then
 	# TODO only core reload over http possible. make configurable.
-	SOLR_STATUS=$(curl -s -i -XGET "http://$SOLR_HOST/solr/admin/cores?wt=xml&action=RELOAD&core=products")
+	SOLR_STATUS=$(curl -s -i -XGET "http://$SOLR_HOST/solr/admin/cores?wt=xml&action=RELOAD&core=$SOLR_CORE_NAME")
 
 	if [ $? -ne 0 ]; then
 		exit 16
