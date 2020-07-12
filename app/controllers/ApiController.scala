@@ -311,4 +311,11 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
+  def getSearchInputActivityLog(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      val activityLog = searchManagementRepository.getInputRuleActivityLog(SearchInputId(searchInputId))
+      Ok(Json.toJson(activityLog))
+    }
+  }
+
 }

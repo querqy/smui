@@ -40,6 +40,7 @@ package object FeatureToggleModel {
     private val SMUI_AUTH_SIMPLE_LOGOUT = "smui.auth.ui-concept.simple-logout-button-target-url"
     private val SMUI_VERSION = "smui.version"
     private val FEATURE_TOGGLE_ACTIVATE_SPELLING = "toggle.activate-spelling"
+    private val SMUI_DEFAULT_USERNAME = "toggle.username.default"
 
     def getJsFrontendToogleList: List[JsFeatureToggle] = {
       def jsBoolFeatureToggle(toggleKey: String, bDefault: Boolean): JsFeatureToggle = {
@@ -95,6 +96,11 @@ package object FeatureToggleModel {
     def getToggleActivateSpelling: Boolean = {
       appConfig.getOptional[Boolean](FEATURE_TOGGLE_ACTIVATE_SPELLING).getOrElse(false)
     }
+
+    def getToggleDefaultUsername: String = {
+      appConfig.getOptional[String](SMUI_DEFAULT_USERNAME).getOrElse("Anonymous Search Manager")
+    }
+
   }
 
 }

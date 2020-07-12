@@ -9,6 +9,7 @@ import anorm._
 import javax.inject.Inject
 import models.FeatureToggleModel.FeatureToggleService
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import models.eventhistory.{InputRuleActivityLog, ActivityLogEntry}
 import play.api.db.DBApi
 
 @javax.inject.Singleton
@@ -31,11 +32,9 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   }
 
   /**
-    * List all Solr Indeces the SearchInput's can be configured for
-    *
-    *
-    * @return tbd
+    * List all Solr Indeces the SearchInput's can be configured for.
     */
+
   def listAllSolrIndexes: List[SolrIndex] = db.withConnection { implicit connection =>
     SolrIndex.listAll
   }
@@ -53,10 +52,9 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   }
 
   /**
-    * Lists all Search Inputs including directed Synonyms belonging to them (for a list overview)
-    *
-    * @return tbd
+    * Lists all Search Inputs including directed Synonyms belonging to them (for a list overview).
     */
+
   def listAllSearchInputsInclDirectedSynonyms(solrIndexId: SolrIndexId): List[SearchInputWithRules] = {
     db.withConnection { implicit connection =>
       SearchInputWithRules.loadWithUndirectedSynonymsAndTagsForSolrIndexId(solrIndexId)
@@ -76,6 +74,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def addNewCanonicalSpelling(solrIndexId: SolrIndexId, term: String): CanonicalSpelling =
     db.withConnection { implicit connection =>
       CanonicalSpelling.insert(solrIndexId, term)
+      // TODO add event
     }
 
   def getDetailedSpelling(canonicalSpellingId: String): Option[CanonicalSpellingWithAlternatives] =
@@ -86,6 +85,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def updateSpelling(spelling: CanonicalSpellingWithAlternatives): Unit =
     db.withTransaction { implicit connection =>
       CanonicalSpellingWithAlternatives.update(spelling)
+      // TODO add event
     }
 
   def listAllSpellings(solrIndexId: SolrIndexId): List[CanonicalSpelling] =
@@ -101,13 +101,56 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def deleteSpelling(canonicalSpellingId: String): Int =
     db.withTransaction { implicit connection =>
       CanonicalSpellingWithAlternatives.delete(CanonicalSpellingId(canonicalSpellingId))
+      // TODO add event
     }
+
+
+
+/*
+TODO
+~~~~
+
+>     // persist CREATED event
+>     val createdInput = SearchInputWithRules.loadById(id).get
+>     SearchInputEvent.insert(
+>       createdInput.id,
+>       Some(createdInput.term),
+>       Some(createdInput.status),
+>       Some(createdInput.comment),
+>       Some(createdInput.tags),
+>       None, // TODO user info is not being logged so far
+>       EventHistoryType.CREATED
+>     )
+>     // return
+121a139,145
+>     // persist UPDATED event on SearchInputWithRules (including its rules)
+>     SearchInputEvent.updateDiff(
+>       SearchInputWithRules.loadById(searchInput.id).get,
+>       searchInput,
+>       None // TODO user info is not being logged so far
+>     )
+>     // update
+125a150,155
+>     // persist DELETED event on SearchInputWithRules (including its rules)
+>     SearchInputEvent.delete(
+>       SearchInputWithRules.loadById(SearchInputId(searchInputId)).get,
+>       None // TODO user info is not being logged so far
+>     )
+>     // delete
+
+*/
+
+
+  /**
+    * Search input and rules.
+    */
 
   /**
     * Adds new Search Input (term) to the database table. This method only focuses the term, and does not care about any synonyms.
     */
   def addNewSearchInput(solrIndexId: SolrIndexId, searchInputTerm: String, tags: Seq[InputTagId]): SearchInputId = db.withConnection { implicit connection =>
     val id = SearchInput.insert(solrIndexId, searchInputTerm).id
+    // TODO add event
     if (tags.nonEmpty) {
       TagInputAssociation.updateTagsForSearchInput(id, tags)
     }
@@ -120,11 +163,17 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
   def updateSearchInput(searchInput: SearchInputWithRules): Unit = db.withTransaction { implicit connection =>
     SearchInputWithRules.update(searchInput)
+    // TODO add event
   }
 
   def deleteSearchInput(searchInputId: String): Int = db.withTransaction { implicit connection =>
     SearchInputWithRules.delete(SearchInputId(searchInputId))
+    // TODO add event
   }
+
+  /**
+    * SMUI helper (like suggested Solr fields, deployment log)
+    */
 
   def listAllSuggestedSolrFields(solrIndexId: String): List[SuggestedSolrField] = db.withConnection { implicit connection =>
     SuggestedSolrField.listAll(SolrIndexId(solrIndexId))
@@ -160,6 +209,24 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     implicit connection => {
       SQL"select * from deployment_log where solr_index_id = $solrIndexId and target_platform = $targetPlatform order by last_update desc".as(sqlParserDeploymentLogDetail.*).headOption
     }
+  }
+
+  /**
+    * Activity log (based on event history).
+    */
+
+  def getInputRuleActivityLog(searchInputId: SearchInputId): Seq[ActivityLogEntry] = db.withConnection { implicit connection =>
+    val defaultUsername = if (toggleService.getToggleDefaultUsername.isEmpty) None else Some(toggleService.getToggleDefaultUsername)
+      InputRuleActivityLog.loadBySearchInputId(searchInputId)
+        .map(logEntry => {
+          ActivityLogEntry(
+            logEntry.dateTime,
+            if (logEntry.userInfo.isEmpty) defaultUsername else logEntry.userInfo,
+            logEntry.inputSummary,
+            logEntry.rulesSummary,
+            logEntry.commentSummary
+          )
+        })
   }
 
 }
