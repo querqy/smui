@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Headers, Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 
-import {DeploymentLogInfo, SolrIndex, SuggestedSolrField} from '../models/solr.model';
-import {ApiResult} from '../models/results.model';
+import { DeploymentLogInfo, SolrIndex, SuggestedSolrField } from '../models/solr.model';
+import { ApiResult } from '../models/results.model';
 
 
 @Injectable()

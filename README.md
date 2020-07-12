@@ -4,7 +4,7 @@
 
 ## DOCUMENTATION
 
-[Visits docs.querqy.org/smui/ for a detailled documentation on SMUI.](https://querqy.org/docs/smui/)
+[Visit https://docs.querqy.org/smui/ for a detailed documentation on SMUI.](https://querqy.org/docs/smui/)
 
 ## LICENSE
 
