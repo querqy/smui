@@ -12,7 +12,7 @@ export class ActivityLogService {
 
   getInputRuleActivityLog(searchInputId: string): Promise<Array<ActivityLogEntry>> {
     return this.http
-      .get(baseUrl + '/log/rule-activity-log?searchInputId=' + searchInputId)
+      .get(this.baseUrl + '/log/rule-activity-log?searchInputId=' + searchInputId)
       .toPromise()
       .then(res => {
         return res.json() as ActivityLogEntry[];
