@@ -32,11 +32,11 @@
         </span>
 
         <button *ngIf="listItem.itemType === 'Spelling'"
-                type="button" class="btn btn-danger btn-sm float-right" (click)="deleteSpellingItem(listItem.id);">
+                type="button" class="btn btn-danger btn-sm float-right" (click)="deleteSpellingItem(listItem.id, $event);">
           <i class="fa fa-minus" aria-hidden="true"></i>
         </button>
         <button *ngIf="listItem.itemType === 'RuleManagement'"
-                type="button" class="btn btn-danger btn-sm float-right" (click)="deleteRuleItem(listItem.id);">
+                type="button" class="btn btn-danger btn-sm float-right" (click)="deleteRuleItem(listItem.id, $event);">
           <i class="fa fa-minus" aria-hidden="true"></i>
         </button>
 

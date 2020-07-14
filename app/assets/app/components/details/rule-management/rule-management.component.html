@@ -50,7 +50,7 @@
             </tr>
           </table>
         </div>
-        <div class="smui-associated-spellings">
+        <div *ngIf="detailSearchInput !== null && associatedSpellings.length > 0" class="smui-associated-spellings">
           <div class="smui-associated-spellings-title">
             <small class="uppercase">Associated Spellings:</small>
           </div>
