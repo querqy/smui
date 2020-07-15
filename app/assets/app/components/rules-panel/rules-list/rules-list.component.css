@@ -14,7 +14,7 @@ li.list-group-item.active > .text-muted {
 
 /* TODO very raw height estimate, but works */
 .smui-search-input-list {
-	max-height: calc(100vh - 140px);
+	max-height: calc(100vh - 230px);
 	overflow-y: scroll;
 }
 

@@ -76,6 +76,7 @@ export class RulesSearchComponent implements OnChanges {
   private createNewSpellingItem() {
     this.spellingsService.addNewSpelling(this.currentSolrIndexId, this.searchInputTerm)
       .then(spellingId => this.refreshAndSelectListItemById.emit(spellingId))
+      .then(() => this.changeSearchInput(''))
       .catch(error => this.showErrorMsg.emit(error))
   }
 
@@ -83,6 +84,7 @@ export class RulesSearchComponent implements OnChanges {
     const tags = this.appliedTagFilter ? [this.appliedTagFilter.id] : [];
     this.ruleManagementService.addNewRuleItem(this.currentSolrIndexId, this.searchInputTerm, tags)
       .then(spellingId => this.refreshAndSelectListItemById.emit(spellingId))
+      .then(() => this.changeSearchInput(''))
       .catch(error => this.showErrorMsg.emit(error))
   }
 
