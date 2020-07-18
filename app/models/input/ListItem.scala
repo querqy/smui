@@ -1,4 +1,4 @@
-package models
+package models.input
 
 import models.ListItemType.ListItemType
 import models.spellings.{CanonicalSpelling, CanonicalSpellingWithAlternatives}

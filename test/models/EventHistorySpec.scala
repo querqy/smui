@@ -3,6 +3,7 @@ package models
 import java.time.LocalDateTime
 
 import models.eventhistory._
+import models.input.{SearchInputId, SearchInputWithRules}
 import models.rules.SynonymRule
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -26,7 +27,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 
       // test search input
 
-      val listInputEvents0 = SearchInputEvent.loadForSearchInput(inputIds(0))
+      val listInputEvents0 = InputEvent.loadForSearchInput(inputIds(0))
       listInputEvents0.size shouldBe 2
 
       // input#0 (aerosmith)
@@ -46,7 +47,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 
       // input#1 (shipping)
 
-      val listInputEvents1 = SearchInputEvent.loadForSearchInput(inputIds(1))
+      val listInputEvents1 = InputEvent.loadForSearchInput(inputIds(1))
       listInputEvents1.size shouldBe 2
       listInputEvents1(1).eventType shouldBe EventHistoryType.CREATED.id
       listInputEvents1(1).term shouldBe Some("shipping")
@@ -58,7 +59,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 
       // test search input
 
-      val listInputEvents0 = SearchInputEvent.loadForSearchInput(inputIds(0))
+      val listInputEvents0 = InputEvent.loadForSearchInput(inputIds(0))
       listInputEvents0.size shouldBe 2
 
       // input#0 (aerosmith)
@@ -95,7 +96,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 
       // input#1 (shipping)
 
-      val listInputEvents1 = SearchInputEvent.loadForSearchInput(inputIds(1))
+      val listInputEvents1 = InputEvent.loadForSearchInput(inputIds(1))
       listInputEvents1.size shouldBe 2
       listInputEvents1(0).eventType shouldBe EventHistoryType.UPDATED.id
       listInputEvents1(0).term shouldBe None
@@ -133,7 +134,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
       )
       repo.updateSearchInput(newInput0)
 
-      val listInputEvents0_0 = SearchInputEvent.loadForSearchInput(input0.id)
+      val listInputEvents0_0 = InputEvent.loadForSearchInput(input0.id)
       listInputEvents0_0.size shouldBe 3
 
       listInputEvents0_0(0).eventType shouldBe EventHistoryType.UPDATED.id
@@ -146,7 +147,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 
       // assume 5 last empty rule events
 
-      def assertOnlyEmptyRuleEvents(eventId: SearchInputEventId, howMany: Int) = {
+      def assertOnlyEmptyRuleEvents(eventId: InputEventId, howMany: Int) = {
         val listRuleEvents = RuleEvent.loadForSearchInputEvent(eventId)
         for (i <- (listRuleEvents.size - howMany) to (listRuleEvents.size - 1)) {
           listRuleEvents(i).eventType shouldBe EventHistoryType.UPDATED.id
@@ -161,7 +162,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 
       repo.updateSearchInput(input0)
 
-      val listInputEvents0_1 = SearchInputEvent.loadForSearchInput(input0.id)
+      val listInputEvents0_1 = InputEvent.loadForSearchInput(input0.id)
       listInputEvents0_1.size shouldBe 4
 
       listInputEvents0_1(0).eventType shouldBe EventHistoryType.UPDATED.id
@@ -202,7 +203,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
       )
       repo.updateSearchInput(newInput0)
 
-      val listInputEvents0 = SearchInputEvent.loadForSearchInput(input0.id)
+      val listInputEvents0 = InputEvent.loadForSearchInput(input0.id)
       listInputEvents0.size shouldBe 5
 
       listInputEvents0(0).eventType shouldBe EventHistoryType.UPDATED.id
@@ -237,7 +238,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 
       repo.deleteSearchInput(inputIds(0).id)
 
-      val listInputEvents0 = SearchInputEvent.loadForSearchInput(inputIds(0))
+      val listInputEvents0 = InputEvent.loadForSearchInput(inputIds(0))
       listInputEvents0.size shouldBe 6
 
       listInputEvents0(0).eventType shouldBe EventHistoryType.DELETED.id

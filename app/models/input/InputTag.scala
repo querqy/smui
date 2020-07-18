@@ -1,4 +1,4 @@
-package models
+package models.input
 
 import java.sql.Connection
 import java.time.LocalDateTime

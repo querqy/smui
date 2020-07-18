@@ -4,7 +4,8 @@ import java.sql.Connection
 import java.time.LocalDateTime
 
 import anorm._
-import models.{Id, SearchInputId}
+import models.Id
+import models.input.SearchInputId
 
 trait Rule {
 

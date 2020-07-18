@@ -3,14 +3,16 @@ package models
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.util.{Date, UUID}
+import javax.inject.Inject
 
 import anorm.SqlParser.get
 import anorm._
-import javax.inject.Inject
-import models.FeatureToggleModel.FeatureToggleService
-import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
-import models.eventhistory.{InputRuleActivityLog, ActivityLogEntry}
 import play.api.db.DBApi
+
+import models.FeatureToggleModel.FeatureToggleService
+import models.input.{SearchInput, SearchInputId, SearchInputWithRules, PredefinedTag, InputTag, InputTagId, TagInputAssociation}
+import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import models.eventhistory.{InputEvent, ActivityLog, ActivityLogEntry}
 
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
@@ -74,7 +76,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def addNewCanonicalSpelling(solrIndexId: SolrIndexId, term: String): CanonicalSpelling =
     db.withConnection { implicit connection =>
       CanonicalSpelling.insert(solrIndexId, term)
-      // TODO add event
+      // TODO add CREATED event for spelling
     }
 
   def getDetailedSpelling(canonicalSpellingId: String): Option[CanonicalSpellingWithAlternatives] =
@@ -85,7 +87,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def updateSpelling(spelling: CanonicalSpellingWithAlternatives): Unit =
     db.withTransaction { implicit connection =>
       CanonicalSpellingWithAlternatives.update(spelling)
-      // TODO add event
+      // TODO add UPDATED event for spelling and associated alternatives
     }
 
   def listAllSpellings(solrIndexId: SolrIndexId): List[CanonicalSpelling] =
@@ -101,10 +103,8 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def deleteSpelling(canonicalSpellingId: String): Int =
     db.withTransaction { implicit connection =>
       CanonicalSpellingWithAlternatives.delete(CanonicalSpellingId(canonicalSpellingId))
-      // TODO add event
+      // TODO add DELETED event for spelling and associated alternatives
     }
-
-
 
 /*
 TODO
@@ -140,7 +140,6 @@ TODO
 
 */
 
-
   /**
     * Search input and rules.
     */
@@ -149,11 +148,20 @@ TODO
     * Adds new Search Input (term) to the database table. This method only focuses the term, and does not care about any synonyms.
     */
   def addNewSearchInput(solrIndexId: SolrIndexId, searchInputTerm: String, tags: Seq[InputTagId]): SearchInputId = db.withConnection { implicit connection =>
+
+    // add search input
     val id = SearchInput.insert(solrIndexId, searchInputTerm).id
-    // TODO add event
     if (tags.nonEmpty) {
       TagInputAssociation.updateTagsForSearchInput(id, tags)
     }
+
+    // add CREATED event for search input (maybe containing tags)
+    InputEvent.createForSearchInput(
+      SearchInputWithRules.loadById(id).get,
+      None, // TODO userInfo not being logged so far
+      false
+    )
+
     id
   }
 
@@ -163,12 +171,24 @@ TODO
 
   def updateSearchInput(searchInput: SearchInputWithRules): Unit = db.withTransaction { implicit connection =>
     SearchInputWithRules.update(searchInput)
-    // TODO add event
+
+    // add UPDATED event for search input and rules
+    InputEvent.updateForSearchInput(
+      SearchInputWithRules.loadById(searchInput.id).get,
+      None // TODO userInfo not being logged so far
+    )
   }
 
   def deleteSearchInput(searchInputId: String): Int = db.withTransaction { implicit connection =>
-    SearchInputWithRules.delete(SearchInputId(searchInputId))
-    // TODO add event
+    val id = SearchInputWithRules.delete(SearchInputId(searchInputId))
+
+    // add DELETED event for search input and rules
+    InputEvent.deleteForSearchInput(
+      SearchInputId(searchInputId),
+      None // TODO userInfo not being logged so far
+    )
+
+    id
   }
 
   /**
@@ -212,21 +232,25 @@ TODO
   }
 
   /**
-    * Activity log (based on event history).
+    * Get the activity log (based on event history).
     */
 
-  def getInputRuleActivityLog(searchInputId: SearchInputId): Seq[ActivityLogEntry] = db.withConnection { implicit connection =>
-    val defaultUsername = if (toggleService.getToggleDefaultUsername.isEmpty) None else Some(toggleService.getToggleDefaultUsername)
-      InputRuleActivityLog.loadBySearchInputId(searchInputId)
-        .map(logEntry => {
-          ActivityLogEntry(
-            logEntry.dateTime,
-            if (logEntry.userInfo.isEmpty) defaultUsername else logEntry.userInfo,
-            logEntry.inputSummary,
-            logEntry.rulesSummary,
-            logEntry.commentSummary
+  def getInputRuleActivityLog(inputId: String): ActivityLog = db.withConnection {
+    implicit connection => {
+
+      val defaultUsername = if (toggleService.getToggleDefaultDisplayUsername.isEmpty) None else Some(toggleService.getToggleDefaultDisplayUsername)
+
+      ActivityLog(
+        items = ActivityLog.loadForId(inputId).items
+          .map(logEntry =>
+            ActivityLogEntry(
+              formattedDateTime = logEntry.formattedDateTime,
+              userInfo = (if (logEntry.userInfo.isEmpty) defaultUsername else logEntry.userInfo),
+              diffSummary = logEntry.diffSummary
+            )
           )
-        })
+      )
+    }
   }
 
 }

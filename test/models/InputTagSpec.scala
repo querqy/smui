@@ -2,6 +2,7 @@ package models
 
 import java.time.LocalDateTime
 
+import models.input.SearchInput
 import org.h2.jdbc.JdbcBatchUpdateException
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 import utils.WithInMemoryDB

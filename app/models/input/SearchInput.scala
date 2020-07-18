@@ -1,10 +1,11 @@
-package models
+package models.input
 
 import java.sql.Connection
 import java.time.LocalDateTime
 
 import anorm.SqlParser.get
 import anorm._
+import models._
 
 class SearchInputId(id: String) extends Id(id)
 object SearchInputId extends IdObject[SearchInputId](new SearchInputId(_))

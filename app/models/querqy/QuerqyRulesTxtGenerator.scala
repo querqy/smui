@@ -5,6 +5,7 @@ import java.net.{URI, URISyntaxException}
 
 import javax.inject.Inject
 import models.FeatureToggleModel._
+import models.input.SearchInputWithRules
 import models.rules._
 import models.{SearchInputWithRules, SearchManagementRepository, SolrIndexId}
 import play.api.libs.json.Json.JsValueWrapper
