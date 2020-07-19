@@ -176,4 +176,50 @@ object InputEvent {
     SQL"select * from #$TABLE_NAME where #$INPUT_ID = $inputId order by event_time asc".as(sqlParser.*)
   }
 
+  /*
+   * Interface to determine which inputs entities do not have an event history yet (for pre v3.8 migration)
+   * @see models/eventhistory/MigrationService.scala
+   */
+
+  def searchInputIdsWithoutEvent()(implicit connection: Connection): Seq[SearchInputId] = {
+
+    val sqlIdParser: RowParser[String] = {
+      get[String](s"${models.input.SearchInput.TABLE_NAME}.${models.input.SearchInput.ID}")
+        .map {
+          case id => id
+        }
+    }
+
+    val eventPresentIds = SQL"select #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} from #${models.input.SearchInput.TABLE_NAME} inner join #$TABLE_NAME ON #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} = #$TABLE_NAME.#$INPUT_ID"
+      .as(sqlIdParser.*)
+      .map(sId => SearchInputId(sId))
+
+    val allIds = SQL"select #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} from #${models.input.SearchInput.TABLE_NAME}"
+      .as(sqlIdParser.*)
+      .map(sId => SearchInputId(sId))
+
+    allIds.diff(eventPresentIds)
+  }
+
+  // TODO think about generalising belows logic for CanonicalSpellingWithAlternatives with the one above for SearchInputWithRules
+  def spellingIdsWithoutEvent()(implicit connection: Connection): Seq[CanonicalSpellingId] = {
+
+    val sqlIdParser: RowParser[String] = {
+      get[String](s"${models.spellings.CanonicalSpelling.TABLE_NAME}.${models.spellings.CanonicalSpelling.ID}")
+        .map {
+          case id => id
+        }
+    }
+
+    val eventPresentIds = SQL"select #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} from #${models.spellings.CanonicalSpelling.TABLE_NAME} inner join #$TABLE_NAME ON #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} = #$TABLE_NAME.#$INPUT_ID"
+      .as(sqlIdParser.*)
+      .map(sId => CanonicalSpellingId(sId))
+
+    val allIds = SQL"select #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} from #${models.spellings.CanonicalSpelling.TABLE_NAME}"
+      .as(sqlIdParser.*)
+      .map(sId => CanonicalSpellingId(sId))
+
+    allIds.diff(eventPresentIds)
+  }
+
 }

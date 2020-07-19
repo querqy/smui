@@ -145,7 +145,7 @@ object ActivityLog {
 
   private def diffSearchInputEvents(beforeEvent: InputEvent, afterEvent: InputEvent): ActivityLogEntry = {
 
-    if (afterEvent.eventType == SmuiEventType.CREATED.id) {
+    if ((afterEvent.eventType == SmuiEventType.CREATED.id) || (afterEvent.eventType == SmuiEventType.VIRTUALLY_CREATED.id)) {
 
       // in case input and associations where first created (everything is new! ... meaning: is to put into "after")
 
@@ -187,7 +187,7 @@ object ActivityLog {
 
       ActivityLogEntry(
         formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-        userInfo = afterEvent.userInfo,
+        userInfo = if(afterEvent.eventType == SmuiEventType.VIRTUALLY_CREATED.id) Some("SMUI system (pre v3.8 migration)") else afterEvent.userInfo,
         diffSummary = diffSummary
       )
 
@@ -290,7 +290,7 @@ object ActivityLog {
 
     // TODO refactor to align diffSpellingEvents with diffSearchInputEvents
 
-    if (afterEvent.eventType == SmuiEventType.CREATED.id) {
+    if ((afterEvent.eventType == SmuiEventType.CREATED.id) || (afterEvent.eventType == SmuiEventType.VIRTUALLY_CREATED.id)) {
 
       // TODO log error in case JSON read validation fails
       val afterSpelling = Json.parse(afterEvent.jsonPayload.get).validate[CanonicalSpellingWithAlternatives].asOpt.get
@@ -330,7 +330,7 @@ object ActivityLog {
 
       ActivityLogEntry(
         formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-        userInfo = afterEvent.userInfo,
+        userInfo = if(afterEvent.eventType == SmuiEventType.VIRTUALLY_CREATED.id) Some("SMUI system (pre v3.8 migration)") else afterEvent.userInfo,
         diffSummary = diffSummary
       )
 
