@@ -85,7 +85,7 @@ object ActivityLog extends Logging {
       } else if (termDiff.isDefined) {
         (beforeTerm.trim, afterTerm.trim)
       } else { // (statDiff.isDefined)
-        (readableStatus(beforeStatus), readableStatus(afterStatus))
+        (readableTermStatus(beforeTerm.trim, beforeStatus), readableTermStatus(afterTerm.trim, afterStatus))
       })
 
       Some(

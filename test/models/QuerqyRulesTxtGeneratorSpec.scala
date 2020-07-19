@@ -1,7 +1,7 @@
 package models
 
 import models.FeatureToggleModel.FeatureToggleService
-import models.input.{SearchInputId, SearchInputWithRules}
+import models.input.{SearchInputId, SearchInputWithRules, InputTag}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.rules._
 import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpellingId, CanonicalSpellingWithAlternatives}

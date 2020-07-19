@@ -2,7 +2,7 @@ package models
 
 import java.time.LocalDateTime
 
-import models.input.{SearchInputId, SearchInputWithRules}
+import models.input.{SearchInputId, SearchInputWithRules, InputTag, InputTagId}
 import models.rules._
 import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
