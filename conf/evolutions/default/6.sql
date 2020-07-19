@@ -15,7 +15,7 @@
 -- json_payload
 -- ~~~~~~~~~~~~
 -- contains complete input and associated rules (potential changes) as serialized JSON or null (in case of deleted).
--- payload is currently limited to 5000K!
+-- payload is currently limited to approx 5K!
 
 create table input_event (
 	id varchar(36) not null primary key,

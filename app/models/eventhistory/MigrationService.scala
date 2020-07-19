@@ -1,7 +1,6 @@
 package models.eventhistory
 
 import javax.inject.Inject
-import java.sql.Connection
 
 import play.api.db.DBApi
 import play.api.Logging

@@ -5,6 +5,8 @@ import java.sql.Connection
 import java.time.format.DateTimeFormatter
 
 import play.api.libs.json.{Json, OFormat}
+import play.api.Logging
+
 import models.input.SearchInputWithRules
 import models.rules._
 import models.spellings.{CanonicalSpellingWithAlternatives, AlternativeSpelling}
@@ -41,7 +43,7 @@ case class ActivityLogEntry(
 
 case class ActivityLog(items: Seq[ActivityLogEntry])
 
-object ActivityLog {
+object ActivityLog extends Logging {
 
   implicit val jsonFormatDiffSummary: OFormat[DiffSummary] = Json.format[DiffSummary]
   implicit val jsonFormatActivityLogEntry: OFormat[ActivityLogEntry] = Json.format[ActivityLogEntry]
@@ -382,11 +384,14 @@ object ActivityLog {
 
   private def compareInputEvents(beforeEvent: InputEvent, afterEvent: InputEvent): ActivityLogEntry = {
 
+    logger.info("In compareInputEvents")
+    logger.info(s":: beforeEvent.eventSource = ${beforeEvent.eventSource}")
+
     // input is SearchInput vs. CanonicalSpelling
 
-    (beforeEvent.eventSource) match {
-      case "SearchInput" => diffSearchInputEvents(beforeEvent, afterEvent)
-      case "CanonicalSpelling" => diffSpellingEvents(beforeEvent, afterEvent)
+    beforeEvent.eventSource match {
+      case SmuiEventSource.SEARCH_INPUT => diffSearchInputEvents(beforeEvent, afterEvent)
+      case SmuiEventSource.SPELLING => diffSpellingEvents(beforeEvent, afterEvent)
       // TODO case _ => log error
     }
   }
@@ -409,6 +414,9 @@ object ActivityLog {
     else {
 
       // create new list with prepended dummy, non existent event
+
+      logger.info("In loadForId")
+      logger.info(s":: events.head = ${events.head}")
 
       // TODO make this part of InputEvent.empty()?
       val EMPTY_EVENT = InputEvent(

@@ -1,6 +1,6 @@
-import { Component, Input, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 
-import { ActivityLogEntry } from '../../../models/index';
+import { ActivityLog } from '../../../models/index';
 import { ActivityLogService } from '../../../services/index';
 
 @Component({
@@ -8,29 +8,35 @@ import { ActivityLogService } from '../../../services/index';
   templateUrl: './activity-log.component.html',
   styleUrls: ['./activity-log.component.css']
 })
-export class DetailActivityLog {
+export class ActivityLogComponent implements OnChanges {
   @Input() selectedListItem = null;
 
-  private detailSearchInputId: String = null;
-  private inputRuleActivityLog: Array<ActivityLogEntry> = null;
+  @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
+
+  private detailInputId: string = null;
+  private activityLog: ActivityLog = null;
+
+  constructor(
+    private activityLogService: ActivityLogService
+  ) { }
 
   ngOnChanges(changes: SimpleChanges) {
     console.log('In DetailActivityLog :: ngOnChanges');
 
     if (this.selectedListItem) {
-      this.detailSearchInputId = this.selectedListItem.id
+      this.detailInputId = this.selectedListItem.id
     }
   }
 
-  public loadInputRuleActivityLog() {
-    if (this.detailSearchInputId !== null) {
-      console.log('In DetailActivityLog :: loadInputRuleActivityLog with detailSearchInput')
-      this.searchManagementService.getInputRuleActivityLog(this.detailSearchInputId)
+  public loadActivityLog() {
+    if (this.detailInputId !== null) {
+      console.log('In DetailActivityLog :: loadActivityLog with detailInputId')
+      this.activityLogService.getActivityLog(this.detailInputId)
         .then(retActivityLog => {
           console.log(':: retActivityLog received')
-          this.inputRuleActivityLog = retActivityLog
+          this.activityLog = retActivityLog
         })
-        .catch(error => this.handleError(error));
+        .catch(error => this.showErrorMsg.emit(error));
     }
   }
 

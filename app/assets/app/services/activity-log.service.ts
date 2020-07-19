@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 
-import { ActivityLogEntry } from '../models/index';
+import { ActivityLog } from '../models/index';
 
 @Injectable()
 export class ActivityLogService {
@@ -10,12 +10,12 @@ export class ActivityLogService {
 
   constructor(public http: Http) { }
 
-  getInputRuleActivityLog(inputId: string): Promise<Array<ActivityLogEntry>> {
+  getActivityLog(inputId: string): Promise<ActivityLog> {
     return this.http
       .get(this.baseUrl + '/log/rule-activity-log?inputId=' + inputId)
       .toPromise()
       .then(res => {
-        return res.json() as ActivityLogEntry[];
+        return res.json() as ActivityLog;
       })
   }
 }

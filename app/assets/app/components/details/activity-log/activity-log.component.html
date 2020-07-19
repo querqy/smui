@@ -4,36 +4,9 @@
         <div class="row">
             <div class="col">
                 <small class="smui-activity-log-toggle">
-                    <i class="fa fa-chevron-down" aria-hidden="true"></i> RULE ACTIVITY LOG
+                    <i class="fa fa-chevron-down" aria-hidden="true"></i> ACTIVITY LOG
                 </small>
-                <button (click)="loadInputRuleActivityLog()">LOAD</button>
-                <ng-container *ngIf="inputRuleActivityLog !== null">
-                    <table class="smui-activity-log-table">
-                        <ng-container *ngFor="let logEntry of inputRuleActivityLog">
-                            <tr class="smui-activity-log-entry">
-                                <td width="25%">
-                                    {{ logEntry.dateTime }}
-                                </td>
-                                <td width="40%">
-                                    {{ logEntry.inputSummary }}
-                                </td>
-                                <td width="35%">
-                                    <i class="fa fa-user-o" aria-hidden="true"></i> {{ logEntry.hasOwnProperty('userInfo') ? logEntry.userInfo : '' }}
-                                </td>
-                            </tr>
-                            <tr *ngIf="logEntry.hasOwnProperty('rulesSummary')">
-                                <td colspan="3" width="100%" class="smui-activity-log-detail-row">
-                                    <i class="fa fa-database" aria-hidden="true"></i> RULES: {{ logEntry.rulesSummary }}
-                                </td>
-                            </tr>
-                            <tr *ngIf="logEntry.hasOwnProperty('commentSummary')">
-                                <td colspan="3" width="100%" class="smui-activity-log-detail-row">
-                                    <i class="fa fa-commenting-o" aria-hidden="true"></i> {{ logEntry.commentSummary }}
-                                </td>
-                            </tr>
-                        </ng-container>
-                    </table>
-                </ng-container>
+                <button (click)="loadActivityLog()">LOAD</button>
             </div>
         </div>
     </div>

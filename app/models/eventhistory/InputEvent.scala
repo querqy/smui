@@ -21,6 +21,11 @@ object SmuiEventType extends Enumeration {
   val VIRTUALLY_CREATED = Value(3)
 }
 
+object SmuiEventSource extends Enumeration {
+  val SEARCH_INPUT = "SearchInput"
+  val SPELLING = "CanonicalSpelling"
+}
+
 class InputEventId(id: String) extends Id(id)
 object InputEventId extends IdObject[InputEventId](new InputEventId(_))
 
@@ -76,19 +81,19 @@ object InputEvent {
     // log ERROR, in case jsonPayload exceeds 5000 character limit (@see evolutions/default/6.sql)
 
     val event = InputEvent(
-      id = InputEventId(),
-      eventSource = eventSource,
-      eventType = eventType.id,
-      eventTime = LocalDateTime.now(),
-      userInfo = userInfo,
-      inputId = inputId,
-      jsonPayload = jsonPayload
+      InputEventId(),
+      eventSource,
+      eventType.id,
+      LocalDateTime.now(),
+      userInfo,
+      inputId,
+      jsonPayload
     )
     SQL(
       s"insert into $TABLE_NAME " +
         s"($ID, $EVENT_SOURCE, $EVENT_TYPE, $EVENT_TIME, $USER_INFO, $INPUT_ID, $JSON_PAYLOAD)" +
         s" values " +
-        s"({$ID}, ${EVENT_SOURCE}, {$EVENT_TYPE}, {$EVENT_TIME}, {$USER_INFO}, {$INPUT_ID}, {$JSON_PAYLOAD})"
+        s"({$ID}, {$EVENT_SOURCE}, {$EVENT_TYPE}, {$EVENT_TIME}, {$USER_INFO}, {$INPUT_ID}, {$JSON_PAYLOAD})"
     ).on(event.toNamedParameters: _*).execute()
     event
   }
@@ -99,7 +104,7 @@ object InputEvent {
 
   def createForSearchInput(input: SearchInputWithRules, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
     insert(
-      "SearchInput",
+      SmuiEventSource.SEARCH_INPUT,
       if (virtuallyCreated) SmuiEventType.VIRTUALLY_CREATED else SmuiEventType.CREATED,
       userInfo,
       input.id.id,
@@ -109,7 +114,7 @@ object InputEvent {
 
   def updateForSearchInput(input: SearchInputWithRules, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
     insert(
-      "SearchInput",
+      SmuiEventSource.SEARCH_INPUT,
       SmuiEventType.UPDATED,
       userInfo,
       input.id.id,
@@ -121,7 +126,7 @@ object InputEvent {
 
     // write event for deletion of search input
     insert(
-      "SearchInput",
+      SmuiEventSource.SEARCH_INPUT,
       SmuiEventType.DELETED,
       userInfo,
       inputId.id,
@@ -136,7 +141,7 @@ object InputEvent {
 
   def createForSpelling(input: CanonicalSpellingWithAlternatives, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
     insert(
-      "CanonicalSpelling",
+      SmuiEventSource.SPELLING,
       if (virtuallyCreated) SmuiEventType.VIRTUALLY_CREATED else SmuiEventType.CREATED,
       userInfo,
       input.id.id,
@@ -146,7 +151,7 @@ object InputEvent {
 
   def updateForSpelling(input: CanonicalSpellingWithAlternatives, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
     insert(
-      "CanonicalSpelling",
+      SmuiEventSource.SPELLING,
       SmuiEventType.UPDATED,
       userInfo,
       input.id.id,
@@ -158,7 +163,7 @@ object InputEvent {
 
     // write event for deletion of search input
     insert(
-      "CanonicalSpelling",
+      SmuiEventSource.SPELLING,
       SmuiEventType.DELETED,
       userInfo,
       inputId.id,

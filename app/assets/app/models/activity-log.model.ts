@@ -1,7 +1,16 @@
+export class DiffSummary {
+  entity: string;
+  eventType: string;
+  before?: string;
+  after?: string;
+}
+
 export class ActivityLogEntry {
-  dateTime: string;
+  formattedDateTime: string;
   userInfo?: string;
-  inputSummary: string;
-  rulesSummary?: string;
-  commentSummary?: string;
+  diffSummary: Array<DiffSummary>;
+}
+
+export class ActivityLog {
+  items: Array<ActivityLogEntry>;
 }
