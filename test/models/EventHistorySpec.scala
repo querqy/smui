@@ -2,10 +2,11 @@ package models
 
 import java.time.LocalDateTime
 
-import models.eventhistory._
-import models.input.{SearchInputId, SearchInputWithRules}
-import models.rules.SynonymRule
 import org.scalatest.{FlatSpec, Matchers}
+
+import models.rules.SynonymRule
+import models.input.{SearchInputId, SearchInputWithRules}
+import models.eventhistory._
 
 class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 

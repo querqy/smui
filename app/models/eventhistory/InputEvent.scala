@@ -4,12 +4,12 @@ import java.sql.Connection
 import java.time.LocalDateTime
 
 import play.api.libs.json._
-
-import anorm.SqlParser.get
 import anorm._
-import models.{Id, IdObject, eventhistory}
-import models.input.{InputTag, SearchInput, SearchInputId, SearchInputWithRules}
-import models.rules._
+import anorm.SqlParser.get
+
+import models.{Id, IdObject}
+import models.input.{SearchInputId, SearchInputWithRules}
+import models.spellings.{CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 
 /**
   * @see evolutions/default/6.sql
@@ -93,6 +93,10 @@ object InputEvent {
     event
   }
 
+  /*
+   * CRUD events for SearchInputWithRules
+   */
+
   def createForSearchInput(input: SearchInputWithRules, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
     insert(
       "SearchInput",
@@ -125,8 +129,49 @@ object InputEvent {
     )
   }
 
-  // TODO create, update, deleteForCanonicalSpelling(...)
+  /*
+   * CRUD events for CanonicalSpellingWithAlternatives
+   */
+  // TODO think about generalising belows logic for CanonicalSpellingWithAlternatives with the one above for SearchInputWithRules
 
+  def createForSpelling(input: CanonicalSpellingWithAlternatives, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
+    insert(
+      "CanonicalSpelling",
+      if (virtuallyCreated) SmuiEventType.VIRTUALLY_CREATED else SmuiEventType.CREATED,
+      userInfo,
+      input.id.id,
+      Some(Json.toJson(input).toString())
+    )
+  }
+
+  def updateForSpelling(input: CanonicalSpellingWithAlternatives, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
+    insert(
+      "CanonicalSpelling",
+      SmuiEventType.UPDATED,
+      userInfo,
+      input.id.id,
+      Some(Json.toJson(input).toString())
+    )
+  }
+
+  def deleteForSpelling(inputId: CanonicalSpellingId, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
+
+    // write event for deletion of search input
+    insert(
+      "CanonicalSpelling",
+      SmuiEventType.DELETED,
+      userInfo,
+      inputId.id,
+      None
+    )
+  }
+
+  /**
+    *
+    * @param inputId either be a SearchInput or CanonicalSpelling ID.
+    * @param connection
+    * @return
+    */
   def loadForId(inputId: String)(implicit connection: Connection): Seq[InputEvent] = {
     SQL"select * from #$TABLE_NAME where #$INPUT_ID = $inputId order by event_time asc".as(sqlParser.*)
   }

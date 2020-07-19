@@ -5,8 +5,8 @@ import java.time.LocalDateTime
 import util.control.Breaks._
 import scala.collection.mutable.ListBuffer
 import models._
-import models.input.{SearchInputId, SearchInputWithRules}
 import models.rules._
+import models.input.{SearchInputId, SearchInputWithRules, InputTag}
 
 object ApiControllerHelperRulesTxt {
 

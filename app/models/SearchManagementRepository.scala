@@ -75,8 +75,18 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
   def addNewCanonicalSpelling(solrIndexId: SolrIndexId, term: String): CanonicalSpelling =
     db.withConnection { implicit connection =>
-      CanonicalSpelling.insert(solrIndexId, term)
-      // TODO add CREATED event for spelling
+      val spelling = CanonicalSpelling.insert(solrIndexId, term)
+
+      // add CREATED event for spelling
+      if (toggleService.getToggleActivateEventHistory) {
+        InputEvent.createForSpelling(
+          CanonicalSpellingWithAlternatives.loadById(spelling.id).get,
+          None, // TODO userInfo not being logged so far
+          false
+        )
+      }
+
+      spelling
     }
 
   def getDetailedSpelling(canonicalSpellingId: String): Option[CanonicalSpellingWithAlternatives] =
@@ -87,7 +97,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def updateSpelling(spelling: CanonicalSpellingWithAlternatives): Unit =
     db.withTransaction { implicit connection =>
       CanonicalSpellingWithAlternatives.update(spelling)
-      // TODO add UPDATED event for spelling and associated alternatives
+
+      // add UPDATED event for spelling and associated alternatives
+      if (toggleService.getToggleActivateEventHistory) {
+        InputEvent.updateForSpelling(
+          CanonicalSpellingWithAlternatives.loadById(spelling.id).get,
+          None // TODO userInfo not being logged so far
+        )
+      }
     }
 
   def listAllSpellings(solrIndexId: SolrIndexId): List[CanonicalSpelling] =
@@ -102,43 +119,19 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
   def deleteSpelling(canonicalSpellingId: String): Int =
     db.withTransaction { implicit connection =>
-      CanonicalSpellingWithAlternatives.delete(CanonicalSpellingId(canonicalSpellingId))
-      // TODO add DELETED event for spelling and associated alternatives
+      val id = CanonicalSpellingId(canonicalSpellingId)
+      val count = CanonicalSpellingWithAlternatives.delete(id)
+
+      // add DELETED event for spelling and associated alternatives
+      if (toggleService.getToggleActivateEventHistory) {
+        InputEvent.deleteForSpelling(
+          id,
+          None // TODO userInfo not being logged so far
+        )
+      }
+
+      count
     }
-
-/*
-TODO
-~~~~
-
->     // persist CREATED event
->     val createdInput = SearchInputWithRules.loadById(id).get
->     SearchInputEvent.insert(
->       createdInput.id,
->       Some(createdInput.term),
->       Some(createdInput.status),
->       Some(createdInput.comment),
->       Some(createdInput.tags),
->       None, // TODO user info is not being logged so far
->       EventHistoryType.CREATED
->     )
->     // return
-121a139,145
->     // persist UPDATED event on SearchInputWithRules (including its rules)
->     SearchInputEvent.updateDiff(
->       SearchInputWithRules.loadById(searchInput.id).get,
->       searchInput,
->       None // TODO user info is not being logged so far
->     )
->     // update
-125a150,155
->     // persist DELETED event on SearchInputWithRules (including its rules)
->     SearchInputEvent.delete(
->       SearchInputWithRules.loadById(SearchInputId(searchInputId)).get,
->       None // TODO user info is not being logged so far
->     )
->     // delete
-
-*/
 
   /**
     * Search input and rules.
@@ -156,11 +149,13 @@ TODO
     }
 
     // add CREATED event for search input (maybe containing tags)
-    InputEvent.createForSearchInput(
-      SearchInputWithRules.loadById(id).get,
-      None, // TODO userInfo not being logged so far
-      false
-    )
+    if (toggleService.getToggleActivateEventHistory) {
+      InputEvent.createForSearchInput(
+        SearchInputWithRules.loadById(id).get,
+        None, // TODO userInfo not being logged so far
+        false
+      )
+    }
 
     id
   }
@@ -173,20 +168,24 @@ TODO
     SearchInputWithRules.update(searchInput)
 
     // add UPDATED event for search input and rules
-    InputEvent.updateForSearchInput(
-      SearchInputWithRules.loadById(searchInput.id).get,
-      None // TODO userInfo not being logged so far
-    )
+    if (toggleService.getToggleActivateEventHistory) {
+      InputEvent.updateForSearchInput(
+        SearchInputWithRules.loadById(searchInput.id).get,
+        None // TODO userInfo not being logged so far
+      )
+    }
   }
 
   def deleteSearchInput(searchInputId: String): Int = db.withTransaction { implicit connection =>
     val id = SearchInputWithRules.delete(SearchInputId(searchInputId))
 
     // add DELETED event for search input and rules
-    InputEvent.deleteForSearchInput(
-      SearchInputId(searchInputId),
-      None // TODO userInfo not being logged so far
-    )
+    if (toggleService.getToggleActivateEventHistory) {
+      InputEvent.deleteForSearchInput(
+        SearchInputId(searchInputId),
+        None // TODO userInfo not being logged so far
+      )
+    }
 
     id
   }
@@ -238,18 +237,24 @@ TODO
   def getInputRuleActivityLog(inputId: String): ActivityLog = db.withConnection {
     implicit connection => {
 
-      val defaultUsername = if (toggleService.getToggleDefaultDisplayUsername.isEmpty) None else Some(toggleService.getToggleDefaultDisplayUsername)
+      if (toggleService.getToggleActivateEventHistory) {
 
-      ActivityLog(
-        items = ActivityLog.loadForId(inputId).items
-          .map(logEntry =>
-            ActivityLogEntry(
-              formattedDateTime = logEntry.formattedDateTime,
-              userInfo = (if (logEntry.userInfo.isEmpty) defaultUsername else logEntry.userInfo),
-              diffSummary = logEntry.diffSummary
+        val defaultUsername = if (toggleService.getToggleDefaultDisplayUsername.isEmpty) None else Some(toggleService.getToggleDefaultDisplayUsername)
+
+        ActivityLog(
+          items = ActivityLog.loadForId(inputId).items
+            .map(logEntry =>
+              ActivityLogEntry(
+                formattedDateTime = logEntry.formattedDateTime,
+                userInfo = (if (logEntry.userInfo.isEmpty) defaultUsername else logEntry.userInfo),
+                diffSummary = logEntry.diffSummary
+              )
             )
-          )
-      )
+        )
+      } else {
+
+        ActivityLog(items = Nil)
+      }
     }
   }
 

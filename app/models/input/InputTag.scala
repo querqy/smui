@@ -7,9 +7,10 @@ import anorm._
 import anorm.SqlParser.get
 import play.api.libs.json._
 
+import models.{Id, IdObject, SolrIndexId}
+
 class InputTagId(id: String) extends Id(id)
 object InputTagId extends IdObject[InputTagId](new InputTagId(_))
-
 
 /**
   * Defines a tag that can be assigned to a search input

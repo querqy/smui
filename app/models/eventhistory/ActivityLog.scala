@@ -11,9 +11,10 @@ import models.spellings.{CanonicalSpellingWithAlternatives, AlternativeSpelling}
 
 /**
   *
+  * @param entity
+  * @param eventType
   * @param before
   * @param after
-  * @param eventType
   *
   * examples below (for being displayed on the frontend):
   *
@@ -42,6 +43,7 @@ case class ActivityLog(items: Seq[ActivityLogEntry])
 
 object ActivityLog {
 
+  implicit val jsonFormatDiffSummary: OFormat[DiffSummary] = Json.format[DiffSummary]
   implicit val jsonFormatActivityLogEntry: OFormat[ActivityLogEntry] = Json.format[ActivityLogEntry]
   implicit val jsonFormatActivityLog: OFormat[ActivityLog] = Json.format[ActivityLog]
 
