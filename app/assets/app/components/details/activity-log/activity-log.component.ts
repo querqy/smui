@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 
 import { ActivityLog } from '../../../models/index';
-import { ActivityLogService } from '../../../services/index';
+import { ActivityLogService, FeatureToggleService } from '../../../services/index';
 
 @Component({
   selector: 'smui-activity-log',
@@ -13,18 +13,25 @@ export class ActivityLogComponent implements OnChanges {
 
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
 
+  private show = false;
   private detailInputId: string = null;
   private activityLog: ActivityLog = null;
 
   constructor(
-    private activityLogService: ActivityLogService
+    private activityLogService: ActivityLogService,
+    private featureToggleService: FeatureToggleService
   ) { }
 
   ngOnChanges(changes: SimpleChanges) {
     console.log('In DetailActivityLog :: ngOnChanges');
 
     if (this.selectedListItem) {
-      this.detailInputId = this.selectedListItem.id
+      this.detailInputId = this.selectedListItem.id;
+      // reload activity log
+      if (this.show) {
+        this.activityLog = null;
+        this.loadActivityLog();
+      }
     }
   }
 
@@ -37,6 +44,19 @@ export class ActivityLogComponent implements OnChanges {
           this.activityLog = retActivityLog
         })
         .catch(error => this.showErrorMsg.emit(error));
+    }
+  }
+
+  public isFeatureActive() {
+    return this.featureToggleService.getSyncToggleActivateEventHistory();
+  }
+
+  public toggleShow() {
+    this.show = !this.show;
+
+    if (this.show) {
+      this.loadActivityLog();
+      // TODO this only needs once per input, not for every toggle...toggle...
     }
   }
 

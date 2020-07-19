@@ -20,7 +20,8 @@ import models.spellings.{CanonicalSpellingWithAlternatives, AlternativeSpelling}
   *
   * examples below (for being displayed on the frontend):
   *
-  * |  *entity/eventType*  |  *before*               |  *after*            |  *user info*          |
+  * |  entity/eventType    |  before                 |  after              |  user info            |
+  * |  ~~~~~~~~~~~~~~~~    |  ~~~~~~                 |  ~~~~~              |  ~~~~~~~~~            |
   * |  INPUT (created)     |                         |  laptop (active)    |  Paul Search Manager  |
   * |  RULE (created)      |                         |  netbook            |  Paul Search Manager  |
   * |  RULE (updated)      |  -notebück (inactive)-  |  notebook (active)  |  Paul Search Manager  |
@@ -137,7 +138,7 @@ object ActivityLog extends Logging {
         rule2term(beforeRule), beforeRule.isActive,
         rule2term(afterRule), afterRule.isActive
       )
-    }).filter(d => d.isEmpty)
+    }).filter(d => d.isDefined)
       .map(o => o.get)
 
     createdSummaries ++
@@ -179,7 +180,7 @@ object ActivityLog extends Logging {
         else
           List(
             DiffSummary(
-              entity = "COMM.",
+              entity = "COMMENT",
               eventType = "created",
               before = None,
               after = Some(afterSearchInput.comment.trim)
@@ -218,7 +219,7 @@ object ActivityLog extends Logging {
       else
         List(
           DiffSummary(
-            entity = "COMM.",
+            entity = "COMMENT",
             eventType = "updated",
             before = Some(beforeSearchInput.comment.trim),
             after = Some(afterSearchInput.comment.trim)
@@ -259,14 +260,14 @@ object ActivityLog extends Logging {
     val spellingsMaybeUpdated = beforeSpellings.filter(r => intersectIds.contains(r.id))
 
     val createdSummaries = spellingsCreated.map(s => DiffSummary(
-      entity = "ALT.",
+      entity = "ALTERNATIVE",
       eventType = "created",
       before = None,
       after = Some(readableTermStatus(s.term, s.isActive))
     ))
 
     val deletedSummaries = spellingsDeleted.map(s => DiffSummary(
-      entity = "ALT.",
+      entity = "ALTERNATIVE",
       eventType = "deleted",
       before = Some(readableTermStatus(s.term, s.isActive)),
       after = None
@@ -276,11 +277,11 @@ object ActivityLog extends Logging {
 
       val afterSpelling = afterSpellings.filter(s => s.id.equals(beforeSpelling.id)).head
       diffTermStatus(
-        "ALT.",
+        "ALTERNATIVE",
         beforeSpelling.term, beforeSpelling.isActive,
         afterSpelling.term, afterSpelling.isActive
       )
-    }).filter(d => d.isEmpty)
+    }).filter(d => d.isDefined)
       .map(o => o.get)
 
     createdSummaries ++
@@ -301,7 +302,7 @@ object ActivityLog extends Logging {
         // summarise canonical spellings
         List(
           DiffSummary(
-            entity = "SPELL.",
+            entity = "SPELLING",
             eventType = "created",
             before = None,
             after = Some(readableTermStatus(afterSpelling.term.trim, afterSpelling.isActive))
@@ -310,7 +311,7 @@ object ActivityLog extends Logging {
         // summarise alternative terms
         afterSpelling.alternativeSpellings.map(alt => {
           DiffSummary(
-            entity = "ALT.",
+            entity = "ALTERNATIVE",
             eventType = "created",
             before = None,
             after = Some(readableTermStatus(alt.term.trim, alt.isActive))
@@ -322,7 +323,7 @@ object ActivityLog extends Logging {
         else
           List(
             DiffSummary(
-              entity = "COMM.",
+              entity = "COMMENT",
               eventType = "created",
               before = None,
               after = Some(afterSpelling.comment.trim)
@@ -342,7 +343,7 @@ object ActivityLog extends Logging {
       val beforeSpelling = Json.parse(beforeEvent.jsonPayload.get).validate[CanonicalSpellingWithAlternatives].asOpt.get
       val afterSpelling = Json.parse(afterEvent.jsonPayload.get).validate[CanonicalSpellingWithAlternatives].asOpt.get
 
-      val spellingDiff = diffTermStatus("SPELL.", beforeSpelling.term, beforeSpelling.isActive, afterSpelling.term, afterSpelling.isActive) match {
+      val spellingDiff = diffTermStatus("SPELLING", beforeSpelling.term, beforeSpelling.isActive, afterSpelling.term, afterSpelling.isActive) match {
         case Some(d: DiffSummary) => List(d)
         case None => Nil
       }
@@ -357,7 +358,7 @@ object ActivityLog extends Logging {
       else
         List(
           DiffSummary(
-            entity = "COMM.",
+            entity = "COMMENT",
             eventType = "updated",
             before = Some(beforeSpelling.comment.trim),
             after = Some(afterSpelling.comment.trim)
@@ -384,15 +385,12 @@ object ActivityLog extends Logging {
 
   private def compareInputEvents(beforeEvent: InputEvent, afterEvent: InputEvent): ActivityLogEntry = {
 
-    logger.info("In compareInputEvents")
-    logger.info(s":: beforeEvent.eventSource = ${beforeEvent.eventSource}")
-
     // input is SearchInput vs. CanonicalSpelling
 
     beforeEvent.eventSource match {
       case SmuiEventSource.SEARCH_INPUT => diffSearchInputEvents(beforeEvent, afterEvent)
       case SmuiEventSource.SPELLING => diffSpellingEvents(beforeEvent, afterEvent)
-      // TODO case _ => log error
+      // case _ => logger.error(s"Unexpected eventSource (${beforeEvent.eventSource}) in event with id = ${beforeEvent.id}")
     }
   }
 
@@ -414,9 +412,6 @@ object ActivityLog extends Logging {
     else {
 
       // create new list with prepended dummy, non existent event
-
-      logger.info("In loadForId")
-      logger.info(s":: events.head = ${events.head}")
 
       // TODO make this part of InputEvent.empty()?
       val EMPTY_EVENT = InputEvent(
@@ -441,6 +436,8 @@ object ActivityLog extends Logging {
 
       ActivityLog(
         activityLogItems
+          .reverse
+          .filter(entry => !entry.diffSummary.isEmpty)
       )
     }
   }

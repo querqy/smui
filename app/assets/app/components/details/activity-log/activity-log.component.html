@@ -1,12 +1,43 @@
-<div class="card">
-    <!-- TODO <div class="card-body smui-no-bottom-padding"> -->
+<div class="card" *ngIf="isFeatureActive()">
     <div class="card-body">
         <div class="row">
             <div class="col">
-                <small class="smui-activity-log-toggle">
-                    <i class="fa fa-chevron-down" aria-hidden="true"></i> ACTIVITY LOG
+                <small class="smui-activity-log-toggle" (click)="toggleShow()">
+                    <i class="fa"
+                       [ngClass]="{'fa-chevron-down':show, 'fa-chevron-right':!show}"
+                       aria-hidden="true"></i> ACTIVITY LOG
                 </small>
-                <button (click)="loadActivityLog()">LOAD</button>
+                <ng-container *ngIf="show && activityLog">
+                    <table class="smui-activity-log-table">
+                        <ng-container *ngFor="let logEntry of activityLog.items">
+                            <tr class="smui-activty-log-spacing">
+                                <td colspan="3"></td>
+                            </tr>
+                            <tr class="smui-activity-log-headrow">
+                                <td>
+                                    {{ logEntry.formattedDateTime }}
+                                </td>
+                                <td colspan="2">
+                                    <i class="fa fa-user-o" aria-hidden="true"></i> USER:
+                                    {{ logEntry.hasOwnProperty('userInfo') ? logEntry.userInfo : '' }}
+                                </td>
+                            </tr>
+                            <ng-container *ngFor="let diffEntry of logEntry.diffSummary">
+                                <tr class="smui-activity-log-diffrow">
+                                    <td width="20%">
+                                        {{ diffEntry.entity }} ({{ diffEntry.eventType }}):
+                                    </td>
+                                    <td width="40%" class="smui-activity-log-diff-before">
+                                        {{ diffEntry.hasOwnProperty('before') ? diffEntry.before : '' }}
+                                    </td>
+                                    <td width="40%" class="smui-activity-log-diff-after">
+                                        {{ diffEntry.hasOwnProperty('after') ? diffEntry.after : '' }}
+                                    </td>
+                                </tr>
+                            </ng-container>
+                        </ng-container>
+                    </table>
+                </ng-container>
             </div>
         </div>
     </div>
