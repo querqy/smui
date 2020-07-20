@@ -19,7 +19,7 @@ class HomeController @Inject()(cc: MessagesControllerComponents,
       logger.debug("In HomeController :: index")
       Ok(
         views.html.home(
-          featureToggleService.getJsFrontendToogleList
+          featureToggleService.getJsFrontendToggleList
         )
       )
     }(executionContext) // TODO eval withSecurity ... because of play.filters.headers.contentSecurityPolicy (and resolve general setup in application.conf)

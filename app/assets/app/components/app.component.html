@@ -68,8 +68,8 @@
                     (showErrorMsg)="showErrorMsg($event)"
                     [(searchInputTerm)]="searchInputTerm"
                     [(appliedTagFilter)]="appliedTagFilter"
-                    #rulesSearchComponent
-            ></smui-rules-search>
+                    #rulesSearchComponent>
+            </smui-rules-search>
 
             <smui-rules-list
                     [currentSolrIndexId]="currentSolrIndexId"
@@ -80,8 +80,8 @@
                     (showErrorMsg)="showErrorMsg($event)"
                     [(selectedListItem)]="selectedListItem"
                     [(listItems)]="listItems"
-                    #rulesListComponent
-            ></smui-rules-list>
+                    #rulesListComponent>
+            </smui-rules-list>
         </div>
         <div class="col-8">
             <smui-rule-management *ngIf="!selectedListItem || selectedListItem.itemType === 'RuleManagement'"
@@ -96,7 +96,8 @@
                                   (showErrorMsg)="showErrorMsg($event)"
                                   (showSuccessMsg)="showSuccessMsg($event)"
                                   (createItem)="createItem($event)"
-                                  #ruleManagementComponent></smui-rule-management>
+                                  #ruleManagementComponent>
+            </smui-rule-management>
 
             <smui-spellings *ngIf="selectedListItem && selectedListItem.itemType === 'Spelling'"
                             [currentSolrIndexId]="currentSolrIndexId"
@@ -105,7 +106,15 @@
                             (showErrorMsg)="showErrorMsg($event)"
                             (showSuccessMsg)="showSuccessMsg($event)"
                             (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
-                            #spellingDetailComponent></smui-spellings>
+                            #spellingDetailComponent>
+            </smui-spellings>
+
+            <smui-activity-log
+                *ngIf="selectedListItem"
+                [selectedListItem]="selectedListItem"
+                (showErrorMsg)="showErrorMsg($event)"
+                #activityLogComponent>
+            </smui-activity-log>
         </div>
     </div>
 </div>

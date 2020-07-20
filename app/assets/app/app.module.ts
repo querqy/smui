@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 
 // services
 import {
-  FeatureToggleService, ListItemsService, RuleManagementService, SpellingsService, SolrService, TagsService
+  FeatureToggleService, ListItemsService, RuleManagementService, SpellingsService, SolrService, TagsService, ActivityLogService
 } from './services/index'
 
 // helpers
@@ -26,7 +26,7 @@ import {
 
 import {
   ButtonRowComponent, CardComponent, CommentComponent, ErrorComponent, DetailHeaderComponent, InputRowContainerComponent,
-  DetailInputRow, SpellingsComponent, RuleManagementComponent
+  DetailInputRow, SpellingsComponent, RuleManagementComponent, ActivityLogComponent
 } from './components/details/index'
 
 import {
@@ -54,7 +54,8 @@ import {
     SpellingsComponent,
     RuleManagementComponent,
     RulesListComponent,
-    RulesSearchComponent
+    RulesSearchComponent,
+    ActivityLogComponent
   ],
   providers: [
     CommonsService,
@@ -70,7 +71,8 @@ import {
         (xhrBackend: XHRBackend, requestOptions: RequestOptions, router: Router) =>
           new HttpAuthInterceptor(xhrBackend, requestOptions, router),
       deps: [XHRBackend, RequestOptions, Router]
-    }
+    },
+    ActivityLogService
   ],
   bootstrap: [
     AppComponent

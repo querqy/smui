@@ -2,7 +2,8 @@ package models.rules
 
 import anorm.SqlParser.get
 import anorm.{NamedParameter, RowParser, ~}
-import models.{Id, IdObject, SearchInputId, Status}
+import models.input.SearchInputId
+import models.{Id, IdObject, Status}
 import play.api.libs.json.{Json, OFormat}
 
 class UpDownRuleId(id: String) extends Id(id)

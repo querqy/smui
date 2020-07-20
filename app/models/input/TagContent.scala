@@ -1,4 +1,6 @@
-package models
+package models.input
+
+import models.SolrIndexId
 
 /**
   * Version of a tag with only the basic information.

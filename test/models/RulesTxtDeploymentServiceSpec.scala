@@ -3,6 +3,7 @@ package models
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.zip.ZipInputStream
 
+import models.input.SearchInputId
 import org.apache.commons.io.IOUtils
 import org.scalatest.{FlatSpec, Matchers}
 

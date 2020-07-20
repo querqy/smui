@@ -1,7 +1,9 @@
-package models
+package models.input
 
 import java.sql.Connection
+
 import models.rules._
+import models.SolrIndexId
 import play.api.libs.json.{Json, OFormat}
 
 case class SearchInputWithRules(id: SearchInputId,

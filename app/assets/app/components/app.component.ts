@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, SimpleChanges } from '@angular/core';
 import { ToasterService, ToasterConfig } from 'angular2-toaster';
 
-import { RuleManagementComponent, SpellingsComponent } from './details/index';
+import { RuleManagementComponent, SpellingsComponent, ActivityLogComponent } from './details/index';
 import { RulesListComponent, RulesSearchComponent } from './rules-panel/index';
 import {InputTag, ListItem, SolrIndex, SuggestedSolrField} from '../models/index';
 import {FeatureToggleService, RuleManagementService, SolrService, TagsService} from '../services/index';
@@ -36,6 +36,7 @@ export class AppComponent implements OnInit {
   @ViewChild('spellingDetailComponent') set ft(component: SpellingsComponent) {
     this.spellingDetailComponent = component
   };
+  @ViewChild('activityLogComponent') activityLogComponent: ActivityLogComponent;
 
   // TODO consider outsourcing confirmation modal dialog to separate component, directive ...
   public confirmTitle = '';

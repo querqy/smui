@@ -1,8 +1,9 @@
-package models
+package models.input
 
 import java.io.InputStream
 import java.sql.Connection
 
+import models.SolrIndex
 import play.api.Logger
 import play.api.libs.json.{Json, OFormat}
 

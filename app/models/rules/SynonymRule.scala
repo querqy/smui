@@ -4,7 +4,8 @@ import java.sql.Connection
 
 import anorm.SqlParser.get
 import anorm._
-import models.{Id, IdObject, SearchInputId, Status}
+import models.input.SearchInputId
+import models.{Id, IdObject, Status}
 import play.api.libs.json.{Json, OFormat}
 
 class SynonymRuleId(id: String) extends Id(id)

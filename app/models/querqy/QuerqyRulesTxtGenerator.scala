@@ -6,7 +6,8 @@ import java.net.{URI, URISyntaxException}
 import javax.inject.Inject
 import models.FeatureToggleModel._
 import models.rules._
-import models.{SearchInputWithRules, SearchManagementRepository, SolrIndexId}
+import models.{SearchManagementRepository, SolrIndexId}
+import models.input.SearchInputWithRules
 import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json.{JsString, Json}
 import querqy.rewrite.commonrules.{SimpleCommonRulesParser, WhiteSpaceQuerqyParserFactory}

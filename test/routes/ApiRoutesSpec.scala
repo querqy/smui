@@ -1,7 +1,8 @@
 package routes
 
 import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
-import models.{ApplicationTestBase, ListItem, ListItemType}
+import models.{ApplicationTestBase}
+import models.input.{ListItem, ListItemType}
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.http.ContentTypes
 import play.api.libs.json.Json

@@ -1,6 +1,6 @@
-package models
+package models.input
 
-import models.ListItemType.ListItemType
+import models.input.ListItemType.ListItemType
 import models.spellings.{CanonicalSpelling, CanonicalSpellingWithAlternatives}
 import play.api.libs.json.{Format, Json, OFormat}
 
@@ -8,7 +8,7 @@ object ListItemType extends Enumeration {
   type ListItemType = Value
   val RuleManagement, Spelling = Value
 
-  implicit val jsonFormat: Format[models.ListItemType.Value] = Json.formatEnum(this)
+  implicit val jsonFormat: Format[models.input.ListItemType.Value] = Json.formatEnum(this)
 }
 
 case class ListItem(id: String,

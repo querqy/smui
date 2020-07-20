@@ -40,8 +40,10 @@ package object FeatureToggleModel {
     private val SMUI_AUTH_SIMPLE_LOGOUT = "smui.auth.ui-concept.simple-logout-button-target-url"
     private val SMUI_VERSION = "smui.version"
     private val FEATURE_TOGGLE_ACTIVATE_SPELLING = "toggle.activate-spelling"
+    private val SMUI_DEFAULT_DISPLAY_USERNAME = "toggle.display-username.default"
+    private val SMUI_ACTIVATE_EVENTHISTORY = "toggle.activate-eventhistory"
 
-    def getJsFrontendToogleList: List[JsFeatureToggle] = {
+    def getJsFrontendToggleList: List[JsFeatureToggle] = {
       def jsBoolFeatureToggle(toggleKey: String, bDefault: Boolean): JsFeatureToggle = {
         JsFeatureToggle(
           toggleKey,
@@ -60,7 +62,8 @@ package object FeatureToggleModel {
         JsFeatureToggle(SMUI_VERSION, new JsStringFeatureToggleValue(models.buildInfo.BuildInfo.version)),
         JsFeatureToggle(FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO, new JsStringFeatureToggleValue(
           appConfig.getOptional[String](FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO).getOrElse("-1"))),
-        jsBoolFeatureToggle(FEATURE_TOGGLE_ACTIVATE_SPELLING, false)
+        jsBoolFeatureToggle(FEATURE_TOGGLE_ACTIVATE_SPELLING, false),
+        jsBoolFeatureToggle(SMUI_ACTIVATE_EVENTHISTORY, false)
       )
     }
 
@@ -95,6 +98,15 @@ package object FeatureToggleModel {
     def getToggleActivateSpelling: Boolean = {
       appConfig.getOptional[Boolean](FEATURE_TOGGLE_ACTIVATE_SPELLING).getOrElse(false)
     }
+
+    def getToggleDefaultDisplayUsername: String = {
+      appConfig.getOptional[String](SMUI_DEFAULT_DISPLAY_USERNAME).getOrElse("Anonymous Search Manager")
+    }
+
+    def getToggleActivateEventHistory: Boolean = {
+      appConfig.getOptional[Boolean](SMUI_ACTIVATE_EVENTHISTORY).getOrElse(false)
+    }
+
   }
 
 }

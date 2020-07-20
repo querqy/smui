@@ -6,6 +6,7 @@ import util.control.Breaks._
 import scala.collection.mutable.ListBuffer
 import models._
 import models.rules._
+import models.input.{SearchInputId, SearchInputWithRules, InputTag}
 
 object ApiControllerHelperRulesTxt {
 

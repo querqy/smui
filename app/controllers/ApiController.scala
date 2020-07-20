@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter
 import scala.concurrent.{ExecutionContext, Future}
 import controllers.auth.AuthActionFactory
 import models._
+import models.input.{SearchInputId, SearchInputWithRules, InputTagId, ListItem}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
 
@@ -308,6 +309,13 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       }
       val logDeploymentInfo = new LogDeploymentInfo(msg)
       Ok(Json.toJson(logDeploymentInfo))
+    }
+  }
+
+  def getActivityLog(inputId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      val activityLog = searchManagementRepository.getInputRuleActivityLog(inputId)
+      Ok(Json.toJson(activityLog))
     }
   }
 
