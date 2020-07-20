@@ -90,7 +90,8 @@ export class RulesListComponent implements OnChanges {
     })
   }
 
-  private deleteSpellingItem(id: string) {
+  private deleteSpellingItem(id: string, event) {
+    event.stopPropagation();
     const deleteCallback = () =>
       this.spellingsService.deleteSpelling(id)
         .then(() => this.refreshItemsInList())
@@ -100,7 +101,8 @@ export class RulesListComponent implements OnChanges {
     this.openDeleteConfirmModal.emit({itemType: 'spelling item', deleteCallback})
   }
 
-  private deleteRuleItem(id: string) {
+  private deleteRuleItem(id: string, event) {
+    event.stopPropagation();
     const deleteCallback = () =>
       this.ruleManagementService.deleteSearchInput(id)
         .then(() => this.refreshItemsInList())

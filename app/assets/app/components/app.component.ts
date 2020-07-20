@@ -53,7 +53,7 @@ export class AppComponent implements OnInit {
   private listItems: ListItem[] = [];
   private searchInputTerm = '';
   private selectedListItem: ListItem = null;
-  private allTags = null;
+  private allTags = [];
   private appliedTagFilter: InputTag = null;
 
   get self(): AppComponent {
@@ -97,11 +97,15 @@ export class AppComponent implements OnInit {
           this.selectedListItem = null;
 
           this.solrService.listAllSuggestedSolrFields(this.currentSolrIndexId)
-            .then(suggestedSolrFieldNames => this.suggestedSolrFieldNames = suggestedSolrFieldNames)
+            .then(suggestedSolrFieldNames => {
+              this.suggestedSolrFieldNames = suggestedSolrFieldNames
+            })
             .catch(error => this.showErrorMsg(error));
 
-          this.allTags = this.tagsService.listAllInputTags()
-            .then(allTags => this.allTags = allTags)
+          this.tagsService.listAllInputTags()
+            .then(allTags => {
+              this.allTags = allTags
+            })
             .catch(error => this.showErrorMsg(error));
         }
       })
@@ -153,6 +157,8 @@ export class AppComponent implements OnInit {
 
       _this.currentSolrIndexId = newSolrIndexId;
       _this.selectedListItem = null;
+      _this.searchInputTerm = '';
+      _this.appliedTagFilter = null;
 
       _this.solrService.listAllSuggestedSolrFields(_this.currentSolrIndexId)
         .then(suggestedSolrFieldNames => _this.suggestedSolrFieldNames = suggestedSolrFieldNames)

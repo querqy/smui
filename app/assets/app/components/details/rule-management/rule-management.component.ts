@@ -34,7 +34,7 @@ export class RuleManagementComponent implements OnChanges {
   @Input() currentSolrIndexId = '-1';
   @Input() listItems: ListItem[] = [];
   @Input() suggestedSolrFieldNames = null;
-  @Input() allTags: InputTag[] = null;
+  @Input() allTags: InputTag[] = [];
 
   @Output() refreshAndSelectListItemById: EventEmitter<string> = new EventEmitter();
   @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter();
@@ -90,7 +90,7 @@ export class RuleManagementComponent implements OnChanges {
     }
   }
 
-  private availableTagsForCurrentSolrIndex() {
+  private availableTagsForCurrentSolrIndex(): InputTag[]  {
     return this.allTags.filter(tag => !tag.solrIndexId || tag.solrIndexId === this.currentSolrIndexId);
   }
 
