@@ -84,7 +84,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     val inactiveSearchInput = SearchInputWithRules(inactiveId, "inactive", redirectRules = List.empty, isActive = false, comment = "inactive")
     repo.updateSearchInput(inactiveSearchInput)
 
-    Seq(aerosmithId, shippingId, inactiveId)
+    Seq(aerosmithId, shippingId)
   }
 
   var freezer: CanonicalSpelling = _
