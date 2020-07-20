@@ -260,14 +260,14 @@ object ActivityLog extends Logging {
     val spellingsMaybeUpdated = beforeSpellings.filter(r => intersectIds.contains(r.id))
 
     val createdSummaries = spellingsCreated.map(s => DiffSummary(
-      entity = "ALTERNATIVE",
+      entity = "MISSPELLING",
       eventType = "created",
       before = None,
       after = Some(readableTermStatus(s.term, s.isActive))
     ))
 
     val deletedSummaries = spellingsDeleted.map(s => DiffSummary(
-      entity = "ALTERNATIVE",
+      entity = "MISSPELLING",
       eventType = "deleted",
       before = Some(readableTermStatus(s.term, s.isActive)),
       after = None
@@ -277,7 +277,7 @@ object ActivityLog extends Logging {
 
       val afterSpelling = afterSpellings.filter(s => s.id.equals(beforeSpelling.id)).head
       diffTermStatus(
-        "ALTERNATIVE",
+        "MISSPELLING",
         beforeSpelling.term, beforeSpelling.isActive,
         afterSpelling.term, afterSpelling.isActive
       )
@@ -311,7 +311,7 @@ object ActivityLog extends Logging {
         // summarise alternative terms
         afterSpelling.alternativeSpellings.map(alt => {
           DiffSummary(
-            entity = "ALTERNATIVE",
+            entity = "MISSPELLING",
             eventType = "created",
             before = None,
             after = Some(readableTermStatus(alt.term.trim, alt.isActive))

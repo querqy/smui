@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 import models.input.{SearchInputId, SearchInputWithRules, InputTag, InputTagId}
 import models.rules._
-import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
+import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 import play.api.db.{Database, Databases}
 import play.api.inject.Injector
@@ -22,12 +22,23 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
   // Use logging settings from logback-test.xml for test application
   System.setProperty("logger.resource", "logback-test.xml")
 
+  // override this val to add spec specific application config
+  protected lazy val additionalAppConfig: Seq[(String, Any)] = Nil
+
+  // TestBase wide application config
+  protected lazy val baseAppConfig: Seq[(String, Any)] = Seq(
+      "db.default.url" -> db.url,
+      "db.default.driver" -> "org.h2.Driver",
+      "db.default.username" -> "",
+      "db.default.password" -> "",
+      "toggle.rule-deployment.log-rule-id" -> true,
+      "toggle.activate-spelling" -> true
+    ) ++
+    additionalAppConfig
+
   protected lazy val application: Application = new GuiceApplicationBuilder().
     in(Mode.Test).
-    configure("db.default.url" -> db.url, "db.default.driver" -> "org.h2.Driver",
-      "db.default.username" -> "", "db.default.password" -> "",
-      "toggle.rule-deployment.log-rule-id" -> true,
-      "toggle.activate-spelling" -> true).
+    configure(baseAppConfig: _*).
     build()
 
   protected lazy val injector: Injector = application.injector
@@ -55,8 +66,8 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     val deleteRules = List(DeleteRule(DeleteRuleId(), "freddy", isActive = true))
     val filterRules = List(FilterRule(FilterRuleId(), "zz top", isActive = true))
 
-    val id = repo.addNewSearchInput(core1Id, "aerosmith", Seq.empty)
-    val searchInput = SearchInputWithRules(id, "aerosmith", synonymRules, upDownRules, filterRules, isActive = true, comment = "")
+    val aerosmithId = repo.addNewSearchInput(core1Id, "aerosmith", Seq.empty)
+    val searchInput = SearchInputWithRules(aerosmithId, "aerosmith", synonymRules, upDownRules, filterRules, isActive = true, comment = "")
     repo.updateSearchInput(searchInput)
 
     val tag = InputTag(InputTagId(), Some(core1Id), Some("testProperty"), "testValue", exported = true, predefined = false, LocalDateTime.now())
@@ -73,14 +84,14 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     val inactiveSearchInput = SearchInputWithRules(inactiveId, "inactive", redirectRules = List.empty, isActive = false, comment = "inactive")
     repo.updateSearchInput(inactiveSearchInput)
 
-    Seq(id, shippingId)
+    Seq(aerosmithId, shippingId, inactiveId)
   }
 
   var freezer: CanonicalSpelling = _
   var machine: CanonicalSpelling = _
   var pants: CanonicalSpelling = _
 
-  protected def createTestSpellings(): Unit = {
+  protected def createTestSpellings(): Seq[CanonicalSpellingId] = {
     freezer = repo.addNewCanonicalSpelling(core1Id, "freezer")
     machine = repo.addNewCanonicalSpelling(core1Id, "machine")
     pants = repo.addNewCanonicalSpelling(core1Id, "pants")
@@ -111,6 +122,8 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
         AlternativeSpelling(AlternativeSpellingId(), pants.id, "pents", true)
       )
     ))
+
+    Seq(freezer.id, machine.id, pants.id)
   }
 
   def deleteAllSpellingsFromDB(solrIndexId: SolrIndexId): Unit = {
