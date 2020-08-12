@@ -25,6 +25,10 @@ import {
 } from './components/app.component';
 
 import {
+  HeaderNavComponent
+} from './components/header-nav/index'
+
+import {
   ButtonRowComponent, CardComponent, CommentComponent, ErrorComponent, DetailHeaderComponent, InputRowContainerComponent,
   DetailInputRow, SpellingsComponent, RuleManagementComponent, ActivityLogComponent
 } from './components/details/index'
@@ -44,6 +48,7 @@ import {
   ],
   declarations: [
     AppComponent,
+    HeaderNavComponent,
     ButtonRowComponent,
     CardComponent,
     CommentComponent,
