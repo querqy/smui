@@ -1,5 +1,7 @@
-import { Component, OnInit, ViewChild, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { ToasterService } from 'angular2-toaster'
 
+import { ModalDialogComponent } from '../modal-dialog/index'
 import { InputTag, ListItem, SolrIndex, SuggestedSolrField } from '../../models/index';
 import { FeatureToggleService, SolrService } from '../../services/index';
 
@@ -10,46 +12,49 @@ import { FeatureToggleService, SolrService } from '../../services/index';
 })
 export class HeaderNavComponent implements OnInit {
 
+  @Input() currentSolrIndexId: string = null
+  @Output() currentSolrIndexIdChange = new EventEmitter<string>()
+  @Input() mainComponentDirty = false
+  @Input() smuiModalDialog: ModalDialogComponent = null
+
   public deploymentRunningForStage = null;
   public hideDeploymentLogInfo = true;
   public deploymentLogInfo = 'Loading info ...';
 
   public listSolrIndeces: SolrIndex[];
   // TODO avoid to not separately keep currentSolrIndexId and according select-option model solrIndexSelectOptionModel
-  public currentSolrIndexId: string = null;
   public solrIndexSelectOptionModel: string = null;
-  private suggestedSolrFieldNames = null;
 
   constructor(
+    private toasterService: ToasterService,
     public featureToggleService: FeatureToggleService,
     private solrService: SolrService
-  ) {}
+  ) {
+    console.log('In HeaderNavComponent :: constructor')
+  }
 
   ngOnInit() {
     this.loadSolrIndices();
   }
 
+  // TODO showSuccess/ErrorMsg repetitive implementation
+  public showSuccessMsg(msgText: string) {
+    this.toasterService.pop('success', '', msgText);
+  }
+
+  public showErrorMsg(msgText: string) {
+    this.toasterService.pop('error', '', msgText);
+  }
+
+  // TODO consider moving this as part of the init routine to app.component
   loadSolrIndices() {
     this.solrService
       .listAllSolrIndeces()
       .then(solrIndices => {
         if (solrIndices.length > 0) {
-          this.listSolrIndeces = solrIndices;
-          this.currentSolrIndexId = this.listSolrIndeces[0].id;
-          this.solrIndexSelectOptionModel = this.currentSolrIndexId;
-          this.selectedListItem = null;
-
-          this.solrService.listAllSuggestedSolrFields(this.currentSolrIndexId)
-            .then(suggestedSolrFieldNames => {
-              this.suggestedSolrFieldNames = suggestedSolrFieldNames
-            })
-            .catch(error => this.showErrorMsg(error));
-
-          this.tagsService.listAllInputTags()
-            .then(allTags => {
-              this.allTags = allTags
-            })
-            .catch(error => this.showErrorMsg(error));
+          this.listSolrIndeces = solrIndices
+          this.solrIndexSelectOptionModel = this.listSolrIndeces[0].id
+          this.currentSolrIndexIdChange.emit(this.listSolrIndeces[0].id)
         }
       })
       .catch(error => this.showErrorMsg(error))
@@ -65,14 +70,7 @@ export class HeaderNavComponent implements OnInit {
       console.log('_this.currentSolrIndexId = ' + JSON.stringify(_this.currentSolrIndexId));
       console.log('_this.solrIndexSelectOptionModel = ' + JSON.stringify(_this.solrIndexSelectOptionModel));
 
-      _this.currentSolrIndexId = newSolrIndexId;
-      _this.selectedListItem = null;
-      _this.searchInputTerm = '';
-      _this.appliedTagFilter = null;
-
-      _this.solrService.listAllSuggestedSolrFields(_this.currentSolrIndexId)
-        .then(suggestedSolrFieldNames => _this.suggestedSolrFieldNames = suggestedSolrFieldNames)
-        .catch(error => _this.showErrorMsg(error));
+      _this.currentSolrIndexIdChange.emit(newSolrIndexId)
     }
 
     function executeSelectSolrIndexCancel() {
@@ -81,10 +79,18 @@ export class HeaderNavComponent implements OnInit {
       _this.solrIndexSelectOptionModel = _this.currentSolrIndexId;
     }
 
-    this.executeWithChangeCheck({
-      executeFnOk: executeSelectSolrIndexOk,
-      executeFnCancel: executeSelectSolrIndexCancel
-    });
+    if (this.mainComponentDirty) {
+      // TODO merge implementation with search-management.component :: executeWithChangeCheck
+      const modalConfirmDeferred = this.smuiModalDialog.openModalConfirm(
+        'Confirm to discard unsaved input',
+        'You have unsaved input! Do you really want to Cancel Editing of Search Input or Continue with it?',
+        'Yes, Cancel Editing', 'No, Continue Editing');
+
+      modalConfirmDeferred.promise
+        .then(isOk => isOk ? executeSelectSolrIndexOk() : executeSelectSolrIndexCancel());
+    } else {
+      executeSelectSolrIndexOk()
+    }
   }
 
   private requestPublishRulesTxtToSolr(targetPlatform: string) {
@@ -99,7 +105,7 @@ export class HeaderNavComponent implements OnInit {
         })
         .catch(error => {
           this.deploymentRunningForStage = null;
-          this.showLongErrorMessage(error.json().message)
+          this.smuiModalDialog.showLongErrorMessage(error.json().message)
         });
     } // TODO handle else-case, if no currentSolrIndexId selected
   }
@@ -128,16 +134,13 @@ export class HeaderNavComponent implements OnInit {
   public publishToLIVE() {
     console.log('In AppComponent :: publishToLIVE');
 
-    this.openModalConfirm(
+    const modalConfirmDeferred = this.smuiModalDialog.openModalConfirm(
       'Confirm publish to LIVE',
       'Are you sure to publish current Search Rules to LIVE?',
       'Yes, publish to LIVE', 'No, cancel publish');
-      this.modalConfirmDeferred.promise
-      .then(isOk => {
-        if (isOk) {
-          this.requestPublishRulesTxtToSolr('LIVE');
-        }
-      });
+
+    modalConfirmDeferred.promise
+      .then(isOk => isOk ? this.requestPublishRulesTxtToSolr('LIVE') : () => ({}))
   }
 
   public callSimpleLogoutUrl() {
@@ -159,7 +162,7 @@ export class HeaderNavComponent implements OnInit {
         this.deploymentLogInfo = retApiResult.msg;
       })
       .catch(error => {
-        this.showLongErrorMessage(error.json().message)
+        this.smuiModalDialog.showLongErrorMessage(error.json().message)
       });
   }
 

@@ -1,107 +1,22 @@
 <toaster-container [toasterconfig]="toasterConfig"></toaster-container>
+
 <div class="container-fluid">
 
     <smui-header-nav
+            [(currentSolrIndexId)]="currentSolrIndexId"
+            [mainComponentDirty]="searchManagement.isDirty()"
+            [smuiModalDialog]="smuiModalDialog"
             #headerNav>
     </smui-header-nav>
 
-    <div class="row">
-        <div class="col-4">
-            <smui-rules-search
-                    [currentSolrIndexId]="currentSolrIndexId"
-                    [listItems]="listItems"
-                    (refreshAndSelectListItemById)="rulesListComponent.refreshAndSelectListItemById($event)"
-                    (executeWithChangeCheck)="executeWithChangeCheck($event)"
-                    (showSuccessMsg)="showSuccessMsg($event)"
-                    (showErrorMsg)="showErrorMsg($event)"
-                    [(searchInputTerm)]="searchInputTerm"
-                    [(appliedTagFilter)]="appliedTagFilter"
-                    #rulesSearchComponent>
-            </smui-rules-search>
+    <smui-search-management
+            [currentSolrIndexId]="currentSolrIndexId"
+            [smuiModalDialog]="smuiModalDialog"
+            #searchManagement>
+    </smui-search-management>
 
-            <smui-rules-list
-                    [currentSolrIndexId]="currentSolrIndexId"
-                    [searchInputTerm]="searchInputTerm"
-                    [appliedTagFilter]="appliedTagFilter"
-                    (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
-                    (executeWithChangeCheck)="executeWithChangeCheck($event)"
-                    (showErrorMsg)="showErrorMsg($event)"
-                    [(selectedListItem)]="selectedListItem"
-                    [(listItems)]="listItems"
-                    #rulesListComponent>
-            </smui-rules-list>
-        </div>
-        <div class="col-8">
-            <smui-rule-management *ngIf="!selectedListItem || selectedListItem.itemType === 'RuleManagement'"
-                                  [currentSolrIndexId]="currentSolrIndexId"
-                                  [selectedListItem]="selectedListItem"
-                                  [listItems]="listItems"
-                                  [allTags]="allTags"
-                                  [suggestedSolrFieldNames]="suggestedSolrFieldNames"
-                                  (refreshAndSelectListItemById)="rulesListComponent.refreshAndSelectListItemById($event)"
-                                  (executeWithChangeCheck)="executeWithChangeCheck($event)"
-                                  (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
-                                  (showErrorMsg)="showErrorMsg($event)"
-                                  (showSuccessMsg)="showSuccessMsg($event)"
-                                  (createItem)="createItem($event)"
-                                  #ruleManagementComponent>
-            </smui-rule-management>
-
-            <smui-spellings *ngIf="selectedListItem && selectedListItem.itemType === 'Spelling'"
-                            [currentSolrIndexId]="currentSolrIndexId"
-                            [selectedListItem]="selectedListItem"
-                            (refreshAndSelectListItemById)="rulesListComponent.refreshAndSelectListItemById($event)"
-                            (showErrorMsg)="showErrorMsg($event)"
-                            (showSuccessMsg)="showSuccessMsg($event)"
-                            (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
-                            #spellingDetailComponent>
-            </smui-spellings>
-
-            <smui-activity-log
-                *ngIf="selectedListItem"
-                [selectedListItem]="selectedListItem"
-                (showErrorMsg)="showErrorMsg($event)"
-                #activityLogComponent>
-            </smui-activity-log>
-        </div>
-    </div>
 </div>
 
-<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmModalLabel">{{ confirmTitle }}</h5>
-                <button type="button" class="close" data-dismiss="modal" (click)="confirmModalCancel()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                {{ confirmBodyText }}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="confirmModalOk()">{{ okText }}</button>
-                <button type="button" class="btn btn-success" data-dismiss="modal" (click)="confirmModalCancel()">{{ cancelText }}</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="errorMessageModal" tabindex="-1" role="dialog" aria-labelledby="errorMessageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="errorMessageModalLabel">Error</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p style="white-space: pre;">{{ errorMessageModalText }}</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-    </div>
-</div>
+<smui-modal-dialog
+    #smuiModalDialog>
+</smui-modal-dialog>

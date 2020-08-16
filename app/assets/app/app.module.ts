@@ -29,6 +29,14 @@ import {
 } from './components/header-nav/index'
 
 import {
+  SearchManagementComponent
+} from './components/search-management/index'
+
+import {
+  ModalDialogComponent
+} from './components/modal-dialog/index'
+
+import {
   ButtonRowComponent, CardComponent, CommentComponent, ErrorComponent, DetailHeaderComponent, InputRowContainerComponent,
   DetailInputRow, SpellingsComponent, RuleManagementComponent, ActivityLogComponent
 } from './components/details/index'
@@ -48,6 +56,7 @@ import {
   ],
   declarations: [
     AppComponent,
+    ModalDialogComponent,
     HeaderNavComponent,
     ButtonRowComponent,
     CardComponent,
@@ -60,7 +69,8 @@ import {
     RuleManagementComponent,
     RulesListComponent,
     RulesSearchComponent,
-    ActivityLogComponent
+    ActivityLogComponent,
+    SearchManagementComponent,
   ],
   providers: [
     CommonsService,
