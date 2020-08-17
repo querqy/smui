@@ -33,7 +33,7 @@ import {
 } from './components/search-management/index'
 
 import {
-  ReportComponent
+  ReportComponent, ReportSettingsBarComponent
 } from './components/report/index'
 
 import {
@@ -75,6 +75,7 @@ import {
     RulesSearchComponent,
     ActivityLogComponent,
     SearchManagementComponent,
+    ReportSettingsBarComponent,
     ReportComponent,
   ],
   providers: [

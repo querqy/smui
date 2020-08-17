@@ -18,7 +18,7 @@ export class ReportComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit() {
-    console.log('In SearchManagementComponent :: ngOnInit')
+    console.log('In ReportComponent :: ngOnInit')
   }
 
   ngOnChanges(changes: SimpleChanges) {
