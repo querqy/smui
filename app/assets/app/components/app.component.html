@@ -4,16 +4,25 @@
 
     <smui-header-nav
             [(currentSolrIndexId)]="currentSolrIndexId"
-            [mainComponentDirty]="searchManagement.isDirty()"
+            [mainComponentDirty]="(!isRouteReport) && searchManagement.isDirty()"
             [smuiModalDialog]="smuiModalDialog"
             #headerNav>
     </smui-header-nav>
 
+    <!-- TODO very hacky to work with hidden states of search-management & report components -->
+
     <smui-search-management
+            [hidden]="isRouteReport"
             [currentSolrIndexId]="currentSolrIndexId"
             [smuiModalDialog]="smuiModalDialog"
             #searchManagement>
     </smui-search-management>
+
+    <smui-report
+            [hidden]="!isRouteReport"
+            [currentSolrIndexId]="currentSolrIndexId"
+            #report>
+    </smui-report>
 
 </div>
 

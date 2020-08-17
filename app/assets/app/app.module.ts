@@ -33,6 +33,10 @@ import {
 } from './components/search-management/index'
 
 import {
+  ReportComponent
+} from './components/report/index'
+
+import {
   ModalDialogComponent
 } from './components/modal-dialog/index'
 
@@ -71,6 +75,7 @@ import {
     RulesSearchComponent,
     ActivityLogComponent,
     SearchManagementComponent,
+    ReportComponent,
   ],
   providers: [
     CommonsService,

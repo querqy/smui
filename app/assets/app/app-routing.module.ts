@@ -1,22 +1,18 @@
-// TODO app-routing is currently not used, and just present for future extension
-
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {RuleManagementComponent} from './components/details/index';
 
-// import { DashboardComponent } from './dashboard.component';
-// import { HeroesComponent } from './heroes.component';
+import { SearchManagementComponent } from './components/search-management/index'
+import { ReportComponent } from './components/report/index'
 
 const routes: Routes = [
-//  { path: '', redirectTo: 'detail/4711', pathMatch: 'full' },
-//  { path: 'dashboard', component: DashboardComponent },
-  { path: 'detail/:id', component: RuleManagementComponent },
-//  { path: 'heroes', component: HeroesComponent }
+  { path: '', redirectTo: 'rules', pathMatch: 'full' },
+  { path: 'rules', component: SearchManagementComponent },
+  { path: 'report', component: ReportComponent }
 ];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes)
+    RouterModule.forRoot(routes, {useHash: true})
   ],
   exports: [
     RouterModule

@@ -34,10 +34,6 @@ export class SearchManagementComponent implements OnInit, OnChanges {
   private allTags = [];
   private appliedTagFilter: InputTag = null;
 
-  get self(): SearchManagementComponent {
-    return this;
-  }
-
   constructor(
     public featureToggleService: FeatureToggleService,
     private toasterService: ToasterService,
