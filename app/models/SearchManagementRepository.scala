@@ -3,16 +3,16 @@ package models
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.util.{Date, UUID}
-import javax.inject.Inject
 
+import javax.inject.Inject
 import anorm.SqlParser.get
 import anorm._
 import play.api.db.DBApi
-
 import models.FeatureToggleModel.FeatureToggleService
-import models.input.{SearchInput, SearchInputId, SearchInputWithRules, PredefinedTag, InputTag, InputTagId, TagInputAssociation}
+import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
-import models.eventhistory.{InputEvent, ActivityLog, ActivityLogEntry}
+import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
+import models.reports.RulesReport
 
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
@@ -256,6 +256,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
         ActivityLog(items = Nil)
       }
     }
+  }
+
+  /**
+    * Reports
+    */
+
+  def getRuleReport(solrIndexId: SolrIndexId): RulesReport = {
+    RulesReport.loadForSolrIndexId(solrIndexId)
   }
 
 }

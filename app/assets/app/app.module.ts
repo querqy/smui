@@ -11,7 +11,10 @@ import { Router } from '@angular/router';
 
 // services
 import {
-  FeatureToggleService, ListItemsService, RuleManagementService, SpellingsService, SolrService, TagsService, ActivityLogService
+  FeatureToggleService,
+  ListItemsService, RuleManagementService, SpellingsService,
+  SolrService, TagsService,
+  ActivityLogService, ReportService
 } from './services/index'
 
 // helpers
@@ -93,7 +96,8 @@ import {
           new HttpAuthInterceptor(xhrBackend, requestOptions, router),
       deps: [XHRBackend, RequestOptions, Router]
     },
-    ActivityLogService
+    ActivityLogService,
+    ReportService
   ],
   bootstrap: [
     AppComponent

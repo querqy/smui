@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core'
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChanges } from '@angular/core'
 import { ToasterService } from 'angular2-toaster'
 
 import { FeatureToggleService } from '../../../services/index'
@@ -12,11 +12,15 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
 
   @Input() currentSolrIndexId: string = null
 
+  @Output() selectReport: EventEmitter<string> = new EventEmitter()
+  @Output() generateReport: EventEmitter<any> = new EventEmitter()
+
   // TODO make more elegant in just one dict
-  reportSelectOptionModelKeys = ['report/rules', 'report/activity']
+  reportSelectOptionModelKeys = ['rules-report', 'activity-report']
+  // keys aligned with URL partial of /report route in /smui/conf/routes
   reportSelectOptionModel = {
-    'report/rules': 'Oldest modification of rules',
-    'report/activity': 'Latest rule management activities'
+    'rules-report': 'Oldest modification of rules',
+    'activity-report': 'Latest rule management activities'
   }
   reportSelectValue = this.reportSelectOptionModelKeys[0]
 
@@ -46,12 +50,19 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
     this.toasterService.pop('error', '', msgText);
   }
 
-  reselectReport() {
-    console.log('In ReportSettingsBarComponent :: reselectReport :: this.reportSelectValue = ' + this.reportSelectValue)
+  clickSelectReport() {
+    console.log('In ReportSettingsBarComponent :: clickSelectReport :: this.reportSelectValue = ' + this.reportSelectValue)
+    this.selectReport.emit(this.reportSelectValue)
   }
 
-  generateReport() {
-    console.log('In ReportSettingsBarComponent :: reselectReport')
+  clickGenerateReport() {
+    console.log('In ReportSettingsBarComponent :: clickGenerateReport')
+    // TODO make configDateFrom/To a datetime type
+    this.generateReport.emit({
+      'report': this.reportSelectValue,
+      'dateFrom': this.configDateFrom,
+      'dateTo': this.configDateTo
+    })
   }
 
 }

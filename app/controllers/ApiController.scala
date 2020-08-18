@@ -319,4 +319,11 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
+  def getRuleReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      val report = searchManagementRepository.getRuleReport(SolrIndexId(solrIndexId))
+      Ok(Json.toJson(report))
+    }
+  }
+
 }

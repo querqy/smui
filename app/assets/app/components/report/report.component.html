@@ -1,2 +1,14 @@
-<smui-report-settingsbar></smui-report-settingsbar>
-<h1>Hello Report</h1>
+<smui-report-settingsbar
+        (selectReport)="selectReport($event)"
+        (generateReport)="generateReport($event)"
+        #smuiReportSettingsBar>
+</smui-report-settingsbar>
+
+<table *ngIf="currentReport !== null">
+    <tr>
+        <th>Rule</th>
+    </tr>
+    <tr *ngFor="let reportItem of currentReport.items">
+        <td>{{ reportItem.rule }}</td>
+    </tr>
+</table>

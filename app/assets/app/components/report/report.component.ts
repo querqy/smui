@@ -1,7 +1,8 @@
 import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core'
 import { ToasterService } from 'angular2-toaster'
 
-import { FeatureToggleService } from '../../services/index'
+import { RulesReport } from '../../models/index';
+import { ReportService } from '../../services/index'
 
 @Component({
   selector: 'smui-report',
@@ -12,9 +13,11 @@ export class ReportComponent implements OnInit, OnChanges {
 
   @Input() currentSolrIndexId: string = null
 
+  private currentReport = null
+
   constructor(
-    public featureToggleService: FeatureToggleService,
-    private toasterService: ToasterService
+    private toasterService: ToasterService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit() {
@@ -33,6 +36,21 @@ export class ReportComponent implements OnInit, OnChanges {
 
   public showErrorMsg(msgText: string) {
     this.toasterService.pop('error', '', msgText);
+  }
+
+  selectReport(report: string) {
+    console.log('In ReportComponent :: selectReport :: report = ' + report)
+  }
+
+  generateReport(reportReq: any) {
+    console.log('In ReportComponent :: selectReport :: reportReq = ' + JSON.stringify(reportReq))
+
+    this.reportService.getActivityLog(this.currentSolrIndexId)
+      .then(retReport => {
+        console.log(':: retReport received')
+        this.currentReport = retReport
+      })
+      .catch(error => this.showErrorMsg(error))
   }
 
 }
