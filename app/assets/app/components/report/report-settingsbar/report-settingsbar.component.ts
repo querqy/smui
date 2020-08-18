@@ -19,7 +19,7 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
   reportSelectOptionModelKeys = ['rules-report', 'activity-report']
   // keys aligned with URL partial of /report route in /smui/conf/routes
   reportSelectOptionModel = {
-    'rules-report': 'Oldest modification of rules',
+    'rules-report': 'Most outdated rules (by modification date)',
     'activity-report': 'Latest rule management activities'
   }
   reportSelectValue = this.reportSelectOptionModelKeys[0]

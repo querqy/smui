@@ -4,11 +4,37 @@
         #smuiReportSettingsBar>
 </smui-report-settingsbar>
 
-<table *ngIf="currentReport !== null">
-    <tr>
-        <th>Rule</th>
-    </tr>
-    <tr *ngFor="let reportItem of currentReport.items">
-        <td>{{ reportItem.rule }}</td>
-    </tr>
-</table>
+<div *ngIf="currentReport === null"
+     style="width:100%;text-align:center;">
+    No report generated yet. Use panel above to select and generate a report.
+</div>
+
+<div *ngIf="currentReport !== null"
+    class="card card-gap">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+
+                <table>
+                    <tr>
+                        <th>
+                            Rule
+                        </th>
+                        <th>
+                            Input
+                        </th>
+                    </tr>
+                    <tr *ngFor="let reportItem of currentReport.items">
+                        <td [ngStyle]="{'text-decoration':reportItem.isActive ? null : 'line-through' }">
+                            {{ reportItem.rule }}
+                        </td>
+                        <td>
+                            {{ reportItem.input }}
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>

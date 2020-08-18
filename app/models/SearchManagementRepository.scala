@@ -262,8 +262,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     * Reports
     */
 
-  def getRuleReport(solrIndexId: SolrIndexId): RulesReport = {
-    RulesReport.loadForSolrIndexId(solrIndexId)
+  def getRulesReport(solrIndexId: SolrIndexId): RulesReport = db.withConnection {
+    implicit connection => {
+      RulesReport.loadForSolrIndexId(solrIndexId)
+    }
   }
 
 }

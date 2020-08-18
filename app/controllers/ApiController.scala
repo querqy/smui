@@ -69,6 +69,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     StreamConverters.fromInputStream(() => in)
   }
 
+  // TODO check, if method is still in use or got substituted by listAll()?
   def listAllSearchInputs(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action) {
     // TODO add error handling (database connection, other exceptions)
     Ok(Json.toJson(searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))))
@@ -319,9 +320,9 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def getRuleReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+  def getRulesReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
-      val report = searchManagementRepository.getRuleReport(SolrIndexId(solrIndexId))
+      val report = searchManagementRepository.getRulesReport(SolrIndexId(solrIndexId))
       Ok(Json.toJson(report))
     }
   }
