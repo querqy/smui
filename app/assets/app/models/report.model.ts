@@ -1,9 +1,12 @@
 export class RulesReportItem {
-  rule: string;
-  isActive: boolean;
-  input: string;
+  term: string
+  details: string
+  isActive: boolean
+  modified: string
+  inputTerm: string
+  inputModified: string
 }
 
 export class RulesReport {
-  items: Array<RulesReportItem>;
+  items: Array<RulesReportItem>
 }

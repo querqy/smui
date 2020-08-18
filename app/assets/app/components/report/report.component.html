@@ -18,18 +18,42 @@
                 <table>
                     <tr>
                         <th>
-                            Rule
+                            Term / target URL (rule)
                         </th>
                         <th>
-                            Input
+                            Details
+                        </th>
+                        <th>
+                            Rule modified
+                        </th>
+                        <th>
+                            Term (input)
+                        </th>
+                        <th>
+                            Input modified
+                        </th>
+                        <th>
+                            inputId
                         </th>
                     </tr>
                     <tr *ngFor="let reportItem of currentReport.items">
                         <td [ngStyle]="{'text-decoration':reportItem.isActive ? null : 'line-through' }">
-                            {{ reportItem.rule }}
+                            {{ reportItem.term }}
                         </td>
                         <td>
-                            {{ reportItem.input }}
+                            {{ reportItem.details }}
+                        </td>
+                        <td>
+                            {{ reportItem.modified }}
+                        </td>
+                        <td>
+                            {{ reportItem.inputTerm }}
+                        </td>
+                        <td>
+                            {{ reportItem.inputModified }}
+                        </td>
+                        <td>
+                            {{ reportItem.inputId }}
                         </td>
                     </tr>
                 </table>
