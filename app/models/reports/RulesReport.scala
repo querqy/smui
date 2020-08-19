@@ -57,7 +57,7 @@ object RulesReport extends Logging {
     // TODO consider removing i and r for the real table names
     // TODO consider making SQL business logic part of rules/spelling entities (e.g. models/rules/SynonymRule.scala)
     // TODO referencing SQL tables/fields with/without #
-    SQL"select i.id, r.#$termFieldName, r.status, r.last_update, i.term, i.status, i.last_update from #$tblInputName as i right join #$tblRuleName as r on i.id = r.#$refKeyFieldName where i.solr_index_id = $solrIndexId".as(sqlParser.*)
+    SQL"select i.id, r.#$termFieldName, r.status, r.last_update, i.term, i.status, i.last_update from #$tblInputName as i join #$tblRuleName as r on i.id = r.#$refKeyFieldName where i.solr_index_id = $solrIndexId".as(sqlParser.*)
   }
 
   private def sortAllRules(unsortedRules: Seq[RulesReportItem]): Seq[RulesReportItem] = {

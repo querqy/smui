@@ -2,7 +2,8 @@ package models
 
 import java.time.LocalDateTime
 
-import models.input.{SearchInput, SearchInputWithRules, InputTag, InputTagId}
+import models.input.{InputTag, InputTagId, SearchInput, SearchInputWithRules}
+import models.reports.RulesReport
 import models.rules._
 import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
@@ -82,6 +83,13 @@ abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData 
 
       CanonicalSpellingWithAlternatives.delete(spelling.id)
       CanonicalSpellingWithAlternatives.loadById(spelling.id) shouldBe None
+    }
+  }
+
+  "The DB (join) queries for the rules report" should "work" in {
+    db.withConnection { implicit conn =>
+      // TODO maybe add some rules/spellings
+      RulesReport.loadForSolrIndexId(indexDe.id)
     }
   }
 }
