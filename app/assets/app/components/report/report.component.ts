@@ -13,6 +13,8 @@ export class ReportComponent implements OnInit, OnChanges {
 
   @Input() currentSolrIndexId: string = null
 
+  // TODO not nice, initialised twice (see ../report-settingsbar/report-settingsbar.component.ts)
+  private currentReportType = 'rules-report'
   private currentReport = null
 
   constructor(
@@ -27,6 +29,7 @@ export class ReportComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes.currentSolrIndexId) {
       console.log('In ReportComponent :: ngOnChanges :: currentSolrIndexId = ' + changes.currentSolrIndexId)
+      this.currentReport = null
     }
   }
 
@@ -38,14 +41,15 @@ export class ReportComponent implements OnInit, OnChanges {
     this.toasterService.pop('error', '', msgText);
   }
 
-  selectReport(report: string) {
-    console.log('In ReportComponent :: selectReport :: report = ' + report)
+  selectReport(reportType: string) {
+    console.log('In ReportComponent :: selectReport :: reportType = ' + reportType)
+    this.currentReportType = reportType
   }
 
   generateReport(reportReq: any) {
     console.log('In ReportComponent :: selectReport :: reportReq = ' + JSON.stringify(reportReq))
 
-    this.reportService.getActivityLog(this.currentSolrIndexId)
+    this.reportService.getReport(this.currentSolrIndexId, this.currentReportType)
       .then(retReport => {
         console.log(':: retReport received')
         this.currentReport = retReport

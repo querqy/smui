@@ -10,9 +10,9 @@ export class ReportService {
 
   constructor(public http: Http) { }
 
-  getActivityLog(solrIndexId: string): Promise<RulesReport> {
+  getReport(solrIndexId: string, reportType: string): Promise<RulesReport> {
     return this.http
-      .get(this.baseUrl + '/report/rules-report/' + solrIndexId)
+      .get(this.baseUrl + '/report/' + reportType + '/' + solrIndexId)
       .toPromise()
       .then(res => {
         return res.json() as RulesReport;

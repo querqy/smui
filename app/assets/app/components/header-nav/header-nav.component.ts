@@ -151,19 +151,17 @@ export class HeaderNavComponent implements OnInit {
   }
 
   public loadAndShowDeploymentLogInfo(targetPlatform: string) {
-    console.log('In AppComponent :: loadAndShowDeploymentLog');
+    console.log('In AppComponent :: loadAndShowDeploymentLog')
 
-    this.hideDeploymentLogInfo = false;
-    this.deploymentLogInfo = 'Loading info for ' + targetPlatform + ' ...';
+    this.hideDeploymentLogInfo = false
+    this.deploymentLogInfo = 'Loading info for ' + targetPlatform + ' ...'
 
     this.solrService
       .lastDeploymentLogInfo(this.currentSolrIndexId, targetPlatform)
       .then(retApiResult => {
-        this.deploymentLogInfo = retApiResult.msg;
+        this.deploymentLogInfo = retApiResult.msg
       })
-      .catch(error => {
-        this.smuiModalDialog.showLongErrorMessage(error.json().message)
-      });
+      .catch(error => this.showErrorMsg(error))
   }
 
 }
