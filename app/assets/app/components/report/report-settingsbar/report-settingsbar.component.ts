@@ -16,11 +16,14 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
   @Output() generateReport: EventEmitter<any> = new EventEmitter()
 
   // TODO make more elegant in just one dict
-  reportSelectOptionModelKeys = ['rules-report', 'activity-report']
+  reportSelectOptionModelKeys = [
+    'rules-report',
+    //'activity-report'
+  ]
   // keys aligned with URL partial of /report route in /smui/conf/routes
   reportSelectOptionModel = {
     'rules-report': 'Most outdated rules (by modification date)',
-    'activity-report': 'Latest rule management activities'
+    //'activity-report': 'Latest rule management activities'
   }
   reportSelectValue = this.reportSelectOptionModelKeys[0]
 
