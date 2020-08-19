@@ -15,26 +15,28 @@
         <div class="row">
             <div class="col">
 
-                <table>
+                <table class="table">
                     <tr>
-                        <th>
+                        <th style="width:30%">
                             Term / target URL (rule)
                         </th>
-                        <th>
+                        <th style="width:10%">
                             Details
                         </th>
-                        <th>
-                            Rule modified
+                        <th style="width:15%">
+                            Rule modified <small class="fa fa-sort-desc" aria-hidden="true"></small>
                         </th>
-                        <th>
+                        <th style="width:30%">
                             Term (input)
                         </th>
-                        <th>
-                            Input modified
+                        <th style="width:15%">
+                            Input modified <small class="fa fa-sort-desc" aria-hidden="true"></small>
                         </th>
+                        <!--
                         <th>
                             inputId
                         </th>
+                        -->
                     </tr>
                     <tr *ngFor="let reportItem of currentReport.items">
                         <td [ngStyle]="{'text-decoration':reportItem.isActive ? null : 'line-through' }">
@@ -52,9 +54,11 @@
                         <td>
                             {{ reportItem.inputModified }}
                         </td>
+                        <!--
                         <td>
                             {{ reportItem.inputId }}
                         </td>
+                        -->
                     </tr>
                 </table>
 

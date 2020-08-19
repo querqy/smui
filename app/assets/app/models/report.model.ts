@@ -1,4 +1,5 @@
 export class RulesReportItem {
+  inputId: string
   term: string
   details: string
   isActive: boolean

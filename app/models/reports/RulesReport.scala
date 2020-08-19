@@ -61,17 +61,26 @@ object RulesReport extends Logging {
   }
 
   private def sortAllRules(unsortedRules: Seq[RulesReportItem]): Seq[RulesReportItem] = {
-    // TODO sort/group by: (1) ruleModified, (2) inputModified, (3) input (case! quotations!)
-    unsortedRules
+    // sort/group by: (1) modified (rule), (2) inputModified,
+    // TODO maybe sort for (3) inputTerm (case! quotations!)
+    def compareRulesReportItem(a: RulesReportItem, b: RulesReportItem): Int = {
+      if(a.modified.equals(b.modified)) {
+        a.inputModified.compareTo(b.inputModified)
+      }
+      else {
+        a.modified.compareTo(b.modified)
+      }
+    }
+    unsortedRules.sortWith((a,b) => (compareRulesReportItem(a,b) < 0))
   }
 
   def loadForSolrIndexId(solrIndexId: SolrIndexId)(implicit connection: Connection): RulesReport = {
 
-    val allSynonymRules = loadReportForTable(solrIndexId, "synonym_rule", "SYNONYM RULE")
-    val allUpDownRules = loadReportForTable(solrIndexId, "up_down_rule", "UP/DOWN RULE")
-    val allFilterRules = loadReportForTable(solrIndexId, "filter_rule", "FILTER RULE")
-    val allDeleteRules = loadReportForTable(solrIndexId, "delete_rule", "DELETE RULE")
-    val allRedirectRules = loadReportForTable(solrIndexId, "redirect_rule", "REDIRECT RULE", termFieldName = "target")
+    val allSynonymRules = loadReportForTable(solrIndexId, "synonym_rule", "SYNONYM")
+    val allUpDownRules = loadReportForTable(solrIndexId, "up_down_rule", "UP/DOWN")
+    val allFilterRules = loadReportForTable(solrIndexId, "filter_rule", "FILTER")
+    val allDeleteRules = loadReportForTable(solrIndexId, "delete_rule", "DELETE")
+    val allRedirectRules = loadReportForTable(solrIndexId, "redirect_rule", "REDIRECT", termFieldName = "target")
     val allSpellings = loadReportForTable(solrIndexId, "alternative_spelling", "SPELLING", tblInputName = "canonical_spelling", refKeyFieldName = "canonical_spelling_id")
 
     val reportItems = sortAllRules(
