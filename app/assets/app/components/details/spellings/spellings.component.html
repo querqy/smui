@@ -14,7 +14,7 @@
 <smui-card>
     <smui-button-row
             *ngIf="detailSpelling"
-            addLabel="Add new misspelling"
+            addLabel="Add alternative spelling"
             saveLabel="Save spellings"
             [disabled]="!detailSpelling.isActive"
             (handleAdd)="addNewAlternativeSpelling()"

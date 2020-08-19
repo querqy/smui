@@ -1,0 +1,31 @@
+<div class="navbar navbar-expand-sm navbar-light bg-light smui-report-settingsbar">
+    <div style="width:70%">
+        <span style="margin-right:10px">Report:</span>
+        <select class="selectpicker custom-select"
+                        (change)="clickSelectReport()"
+                        [(ngModel)]="reportSelectValue">
+            <option *ngFor="let reportItemKey of reportSelectOptionModelKeys"
+                    [value]="reportItemKey">
+                {{ reportSelectOptionModel[reportItemKey] }}
+            </option>
+        </select>
+        <!-- configure section: activity report -->
+        <ng-container
+            *ngIf="reportSelectValue === 'activity-report'">
+            <span style="margin-left:10px;margin-right:10px;">Date From:</span>
+            <input type="date" [(ngModel)]="configDateFrom">
+            <span style="margin-left:10px;margin-right:10px;">Date To:</span>
+            <input type="date" [(ngModel)]="configDateTo">
+        </ng-container>
+    </div>
+
+    <div class="btn-group" style="width:30%">
+        <button type="button"
+                class="btn btn-outline-primary"
+                style="margin-left:auto"
+                (click)="clickGenerateReport()">
+            Generate report
+        </button>
+    </div>
+
+</div>

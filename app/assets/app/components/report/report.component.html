@@ -1,0 +1,68 @@
+<smui-report-settingsbar
+        (selectReport)="selectReport($event)"
+        (generateReport)="generateReport($event)"
+        #smuiReportSettingsBar>
+</smui-report-settingsbar>
+
+<div *ngIf="currentReport === null"
+     style="width:100%;text-align:center;">
+    No report generated yet. Use panel above to select and generate a report.
+</div>
+
+<div *ngIf="currentReport !== null"
+    class="card card-gap">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+
+                <table class="table">
+                    <tr>
+                        <th style="width:30%">
+                            Term / target URL (rule)
+                        </th>
+                        <th style="width:10%">
+                            Details
+                        </th>
+                        <th style="width:15%">
+                            Rule modified <small class="fa fa-sort-desc" aria-hidden="true"></small>
+                        </th>
+                        <th style="width:30%">
+                            Term (input)
+                        </th>
+                        <th style="width:15%">
+                            Input modified <small class="fa fa-sort-desc" aria-hidden="true"></small>
+                        </th>
+                        <!--
+                        <th>
+                            inputId
+                        </th>
+                        -->
+                    </tr>
+                    <tr *ngFor="let reportItem of currentReport.items">
+                        <td [ngStyle]="{'text-decoration':reportItem.isActive ? null : 'line-through' }">
+                            {{ reportItem.term }}
+                        </td>
+                        <td>
+                            {{ reportItem.details }}
+                        </td>
+                        <td>
+                            {{ reportItem.modified }}
+                        </td>
+                        <td>
+                            {{ reportItem.inputTerm }}
+                        </td>
+                        <td>
+                            {{ reportItem.inputModified }}
+                        </td>
+                        <!--
+                        <td>
+                            {{ reportItem.inputId }}
+                        </td>
+                        -->
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
