@@ -292,7 +292,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       }
   }
 
-  case class LogDeploymentInfo(msg: String)
+  case class LogDeploymentInfo(msg: Option[String])
   implicit val logDeploymentInfoWrites = Json.writes[LogDeploymentInfo]
 
   def getLatestDeploymentResult(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
@@ -301,15 +301,37 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       logger.debug(s"... solrIndexId = $solrIndexId")
       logger.debug(s"... targetSystem = $targetSystem")
 
-      val msg = searchManagementRepository.lastDeploymentLogDetail(solrIndexId, targetSystem) match {
-        case Some(deploymentLogDetail) => {
-          val formatLastUpdate = deploymentLogDetail.lastUpdate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-          s"Last publish on $targetSystem ${formatLastUpdate} OK"
-        }
-        case None => s"No deployment event for $targetSystem"
+      // TODO make part of routes as optional parameter? GET spec for the call is a bit scattered right now ...
+      val rawReqPrm: Option[String] = request.getQueryString("raw")
+      val isRawRequested: Boolean = rawReqPrm match {
+        case Some(s) => s.equals("true")
+        case None => false
       }
-      val logDeploymentInfo = new LogDeploymentInfo(msg)
-      Ok(Json.toJson(logDeploymentInfo))
+
+      val deplLogDetail = searchManagementRepository.lastDeploymentLogDetail(solrIndexId, targetSystem)
+      def getRawVerboseDeplMsg() = {
+        if(isRawRequested) {
+          // raw date output
+          deplLogDetail match {
+            case Some(deploymentLogDetail) => {
+              LogDeploymentInfo(Some(s"${deploymentLogDetail.lastUpdate}"))
+            }
+            case None => LogDeploymentInfo(None)
+          }
+        } else {
+          // verbose output (default)
+          val msg = deplLogDetail match {
+            case Some(deploymentLogDetail) => {
+              val formatLastUpdate = deploymentLogDetail.lastUpdate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+              s"Last publish on $targetSystem ${formatLastUpdate} OK"
+            }
+            case None => s"No deployment event for $targetSystem"
+          }
+          LogDeploymentInfo(Some(msg))
+        }
+      }
+
+      Ok(Json.toJson(getRawVerboseDeplMsg()))
     }
   }
 
@@ -320,9 +342,20 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
+  /**
+    * Reports
+    */
+
   def getRulesReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       val report = searchManagementRepository.getRulesReport(SolrIndexId(solrIndexId))
+      Ok(Json.toJson(report))
+    }
+  }
+
+  def getActivityReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      val report = searchManagementRepository.getActivityReport(SolrIndexId(solrIndexId))
       Ok(Json.toJson(report))
     }
   }

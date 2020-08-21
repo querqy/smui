@@ -12,7 +12,7 @@ import models.FeatureToggleModel.FeatureToggleService
 import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
-import models.reports.RulesReport
+import models.reports.{ActivityReport, RulesReport}
 
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
@@ -265,6 +265,16 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def getRulesReport(solrIndexId: SolrIndexId): RulesReport = db.withConnection {
     implicit connection => {
       RulesReport.loadForSolrIndexId(solrIndexId)
+    }
+  }
+
+  def getActivityReport(solrIndexId: SolrIndexId): ActivityReport = db.withConnection {
+    implicit connection => {
+      // TODO get dateFrom/To from GET parameters
+      val dateFrom = LocalDateTime.now()
+      val dateTo = LocalDateTime.now()
+
+      ActivityReport.loadForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo)
     }
   }
 

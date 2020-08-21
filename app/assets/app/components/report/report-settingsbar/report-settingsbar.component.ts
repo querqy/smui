@@ -68,4 +68,25 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
     })
   }
 
+  clickSetFromDate(deployInstance: string) {
+    console.log('In ReportSettingsBarComponent :: clickSetFromDate :: deployInstance = ' + deployInstance)
+  }
+
+  clickSetToDate() {
+    console.log('In ReportSettingsBarComponent :: clickSetToDate')
+
+    // needed to convert Date
+    const withLeadingZero = function (datePart: number): string {
+      if (datePart < 10) {
+        return '0' + datePart
+      } else {
+        return '' + datePart
+      }
+    }
+
+    const now = new Date()
+    console.log(':: now = ' + now.toString())
+    this.configDateTo = now.getFullYear() + '-' + withLeadingZero(now.getMonth() + 1) + '-' + withLeadingZero(now.getDate())
+  }
+
 }

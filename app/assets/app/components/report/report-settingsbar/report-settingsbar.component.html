@@ -1,31 +1,56 @@
-<div class="navbar navbar-expand-sm navbar-light bg-light smui-report-settingsbar">
-    <div style="width:70%">
-        <span style="margin-right:10px">Report:</span>
-        <select class="selectpicker custom-select"
-                        (change)="clickSelectReport()"
-                        [(ngModel)]="reportSelectValue">
+<nav class="navbar navbar-expand-lg navbar-light bg-light smui-report-settingsbar">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <span class="smui-report-settingsbar-label">Report:</span>
+        <select class="custom-select"
+            (change)="clickSelectReport()"
+            [(ngModel)]="reportSelectValue">
             <option *ngFor="let reportItemKey of reportSelectOptionModelKeys"
                     [value]="reportItemKey">
                 {{ reportSelectOptionModel[reportItemKey] }}
             </option>
         </select>
+
         <!-- configure section: activity report -->
-        <ng-container
-            *ngIf="reportSelectValue === 'activity-report'">
-            <span style="margin-left:10px;margin-right:10px;">Date From:</span>
-            <input type="date" [(ngModel)]="configDateFrom">
-            <span style="margin-left:10px;margin-right:10px;">Date To:</span>
-            <input type="date" [(ngModel)]="configDateTo">
+        <ng-container *ngIf="reportSelectValue === 'activity-report'">
+            <span class="smui-vertical-divider"></span>
+            <span class="smui-report-settingsbar-label">Date from:</span>
+            <form class="form-inline">
+                <input class="form-control" type="date" placeholder="Report from date"
+                    [(ngModel)]="configDateFrom" [ngModelOptions]="{standalone: true}">
+            </form>
+            <div class="nav-item dropdown">
+                <div class="nav-link dropdown-toggle smui-report-set-btn" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Set
+                </div>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item smui-report-set-item" (click)="clickSetFromDate('prelive')">Latest PRELIVE deployment date</a>
+                    <a class="dropdown-item smui-report-set-item" (click)="clickSetFromDate('live')">Latest LIVE deployment date</a>
+                </div>
+            </div>
+            <span class="smui-vertical-divider"></span>
+            <span class="smui-report-settingsbar-label">to:</span>
+            <form class="form-inline">
+                <input class="form-control" type="date" placeholder="Report from to"
+                    [(ngModel)]="configDateTo" [ngModelOptions]="{standalone: true}">
+            </form>
+            <div class="nav-item dropdown">
+                <div class="nav-link dropdown-toggle smui-report-set-btn" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Set
+                </div>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item smui-report-set-item" (click)="clickSetToDate()">Now</a>
+                </div>
+            </div>
         </ng-container>
-    </div>
 
-    <div class="btn-group" style="width:30%">
-        <button type="button"
-                class="btn btn-outline-primary"
-                style="margin-left:auto"
+        <ul class="mr-auto"></ul>
+
+        <form class="form-inline">
+            <button class="btn btn-outline-primary" type="submit"
                 (click)="clickGenerateReport()">
-            Generate report
-        </button>
+                Generate report
+            </button>
+        </form>
     </div>
-
-</div>
+</nav>
