@@ -11,11 +11,12 @@ import play.api.libs.json._
 import play.api.libs.json.Reads._
 import java.nio.file.Paths
 import java.time.format.DateTimeFormatter
+import java.time.LocalDateTime
 
 import scala.concurrent.{ExecutionContext, Future}
 import controllers.auth.AuthActionFactory
 import models._
-import models.input.{SearchInputId, SearchInputWithRules, InputTagId, ListItem}
+import models.input.{InputTagId, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
 
@@ -292,12 +293,16 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       }
   }
 
-  case class LogDeploymentInfo(msg: Option[String])
-  implicit val logDeploymentInfoWrites = Json.writes[LogDeploymentInfo]
+  /**
+    * Deployment info (raw or formatted)
+    */
+
+  case class DeploymentInfo(msg: Option[String])
+  implicit val logDeploymentInfoWrites = Json.writes[DeploymentInfo]
 
   def getLatestDeploymentResult(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
-      logger.debug("In ApiController :: updateRulesTxtForSolrIndex")
+      logger.debug("In ApiController :: getLatestDeploymentResult")
       logger.debug(s"... solrIndexId = $solrIndexId")
       logger.debug(s"... targetSystem = $targetSystem")
 
@@ -314,9 +319,9 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
           // raw date output
           deplLogDetail match {
             case Some(deploymentLogDetail) => {
-              LogDeploymentInfo(Some(s"${deploymentLogDetail.lastUpdate}"))
+              DeploymentInfo(Some(s"${deploymentLogDetail.lastUpdate}"))
             }
-            case None => LogDeploymentInfo(None)
+            case None => DeploymentInfo(None)
           }
         } else {
           // verbose output (default)
@@ -327,13 +332,17 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
             }
             case None => s"No deployment event for $targetSystem"
           }
-          LogDeploymentInfo(Some(msg))
+          DeploymentInfo(Some(msg))
         }
       }
 
       Ok(Json.toJson(getRawVerboseDeplMsg()))
     }
   }
+
+  /**
+    * Activity log
+    */
 
   def getActivityLog(inputId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
@@ -343,7 +352,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   }
 
   /**
-    * Reports
+    * Reports (for Activity log as well)
     */
 
   def getRulesReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
@@ -353,10 +362,30 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def getActivityReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
-    Future {
-      val report = searchManagementRepository.getActivityReport(SolrIndexId(solrIndexId))
-      Ok(Json.toJson(report))
+  def getActivityReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] => {
+      Future {
+        val rawDateFrom: Option[String] = request.getQueryString("dateFrom")
+        val rawDateTo: Option[String] = request.getQueryString("dateTo")
+
+        // TODO switch to debug
+        logger.debug("In ApiController :: getActivityReport")
+        logger.debug(s":: rawDateFrom = $rawDateFrom")
+        logger.debug(s":: rawDateTo = $rawDateTo")
+
+        // TODO ensure aligned date pattern between frontend and backend
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        // TODO make error nicer, in case either From or To parameter did not exist
+        // fyi: hours/minutes/seconds needs to be added
+        // (see https://stackoverflow.com/questions/22463062/how-to-parse-format-dates-with-localdatetime-java-8)
+        val dateFrom = LocalDateTime.parse(s"${rawDateFrom.get} 00:00:00", formatter)
+        val dateTo = LocalDateTime.parse(s"${rawDateTo.get} 23:59:59", formatter)
+
+        logger.debug(s":: dateFrom = $dateFrom")
+        logger.debug(s":: dateTo = $dateTo")
+
+        val report = searchManagementRepository.getActivityReport(SolrIndexId(solrIndexId), dateFrom, dateTo)
+        Ok(Json.toJson(report))
+      }
     }
   }
 

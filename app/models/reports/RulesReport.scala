@@ -5,10 +5,9 @@ import java.time.LocalDateTime
 
 import anorm._
 import anorm.SqlParser.get
-
 import play.api.libs.json.{Json, OFormat}
 import play.api.Logging
-import models.SolrIndexId
+import models.{SolrIndexId, Status}
 
 case class RulesReportItem(
   inputId: String, // TODO inputType needed?
@@ -29,11 +28,6 @@ object RulesReport extends Logging {
 
   private def loadReportForTable(solrIndexId: SolrIndexId, tblRuleName: String, detailsDescr: String, termFieldName: String = "term", tblInputName: String = "search_input", refKeyFieldName: String = "search_input_id")(implicit connection: Connection): Seq[RulesReportItem] = {
 
-    // TODO consider moving this to a dedicated Status model in /app/models/input (for SearchInput and Rule as well)
-    def isActive(status: Int): Boolean = {
-      (status & 0x01) == 0x01
-    }
-
     val sqlParser: RowParser[RulesReportItem] = {
       get[String](s"$tblInputName.id") ~
         get[String](s"$tblRuleName.$termFieldName") ~
@@ -46,7 +40,7 @@ object RulesReport extends Logging {
           inputId = inputId,
           term = ruleTerm,
           details = detailsDescr,
-          isActive = isActive(ruleStatus) && isActive(inputStatus),
+          isActive = Status.isActiveFromStatus(ruleStatus) && Status.isActiveFromStatus(inputStatus),
           modified = ruleLastUpdate,
           inputTerm = inputTerm,
           inputModified = inputLastUpdate

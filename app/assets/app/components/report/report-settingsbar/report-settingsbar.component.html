@@ -3,8 +3,8 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <span class="smui-report-settingsbar-label">Report:</span>
         <select class="custom-select"
-            (change)="clickSelectReport()"
-            [(ngModel)]="reportSelectValue">
+            (ngModelChange)="clickChangeReport($event)"
+            [(ngModel)]="configReport">
             <option *ngFor="let reportItemKey of reportSelectOptionModelKeys"
                     [value]="reportItemKey">
                 {{ reportSelectOptionModel[reportItemKey] }}
@@ -12,7 +12,7 @@
         </select>
 
         <!-- configure section: activity report -->
-        <ng-container *ngIf="reportSelectValue === 'activity-report'">
+        <ng-container *ngIf="configReport === 'activity-report'">
             <span class="smui-vertical-divider"></span>
             <span class="smui-report-settingsbar-label">Date from:</span>
             <form class="form-inline">

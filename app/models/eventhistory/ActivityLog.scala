@@ -9,7 +9,8 @@ import play.api.Logging
 
 import models.input.SearchInputWithRules
 import models.rules._
-import models.spellings.{CanonicalSpellingWithAlternatives, AlternativeSpelling}
+import models.spellings.{AlternativeSpelling, CanonicalSpellingWithAlternatives}
+import models.SolrIndexId
 
 /**
   *
@@ -28,6 +29,8 @@ import models.spellings.{CanonicalSpellingWithAlternatives, AlternativeSpelling}
   * |  RULE (deleted)      |  -lapptopp-             |                     |  Paul Search Manager  |
   * |  SPELL. (created)    |                         |  lapptopp (active)  |  Paul Search Manager  |
   * |  COMM. (updated)     |  -Comment before-       |  Comment after      |  Paul Search Manager  |
+  * |  LIVE DEPLOY         |                         |  Status: OK         |  Paul Search Manager  |
+  * |  PRELIVE DEPLOY      |                         |  Status: FAIL       |  Paul Search Manager  |
   */
 case class DiffSummary(
   entity: String,
@@ -396,17 +399,15 @@ object ActivityLog extends Logging {
 
   /**
     * Interface
-    *
-    * @param id
-    * @param connection
-    * @return
     */
+
   def loadForId(id: String)(implicit connection: Connection): ActivityLog = {
 
     // get all persisted events for id
     val events = InputEvent.loadForId(id)
     if (events.isEmpty) {
       // TODO if there is not even one first CREATED event, virtually create one and reload events
+      // TODO ^--> that should have been done with migration (/smui/app/models/eventhistory/MigrationService.scala)
       return ActivityLog(Nil)
     }
     else {
@@ -435,11 +436,44 @@ object ActivityLog extends Logging {
       })
 
       ActivityLog(
-        activityLogItems
+        items = activityLogItems
           .reverse
           .filter(entry => !entry.diffSummary.isEmpty)
       )
     }
+  }
+
+  def reportForSolrIndexIdInPeriod(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): ActivityLog = {
+
+    val changedIds = InputEvent.changedInputIdsForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo)
+
+    logger.info(s":: changedIds.size = ${changedIds.size}")
+
+
+
+    // TODO load all corresponding activity log entries for the period (sorted by event date of input)
+
+
+    // TODO add deployment info (LIVE & PRELIVE)
+
+
+
+    ActivityLog(
+      items = changedIds.map(id =>
+        ActivityLogEntry(
+          formattedDateTime = "TODO formattedDateTime",
+          userInfo = Some("TODO userInfo"),
+          diffSummary = List(
+            DiffSummary(
+              entity = "TODO entity",
+              eventType = "TODO eventType",
+              before = None,
+              after = Some(s"TODO change for Id = ${id}")
+            )
+          )
+        )
+      )
+    )
   }
 
 }

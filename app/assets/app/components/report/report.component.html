@@ -1,5 +1,5 @@
 <smui-report-settingsbar
-        (selectReport)="selectReport($event)"
+        (changeReport)="changeReport($event)"
         (generateReport)="generateReport($event)"
         #smuiReportSettingsBar>
 </smui-report-settingsbar>
@@ -9,7 +9,7 @@
     No report generated yet. Use panel above to select and generate a report.
 </div>
 
-<div *ngIf="currentReport !== null"
+<div *ngIf="currentReport !== null && smuiReportSettingsBar.configReport === 'rules-report'"
     class="card card-gap">
     <div class="card-body">
         <div class="row">
@@ -60,6 +60,32 @@
                         </td>
                         -->
                     </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="currentReport !== null && smuiReportSettingsBar.configReport === 'activity-report'"
+     class="card card-gap">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+
+                <table class="table">
+                    <tr>
+                        <th>Id changed</th>
+                    </tr>
+                    <ng-container *ngFor="let reportItem of currentReport.items">
+                        <ng-container *ngFor="let summaryEntry of reportItem.diffSummary">
+                            <tr>
+                                <td>
+                                    {{ summaryEntry.after }}
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
                 </table>
 
             </div>

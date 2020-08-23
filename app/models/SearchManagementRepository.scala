@@ -5,14 +5,15 @@ import java.time.LocalDateTime
 import java.util.{Date, UUID}
 
 import javax.inject.Inject
-import anorm.SqlParser.get
-import anorm._
+
 import play.api.db.DBApi
+import anorm._
+
 import models.FeatureToggleModel.FeatureToggleService
 import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
-import models.reports.{ActivityReport, RulesReport}
+import models.reports.{DeploymentLog, RulesReport}
 
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
@@ -214,19 +215,9 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       .execute()
   }
 
-  case class DeploymentLogDetail(id: String, lastUpdate: LocalDateTime, result: Int)
-
-  val sqlParserDeploymentLogDetail: RowParser[DeploymentLogDetail] = {
-    get[String](s"deployment_log.id") ~
-      get[LocalDateTime](s"deployment_log.last_update") ~
-      get[Int](s"deployment_log.result") map { case id ~ lastUpdate ~ result =>
-      DeploymentLogDetail(id, lastUpdate, result)
-    }
-  }
-
-  def lastDeploymentLogDetail(solrIndexId: String, targetPlatform: String): Option[DeploymentLogDetail] = db.withConnection {
+  def lastDeploymentLogDetail(solrIndexId: String, targetPlatform: String): Option[DeploymentLog] = db.withConnection {
     implicit connection => {
-      SQL"select * from deployment_log where solr_index_id = $solrIndexId and target_platform = $targetPlatform order by last_update desc".as(sqlParserDeploymentLogDetail.*).headOption
+      DeploymentLog.loadForSolrIndexIdAndPlatform(solrIndexId, targetPlatform)
     }
   }
 
@@ -268,13 +259,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     }
   }
 
-  def getActivityReport(solrIndexId: SolrIndexId): ActivityReport = db.withConnection {
+  def getActivityReport(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime): ActivityLog = db.withConnection {
     implicit connection => {
-      // TODO get dateFrom/To from GET parameters
-      val dateFrom = LocalDateTime.now()
-      val dateTo = LocalDateTime.now()
-
-      ActivityReport.loadForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo)
+      // TODO ensure dateFrom/To span whole days (00:00 to 23:59)
+      ActivityLog.reportForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo)
     }
   }
 

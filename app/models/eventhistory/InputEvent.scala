@@ -4,12 +4,13 @@ import java.sql.Connection
 import java.time.LocalDateTime
 
 import play.api.libs.json._
+import play.api.Logging
 import anorm._
 import anorm.SqlParser.get
 
-import models.{Id, IdObject}
-import models.input.{SearchInputId, SearchInputWithRules}
-import models.spellings.{CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import models.{Id, IdObject, SolrIndexId}
+import models.input.{SearchInputId, SearchInputWithRules, SearchInput}
+import models.spellings.{CanonicalSpellingId, CanonicalSpellingWithAlternatives, CanonicalSpelling}
 
 /**
   * @see evolutions/default/6.sql
@@ -52,7 +53,7 @@ case class InputEvent(
 
 }
 
-object InputEvent {
+object InputEvent extends Logging {
 
   val TABLE_NAME = "input_event"
   val ID = "id"
@@ -188,6 +189,7 @@ object InputEvent {
 
   def searchInputIdsWithoutEvent()(implicit connection: Connection): Seq[SearchInputId] = {
 
+    // TODO make parser a general global definition for InputEvent
     val sqlIdParser: RowParser[String] = {
       get[String](s"${models.input.SearchInput.TABLE_NAME}.${models.input.SearchInput.ID}")
         .map {
@@ -209,6 +211,7 @@ object InputEvent {
   // TODO think about generalising belows logic for CanonicalSpellingWithAlternatives with the one above for SearchInputWithRules
   def spellingIdsWithoutEvent()(implicit connection: Connection): Seq[CanonicalSpellingId] = {
 
+    // TODO make parser a general global definition for InputEvent
     val sqlIdParser: RowParser[String] = {
       get[String](s"${models.spellings.CanonicalSpelling.TABLE_NAME}.${models.spellings.CanonicalSpelling.ID}")
         .map {
@@ -216,7 +219,8 @@ object InputEvent {
         }
     }
 
-    val eventPresentIds = SQL"select #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} from #${models.spellings.CanonicalSpelling.TABLE_NAME} inner join #$TABLE_NAME ON #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} = #$TABLE_NAME.#$INPUT_ID"
+    // TODO inner join doesn't work with HSQLDB :-(
+    val eventPresentIds = SQL"select #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} from #${models.spellings.CanonicalSpelling.TABLE_NAME} inner join #$TABLE_NAME on #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} = #$TABLE_NAME.#$INPUT_ID"
       .as(sqlIdParser.*)
       .map(sId => CanonicalSpellingId(sId))
 
@@ -225,6 +229,58 @@ object InputEvent {
       .map(sId => CanonicalSpellingId(sId))
 
     allIds.diff(eventPresentIds)
+  }
+
+  /**
+    * Determine all search_input and spelling event entities within dateFrom/To period on that SolrIndex
+    *
+    * @param solrIndexId
+    * @param dateFrom
+    * @param dateTo
+    * @param connection
+    * @return
+    */
+  // TODO consider returning List[Id]?
+  // TODO write test
+  def changedInputIdsForSolrIndexIdInPeriod(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): List[String] = {
+
+    // TODO make parser a general global definition for InputEvent
+    val sqlEventInputIdParser: RowParser[String] = {
+      get[String](s"$TABLE_NAME.$INPUT_ID")
+        .map {
+          case id => id
+        }
+    }
+
+    def matchingInputEvents(sourceTbl: String, sourceId: String, sourceRefKey: String) = SQL(s"select $INPUT_ID from $TABLE_NAME " +
+      s"join $sourceTbl on $TABLE_NAME.$INPUT_ID = $sourceTbl.$sourceId " +
+      s"where $TABLE_NAME.$EVENT_TIME >= {DATE_FROM} " +
+      s"and $TABLE_NAME.$EVENT_TIME <= {DATE_TO} " +
+      s"and $sourceTbl.$sourceRefKey = {SOLR_INDEX_ID}")
+      .on(
+        'DATE_FROM -> dateFrom,
+        'DATE_TO -> dateTo,
+        'SOLR_INDEX_ID -> solrIndexId
+      )
+      .as(sqlEventInputIdParser.*)
+
+    val matchingSearchInputEvents = matchingInputEvents(
+      models.input.SearchInput.TABLE_NAME,
+      models.input.SearchInput.ID,
+      models.input.SearchInput.SOLR_INDEX_ID
+    )
+
+    val matchingSpellingEvents = matchingInputEvents(
+      models.spellings.CanonicalSpelling.TABLE_NAME,
+      models.spellings.CanonicalSpelling.ID,
+      models.spellings.CanonicalSpelling.SOLR_INDEX_ID
+    )
+
+    logger.info(s":: matchingSearchInputEvents.size = ${matchingSearchInputEvents.size}")
+    logger.info(s":: matchingSpellingEvents.size = ${matchingSpellingEvents.size}")
+
+    matchingSearchInputEvents ++
+    matchingSpellingEvents
   }
 
 }

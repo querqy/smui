@@ -1,5 +1,7 @@
-import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core'
+import { Component, OnInit, OnChanges, Input, SimpleChanges, ViewChild } from '@angular/core'
 import { ToasterService } from 'angular2-toaster'
+
+import { ReportSettingsBarComponent } from './report-settingsbar/report-settingsbar.component'
 
 import { RulesReport } from '../../models/index';
 import { ReportService } from '../../services/index'
@@ -13,9 +15,9 @@ export class ReportComponent implements OnInit, OnChanges {
 
   @Input() currentSolrIndexId: string = null
 
-  // TODO not nice, initialised twice (see ../report-settingsbar/report-settingsbar.component.ts)
-  private currentReportType = 'rules-report'
-  private currentReport = null
+  @ViewChild('smuiReportSettingsBar') settingsBarComponent: ReportSettingsBarComponent
+
+  currentReport = null
 
   constructor(
     private toasterService: ToasterService,
@@ -41,20 +43,36 @@ export class ReportComponent implements OnInit, OnChanges {
     this.toasterService.pop('error', '', msgText);
   }
 
-  selectReport(reportType: string) {
-    console.log('In ReportComponent :: selectReport :: reportType = ' + reportType)
-    this.currentReportType = reportType
+  changeReport() {
+    console.log('In ReportComponent :: changeReport')
+    this.currentReport = null
   }
 
-  generateReport(reportReq: any) {
-    console.log('In ReportComponent :: selectReport :: reportReq = ' + JSON.stringify(reportReq))
+  generateReport() {
+    console.log('In ReportComponent :: generateReport')
+    console.log(':: settingsBarComponent.configReport = ' + this.settingsBarComponent.configReport)
+    console.log(':: settingsBarComponent.configDateFrom = ' + this.settingsBarComponent.configDateFrom)
+    console.log(':: settingsBarComponent.configDateTo = ' + this.settingsBarComponent.configDateTo)
 
-    this.reportService.getReport(this.currentSolrIndexId, this.currentReportType)
-      .then(retReport => {
-        console.log(':: retReport received')
-        this.currentReport = retReport
-      })
-      .catch(error => this.showErrorMsg(error))
+    if (this.settingsBarComponent.configReport === 'rules-report') {
+      this.reportService.getRulesReport(this.currentSolrIndexId)
+        .then(retReport => {
+          console.log(':: getRulesReport :: retReport received')
+          this.currentReport = retReport
+        })
+        .catch(error => this.showErrorMsg(error))
+    } else if (this.settingsBarComponent.configReport === 'activity-report') {
+      this.reportService.getActivityReport(
+        this.currentSolrIndexId,
+        this.settingsBarComponent.configDateFrom,
+        this.settingsBarComponent.configDateTo
+      )
+        .then(retReport => {
+          console.log(':: getActivityReport :: retReport received')
+          this.currentReport = retReport
+        })
+        .catch(error => this.showErrorMsg(error))
+    }
   }
 
 }
