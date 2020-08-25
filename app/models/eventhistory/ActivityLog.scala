@@ -407,25 +407,14 @@ object ActivityLog extends Logging {
     val events = InputEvent.loadForId(id)
     if (events.isEmpty) {
       // TODO if there is not even one first CREATED event, virtually create one and reload events
-      // TODO ^--> that should have been done with migration (/smui/app/models/eventhistory/MigrationService.scala)
+      // TODO that should have been done with migration (/smui/app/models/eventhistory/MigrationService.scala)
       return ActivityLog(Nil)
     }
     else {
 
-      // create new list with prepended dummy, non existent event
+      // create new list with prepended dummy (non existent) event
 
-      // TODO make this part of InputEvent.empty()?
-      val EMPTY_EVENT = InputEvent(
-        id = InputEventId("--NONE--"),
-        eventSource = events.head.eventSource, // !!!
-        eventType = -1, // TODO add NON_EXISTENT = Value(-1) to @see models/eventhistory/InputEvent.scala :: SmuiEventType?
-        eventTime = LocalDateTime.MIN,
-        userInfo = None,
-        inputId = "--NONE--", // semantically questionable, but the ID doesnt matter ;-)
-        None
-      )
-
-      val completeEvents = EMPTY_EVENT +: events
+      val completeEvents = InputEvent.EMPTY_EVENT(events.head.eventSource) +: events
       val pairwiseEvents = completeEvents zip completeEvents.tail
 
       // pairwise compare and map diffs to ActivityLog entries
@@ -443,37 +432,48 @@ object ActivityLog extends Logging {
     }
   }
 
+  // TODO write test
   def reportForSolrIndexIdInPeriod(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): ActivityLog = {
 
     val changedIds = InputEvent.changedInputIdsForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo)
 
     logger.info(s":: changedIds.size = ${changedIds.size}")
 
-
-
-    // TODO load all corresponding activity log entries for the period (sorted by event date of input)
-
-
-    // TODO add deployment info (LIVE & PRELIVE)
-
-
-
-    ActivityLog(
-      items = changedIds.map(id =>
-        ActivityLogEntry(
-          formattedDateTime = "TODO formattedDateTime",
-          userInfo = Some("TODO userInfo"),
-          diffSummary = List(
-            DiffSummary(
-              entity = "TODO entity",
-              eventType = "TODO eventType",
-              before = None,
-              after = Some(s"TODO change for Id = ${id}")
-            )
-          )
-        )
+    if(changedIds.isEmpty) {
+      ActivityLog(
+        items = Nil
       )
-    )
+    } else {
+
+      // load all corresponding activity log entries for the period
+
+      val activityLogItems: List[ActivityLogEntry] = changedIds.map(id => {
+        InputEvent.changeEventsForIdInPeriod(id, dateFrom, dateTo) match {
+          case Some(beforeAfterPair) => {
+            // TODO UX: point to input/rule/spelling in "Entity event type"
+            compareInputEvents(beforeAfterPair._1, beforeAfterPair._2)
+          }
+          case None => {
+            logger.error(s"IllegalState: No change for event entity with id = $id within given period (from: $dateFrom, to: $dateTo)")
+            ActivityLogEntry(
+              formattedDateTime = "error (see logs)",
+              userInfo = None,
+              diffSummary = Nil
+            )
+          }
+        }
+      })
+
+      // TODO explicit sorting, e.g.: sorted by event date of input
+      // ^--> formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+
+      // TODO add deployment info (LIVE & PRELIVE)
+      // TODO add DELETED events
+
+      ActivityLog(
+        items = activityLogItems
+      )
+    }
   }
 
 }

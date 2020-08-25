@@ -77,6 +77,17 @@ object InputEvent extends Logging {
     }
   }
 
+  // TODO make this part of InputEvent.empty()?
+  def EMPTY_EVENT(eventSource: String) = InputEvent(
+    id = InputEventId("--NONE--"),
+    eventSource = eventSource, // !!!
+    eventType = -1, // TODO add NON_EXISTENT = Value(-1) to @see models/eventhistory/InputEvent.scala :: SmuiEventType?
+    eventTime = LocalDateTime.MIN,
+    userInfo = None,
+    inputId = "--NONE--", // semantically questionable, but the ID doesnt matter ;-)
+    None
+  )
+
   private def insert(eventSource: String, eventType: SmuiEventType.Value, userInfo: Option[String], inputId: String, jsonPayload: Option[String])(implicit connection: Connection): InputEvent = {
 
     // log ERROR, in case jsonPayload exceeds 5000 character limit (@see evolutions/default/6.sql)
@@ -197,6 +208,7 @@ object InputEvent extends Logging {
         }
     }
 
+    // TODO inner join doesn't work with HSQLDB :-(
     val eventPresentIds = SQL"select #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} from #${models.input.SearchInput.TABLE_NAME} inner join #$TABLE_NAME ON #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} = #$TABLE_NAME.#$INPUT_ID"
       .as(sqlIdParser.*)
       .map(sId => SearchInputId(sId))
@@ -232,7 +244,7 @@ object InputEvent extends Logging {
   }
 
   /**
-    * Determine all search_input and spelling event entities within dateFrom/To period on that SolrIndex
+    * Determine all search_input and spelling entity IDs with change event within dateFrom/To period on that SolrIndex
     *
     * @param solrIndexId
     * @param dateFrom
@@ -252,35 +264,93 @@ object InputEvent extends Logging {
         }
     }
 
+    // helper to retrieve all changed IDs
+
+    // TODO using a join on sourceTbl to determine events valid in solrIndexId, all DELETED events will be lost!
     def matchingInputEvents(sourceTbl: String, sourceId: String, sourceRefKey: String) = SQL(s"select $INPUT_ID from $TABLE_NAME " +
       s"join $sourceTbl on $TABLE_NAME.$INPUT_ID = $sourceTbl.$sourceId " +
-      s"where $TABLE_NAME.$EVENT_TIME >= {DATE_FROM} " +
-      s"and $TABLE_NAME.$EVENT_TIME <= {DATE_TO} " +
-      s"and $sourceTbl.$sourceRefKey = {SOLR_INDEX_ID}")
+      s"where $TABLE_NAME.$EVENT_TIME >= {dateFrom} " +
+      s"and $TABLE_NAME.$EVENT_TIME <= {dateTo} " +
+      s"and $sourceTbl.$sourceRefKey = {solrIndexId}"
+    )
       .on(
-        'DATE_FROM -> dateFrom,
-        'DATE_TO -> dateTo,
-        'SOLR_INDEX_ID -> solrIndexId
+        'dateFrom -> dateFrom,
+        'dateTo -> dateTo,
+        'solrIndexId -> solrIndexId
       )
       .as(sqlEventInputIdParser.*)
+
+    // deliver only unique IDs
 
     val matchingSearchInputEvents = matchingInputEvents(
       models.input.SearchInput.TABLE_NAME,
       models.input.SearchInput.ID,
       models.input.SearchInput.SOLR_INDEX_ID
-    )
+    ).distinct
 
     val matchingSpellingEvents = matchingInputEvents(
       models.spellings.CanonicalSpelling.TABLE_NAME,
       models.spellings.CanonicalSpelling.ID,
       models.spellings.CanonicalSpelling.SOLR_INDEX_ID
-    )
+    ).distinct
 
-    logger.info(s":: matchingSearchInputEvents.size = ${matchingSearchInputEvents.size}")
-    logger.info(s":: matchingSpellingEvents.size = ${matchingSpellingEvents.size}")
+    logger.debug(s":: matchingSearchInputEvents.size = ${matchingSearchInputEvents.size}")
+    logger.debug(s":: matchingSpellingEvents.size = ${matchingSpellingEvents.size}")
 
     matchingSearchInputEvents ++
     matchingSpellingEvents
+  }
+
+  /**
+    * Determine the event pair, that describes the change of an entity within a given period (if any happened)
+    *
+    * @param inputId
+    * @param dateFrom
+    * @param dateTo
+    * @param connection
+    * @return
+    */
+  def changeEventsForIdInPeriod(inputId: String, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): Option[(InputEvent, InputEvent)] = {
+
+    val allchangeEvents = SQL(
+      s"select * from $TABLE_NAME " +
+      s"where $INPUT_ID = {inputId} " +
+      s"and $EVENT_TIME >= {dateFrom} " +
+      s"and $EVENT_TIME <= {dateTo} " +
+      s"order by event_time asc"
+    )
+      .on(
+        'inputId -> inputId,
+        'dateFrom -> dateFrom,
+        'dateTo -> dateTo
+      )
+      .as(sqlParser.*)
+
+    if(allchangeEvents.size == 0) {
+      None
+    } else if(allchangeEvents.size == 1) {
+      // find the first event before dateFrom
+      val beforeEvents = SQL(
+        s"select * from $TABLE_NAME " +
+        s"where $INPUT_ID = {inputId} " +
+        s"and $EVENT_TIME < {dateFrom} " +
+        s"order by event_time asc " +
+        s"limit 1"
+      )
+        .on(
+          'inputId -> inputId,
+          'dateFrom -> dateFrom,
+        )
+        .as(sqlParser.*)
+
+      if(beforeEvents.isEmpty) {
+        Some(EMPTY_EVENT(allchangeEvents.head.eventSource), allchangeEvents.head)
+      } else {
+        Some((beforeEvents.head, allchangeEvents.head))
+      }
+    } else {
+      Some((allchangeEvents.last, allchangeEvents.head))
+    }
   }
 
 }

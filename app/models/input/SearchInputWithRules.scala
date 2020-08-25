@@ -6,6 +6,7 @@ import models.rules._
 import models.SolrIndexId
 import play.api.libs.json.{Json, OFormat}
 
+// TODO for eventhistory persistence add solrIndexId (especially for DELETED events)
 case class SearchInputWithRules(id: SearchInputId,
                                 term: String,
                                 synonymRules: List[SynonymRule] = Nil,

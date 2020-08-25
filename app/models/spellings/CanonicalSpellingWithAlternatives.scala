@@ -5,6 +5,7 @@ import java.sql.Connection
 import models.SolrIndexId
 import play.api.libs.json.{Json, OFormat}
 
+// TODO for eventhistory persistence add solrIndexId (especially for DELETED events)
 case class CanonicalSpellingWithAlternatives(id: CanonicalSpellingId,
                                              term: String,
                                              isActive: Boolean,

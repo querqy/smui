@@ -75,13 +75,32 @@
 
                 <table class="table">
                     <tr>
-                        <th>Id changed</th>
+                        <th>Event time</th>
+                        <th>User</th>
+                        <th>Entity event type</th>
+                        <th>Before</th>
+                        <th>After</th>
                     </tr>
-                    <ng-container *ngFor="let reportItem of currentReport.items">
-                        <ng-container *ngFor="let summaryEntry of reportItem.diffSummary">
+                    <ng-container *ngFor="let logEntry of currentReport.items">
+                        <ng-container *ngFor="let diffEntry of logEntry.diffSummary">
                             <tr>
                                 <td>
-                                    {{ summaryEntry.after }}
+                                    {{ logEntry.formattedDateTime }}
+                                </td>
+
+                                <td>
+                                    {{ logEntry.hasOwnProperty('userInfo') ? logEntry.userInfo : '' }}
+                                </td>
+                                <td>
+                                    {{ diffEntry.entity }} ({{ diffEntry.eventType }}):
+                                </td>
+
+                                <td>
+                                    {{ diffEntry.hasOwnProperty('before') ? diffEntry.before : '' }}
+                                </td>
+
+                                <td>
+                                    {{ diffEntry.hasOwnProperty('after') ? diffEntry.after : '' }}
                                 </td>
                             </tr>
                         </ng-container>
