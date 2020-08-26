@@ -313,6 +313,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         case None => false
       }
 
+      logger.debug(s"... isRawRequested = $isRawRequested")
+
       val deplLogDetail = searchManagementRepository.lastDeploymentLogDetail(solrIndexId, targetSystem)
       def getRawVerboseDeplMsg() = {
         if(isRawRequested) {

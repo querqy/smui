@@ -312,7 +312,7 @@ object InputEvent extends Logging {
     */
   def changeEventsForIdInPeriod(inputId: String, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): Option[(InputEvent, InputEvent)] = {
 
-    val allchangeEvents = SQL(
+    val allChangeEvents = SQL(
       s"select * from $TABLE_NAME " +
       s"where $INPUT_ID = {inputId} " +
       s"and $EVENT_TIME >= {dateFrom} " +
@@ -326,9 +326,9 @@ object InputEvent extends Logging {
       )
       .as(sqlParser.*)
 
-    if(allchangeEvents.size == 0) {
+    if(allChangeEvents.size == 0) {
       None
-    } else if(allchangeEvents.size == 1) {
+    } else if(allChangeEvents.size == 1) {
       // find the first event before dateFrom
       val beforeEvents = SQL(
         s"select * from $TABLE_NAME " +
@@ -344,12 +344,12 @@ object InputEvent extends Logging {
         .as(sqlParser.*)
 
       if(beforeEvents.isEmpty) {
-        Some(EMPTY_EVENT(allchangeEvents.head.eventSource), allchangeEvents.head)
+        Some(EMPTY_EVENT(allChangeEvents.head.eventSource), allChangeEvents.head)
       } else {
-        Some((beforeEvents.head, allchangeEvents.head))
+        Some((beforeEvents.head, allChangeEvents.head))
       }
     } else {
-      Some((allchangeEvents.last, allchangeEvents.head))
+      Some((allChangeEvents.last, allChangeEvents.head))
     }
   }
 

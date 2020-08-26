@@ -1,7 +1,7 @@
 import { Component, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChanges } from '@angular/core'
 import { ToasterService } from 'angular2-toaster'
 
-import { FeatureToggleService } from '../../../services/index'
+import { FeatureToggleService, SolrService } from '../../../services/index'
 
 @Component({
   selector: 'smui-report-settingsbar',
@@ -32,7 +32,8 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
 
   constructor(
     public featureToggleService: FeatureToggleService,
-    private toasterService: ToasterService
+    private toasterService: ToasterService,
+    private solrService: SolrService
   ) {}
 
   ngOnInit() {
@@ -58,12 +59,8 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
     this.changeReport.emit()
   }
 
-  clickSetFromDate(deployInstance: string) {
-    console.log('In ReportSettingsBarComponent :: clickSetFromDate :: deployInstance = ' + deployInstance)
-  }
-
-  clickSetToDate() {
-    console.log('In ReportSettingsBarComponent :: clickSetToDate')
+  // TODO not too nice - maybe use UX component, that can handle Date directly in future ...
+  private dateToFrontendString(d: Date) {
 
     // needed to convert Date
     const withLeadingZero = function (datePart: number): string {
@@ -74,9 +71,39 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
       }
     }
 
+    return d.getFullYear() + '-'
+      + withLeadingZero(d.getMonth() + 1) + '-'
+      + withLeadingZero(d.getDate())
+  }
+
+  clickSetFromDate(deployInstance: string) {
+    console.log('In ReportSettingsBarComponent :: clickSetFromDate :: deployInstance = ' + deployInstance)
+    console.log(':: this.currentSolrIndexId = ' + this.currentSolrIndexId)
+    this.solrService.lastDeploymentLogInfo(
+      this.currentSolrIndexId,
+      deployInstance,
+      true
+    )
+      .then(retDeplInfo => {
+        console.log(':: clickSetFromDate :: retDeplInfo = ' + JSON.stringify(retDeplInfo))
+        // TODO make date format backend/frontend definitions more robust
+        // assume date to be in format, e.g.: 2020-02-16T23:59:12 (within msg field)
+        if (retDeplInfo.hasOwnProperty('msg')) {
+          this.configDateFrom = this.dateToFrontendString(new Date(Date.parse(retDeplInfo.msg)))
+        } else {
+          this.configDateFrom = null
+        }
+      })
+      .catch(error => this.showErrorMsg(error))
+  }
+
+  clickSetToDate() {
+    console.log('In ReportSettingsBarComponent :: clickSetToDate')
+
+
     const now = new Date()
     console.log(':: now = ' + now.toString())
-    this.configDateTo = now.getFullYear() + '-' + withLeadingZero(now.getMonth() + 1) + '-' + withLeadingZero(now.getDate())
+    this.configDateTo = this.dateToFrontendString(now)
   }
 
   clickGenerateReport() {
