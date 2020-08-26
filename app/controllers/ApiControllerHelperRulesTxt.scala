@@ -225,7 +225,7 @@ object ApiControllerHelperRulesTxt {
         Nil,
         Seq.empty[InputTag],
         true,
-        "Added by rules.txt import." // TODO add a timestamp.
+        "Added by rules.txt import." // TODO add a timestamp to comment.
       )
     }
     val finalInputs = importPrelimSearchInputs.map(preliminaryToFinalInput(_))
@@ -255,7 +255,7 @@ object ApiControllerHelperRulesTxt {
           input.redirectRules,
           input.tags,
           true,
-          "Added by rules.txt import." // TODO add a timestamp.
+          "Added by rules.txt import." // TODO add a timestamp to comment.
         )
       }
       // first create entity

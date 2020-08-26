@@ -7,10 +7,9 @@ import play.api.libs.json._
 import play.api.Logging
 import anorm._
 import anorm.SqlParser.get
-
 import models.{Id, IdObject, SolrIndexId}
-import models.input.{SearchInputId, SearchInputWithRules, SearchInput}
-import models.spellings.{CanonicalSpellingId, CanonicalSpellingWithAlternatives, CanonicalSpelling}
+import models.input.{FullSearchInputWithRules, SearchInput, SearchInputId, SearchInputWithRules}
+import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives, FullCanonicalSpellingWithAlternatives}
 
 /**
   * @see evolutions/default/6.sql
@@ -114,23 +113,25 @@ object InputEvent extends Logging {
    * CRUD events for SearchInputWithRules
    */
 
-  def createForSearchInput(input: SearchInputWithRules, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
+  def createForSearchInput(inputId: SearchInputId, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
+    val fullInput = FullSearchInputWithRules.loadById(inputId).get
     insert(
       SmuiEventSource.SEARCH_INPUT,
       if (virtuallyCreated) SmuiEventType.VIRTUALLY_CREATED else SmuiEventType.CREATED,
       userInfo,
-      input.id.id,
-      Some(Json.toJson(input).toString())
+      fullInput.id.id,
+      Some(Json.toJson(fullInput).toString())
     )
   }
 
-  def updateForSearchInput(input: SearchInputWithRules, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
+  def updateForSearchInput(inputId: SearchInputId, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
+    val fullInput = FullSearchInputWithRules.loadById(inputId).get
     insert(
       SmuiEventSource.SEARCH_INPUT,
       SmuiEventType.UPDATED,
       userInfo,
-      input.id.id,
-      Some(Json.toJson(input).toString())
+      fullInput.id.id,
+      Some(Json.toJson(fullInput).toString())
     )
   }
 
@@ -151,23 +152,25 @@ object InputEvent extends Logging {
    */
   // TODO think about generalising belows logic for CanonicalSpellingWithAlternatives with the one above for SearchInputWithRules
 
-  def createForSpelling(input: CanonicalSpellingWithAlternatives, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
+  def createForSpelling(inputId: CanonicalSpellingId, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
+    val fullSpelling = FullCanonicalSpellingWithAlternatives.loadById(inputId).get
     insert(
       SmuiEventSource.SPELLING,
       if (virtuallyCreated) SmuiEventType.VIRTUALLY_CREATED else SmuiEventType.CREATED,
       userInfo,
-      input.id.id,
-      Some(Json.toJson(input).toString())
+      fullSpelling.id.id,
+      Some(Json.toJson(fullSpelling).toString())
     )
   }
 
-  def updateForSpelling(input: CanonicalSpellingWithAlternatives, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
+  def updateForSpelling(inputId: CanonicalSpellingId, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
+    val fullSpelling = FullCanonicalSpellingWithAlternatives.loadById(inputId).get
     insert(
       SmuiEventSource.SPELLING,
       SmuiEventType.UPDATED,
       userInfo,
-      input.id.id,
-      Some(Json.toJson(input).toString())
+      fullSpelling.id.id,
+      Some(Json.toJson(fullSpelling).toString())
     )
   }
 

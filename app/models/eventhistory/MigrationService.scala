@@ -38,7 +38,7 @@ class MigrationService @Inject()(dbapi: DBApi, toggleService: FeatureToggleServi
 
         missingSearchInputIds.map(id => {
           InputEvent.createForSearchInput(
-            SearchInputWithRules.loadById(id).get,
+            id,
             None,
             true
           )
@@ -46,7 +46,7 @@ class MigrationService @Inject()(dbapi: DBApi, toggleService: FeatureToggleServi
 
         missingSpellingIds.map(id => {
           InputEvent.createForSpelling(
-            CanonicalSpellingWithAlternatives.loadById(id).get,
+            id,
             None,
             true
           )

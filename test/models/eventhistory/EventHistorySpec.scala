@@ -2,9 +2,9 @@ package models.eventhistory
 
 import java.time.LocalDateTime
 
-import models.{ApplicationTestBase}
-import models.input.{SearchInputId, SearchInputWithRules}
-import models.spellings.{AlternativeSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import models.ApplicationTestBase
+import models.input.{FullSearchInputWithRules, SearchInputId, SearchInputWithRules}
+import models.spellings.{AlternativeSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives, FullCanonicalSpellingWithAlternatives}
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.libs.json.Json
 
@@ -44,9 +44,11 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
       inputEvents0(0).inputId shouldBe inputIds(0).id
 
       // whole payload should match
-      val readSearchInput0 = Json.parse(inputEvents0(1).jsonPayload.get).validate[SearchInputWithRules].asOpt.get
+      val readSearchInput0 = Json.parse(inputEvents0(1).jsonPayload.get).validate[FullSearchInputWithRules].asOpt.get
       readSearchInput0.term shouldBe "aerosmith"
       readSearchInput0.isActive shouldBe true
+      // ... incl a solrIndexId
+      readSearchInput0.solrIndexId shouldBe core1Id
     }
   }
 
@@ -65,9 +67,11 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
       spellingEvents0(0).inputId shouldBe spellingIds(0).id
 
       // whole payload should match
-      val readSpelling0 = Json.parse(spellingEvents0(1).jsonPayload.get).validate[CanonicalSpellingWithAlternatives].asOpt.get
+      val readSpelling0 = Json.parse(spellingEvents0(1).jsonPayload.get).validate[FullCanonicalSpellingWithAlternatives].asOpt.get
       readSpelling0.term shouldBe "freezer"
       readSpelling0.isActive shouldBe true
+      // ... incl a solrIndexId
+      readSpelling0.solrIndexId shouldBe core1Id
     }
   }
 

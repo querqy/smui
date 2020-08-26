@@ -1,16 +1,17 @@
 package models.spellings
 
 import java.sql.Connection
+import java.time.LocalDateTime
 
 import models.SolrIndexId
 import play.api.libs.json.{Json, OFormat}
 
-// TODO for eventhistory persistence add solrIndexId (especially for DELETED events)
 case class CanonicalSpellingWithAlternatives(id: CanonicalSpellingId,
                                              term: String,
                                              isActive: Boolean,
                                              comment: String,
-                                             alternativeSpellings: List[AlternativeSpelling] = Nil) {
+                                             alternativeSpellings: List[AlternativeSpelling] = Nil
+                                            ) {
 
   def exportToReplaceFile: Boolean = {
     this.term.nonEmpty && alternativeSpellings.nonEmpty
@@ -27,8 +28,11 @@ object CanonicalSpellingWithAlternatives {
 
     canonicalSpellings.map { canonicalSpelling =>
       CanonicalSpellingWithAlternatives(
-        canonicalSpelling.id, canonicalSpelling.term, canonicalSpelling.isActive, canonicalSpelling.comment,
-        alternativeSpellings.getOrElse(canonicalSpelling.id, Seq.empty).toList
+        canonicalSpelling.id,
+        canonicalSpelling.term,
+        canonicalSpelling.isActive,
+        canonicalSpelling.comment,
+        alternativeSpellings = alternativeSpellings.getOrElse(canonicalSpelling.id, Seq.empty).toList
       )
     }
   }
@@ -36,8 +40,11 @@ object CanonicalSpellingWithAlternatives {
   def loadById(id: CanonicalSpellingId)(implicit connection: Connection): Option[CanonicalSpellingWithAlternatives] = {
     CanonicalSpelling.loadById(id).map { canonicalSpelling =>
       CanonicalSpellingWithAlternatives(
-        canonicalSpelling.id, canonicalSpelling.term, canonicalSpelling.isActive, canonicalSpelling.comment,
-        AlternativeSpelling.loadByCanonicalId(id)
+        canonicalSpelling.id,
+        canonicalSpelling.term,
+        canonicalSpelling.isActive,
+        canonicalSpelling.comment,
+        alternativeSpellings = AlternativeSpelling.loadByCanonicalId(id)
       )
     }
   }

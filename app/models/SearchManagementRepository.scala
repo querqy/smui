@@ -81,7 +81,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       // add CREATED event for spelling
       if (toggleService.getToggleActivateEventHistory) {
         InputEvent.createForSpelling(
-          CanonicalSpellingWithAlternatives.loadById(spelling.id).get,
+          spelling.id,
           None, // TODO userInfo not being logged so far
           false
         )
@@ -102,7 +102,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       // add UPDATED event for spelling and associated alternatives
       if (toggleService.getToggleActivateEventHistory) {
         InputEvent.updateForSpelling(
-          CanonicalSpellingWithAlternatives.loadById(spelling.id).get,
+          spelling.id,
           None // TODO userInfo not being logged so far
         )
       }
@@ -152,7 +152,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     // add CREATED event for search input (maybe containing tags)
     if (toggleService.getToggleActivateEventHistory) {
       InputEvent.createForSearchInput(
-        SearchInputWithRules.loadById(id).get,
+        id,
         None, // TODO userInfo not being logged so far
         false
       )
@@ -171,7 +171,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     // add UPDATED event for search input and rules
     if (toggleService.getToggleActivateEventHistory) {
       InputEvent.updateForSearchInput(
-        SearchInputWithRules.loadById(searchInput.id).get,
+        searchInput.id,
         None // TODO userInfo not being logged so far
       )
     }
