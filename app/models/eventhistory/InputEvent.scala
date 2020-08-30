@@ -7,9 +7,10 @@ import play.api.libs.json._
 import play.api.Logging
 import anorm._
 import anorm.SqlParser.get
+
 import models.{Id, IdObject, SolrIndexId}
-import models.input.{FullSearchInputWithRules, SearchInput, SearchInputId, SearchInputWithRules}
-import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives, FullCanonicalSpellingWithAlternatives}
+import models.input.{SearchInputId, FullSearchInputWithRules}
+import models.spellings.{CanonicalSpellingId, FullCanonicalSpellingWithAlternatives}
 
 /**
   * @see evolutions/default/6.sql
@@ -19,6 +20,15 @@ object SmuiEventType extends Enumeration {
   val UPDATED = Value(1)
   val DELETED = Value(2)
   val VIRTUALLY_CREATED = Value(3)
+
+  // TODO maybe there is a more elegant option?
+  def toSmuiEventType(rawEventType: Int) = rawEventType match {
+    case 0 => CREATED
+    case 1 => UPDATED
+    case 2 => DELETED
+    case 3 => VIRTUALLY_CREATED
+    // case _ => TODO throw an IllegalState exception
+  }
 }
 
 object SmuiEventSource extends Enumeration {
@@ -75,17 +85,6 @@ object InputEvent extends Logging {
           InputEvent(id, eventSource, eventTypeRaw, eventTime, userInfo, inputId, jsonPayload)
     }
   }
-
-  // TODO make this part of InputEvent.empty()?
-  def EMPTY_EVENT(eventSource: String) = InputEvent(
-    id = InputEventId("--NONE--"),
-    eventSource = eventSource, // !!!
-    eventType = -1, // TODO add NON_EXISTENT = Value(-1) to @see models/eventhistory/InputEvent.scala :: SmuiEventType?
-    eventTime = LocalDateTime.MIN,
-    userInfo = None,
-    inputId = "--NONE--", // semantically questionable, but the ID doesnt matter ;-)
-    None
-  )
 
   private def insert(eventSource: String, eventType: SmuiEventType.Value, userInfo: Option[String], inputId: String, jsonPayload: Option[String])(implicit connection: Connection): InputEvent = {
 
@@ -257,51 +256,41 @@ object InputEvent extends Logging {
     */
   // TODO consider returning List[Id]?
   // TODO write test
+  // TODO maybe merge implementations of changedInputIdsForSolrIndexIdInPeriod() and changeEventsForIdInPeriod() (below) to reduce amount of SQL requests against database (performance)
   def changedInputIdsForSolrIndexIdInPeriod(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): List[String] = {
 
-    // TODO make parser a general global definition for InputEvent
-    val sqlEventInputIdParser: RowParser[String] = {
-      get[String](s"$TABLE_NAME.$INPUT_ID")
-        .map {
-          case id => id
-        }
-    }
-
-    // helper to retrieve all changed IDs
-
-    // TODO using a join on sourceTbl to determine events valid in solrIndexId, all DELETED events will be lost!
-    def matchingInputEvents(sourceTbl: String, sourceId: String, sourceRefKey: String) = SQL(s"select $INPUT_ID from $TABLE_NAME " +
-      s"join $sourceTbl on $TABLE_NAME.$INPUT_ID = $sourceTbl.$sourceId " +
-      s"where $TABLE_NAME.$EVENT_TIME >= {dateFrom} " +
-      s"and $TABLE_NAME.$EVENT_TIME <= {dateTo} " +
-      s"and $sourceTbl.$sourceRefKey = {solrIndexId}"
+    val allChangeEvents = SQL(
+      s"select * from $TABLE_NAME " +
+        s"where $EVENT_TIME >= {dateFrom} " +
+        s"and $EVENT_TIME <= {dateTo} " +
+        s"order by event_time asc"
     )
       .on(
         'dateFrom -> dateFrom,
-        'dateTo -> dateTo,
-        'solrIndexId -> solrIndexId
+        'dateTo -> dateTo
       )
-      .as(sqlEventInputIdParser.*)
+      .as(sqlParser.*)
 
-    // deliver only unique IDs
+    allChangeEvents
+      .filter(e => {
+        e.eventSource match {
+          case SmuiEventSource.SEARCH_INPUT => {
+            // TODO log error in case JSON read validation fails
+            val searchInput = Json.parse(e.jsonPayload.get).validate[FullSearchInputWithRules].asOpt.get
+            searchInput.solrIndexId.equals(solrIndexId)
+          }
+          case SmuiEventSource.SPELLING => {
+            // TODO log error in case JSON read validation fails
+            val spelling = Json.parse(e.jsonPayload.get).validate[FullCanonicalSpellingWithAlternatives].asOpt.get
+            spelling.solrIndexId.equals(solrIndexId)
+          }
+        }
+      })
+      .map(e => {
+        e.id.id
+      })
+      .distinct
 
-    val matchingSearchInputEvents = matchingInputEvents(
-      models.input.SearchInput.TABLE_NAME,
-      models.input.SearchInput.ID,
-      models.input.SearchInput.SOLR_INDEX_ID
-    ).distinct
-
-    val matchingSpellingEvents = matchingInputEvents(
-      models.spellings.CanonicalSpelling.TABLE_NAME,
-      models.spellings.CanonicalSpelling.ID,
-      models.spellings.CanonicalSpelling.SOLR_INDEX_ID
-    ).distinct
-
-    logger.debug(s":: matchingSearchInputEvents.size = ${matchingSearchInputEvents.size}")
-    logger.debug(s":: matchingSpellingEvents.size = ${matchingSpellingEvents.size}")
-
-    matchingSearchInputEvents ++
-    matchingSpellingEvents
   }
 
   /**
@@ -313,7 +302,7 @@ object InputEvent extends Logging {
     * @param connection
     * @return
     */
-  def changeEventsForIdInPeriod(inputId: String, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): Option[(InputEvent, InputEvent)] = {
+  def changeEventsForIdInPeriod(inputId: String, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): (Option[InputEvent], Option[InputEvent]) = {
 
     val allChangeEvents = SQL(
       s"select * from $TABLE_NAME " +
@@ -330,7 +319,8 @@ object InputEvent extends Logging {
       .as(sqlParser.*)
 
     if(allChangeEvents.size == 0) {
-      None
+      // No change can be detected for input (ID) in period
+      (None, None)
     } else if(allChangeEvents.size == 1) {
       // find the first event before dateFrom
       val beforeEvents = SQL(
@@ -347,12 +337,12 @@ object InputEvent extends Logging {
         .as(sqlParser.*)
 
       if(beforeEvents.isEmpty) {
-        Some(EMPTY_EVENT(allChangeEvents.head.eventSource), allChangeEvents.head)
+        (Some(allChangeEvents.head), None)
       } else {
-        Some((beforeEvents.head, allChangeEvents.head))
+        (Some(beforeEvents.head), Some(allChangeEvents.head))
       }
     } else {
-      Some((allChangeEvents.last, allChangeEvents.head))
+      (Some(allChangeEvents.last), Some(allChangeEvents.head))
     }
   }
 

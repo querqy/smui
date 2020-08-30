@@ -451,4 +451,26 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
     }
   }
 
+  /**
+    * Test Activity Report for all the changes done above (especially for DELETED events).
+    */
+
+  "ActivityReport" should "inform about all changes for search input & spellings (incl deletion)" in {
+    db.withConnection { implicit conn =>
+
+      val tEnd = LocalDateTime.now()
+
+      val activityReport = ActivityLog.reportForSolrIndexIdInPeriod(core1Id, tStart, tEnd)
+
+      println(s"activityReport = >>>$activityReport")
+
+      activityReport.items.size shouldBe 10
+
+
+
+    }
+  }
+
+  // TODO add test for ActivityReport incl a deployment to PRELIVE/LIVE
+
 }
