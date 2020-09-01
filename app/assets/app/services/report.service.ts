@@ -15,6 +15,7 @@ export class ReportService {
       .get(this.baseUrl + '/report/rules-report/' + solrIndexId)
       .toPromise()
       .then(res => {
+        // TODO convert backend date to readable format: yyyy-MM-dd HH:mm:ss
         return res.json() as RulesReport;
       })
   }

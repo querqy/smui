@@ -62,6 +62,7 @@ object DiffSummary {
 }
 
 case class ActivityLogEntry(
+  // TODO be homogeneous in delivering a date as raw LocalDateTime (see /smui/app/models/reports/RulesReport.scala) from backend - the date should be converted on the frontend
   formattedDateTime: String,
   userInfo: Option[String],
   diffSummary: Seq[DiffSummary]
@@ -124,8 +125,8 @@ object ActivityLog extends Logging {
   private class AssociationWrapper(association: Any) {
 
     def headline = association match {
-      case Rule => DiffSummary.HEADLINE.RULE
-      case AlternativeSpelling => DiffSummary.HEADLINE.ALT_SPELLING
+      case _: Rule => DiffSummary.HEADLINE.RULE
+      case _: AlternativeSpelling => DiffSummary.HEADLINE.ALT_SPELLING
     }
 
     def id = association match {
@@ -333,64 +334,78 @@ object ActivityLog extends Logging {
     * @param afterEvent
     * @return
     */
-  private def processInputEvents(beforeEvent: InputEvent, afterEvent: Option[InputEvent]): ActivityLogEntry = {
+  private def processInputEvents(beforeEvent: Option[InputEvent], afterEvent: InputEvent): ActivityLogEntry = {
 
     // support the following valid event constellations:
     // before -> after    | compare activity
     // ~~~~~~~~~~~~~~~~~~ | ~~~~~~~~~~~~~~~~
-    // CREATED -> None    | output all contents of beforeEvent as after, before = empty
-    // CREATED -> DELETED | output all contents of beforeEvent as before, after = empty
-    // CREATED -> UPDATED | output diff of before/after
-    // UPDATED -> UPDATED | output diff of before/after
-    // UPDATED -> DELETED | output all contents of beforeEvent as before, after = empty
+    // None    -> CREATED | event, output all contents of beforeEvent as after, before = empty
+    // CREATED -> DELETED | events, output all contents of beforeEvent as before, after = empty
+    // CREATED -> UPDATED | events, output diff of before/after
+    // UPDATED -> UPDATED | events, output diff of before/after
+    // UPDATED -> DELETED | events, output all contents of beforeEvent as before, after = empty
     // (important: CREATED and VIRTUALLY_CREATED are equal in that context)
 
-    val afterEventType = afterEvent match {
+    val beforeEventType = beforeEvent match {
       case None => None
       case Some(e) => Some(SmuiEventType.toSmuiEventType(e.eventType))
     }
 
-    val wrappedBefore = new InputWrapper(beforeEvent)
+    val USER_INFO_MIGRATION = "SMUI system (pre v3.8 migration)"
 
-    (SmuiEventType.toSmuiEventType(beforeEvent.eventType), afterEventType) match {
-      case (SmuiEventType.CREATED, None)
-        | (SmuiEventType.VIRTUALLY_CREATED, None) => {
+    def virtualUserInfo(eventUserInfo: Option[String], rawEventType: Int) = {
+      eventUserInfo match {
+        case None => {
+          if(SmuiEventType.toSmuiEventType(rawEventType).equals(SmuiEventType.VIRTUALLY_CREATED))
+            Some(USER_INFO_MIGRATION)
+          else
+            None
+        }
+        case Some(i) => Some(i)
+      }
+    }
+
+    val wrappedAfter = new InputWrapper(afterEvent)
+
+    (beforeEventType, SmuiEventType.toSmuiEventType(afterEvent.eventType)) match {
+      case (None, SmuiEventType.CREATED)
+        | (None, SmuiEventType.VIRTUALLY_CREATED) => {
 
         ActivityLogEntry(
-          formattedDateTime = beforeEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-          userInfo = beforeEvent.userInfo,
-          diffSummary = outputBeforeEvent(wrappedBefore, SmuiEventType.CREATED, true)
+          formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+          userInfo = virtualUserInfo(afterEvent.userInfo, afterEvent.eventType),
+          diffSummary = outputBeforeEvent(wrappedAfter, SmuiEventType.CREATED, false)
         )
 
       }
-      case (SmuiEventType.CREATED, Some(SmuiEventType.DELETED))
-        | (SmuiEventType.VIRTUALLY_CREATED, Some(SmuiEventType.DELETED))
-        | (SmuiEventType.UPDATED, Some(SmuiEventType.DELETED)) => {
+      case (Some(SmuiEventType.CREATED), SmuiEventType.DELETED)
+        | (Some(SmuiEventType.VIRTUALLY_CREATED), SmuiEventType.DELETED)
+        | (Some(SmuiEventType.UPDATED), SmuiEventType.DELETED) => {
 
-        val wrappedAfter = new InputWrapper(afterEvent.get)
+        val wrappedBefore = new InputWrapper(beforeEvent.get)
 
         ActivityLogEntry(
-          formattedDateTime = afterEvent.get.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-          userInfo = afterEvent.get.userInfo,
-          diffSummary = outputBeforeEvent(wrappedAfter, SmuiEventType.DELETED, false)
+          formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+          userInfo = virtualUserInfo(afterEvent.userInfo, afterEvent.eventType),
+          diffSummary = outputBeforeEvent(wrappedAfter, SmuiEventType.DELETED, true)
         )
 
       }
-      case (SmuiEventType.CREATED, Some(SmuiEventType.UPDATED))
-        | (SmuiEventType.VIRTUALLY_CREATED, Some(SmuiEventType.UPDATED))
-        | (SmuiEventType.UPDATED, Some(SmuiEventType.UPDATED)) => {
+      case (Some(SmuiEventType.CREATED), SmuiEventType.UPDATED)
+        | (Some(SmuiEventType.VIRTUALLY_CREATED), SmuiEventType.UPDATED)
+        | (Some(SmuiEventType.UPDATED), SmuiEventType.UPDATED) => {
 
-        val wrappedAfter = new InputWrapper(afterEvent.get)
+        val wrappedBefore = new InputWrapper(beforeEvent.get)
 
         ActivityLogEntry(
-          formattedDateTime = afterEvent.get.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-          userInfo = afterEvent.get.userInfo,
+          formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+          userInfo = virtualUserInfo(afterEvent.userInfo, afterEvent.eventType),
           diffSummary = outputDiff(wrappedBefore, wrappedAfter)
         )
 
       }
       case _ => {
-        logger.error(s"IllegalState: processInputEvents found event chain (${SmuiEventType.toSmuiEventType(beforeEvent.eventType)} -> ${afterEventType})")
+        logger.error(s"IllegalState: processInputEvents found event chain ($beforeEventType, ${afterEvent.eventType})")
         // TODO maybe throw IllegalState exception instead
         ActivityLogEntry(
           formattedDateTime = "error (see log)",
@@ -417,20 +432,19 @@ object ActivityLog extends Logging {
     else {
 
       // create new list of pairwise events
-      // (important: 2nd element should be an Option)
+      // (important: 1st element must be an Option)
 
-      val pairwiseEvents = if(events.size == 1)
-          List((events.head -> None))
-        else
-          (events zip events.tail)
-            .map(eventPair => {
-              (eventPair._1, Some(eventPair._2))
-            })
+      val allEvents = (List(None) ++ events.map(e => Some(e)))
+      val pairwiseEvents =
+        (allEvents zip allEvents.tail)
+        .map(eventPair =>
+          (eventPair._1, eventPair._2)
+        )
 
       // pairwise compare and map diffs to ActivityLog entries
 
       val activityLogItems = pairwiseEvents.map( eventPair => {
-        processInputEvents(eventPair._1, eventPair._2)
+        processInputEvents(eventPair._1, eventPair._2.get)
       })
 
       ActivityLog(
@@ -443,7 +457,7 @@ object ActivityLog extends Logging {
 
   def reportForSolrIndexIdInPeriod(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): ActivityLog = {
 
-    val changedIds = InputEvent.changedInputIdsForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo)
+    val changedIds = InputEvent.allChangedInputIdsForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo)
 
     logger.info(s":: changedIds.size = ${changedIds.size}")
 
@@ -456,35 +470,20 @@ object ActivityLog extends Logging {
       // load all corresponding activity log entries for the period
 
       val activityLogItems: List[ActivityLogEntry] = changedIds.map(id => {
-        InputEvent.changeEventsForIdInPeriod(id, dateFrom, dateTo) match {
-          case (Some(before), Some(after)) => {
-            // TODO UX: point to input/rule/spelling in "Entity event type"
-            processInputEvents(before, Some(after))
-          }
-          case (None, None) => {
-            logger.error(s"IllegalState: No change for event entity with id = $id within given period (from: $dateFrom, to: $dateTo)")
-            ActivityLogEntry(
-              formattedDateTime = "error (see logs)",
-              userInfo = None,
-              diffSummary = Nil
-            )
-          }
-          case _ => {
-            logger.error(s"IllegalState: unexpected match on InputEvent.changeEventsForIdInPeriod for id = $id, dateFrom = $dateFrom, dateTo = $dateTo")
-            ActivityLogEntry(
-              formattedDateTime = "error (see logs)",
-              userInfo = None,
-              diffSummary = Nil
-            )
-          }
-        }
+        val (maybeBefore, maybeAfter) = InputEvent.changeEventsForIdInPeriod(id, dateFrom, dateTo)
+        // TODO UX: point to input/rule/spelling in "Entity event type"
+        // TODO add error for (None, None)
+        processInputEvents(maybeBefore, maybeAfter.get)
       })
 
       // TODO explicit sorting, e.g.: sorted by event date of input
       // ^--> formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
 
       // TODO add deployment info (LIVE & PRELIVE)
-      // TODO add DELETED events
+
+      // TODO test DELETED events
+
+      // TODO add Anonymous Search Manager
 
       ActivityLog(
         items = activityLogItems

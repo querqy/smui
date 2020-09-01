@@ -7,6 +7,7 @@ import anorm._
 import anorm.SqlParser.get
 import play.api.libs.json.{Json, OFormat}
 import play.api.Logging
+
 import models.{SolrIndexId, Status}
 
 case class RulesReportItem(
@@ -68,6 +69,7 @@ object RulesReport extends Logging {
     unsortedRules.sortWith((a,b) => (compareRulesReportItem(a,b) < 0))
   }
 
+  // TODO write test
   def loadForSolrIndexId(solrIndexId: SolrIndexId)(implicit connection: Connection): RulesReport = {
 
     val allSynonymRules = loadReportForTable(solrIndexId, "synonym_rule", "SYNONYM")

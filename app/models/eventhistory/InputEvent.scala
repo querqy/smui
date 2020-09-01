@@ -257,13 +257,13 @@ object InputEvent extends Logging {
   // TODO consider returning List[Id]?
   // TODO write test
   // TODO maybe merge implementations of changedInputIdsForSolrIndexIdInPeriod() and changeEventsForIdInPeriod() (below) to reduce amount of SQL requests against database (performance)
-  def changedInputIdsForSolrIndexIdInPeriod(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): List[String] = {
+  def allChangedInputIdsForSolrIndexIdInPeriod(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): List[String] = {
 
     val allChangeEvents = SQL(
       s"select * from $TABLE_NAME " +
-        s"where $EVENT_TIME >= {dateFrom} " +
-        s"and $EVENT_TIME <= {dateTo} " +
-        s"order by event_time asc"
+      s"where $EVENT_TIME >= {dateFrom} " +
+      s"and $EVENT_TIME <= {dateTo} " +
+      s"order by $EVENT_TIME asc"
     )
       .on(
         'dateFrom -> dateFrom,
@@ -286,9 +286,7 @@ object InputEvent extends Logging {
           }
         }
       })
-      .map(e => {
-        e.id.id
-      })
+      .map(e => e.inputId)
       .distinct
 
   }
@@ -309,7 +307,7 @@ object InputEvent extends Logging {
       s"where $INPUT_ID = {inputId} " +
       s"and $EVENT_TIME >= {dateFrom} " +
       s"and $EVENT_TIME <= {dateTo} " +
-      s"order by event_time asc"
+      s"order by $EVENT_TIME asc"
     )
       .on(
         'inputId -> inputId,
@@ -318,7 +316,9 @@ object InputEvent extends Logging {
       )
       .as(sqlParser.*)
 
-    if(allChangeEvents.size == 0) {
+    logger.info(s"In changeEventsForIdInPeriod :: allChangeEvents.size = ${allChangeEvents.size}")
+
+    if(allChangeEvents.isEmpty) {
       // No change can be detected for input (ID) in period
       (None, None)
     } else if(allChangeEvents.size == 1) {
@@ -327,7 +327,7 @@ object InputEvent extends Logging {
         s"select * from $TABLE_NAME " +
         s"where $INPUT_ID = {inputId} " +
         s"and $EVENT_TIME < {dateFrom} " +
-        s"order by event_time asc " +
+        s"order by $EVENT_TIME desc " +
         s"limit 1"
       )
         .on(
@@ -337,7 +337,7 @@ object InputEvent extends Logging {
         .as(sqlParser.*)
 
       if(beforeEvents.isEmpty) {
-        (Some(allChangeEvents.head), None)
+        (None, Some(allChangeEvents.head))
       } else {
         (Some(beforeEvents.head), Some(allChangeEvents.head))
       }
