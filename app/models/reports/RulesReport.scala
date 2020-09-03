@@ -5,9 +5,10 @@ import java.time.LocalDateTime
 
 import anorm._
 import anorm.SqlParser.get
+import models.input.{SearchInput, SearchInputId, SearchInputWithRules}
+import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import play.api.libs.json.{Json, OFormat}
 import play.api.Logging
-
 import models.{SolrIndexId, Status}
 
 case class RulesReportItem(
@@ -17,7 +18,8 @@ case class RulesReportItem(
   isActive: Boolean,
   modified: LocalDateTime,
   inputTerm: String,
-  inputModified: LocalDateTime
+  inputModified: LocalDateTime,
+  inputTags: Seq[String]
 )
 
 case class RulesReport(items: Seq[RulesReportItem])
@@ -27,7 +29,7 @@ object RulesReport extends Logging {
   implicit val jsonFormatRulesReportItem: OFormat[RulesReportItem] = Json.format[RulesReportItem]
   implicit val jsonFormatRulesReport: OFormat[RulesReport] = Json.format[RulesReport]
 
-  private def loadReportForTable(solrIndexId: SolrIndexId, tblRuleName: String, detailsDescr: String, termFieldName: String = "term", tblInputName: String = "search_input", refKeyFieldName: String = "search_input_id")(implicit connection: Connection): Seq[RulesReportItem] = {
+  private def loadReportForTable(solrIndexId: SolrIndexId, tblRuleName: String, detailsDescr: String, termFieldName: String = "term", tblInputName: String = SearchInput.TABLE_NAME, refKeyFieldName: String = "search_input_id")(implicit connection: Connection): Seq[RulesReportItem] = {
 
     val sqlParser: RowParser[RulesReportItem] = {
       get[String](s"$tblInputName.id") ~
@@ -44,7 +46,12 @@ object RulesReport extends Logging {
           isActive = Status.isActiveFromStatus(ruleStatus) && Status.isActiveFromStatus(inputStatus),
           modified = ruleLastUpdate,
           inputTerm = inputTerm,
-          inputModified = inputLastUpdate
+          inputModified = inputLastUpdate,
+          // TODO consider writing one join-SQL to retrieve tags as well (or at least just one further SQL per input; not rule) ==> performance
+          inputTags = tblInputName match {
+            case SearchInput.TABLE_NAME => SearchInputWithRules.loadById(SearchInputId(inputId)).get.tags.map(t => t.displayValue)
+            case CanonicalSpelling.TABLE_NAME => Nil
+          }
         )
       }
     }
@@ -77,7 +84,7 @@ object RulesReport extends Logging {
     val allFilterRules = loadReportForTable(solrIndexId, "filter_rule", "FILTER")
     val allDeleteRules = loadReportForTable(solrIndexId, "delete_rule", "DELETE")
     val allRedirectRules = loadReportForTable(solrIndexId, "redirect_rule", "REDIRECT", termFieldName = "target")
-    val allSpellings = loadReportForTable(solrIndexId, "alternative_spelling", "SPELLING", tblInputName = "canonical_spelling", refKeyFieldName = "canonical_spelling_id")
+    val allSpellings = loadReportForTable(solrIndexId, "alternative_spelling", "SPELLING", tblInputName = CanonicalSpelling.TABLE_NAME, refKeyFieldName = "canonical_spelling_id")
 
     val reportItems = sortAllRules(
       allSynonymRules

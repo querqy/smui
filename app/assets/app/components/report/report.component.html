@@ -25,13 +25,16 @@
                             Details
                         </th>
                         <th style="width:15%">
-                            Rule modified <small class="fa fa-sort-desc" aria-hidden="true"></small>
+                            Rule modified <small class="fa fa-sort-asc" aria-hidden="true"></small>
                         </th>
                         <th style="width:30%">
-                            Term (input)
+                            Term (input) <small class="fa fa-sort-asc" aria-hidden="true"></small>
                         </th>
                         <th style="width:15%">
-                            Input modified <small class="fa fa-sort-desc" aria-hidden="true"></small>
+                            Input modified <small class="fa fa-sort-asc" aria-hidden="true"></small>
+                        </th>
+                        <th>
+                            Input tags
                         </th>
                         <!--
                         <th>
@@ -51,15 +54,16 @@
                         </td>
                         <td>
                             {{ reportItem.inputTerm }}
+                            <!--
+                            TODO link to input in "Rule" section
+                            -->
                         </td>
                         <td>
                             {{ reportItem.inputModified }}
                         </td>
-                        <!--
                         <td>
-                            {{ reportItem.inputId }}
+                            {{ reportItem.inputTags }}
                         </td>
-                        -->
                     </tr>
                 </table>
 
@@ -76,11 +80,12 @@
 
                 <table class="table">
                     <tr>
-                        <th>Event time</th>
+                        <th>Modification time</th>
                         <th>User</th>
+                        <th>Term (input)</th>
                         <th>Entity event type</th>
-                        <th>Before</th>
-                        <th>After</th>
+                        <th>Before (input / rule)</th>
+                        <th>After (input / rule)</th>
                     </tr>
                     <ng-container *ngFor="let logEntry of currentReport.items">
                         <ng-container *ngFor="let diffEntry of logEntry.diffSummary">
@@ -93,9 +98,11 @@
                                     {{ logEntry.hasOwnProperty('userInfo') ? logEntry.userInfo : '' }}
                                 </td>
                                 <td>
+                                    TODO
+                                </td>
+                                <td>
                                     {{ diffEntry.entity }} ({{ diffEntry.eventType }})
                                 </td>
-
                                 <td>
                                     {{ diffEntry.hasOwnProperty('before') ? diffEntry.before : '' }}
                                 </td>

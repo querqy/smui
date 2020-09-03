@@ -189,16 +189,16 @@ object ActivityLog extends Logging {
 
   }
 
-  private def outputBeforeEvent(wrappedBefore: InputWrapper, outputEventType: SmuiEventType.Value, beforeNotAfter: Boolean) = {
+  private def outputEvent(wrappedEvent: InputWrapper, outputEventType: SmuiEventType.Value, beforeNotAfter: Boolean) = {
     // output input
 
     val iSummaryValue = readableTermStatus(
-      wrappedBefore.trimmedTerm,
-      wrappedBefore.isActive
+      wrappedEvent.trimmedTerm,
+      wrappedEvent.isActive
     )
     val inputSummary = List(
       DiffSummary(
-        entity = wrappedBefore.headline,
+        entity = wrappedEvent.headline,
         eventType = DiffSummary.readableEventType(outputEventType),
         before = if(beforeNotAfter) Some(iSummaryValue) else None,
         after = if(beforeNotAfter) None else Some(iSummaryValue)
@@ -207,7 +207,7 @@ object ActivityLog extends Logging {
 
     // output associations (rules/spellings)
 
-    val assocsSummary = wrappedBefore.associations
+    val assocsSummary = wrappedEvent.associations
       .map(a => {
         val aSummaryValue = readableTermStatus(
           a.trimmedTerm,
@@ -223,13 +223,19 @@ object ActivityLog extends Logging {
 
     // output comment
 
-    val commSummary = List(
-      DiffSummary(
-        entity = DiffSummary.HEADLINE.COMMENT,
-        eventType = DiffSummary.readableEventType(outputEventType),
-        before = if(beforeNotAfter) Some(wrappedBefore.trimmedComment) else None,
-        after = if(beforeNotAfter) None else Some(wrappedBefore.trimmedComment)
-      )
+    val commSummary = (
+      // only inform about comment changes, if comment is not empty
+      if (wrappedEvent.trimmedComment.isEmpty)
+        Nil
+      else
+        List(
+          DiffSummary(
+            entity = DiffSummary.HEADLINE.COMMENT,
+            eventType = DiffSummary.readableEventType(outputEventType),
+            before = if(beforeNotAfter) Some(wrappedEvent.trimmedComment) else None,
+            after = if(beforeNotAfter) None else Some(wrappedEvent.trimmedComment)
+          )
+        )
     )
 
     // return concatenated
@@ -252,7 +258,7 @@ object ActivityLog extends Logging {
 
     val createdSummaries = assocsCreated.map(a =>
       DiffSummary(
-        entity = DiffSummary.HEADLINE.RULE,
+        entity = a.headline,
         eventType = DiffSummary.readableEventType(SmuiEventType.CREATED),
         before = None,
         after = Some(readableTermStatus(a.trimmedTerm, a.isActive))
@@ -263,7 +269,7 @@ object ActivityLog extends Logging {
 
     val deletedSummaries = assocsDeleted.map(a =>
       DiffSummary(
-        entity = DiffSummary.HEADLINE.RULE,
+        entity = a.headline,
         eventType = DiffSummary.readableEventType(SmuiEventType.DELETED),
         before = Some(readableTermStatus(a.trimmedTerm, a.isActive)),
         after = None
@@ -275,7 +281,7 @@ object ActivityLog extends Logging {
     val updatedSummaries = assocsMaybeUpdated.map(beforeAssoc => {
       val afterAssoc = afterAssociations.filter(p => p.id.equals(beforeAssoc.id)).head
       diffTermStatus(
-        DiffSummary.HEADLINE.RULE,
+        beforeAssoc.headline,
         beforeAssoc.trimmedTerm, beforeAssoc.isActive,
         afterAssoc.trimmedTerm, afterAssoc.isActive
       )
@@ -307,17 +313,22 @@ object ActivityLog extends Logging {
 
     // diff & output comment
 
-    val commDiff = (if (wrappedBefore.trimmedComment.equals(wrappedAfter.trimmedComment))
-      Nil
-    else
-      List(
-        DiffSummary(
-          entity = DiffSummary.HEADLINE.COMMENT,
-          eventType = DiffSummary.readableEventType(SmuiEventType.UPDATED),
-          before = Some(wrappedBefore.trimmedComment),
-          after = Some(wrappedAfter.trimmedComment)
+    val commDiff = (
+      // only inform about comment changes, if before or after comment is not empty
+      if ((wrappedBefore.trimmedComment.isEmpty) && (wrappedAfter.trimmedComment.isEmpty))
+        Nil
+      // only inform about comment changes, if a change happened ;-)
+      else if (wrappedBefore.trimmedComment.equals(wrappedAfter.trimmedComment))
+        Nil
+      else
+        List(
+          DiffSummary(
+            entity = DiffSummary.HEADLINE.COMMENT,
+            eventType = DiffSummary.readableEventType(SmuiEventType.UPDATED),
+            before = Some(wrappedBefore.trimmedComment),
+            after = Some(wrappedAfter.trimmedComment)
+          )
         )
-      )
     )
 
     // return concatenated
@@ -374,7 +385,7 @@ object ActivityLog extends Logging {
         ActivityLogEntry(
           formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
           userInfo = virtualUserInfo(afterEvent.userInfo, afterEvent.eventType),
-          diffSummary = outputBeforeEvent(wrappedAfter, SmuiEventType.CREATED, false)
+          diffSummary = outputEvent(wrappedAfter, SmuiEventType.CREATED, false)
         )
 
       }
@@ -387,7 +398,7 @@ object ActivityLog extends Logging {
         ActivityLogEntry(
           formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
           userInfo = virtualUserInfo(afterEvent.userInfo, afterEvent.eventType),
-          diffSummary = outputBeforeEvent(wrappedAfter, SmuiEventType.DELETED, true)
+          diffSummary = outputEvent(wrappedAfter, SmuiEventType.DELETED, true)
         )
 
       }

@@ -6,6 +6,7 @@ export class RulesReportItem {
   modified: string
   inputTerm: string
   inputModified: string
+  inputTags: Array<string>
 }
 
 export class RulesReport {

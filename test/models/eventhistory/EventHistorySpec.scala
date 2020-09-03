@@ -29,7 +29,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
     spellingIds = createTestSpellings()
   }
 
-  "CREATED events" should "be present for search inputs" in {
+  "CREATED events" should "be present for search input InputEvent" in {
     db.withConnection { implicit conn =>
 
       // input#0 (aerosmith)
@@ -52,7 +52,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
     }
   }
 
-  "CREATED events" should "be present for spellings" in {
+  "CREATED events" should "be present for spelling InputEvent" in {
     db.withConnection { implicit conn =>
 
       // spelling#0 (freezer)
@@ -415,7 +415,6 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 
     }
   }
-
 
   "deletion of search input" should "result in a DELETED event" in {
     db.withConnection { implicit conn =>
