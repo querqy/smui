@@ -99,31 +99,27 @@
                             After (input / rule)
                         </th>
                     </tr>
-                    <ng-container *ngFor="let logEntry of currentReport.items">
-                        <ng-container *ngFor="let diffEntry of logEntry.diffSummary">
-                            <tr>
-                                <td>
-                                    {{ logEntry.formattedDateTime }}
-                                </td>
-
-                                <td>
-                                    {{ logEntry.hasOwnProperty('userInfo') ? logEntry.userInfo : '' }}
-                                </td>
-                                <td>
-                                    TODO
-                                </td>
-                                <td>
-                                    {{ diffEntry.entity }} ({{ diffEntry.eventType }})
-                                </td>
-                                <td>
-                                    {{ diffEntry.hasOwnProperty('before') ? diffEntry.before : '' }}
-                                </td>
-
-                                <td>
-                                    {{ diffEntry.hasOwnProperty('after') ? diffEntry.after : '' }}
-                                </td>
-                            </tr>
-                        </ng-container>
+                    <ng-container *ngFor="let reportItem of currentReport.items">
+                        <tr>
+                            <td>
+                                {{ reportItem.modificationTime }}
+                            </td>
+                            <td>
+                                {{ reportItem.hasOwnProperty('user') ? reportItem.user : '' }}
+                            </td>
+                            <td>
+                                {{ reportItem.inputTerm }}
+                            </td>
+                            <td>
+                                {{ reportItem.entity }} ({{ reportItem.eventType }})
+                            </td>
+                            <td>
+                                {{ reportItem.hasOwnProperty('before') ? reportItem.before : '' }}
+                            </td>
+                            <td>
+                                {{ reportItem.hasOwnProperty('after') ? reportItem.after : '' }}
+                            </td>
+                        </tr>
                     </ng-container>
                 </table>
 

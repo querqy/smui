@@ -12,3 +12,17 @@ export class RulesReportItem {
 export class RulesReport {
   items: Array<RulesReportItem>
 }
+
+export class ActivityReportEntry {
+  modificationTime: string
+  user?: string
+  inputTerm: string
+  entity: string
+  eventType: string
+  before?: string
+  after?: string
+}
+
+export class ActivityReport {
+  items: Array<ActivityReportEntry>
+}

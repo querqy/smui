@@ -20,7 +20,7 @@ export class ReportService {
       })
   }
 
-  getActivityReport(solrIndexId: string, dateFrom: string, dateTo: string): Promise<ActivityLog> {
+  getActivityReport(solrIndexId: string, dateFrom: string, dateTo: string): Promise<ActivityReport> {
     return this.http
       .get(this.baseUrl + '/report/activity-report/' + solrIndexId, { params: {
         dateFrom: dateFrom,
@@ -28,7 +28,7 @@ export class ReportService {
       }})
       .toPromise()
       .then(res => {
-        return res.json() as ActivityLog;
+        return res.json() as ActivityReport;
       })
   }
 }

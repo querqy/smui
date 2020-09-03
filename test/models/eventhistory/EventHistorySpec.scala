@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 import models.ApplicationTestBase
 import models.input.{FullSearchInputWithRules, SearchInputId, SearchInputWithRules}
+import models.reports.ActivityReport
 import models.spellings.{AlternativeSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives, FullCanonicalSpellingWithAlternatives}
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.libs.json.Json
@@ -459,7 +460,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 
       val tEnd = LocalDateTime.now()
 
-      val activityReport = ActivityLog.reportForSolrIndexIdInPeriod(core1Id, tStart, tEnd)
+      val activityReport = ActivityReport.reportForSolrIndexIdInPeriod(core1Id, tStart, tEnd)
 
       println(s"activityReport = >>>$activityReport")
 

@@ -256,7 +256,7 @@ object InputEvent extends Logging {
     */
   // TODO consider returning List[Id]?
   // TODO write test
-  // TODO maybe merge implementations of changedInputIdsForSolrIndexIdInPeriod() and changeEventsForIdInPeriod() (below) to reduce amount of SQL requests against database (performance)
+  // TODO maybe merge implementations of changedInputIdsForSolrIndexIdInPeriod() and changeEventsForIdInPeriod() (below) to reduce amount of SQL requests against database ==> performance
   def allChangedInputIdsForSolrIndexIdInPeriod(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): List[String] = {
 
     val allChangeEvents = SQL(
@@ -271,20 +271,45 @@ object InputEvent extends Logging {
       )
       .as(sqlParser.*)
 
-    allChangeEvents
-      .filter(e => {
-        e.eventSource match {
+    def isEventForSolrIndex(inputEvent: InputEvent): Boolean = {
+
+      if (SmuiEventType.toSmuiEventType(inputEvent.eventType).equals(SmuiEventType.DELETED)) {
+        // seek instant previous event for input and verify solrIndexId
+        val beforeEvents = SQL(
+          s"select * from $TABLE_NAME " +
+            s"where $INPUT_ID = {inputId} " +
+            s"and $EVENT_TIME < {dateFrom} " +
+            s"order by $EVENT_TIME desc " +
+            s"limit 1"
+        )
+          .on(
+            'inputId -> inputEvent.inputId,
+            'dateFrom -> dateFrom,
+          )
+          .as(sqlParser.*)
+
+        isEventForSolrIndex(beforeEvents.head)
+
+      } else {
+
+        inputEvent.eventSource match {
           case SmuiEventSource.SEARCH_INPUT => {
             // TODO log error in case JSON read validation fails
-            val searchInput = Json.parse(e.jsonPayload.get).validate[FullSearchInputWithRules].asOpt.get
+            val searchInput = Json.parse(inputEvent.jsonPayload.get).validate[FullSearchInputWithRules].asOpt.get
             searchInput.solrIndexId.equals(solrIndexId)
           }
           case SmuiEventSource.SPELLING => {
             // TODO log error in case JSON read validation fails
-            val spelling = Json.parse(e.jsonPayload.get).validate[FullCanonicalSpellingWithAlternatives].asOpt.get
+            val spelling = Json.parse(inputEvent.jsonPayload.get).validate[FullCanonicalSpellingWithAlternatives].asOpt.get
             spelling.solrIndexId.equals(solrIndexId)
           }
         }
+      }
+    }
+
+    allChangeEvents
+      .filter(e => {
+        isEventForSolrIndex(e)
       })
       .map(e => e.inputId)
       .distinct

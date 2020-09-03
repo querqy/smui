@@ -5,15 +5,13 @@ import java.time.LocalDateTime
 import java.util.{Date, UUID}
 
 import javax.inject.Inject
-
 import play.api.db.DBApi
 import anorm._
-
 import models.FeatureToggleModel.FeatureToggleService
 import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
-import models.reports.{DeploymentLog, RulesReport}
+import models.reports.{ActivityReport, DeploymentLog, RulesReport}
 
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
@@ -230,6 +228,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
       if (toggleService.getToggleActivateEventHistory) {
 
+        // TODO maybe add defaultUsername in ActivityLog already?
         val defaultUsername = if (toggleService.getToggleDefaultDisplayUsername.isEmpty) None else Some(toggleService.getToggleDefaultDisplayUsername)
 
         ActivityLog(
@@ -259,10 +258,19 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     }
   }
 
-  def getActivityReport(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime): ActivityLog = db.withConnection {
+  def getActivityReport(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime): ActivityReport = db.withConnection {
     implicit connection => {
+
+      // TODO maybe add defaultUsername in ActivityLog already?
+      val defaultUsername = if (toggleService.getToggleDefaultDisplayUsername.isEmpty) None else Some(toggleService.getToggleDefaultDisplayUsername)
+
       // TODO ensure dateFrom/To span whole days (00:00 to 23:59)
-      ActivityLog.reportForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo)
+      ActivityReport(
+        items = ActivityReport.reportForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo).items
+          .map(item => item.copy(
+            user = (if (item.user.isEmpty) defaultUsername else item.user),
+          ))
+      )
     }
   }
 
