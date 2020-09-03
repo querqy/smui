@@ -465,11 +465,10 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
 
       activityReport.items.size shouldBe 10
 
+      // TODO test DELETED events
 
 
     }
   }
-
-  // TODO add test for ActivityReport incl a deployment to PRELIVE/LIVE
 
 }

@@ -80,12 +80,24 @@
 
                 <table class="table">
                     <tr>
-                        <th>Modification time</th>
-                        <th>User</th>
-                        <th>Term (input)</th>
-                        <th>Entity event type</th>
-                        <th>Before (input / rule)</th>
-                        <th>After (input / rule)</th>
+                        <th>
+                            Modification time <small class="fa fa-sort-desc" aria-hidden="true"></small>
+                        </th>
+                        <th>
+                            User
+                        </th>
+                        <th>
+                            Term (input)
+                        </th>
+                        <th>
+                            Entity event type
+                        </th>
+                        <th>
+                            Before (input / rule)
+                        </th>
+                        <th>
+                            After (input / rule)
+                        </th>
                     </tr>
                     <ng-container *ngFor="let logEntry of currentReport.items">
                         <ng-container *ngFor="let diffEntry of logEntry.diffSummary">

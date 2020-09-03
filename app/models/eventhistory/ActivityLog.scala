@@ -27,8 +27,9 @@ import models.SolrIndexId
   * |  RULE (created)      |                         |  netbook            |  Paul Search Manager  |
   * |  RULE (updated)      |  -notebück (inactive)-  |  notebook (active)  |  Paul Search Manager  |
   * |  RULE (deleted)      |  -lapptopp-             |                     |  Paul Search Manager  |
-  * |  SPELL. (created)    |                         |  lapptopp (active)  |  Paul Search Manager  |
-  * |  COMM. (updated)     |  -Comment before-       |  Comment after      |  Paul Search Manager  |
+  * |  SPELLLING (created) |                         |  lapptopp (active)  |  Paul Search Manager  |
+  * |  COMMENT (updated)   |  -Comment before-       |  Comment after      |  Paul Search Manager  |
+  * TODO PRELIVE/LIVE deployment, see:
   * |  LIVE DEPLOY         |                         |  Status: OK         |  Paul Search Manager  |
   * |  PRELIVE DEPLOY      |                         |  Status: FAIL       |  Paul Search Manager  |
   */
@@ -376,9 +377,10 @@ object ActivityLog extends Logging {
       }
     }
 
+    val afterEventType = SmuiEventType.toSmuiEventType(afterEvent.eventType)
     val wrappedAfter = new InputWrapper(afterEvent)
 
-    (beforeEventType, SmuiEventType.toSmuiEventType(afterEvent.eventType)) match {
+    (beforeEventType, afterEventType) match {
       case (None, SmuiEventType.CREATED)
         | (None, SmuiEventType.VIRTUALLY_CREATED) => {
 
@@ -416,7 +418,9 @@ object ActivityLog extends Logging {
 
       }
       case _ => {
-        logger.error(s"IllegalState: processInputEvents found event chain ($beforeEventType, ${afterEvent.eventType})")
+        logger.error(s"IllegalState: processInputEvents found event chain ($beforeEventType, $afterEventType)")
+        logger.error(s"beforeEvent = >>>$beforeEvent")
+        logger.error(s"afterEvent = >>>$afterEvent")
         // TODO maybe throw IllegalState exception instead
         ActivityLogEntry(
           formattedDateTime = "error (see log)",
@@ -480,19 +484,23 @@ object ActivityLog extends Logging {
 
       // load all corresponding activity log entries for the period
 
-      val activityLogItems: List[ActivityLogEntry] = changedIds.map(id => {
-        val (maybeBefore, maybeAfter) = InputEvent.changeEventsForIdInPeriod(id, dateFrom, dateTo)
-        // TODO UX: point to input/rule/spelling in "Entity event type"
-        // TODO add error for (None, None)
-        processInputEvents(maybeBefore, maybeAfter.get)
-      })
-
-      // TODO explicit sorting, e.g.: sorted by event date of input
-      // ^--> formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-
-      // TODO add deployment info (LIVE & PRELIVE)
-
-      // TODO test DELETED events
+      // TODO add deployment info (LIVE & PRELIVE), see above
+      val activityLogItems: List[ActivityLogEntry] = changedIds
+        .map(id => {
+          val (maybeBefore, maybeAfter) = InputEvent.changeEventsForIdInPeriod(id, dateFrom, dateTo)
+          // TODO UX: point to input/rule/spelling in "Entity event type"
+          // TODO add error for (None, None)
+          processInputEvents(maybeBefore, maybeAfter.get)
+        })
+        // add explicit sorting (sorted by event date of input)
+        .sortWith((a: ActivityLogEntry, b: ActivityLogEntry) => {
+          // reverse engineer date
+          // TODO could be nicer to not save a formattedDateTime, but rather do the string transformation later in JSON conversion
+          val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+          val aTime = LocalDateTime.parse(a.formattedDateTime, formatter)
+          val bTime = LocalDateTime.parse(b.formattedDateTime, formatter)
+          bTime.isBefore(aTime)
+        })
 
       // TODO add Anonymous Search Manager
 

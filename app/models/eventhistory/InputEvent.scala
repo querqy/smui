@@ -316,8 +316,6 @@ object InputEvent extends Logging {
       )
       .as(sqlParser.*)
 
-    logger.info(s"In changeEventsForIdInPeriod :: allChangeEvents.size = ${allChangeEvents.size}")
-
     if(allChangeEvents.isEmpty) {
       // No change can be detected for input (ID) in period
       (None, None)
@@ -342,7 +340,7 @@ object InputEvent extends Logging {
         (Some(beforeEvents.head), Some(allChangeEvents.head))
       }
     } else {
-      (Some(allChangeEvents.last), Some(allChangeEvents.head))
+      (Some(allChangeEvents.head), Some(allChangeEvents.last))
     }
   }
 
