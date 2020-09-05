@@ -210,8 +210,7 @@ object InputEvent extends Logging {
         }
     }
 
-    // TODO inner join doesn't work with HSQLDB :-(
-    val eventPresentIds = SQL"select #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} from #${models.input.SearchInput.TABLE_NAME} inner join #$TABLE_NAME ON #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} = #$TABLE_NAME.#$INPUT_ID"
+    val eventPresentIds = SQL"select #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} from #${models.input.SearchInput.TABLE_NAME} join #$TABLE_NAME ON #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} = #$TABLE_NAME.#$INPUT_ID"
       .as(sqlIdParser.*)
       .map(sId => SearchInputId(sId))
 
@@ -233,8 +232,7 @@ object InputEvent extends Logging {
         }
     }
 
-    // TODO inner join doesn't work with HSQLDB :-(
-    val eventPresentIds = SQL"select #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} from #${models.spellings.CanonicalSpelling.TABLE_NAME} inner join #$TABLE_NAME on #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} = #$TABLE_NAME.#$INPUT_ID"
+    val eventPresentIds = SQL"select #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} from #${models.spellings.CanonicalSpelling.TABLE_NAME} join #$TABLE_NAME on #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} = #$TABLE_NAME.#$INPUT_ID"
       .as(sqlIdParser.*)
       .map(sId => CanonicalSpellingId(sId))
 
@@ -273,24 +271,7 @@ object InputEvent extends Logging {
 
     def isEventForSolrIndex(inputEvent: InputEvent): Boolean = {
 
-      if (SmuiEventType.toSmuiEventType(inputEvent.eventType).equals(SmuiEventType.DELETED)) {
-        // seek instant previous event for input and verify solrIndexId
-        val beforeEvents = SQL(
-          s"select * from $TABLE_NAME " +
-            s"where $INPUT_ID = {inputId} " +
-            s"and $EVENT_TIME < {dateFrom} " +
-            s"order by $EVENT_TIME desc " +
-            s"limit 1"
-        )
-          .on(
-            'inputId -> inputEvent.inputId,
-            'dateFrom -> dateFrom,
-          )
-          .as(sqlParser.*)
-
-        isEventForSolrIndex(beforeEvents.head)
-
-      } else {
+      if (!SmuiEventType.toSmuiEventType(inputEvent.eventType).equals(SmuiEventType.DELETED)) {
 
         inputEvent.eventSource match {
           case SmuiEventSource.SEARCH_INPUT => {
@@ -304,13 +285,30 @@ object InputEvent extends Logging {
             spelling.solrIndexId.equals(solrIndexId)
           }
         }
+
+      } else {
+
+        // seek first instant previous event for input and verify solrIndexId
+        val beforeEvents = SQL(
+          s"select * from $TABLE_NAME " +
+          s"where $INPUT_ID = {inputId} " +
+          s"and $EVENT_TIME < {dateFrom} " +
+          s"order by $EVENT_TIME desc " +
+          s"limit 1"
+        )
+          .on(
+            'inputId -> inputEvent.inputId,
+            'dateFrom -> inputEvent.eventTime,
+          )
+          .as(sqlParser.*)
+
+        isEventForSolrIndex(beforeEvents.head)
+
       }
     }
 
     allChangeEvents
-      .filter(e => {
-        isEventForSolrIndex(e)
-      })
+      .filter(e => isEventForSolrIndex(e))
       .map(e => e.inputId)
       .distinct
 
