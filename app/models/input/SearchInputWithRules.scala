@@ -1,6 +1,7 @@
 package models.input
 
 import java.sql.Connection
+import java.time.LocalDateTime
 
 import models.rules._
 import models.SolrIndexId
@@ -15,7 +16,8 @@ case class SearchInputWithRules(id: SearchInputId,
                                 redirectRules: List[RedirectRule] = Nil,
                                 tags: Seq[InputTag] = Seq.empty,
                                 isActive: Boolean,
-                                comment: String) {
+                                comment: String
+                               ) {
 
   lazy val trimmedTerm: String = term.trim()
 
@@ -43,7 +45,8 @@ object SearchInputWithRules {
         redirectRules = RedirectRule.loadByInputId(id),
         tags = TagInputAssociation.loadTagsBySearchInputId(id),
         isActive = input.isActive,
-        comment = input.comment)
+        comment = input.comment
+      )
     }
   }
 
@@ -56,11 +59,14 @@ object SearchInputWithRules {
     val tags = TagInputAssociation.loadTagsBySearchInputIds(inputs.map(_.id))
 
     inputs.map { input =>
-      SearchInputWithRules(input.id, input.term,
+      SearchInputWithRules(
+        input.id,
+        input.term,
         synonymRules = rules.getOrElse(input.id, Nil).toList,
         tags = tags.getOrElse(input.id, Seq.empty),
         isActive = input.isActive,
-        comment = input.comment) // TODO consider only transferring "hasComment" for list overview
+        comment = input.comment // TODO consider only transferring "hasComment" for list overview
+      )
     }
   }
 

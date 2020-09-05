@@ -4,12 +4,13 @@ import java.sql.Connection
 import java.time.LocalDateTime
 
 import play.api.libs.json._
+import play.api.Logging
 import anorm._
 import anorm.SqlParser.get
 
-import models.{Id, IdObject}
-import models.input.{SearchInputId, SearchInputWithRules}
-import models.spellings.{CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import models.{Id, IdObject, SolrIndexId}
+import models.input.{SearchInputId, FullSearchInputWithRules}
+import models.spellings.{CanonicalSpellingId, FullCanonicalSpellingWithAlternatives}
 
 /**
   * @see evolutions/default/6.sql
@@ -19,6 +20,15 @@ object SmuiEventType extends Enumeration {
   val UPDATED = Value(1)
   val DELETED = Value(2)
   val VIRTUALLY_CREATED = Value(3)
+
+  // TODO maybe there is a more elegant option?
+  def toSmuiEventType(rawEventType: Int) = rawEventType match {
+    case 0 => CREATED
+    case 1 => UPDATED
+    case 2 => DELETED
+    case 3 => VIRTUALLY_CREATED
+    // case _ => TODO throw an IllegalState exception
+  }
 }
 
 object SmuiEventSource extends Enumeration {
@@ -52,7 +62,7 @@ case class InputEvent(
 
 }
 
-object InputEvent {
+object InputEvent extends Logging {
 
   val TABLE_NAME = "input_event"
   val ID = "id"
@@ -102,23 +112,25 @@ object InputEvent {
    * CRUD events for SearchInputWithRules
    */
 
-  def createForSearchInput(input: SearchInputWithRules, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
+  def createForSearchInput(inputId: SearchInputId, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
+    val fullInput = FullSearchInputWithRules.loadById(inputId).get
     insert(
       SmuiEventSource.SEARCH_INPUT,
       if (virtuallyCreated) SmuiEventType.VIRTUALLY_CREATED else SmuiEventType.CREATED,
       userInfo,
-      input.id.id,
-      Some(Json.toJson(input).toString())
+      fullInput.id.id,
+      Some(Json.toJson(fullInput).toString())
     )
   }
 
-  def updateForSearchInput(input: SearchInputWithRules, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
+  def updateForSearchInput(inputId: SearchInputId, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
+    val fullInput = FullSearchInputWithRules.loadById(inputId).get
     insert(
       SmuiEventSource.SEARCH_INPUT,
       SmuiEventType.UPDATED,
       userInfo,
-      input.id.id,
-      Some(Json.toJson(input).toString())
+      fullInput.id.id,
+      Some(Json.toJson(fullInput).toString())
     )
   }
 
@@ -139,23 +151,25 @@ object InputEvent {
    */
   // TODO think about generalising belows logic for CanonicalSpellingWithAlternatives with the one above for SearchInputWithRules
 
-  def createForSpelling(input: CanonicalSpellingWithAlternatives, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
+  def createForSpelling(inputId: CanonicalSpellingId, userInfo: Option[String], virtuallyCreated: Boolean)(implicit connection: Connection): InputEvent = {
+    val fullSpelling = FullCanonicalSpellingWithAlternatives.loadById(inputId).get
     insert(
       SmuiEventSource.SPELLING,
       if (virtuallyCreated) SmuiEventType.VIRTUALLY_CREATED else SmuiEventType.CREATED,
       userInfo,
-      input.id.id,
-      Some(Json.toJson(input).toString())
+      fullSpelling.id.id,
+      Some(Json.toJson(fullSpelling).toString())
     )
   }
 
-  def updateForSpelling(input: CanonicalSpellingWithAlternatives, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
+  def updateForSpelling(inputId: CanonicalSpellingId, userInfo: Option[String])(implicit connection: Connection): InputEvent = {
+    val fullSpelling = FullCanonicalSpellingWithAlternatives.loadById(inputId).get
     insert(
       SmuiEventSource.SPELLING,
       SmuiEventType.UPDATED,
       userInfo,
-      input.id.id,
-      Some(Json.toJson(input).toString())
+      fullSpelling.id.id,
+      Some(Json.toJson(fullSpelling).toString())
     )
   }
 
@@ -188,6 +202,7 @@ object InputEvent {
 
   def searchInputIdsWithoutEvent()(implicit connection: Connection): Seq[SearchInputId] = {
 
+    // TODO make parser a general global definition for InputEvent
     val sqlIdParser: RowParser[String] = {
       get[String](s"${models.input.SearchInput.TABLE_NAME}.${models.input.SearchInput.ID}")
         .map {
@@ -195,7 +210,7 @@ object InputEvent {
         }
     }
 
-    val eventPresentIds = SQL"select #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} from #${models.input.SearchInput.TABLE_NAME} inner join #$TABLE_NAME ON #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} = #$TABLE_NAME.#$INPUT_ID"
+    val eventPresentIds = SQL"select #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} from #${models.input.SearchInput.TABLE_NAME} join #$TABLE_NAME ON #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} = #$TABLE_NAME.#$INPUT_ID"
       .as(sqlIdParser.*)
       .map(sId => SearchInputId(sId))
 
@@ -209,6 +224,7 @@ object InputEvent {
   // TODO think about generalising belows logic for CanonicalSpellingWithAlternatives with the one above for SearchInputWithRules
   def spellingIdsWithoutEvent()(implicit connection: Connection): Seq[CanonicalSpellingId] = {
 
+    // TODO make parser a general global definition for InputEvent
     val sqlIdParser: RowParser[String] = {
       get[String](s"${models.spellings.CanonicalSpelling.TABLE_NAME}.${models.spellings.CanonicalSpelling.ID}")
         .map {
@@ -216,7 +232,7 @@ object InputEvent {
         }
     }
 
-    val eventPresentIds = SQL"select #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} from #${models.spellings.CanonicalSpelling.TABLE_NAME} inner join #$TABLE_NAME ON #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} = #$TABLE_NAME.#$INPUT_ID"
+    val eventPresentIds = SQL"select #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} from #${models.spellings.CanonicalSpelling.TABLE_NAME} join #$TABLE_NAME on #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} = #$TABLE_NAME.#$INPUT_ID"
       .as(sqlIdParser.*)
       .map(sId => CanonicalSpellingId(sId))
 
@@ -225,6 +241,130 @@ object InputEvent {
       .map(sId => CanonicalSpellingId(sId))
 
     allIds.diff(eventPresentIds)
+  }
+
+  /**
+    * Determine all search_input and spelling entity IDs with change event within dateFrom/To period on that SolrIndex
+    *
+    * @param solrIndexId
+    * @param dateFrom
+    * @param dateTo
+    * @param connection
+    * @return
+    */
+  // TODO consider returning List[Id]?
+  // TODO write test
+  // TODO maybe merge implementations of changedInputIdsForSolrIndexIdInPeriod() and changeEventsForIdInPeriod() (below) to reduce amount of SQL requests against database ==> performance
+  def allChangedInputIdsForSolrIndexIdInPeriod(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): List[String] = {
+
+    val allChangeEvents = SQL(
+      s"select * from $TABLE_NAME " +
+      s"where $EVENT_TIME >= {dateFrom} " +
+      s"and $EVENT_TIME <= {dateTo} " +
+      s"order by $EVENT_TIME asc"
+    )
+      .on(
+        'dateFrom -> dateFrom,
+        'dateTo -> dateTo
+      )
+      .as(sqlParser.*)
+
+    def isEventForSolrIndex(inputEvent: InputEvent): Boolean = {
+
+      if (!SmuiEventType.toSmuiEventType(inputEvent.eventType).equals(SmuiEventType.DELETED)) {
+
+        inputEvent.eventSource match {
+          case SmuiEventSource.SEARCH_INPUT => {
+            // TODO log error in case JSON read validation fails
+            val searchInput = Json.parse(inputEvent.jsonPayload.get).validate[FullSearchInputWithRules].asOpt.get
+            searchInput.solrIndexId.equals(solrIndexId)
+          }
+          case SmuiEventSource.SPELLING => {
+            // TODO log error in case JSON read validation fails
+            val spelling = Json.parse(inputEvent.jsonPayload.get).validate[FullCanonicalSpellingWithAlternatives].asOpt.get
+            spelling.solrIndexId.equals(solrIndexId)
+          }
+        }
+
+      } else {
+
+        // seek first instant previous event for input and verify solrIndexId
+        val beforeEvents = SQL(
+          s"select * from $TABLE_NAME " +
+          s"where $INPUT_ID = {inputId} " +
+          s"and $EVENT_TIME < {dateFrom} " +
+          s"order by $EVENT_TIME desc " +
+          s"limit 1"
+        )
+          .on(
+            'inputId -> inputEvent.inputId,
+            'dateFrom -> inputEvent.eventTime,
+          )
+          .as(sqlParser.*)
+
+        isEventForSolrIndex(beforeEvents.head)
+
+      }
+    }
+
+    allChangeEvents
+      .filter(e => isEventForSolrIndex(e))
+      .map(e => e.inputId)
+      .distinct
+
+  }
+
+  /**
+    * Determine the event pair, that describes the change of an entity within a given period (if any happened)
+    *
+    * @param inputId
+    * @param dateFrom
+    * @param dateTo
+    * @param connection
+    * @return
+    */
+  def changeEventsForIdInPeriod(inputId: String, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): (Option[InputEvent], Option[InputEvent]) = {
+
+    val allChangeEvents = SQL(
+      s"select * from $TABLE_NAME " +
+      s"where $INPUT_ID = {inputId} " +
+      s"and $EVENT_TIME >= {dateFrom} " +
+      s"and $EVENT_TIME <= {dateTo} " +
+      s"order by $EVENT_TIME asc"
+    )
+      .on(
+        'inputId -> inputId,
+        'dateFrom -> dateFrom,
+        'dateTo -> dateTo
+      )
+      .as(sqlParser.*)
+
+    if(allChangeEvents.isEmpty) {
+      // No change can be detected for input (ID) in period
+      (None, None)
+    } else if(allChangeEvents.size == 1) {
+      // find the first event before dateFrom
+      val beforeEvents = SQL(
+        s"select * from $TABLE_NAME " +
+        s"where $INPUT_ID = {inputId} " +
+        s"and $EVENT_TIME < {dateFrom} " +
+        s"order by $EVENT_TIME desc " +
+        s"limit 1"
+      )
+        .on(
+          'inputId -> inputId,
+          'dateFrom -> dateFrom,
+        )
+        .as(sqlParser.*)
+
+      if(beforeEvents.isEmpty) {
+        (None, Some(allChangeEvents.head))
+      } else {
+        (Some(beforeEvents.head), Some(allChangeEvents.head))
+      }
+    } else {
+      (Some(allChangeEvents.head), Some(allChangeEvents.last))
+    }
   }
 
 }

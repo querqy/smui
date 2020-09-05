@@ -29,6 +29,7 @@ DELETE  /api/v1/spelling/:canonicalSpellingId                   controllers.ApiC
 GET     /api/v1/spelling/:canonicalSpellingId                   controllers.ApiController.getDetailedSpelling(canonicalSpellingId: String)
 GET     /api/v1/log/rule-activity-log                           controllers.ApiController.getActivityLog(inputId: String)
 GET     /api/v1/report/rules-report/:solrIndexId                controllers.ApiController.getRulesReport(solrIndexId: String)
+GET     /api/v1/report/activity-report/:solrIndexId             controllers.ApiController.getActivityReport(solrIndexId: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file   controllers.Assets.versioned(path="/public", file: Asset)

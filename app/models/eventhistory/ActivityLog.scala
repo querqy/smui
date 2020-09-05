@@ -9,7 +9,8 @@ import play.api.Logging
 
 import models.input.SearchInputWithRules
 import models.rules._
-import models.spellings.{CanonicalSpellingWithAlternatives, AlternativeSpelling}
+import models.spellings.{AlternativeSpelling, CanonicalSpellingWithAlternatives}
+import models.SolrIndexId
 
 /**
   *
@@ -26,17 +27,44 @@ import models.spellings.{CanonicalSpellingWithAlternatives, AlternativeSpelling}
   * |  RULE (created)      |                         |  netbook            |  Paul Search Manager  |
   * |  RULE (updated)      |  -notebück (inactive)-  |  notebook (active)  |  Paul Search Manager  |
   * |  RULE (deleted)      |  -lapptopp-             |                     |  Paul Search Manager  |
-  * |  SPELL. (created)    |                         |  lapptopp (active)  |  Paul Search Manager  |
-  * |  COMM. (updated)     |  -Comment before-       |  Comment after      |  Paul Search Manager  |
+  * |  SPELLLING (created) |                         |  lapptopp (active)  |  Paul Search Manager  |
+  * |  COMMENT (updated)   |  -Comment before-       |  Comment after      |  Paul Search Manager  |
+  * TODO PRELIVE/LIVE deployment, see:
+  * |  LIVE DEPLOY         |                         |  Status: OK         |  Paul Search Manager  |
+  * |  PRELIVE DEPLOY      |                         |  Status: FAIL       |  Paul Search Manager  |
   */
 case class DiffSummary(
   entity: String,
   eventType: String,
   before: Option[String],
-  after: Option[String]
+  after: Option[String],
+  inputTerm: Option[String] = None // only necessary for report; not for individual ActivityLog
 )
 
+object DiffSummary {
+
+  object HEADLINE extends Enumeration {
+    val INPUT = "INPUT"
+    val RULE = "RULE"
+    val SPELLING = "SPELLING"
+    val COMMENT = "COMMENT"
+    val ALT_SPELLING = "MISSPELLING"
+  }
+
+  def readableEventType(eventType: SmuiEventType.Value): String = {
+    eventType match {
+      case SmuiEventType.CREATED
+        | SmuiEventType.VIRTUALLY_CREATED => "created"
+      case SmuiEventType.UPDATED => "updated"
+      case SmuiEventType.DELETED => "deleted"
+      case _ => "unknown event" // TODO maybe throw an exception?
+    }
+  }
+
+}
+
 case class ActivityLogEntry(
+  // TODO be homogeneous in delivering a date as raw LocalDateTime (see /smui/app/models/reports/RulesReport.scala) from backend - the date should be converted on the frontend
   formattedDateTime: String,
   userInfo: Option[String],
   diffSummary: Seq[DiffSummary]
@@ -58,22 +86,11 @@ object ActivityLog extends Logging {
     if (isActive) "activated" else "deactivated"
   }
 
-  private def rule2term(rule: Rule): String = {
-    rule match {
-      case ruleWithTerm: RuleWithTerm => {
-        ruleWithTerm.term
-      }
-      case redirectRule: RedirectRule => {
-        "URL: " + redirectRule.target
-      }
-    }
-  }
-
   private def readableTermStatus(term: String, status: Boolean): String = {
     term + " (" + readableStatus(status) + ")"
   }
 
-  private def diffTermStatus(entity: String, beforeTerm: String, beforeStatus: Boolean, afterTerm: String, afterStatus: Boolean): Option[DiffSummary] = {
+  private def diffTermStatus(entity: String, beforeTerm: String, beforeStatus: Boolean, afterTerm: String, afterStatus: Boolean, smuiEventType: SmuiEventType.Value): Option[DiffSummary] = {
 
     val termDiff = if (beforeTerm.trim.equals(afterTerm.trim)) None else Some(afterTerm.trim)
     val statDiff = if (beforeStatus.equals(afterStatus)) None else Some(afterStatus)
@@ -91,353 +108,435 @@ object ActivityLog extends Logging {
       Some(
         DiffSummary(
           entity = entity,
-          eventType = "updated",
+          eventType = DiffSummary.readableEventType(smuiEventType),
           before = Some(beforeAfter._1),
           after = Some(beforeAfter._2)
         )
       )
     }
-    else
+    else {
       None
+    }
   }
 
-  private def diffRules(beforeRules: Seq[Rule], afterRules: Seq[Rule]): Seq[DiffSummary] = {
+  /**
+    * Helper classes to deal with SearchInput and CanonicalSpelling the same way
+    */
+  // TODO consider defining a common Input/Association interface
+
+  private class AssociationWrapper(association: Any) {
+
+    def headline = association match {
+      case _: Rule => DiffSummary.HEADLINE.RULE
+      case _: AlternativeSpelling => DiffSummary.HEADLINE.ALT_SPELLING
+    }
+
+    def id = association match {
+      case rule: Rule => rule.id.id
+      case altSpelling: AlternativeSpelling => altSpelling.id.id
+    }
+
+    def trimmedTerm = association match {
+      case ruleWithTerm: RuleWithTerm => ruleWithTerm.term.trim
+      case redirectRule: RedirectRule => s"URL: ${redirectRule.target.trim}"
+      case altSpelling: AlternativeSpelling => altSpelling.term.trim
+    }
+
+    def isActive = association match {
+      case rule: Rule => rule.isActive
+      case altSpelling: AlternativeSpelling => altSpelling.isActive
+    }
+
+  }
+
+  private class InputWrapper(inputEvent: InputEvent) {
+
+    val input: Option[Any] = (
+      if (SmuiEventType.toSmuiEventType(inputEvent.eventType).equals(SmuiEventType.DELETED))
+        None
+      else
+        inputEvent.eventSource match {
+          case SmuiEventSource.SEARCH_INPUT => {
+            // TODO log error in case JSON read validation fails
+            Json.parse(inputEvent.jsonPayload.get).validate[SearchInputWithRules].asOpt
+          }
+          case SmuiEventSource.SPELLING => {
+            // TODO log error in case JSON read validation fails
+            Json.parse(inputEvent.jsonPayload.get).validate[CanonicalSpellingWithAlternatives].asOpt
+          }
+          // case _ => logger.error(s"Unexpected eventSource (${beforeEvent.eventSource}) in event with id = ${beforeEvent.id}")
+        }
+      )
+
+    def headline = inputEvent.eventSource match {
+      case SmuiEventSource.SEARCH_INPUT => DiffSummary.HEADLINE.INPUT
+      case SmuiEventSource.SPELLING => DiffSummary.HEADLINE.SPELLING
+    }
+
+    def trimmedTerm = input match {
+      case None => ""
+      case Some(searchInput: SearchInputWithRules) => searchInput.trimmedTerm
+      case Some(spelling: CanonicalSpellingWithAlternatives) => spelling.term.trim
+    }
+
+    def isActive = input match {
+      case None => false
+      case Some(searchInput: SearchInputWithRules) => searchInput.isActive
+      case Some(spelling: CanonicalSpellingWithAlternatives) => spelling.isActive
+    }
+
+    val associations = input match {
+      case None => Nil
+      case Some(searchInput: SearchInputWithRules) => searchInput.allRules.map(r => new AssociationWrapper(r))
+      case Some(spelling: CanonicalSpellingWithAlternatives) => spelling.alternativeSpellings.map(s => new AssociationWrapper(s))
+    }
+
+    def trimmedComment = input match {
+      case None => ""
+      case Some(searchInput: SearchInputWithRules) => searchInput.comment.trim
+      case Some(spelling: CanonicalSpellingWithAlternatives) => spelling.comment.trim
+    }
+
+    def smuiEventType = SmuiEventType.toSmuiEventType(inputEvent.eventType)
+
+  }
+
+  private def outputEvent(wrappedEvent: InputWrapper, outputEventType: SmuiEventType.Value, beforeNotAfter: Boolean, encodeInputTerm: Boolean) = {
+    // output input
+
+    val iSummaryValue = readableTermStatus(
+      wrappedEvent.trimmedTerm,
+      wrappedEvent.isActive
+    )
+    val inputSummary = List(
+      DiffSummary(
+        entity = wrappedEvent.headline,
+        eventType = DiffSummary.readableEventType(outputEventType),
+        before = if(beforeNotAfter) Some(iSummaryValue) else None,
+        after = if(beforeNotAfter) None else Some(iSummaryValue),
+        inputTerm = if(encodeInputTerm) Some(wrappedEvent.trimmedTerm) else None
+      )
+    )
+
+    // output associations (rules/spellings)
+
+    val assocsSummary = wrappedEvent.associations
+      .map(a => {
+        val aSummaryValue = readableTermStatus(
+          a.trimmedTerm,
+          a.isActive
+        )
+        DiffSummary(
+          entity = a.headline,
+          eventType = DiffSummary.readableEventType(outputEventType),
+          before = if(beforeNotAfter) Some(aSummaryValue) else None,
+          after = if(beforeNotAfter) None else Some(aSummaryValue),
+          inputTerm = if(encodeInputTerm) Some(wrappedEvent.trimmedTerm) else None
+        )
+      })
+
+    // output comment
+
+    val commSummary = (
+      // only inform about comment changes, if comment is not empty
+      if (wrappedEvent.trimmedComment.isEmpty)
+        Nil
+      else
+        List(
+          DiffSummary(
+            entity = DiffSummary.HEADLINE.COMMENT,
+            eventType = DiffSummary.readableEventType(outputEventType),
+            before = if(beforeNotAfter) Some(wrappedEvent.trimmedComment) else None,
+            after = if(beforeNotAfter) None else Some(wrappedEvent.trimmedComment),
+            inputTerm = if(encodeInputTerm) Some(wrappedEvent.trimmedTerm) else None
+          )
+        )
+    )
+
+    // return concatenated
+
+    inputSummary ++
+    assocsSummary ++
+    commSummary
+  }
+
+  private def outputDiffAssociations(beforeAssociations: Seq[AssociationWrapper], afterAssociations: Seq[AssociationWrapper], inputTerm: String, encodeInputTerm: Boolean) = {
 
     // determine CREATED/DELETED and potential UPDATED rules
 
-    val intersectIds = beforeRules.map(_.id).intersect(afterRules.map(_.id))
-    val rulesCreated = afterRules.filter(r => !intersectIds.contains(r.id))
-    val rulesDeleted = beforeRules.filter(r => !intersectIds.contains(r.id))
-    val rulesMaybeUpdated = beforeRules.filter(r => intersectIds.contains(r.id))
+    val intersectIds = beforeAssociations.map(_.id).intersect(afterAssociations.map(_.id))
+    val assocsCreated = afterAssociations.filter(a => !intersectIds.contains(a.id))
+    val assocsDeleted = beforeAssociations.filter(a => !intersectIds.contains(a.id))
+    val assocsMaybeUpdated = beforeAssociations.filter(a => intersectIds.contains(a.id))
 
     // generate summaries for CREATED rules
 
-    val createdSummaries = rulesCreated.map(r => DiffSummary(
-      entity = "RULE",
-      eventType = "created",
-      before = None,
-      after = Some(readableTermStatus(rule2term(r), r.isActive))
-    ))
+    val createdSummaries = assocsCreated.map(a =>
+      DiffSummary(
+        entity = a.headline,
+        eventType = DiffSummary.readableEventType(SmuiEventType.CREATED),
+        before = None,
+        after = Some(readableTermStatus(a.trimmedTerm, a.isActive)),
+        inputTerm = if(encodeInputTerm) Some(inputTerm) else None
+      )
+    )
 
     // generate summaries for DELETED rules
 
-    val deletedSummaries = rulesDeleted.map(r => DiffSummary(
-      entity = "RULE",
-      eventType = "deleted",
-      before = Some(readableTermStatus(rule2term(r), r.isActive)),
-      after = None
-    ))
+    val deletedSummaries = assocsDeleted.map(a =>
+      DiffSummary(
+        entity = a.headline,
+        eventType = DiffSummary.readableEventType(SmuiEventType.DELETED),
+        before = Some(readableTermStatus(a.trimmedTerm, a.isActive)),
+        after = None,
+        inputTerm = if(encodeInputTerm) Some(inputTerm) else None
+      )
+    )
 
     // determine real UPDATED rules and generate summaries
 
-    val updatedSummaries = rulesMaybeUpdated.map(beforeRule => {
-
-      val afterRule = afterRules.filter(p => p.id.equals(beforeRule.id)).head
+    val updatedSummaries = assocsMaybeUpdated.map(beforeAssoc => {
+      val afterAssoc = afterAssociations.filter(p => p.id.equals(beforeAssoc.id)).head
       diffTermStatus(
-        "RULE",
-        rule2term(beforeRule), beforeRule.isActive,
-        rule2term(afterRule), afterRule.isActive
+        beforeAssoc.headline,
+        beforeAssoc.trimmedTerm, beforeAssoc.isActive,
+        afterAssoc.trimmedTerm, afterAssoc.isActive,
+        SmuiEventType.UPDATED
       )
-    }).filter(d => d.isDefined)
-      .map(o => o.get)
+    })
+      .filter(d => d.isDefined)
+      .map(o => o.get
+        .copy(
+          inputTerm = if(encodeInputTerm) Some(inputTerm) else None
+        )
+      )
 
     createdSummaries ++
     deletedSummaries ++
     updatedSummaries
   }
 
-  private def diffSearchInputEvents(beforeEvent: InputEvent, afterEvent: InputEvent): ActivityLogEntry = {
+  private def outputDiff(wrappedBefore: InputWrapper, wrappedAfter: InputWrapper, encodeInputTerm: Boolean) = {
 
-    if ((afterEvent.eventType == SmuiEventType.CREATED.id) || (afterEvent.eventType == SmuiEventType.VIRTUALLY_CREATED.id)) {
+    // diff & output input
 
-      // in case input and associations where first created (everything is new! ... meaning: is to put into "after")
-
-      // TODO log error in case JSON read validation fails
-      val afterSearchInput: SearchInputWithRules = Json.parse(afterEvent.jsonPayload.get).validate[SearchInputWithRules].asOpt.get
-
-      val diffSummary =
-        // summarise input
-        List(
-          DiffSummary(
-            entity = "INPUT",
-            eventType = "created",
-            before = None,
-            after = Some(readableTermStatus(afterSearchInput.term, afterSearchInput.isActive))
-          )
-        ) ++
-        // summarise rule changes
-        afterSearchInput.allRules.map(rule => {
-          DiffSummary(
-            entity = "RULE",
-            eventType = "created",
-            before = None,
-            after = Some(readableTermStatus(rule2term(rule), rule.isActive))
-          )
-        }) ++
-        // summarise comment (if present)
-        (if (afterSearchInput.comment.trim.isEmpty)
-          Nil
-        else
-          List(
-            DiffSummary(
-              entity = "COMMENT",
-              eventType = "created",
-              before = None,
-              after = Some(afterSearchInput.comment.trim)
-            )
-          )
+    val inputDiff = diffTermStatus(
+      DiffSummary.HEADLINE.INPUT,
+      wrappedBefore.trimmedTerm, wrappedBefore.isActive,
+      wrappedAfter.trimmedTerm, wrappedAfter.isActive,
+      wrappedAfter.smuiEventType
+    ) match {
+      case Some(d: DiffSummary) => List(
+        d.copy(
+          inputTerm = if(encodeInputTerm) Some(wrappedBefore.trimmedTerm) else None
         )
-
-      ActivityLogEntry(
-        formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-        userInfo = if(afterEvent.eventType == SmuiEventType.VIRTUALLY_CREATED.id) Some("SMUI system (pre v3.8 migration)") else afterEvent.userInfo,
-        diffSummary = diffSummary
       )
+      case None => Nil
+    }
 
-    // TODO service doesnt work with last DELETED event for an input (but doesnt see those in v3.8 either)
-    } else {
+    // diff & output associations (rules/spellings)
 
-      // determine changes (UPDATED) of input and associated rules
+    val rulesDiff = outputDiffAssociations(
+      wrappedBefore.associations,
+      wrappedAfter.associations,
+      wrappedBefore.trimmedTerm,
+      encodeInputTerm
+    )
 
-      // TODO log error in case JSON read validation fails
-      val beforeSearchInput: SearchInputWithRules = Json.parse(beforeEvent.jsonPayload.get).validate[SearchInputWithRules].asOpt.get
-      val afterSearchInput: SearchInputWithRules = Json.parse(afterEvent.jsonPayload.get).validate[SearchInputWithRules].asOpt.get
+    // diff & output comment
 
-      // diff search input (and comment)
-      // case input term/status UPDATED
-
-      // val inputDiff = termStatusDiffSummary(termDiff, statDiff) match {
-      val inputDiff = diffTermStatus("INPUT", beforeSearchInput.term, beforeSearchInput.isActive, afterSearchInput.term, afterSearchInput.isActive) match {
-        case Some(d: DiffSummary) => List(d)
-        case None => Nil
-      }
-
-      // case comment UPDATED (or emptied)
-
-      val commDiff = (if (beforeSearchInput.comment.trim.equals(afterSearchInput.comment.trim))
+    val commDiff = (
+      // only inform about comment changes, if before or after comment is not empty
+      if ((wrappedBefore.trimmedComment.isEmpty) && (wrappedAfter.trimmedComment.isEmpty))
+        Nil
+      // only inform about comment changes, if a change happened ;-)
+      else if (wrappedBefore.trimmedComment.equals(wrappedAfter.trimmedComment))
         Nil
       else
         List(
           DiffSummary(
-            entity = "COMMENT",
-            eventType = "updated",
-            before = Some(beforeSearchInput.comment.trim),
-            after = Some(afterSearchInput.comment.trim)
+            entity = DiffSummary.HEADLINE.COMMENT,
+            eventType = DiffSummary.readableEventType(SmuiEventType.UPDATED),
+            before = Some(wrappedBefore.trimmedComment),
+            after = Some(wrappedAfter.trimmedComment),
+            inputTerm = if(encodeInputTerm) Some(wrappedBefore.trimmedTerm) else None
           )
         )
-      )
+    )
 
-      // diff rules (CREATED, UPDATED & DELETED)
+    // return concatenated
 
-      val rulesDiff = diffRules(beforeSearchInput.allRules, afterSearchInput.allRules)
+    inputDiff ++
+    rulesDiff ++
+    commDiff
+  }
 
-      // return complete diff summary
+  /**
+    * Generate an ActivityLogEntry for two sequential events.
+    *
+    * @param beforeEvent
+    * @param afterEvent
+    * @return
+    */
+  private def processInputEvents(beforeEvent: Option[InputEvent], afterEvent: InputEvent, encodeInputTerm: Boolean = false): ActivityLogEntry = {
 
-      val diffSummary =
-        inputDiff ++
-        rulesDiff ++
-        commDiff
+    // support the following valid event constellations:
+    // before -> after    | compare activity
+    // ~~~~~~~~~~~~~~~~~~ | ~~~~~~~~~~~~~~~~
+    // None    -> CREATED | event, output all contents of beforeEvent as after, before = empty
+    // CREATED -> DELETED | events, output all contents of beforeEvent as before, after = empty
+    // CREATED -> UPDATED | events, output diff of before/after
+    // UPDATED -> UPDATED | events, output diff of before/after
+    // UPDATED -> DELETED | events, output all contents of beforeEvent as before, after = empty
+    // (important: CREATED and VIRTUALLY_CREATED are equal in that context)
 
-      ActivityLogEntry(
-        formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-        userInfo = afterEvent.userInfo,
-        diffSummary = diffSummary
-      )
+    val beforeEventType = beforeEvent match {
+      case None => None
+      case Some(e) => Some(SmuiEventType.toSmuiEventType(e.eventType))
     }
-  }
 
-  /*
-   * activity/diff ecosystem of CanonicalSpellingWithAlternative
-   */
+    val USER_INFO_MIGRATION = "SMUI system (pre v3.8 migration)"
 
-  private def diffAlternativeSpellings(beforeSpellings: Seq[AlternativeSpelling], afterSpellings: Seq[AlternativeSpelling]): Seq[DiffSummary] = {
-
-    // TODO refactor to align diffAlternativeSpellings with diffRules
-
-    val intersectIds = beforeSpellings.map(_.id).intersect(afterSpellings.map(_.id))
-    val spellingsCreated = afterSpellings.filter(r => !intersectIds.contains(r.id))
-    val spellingsDeleted = beforeSpellings.filter(r => !intersectIds.contains(r.id))
-    val spellingsMaybeUpdated = beforeSpellings.filter(r => intersectIds.contains(r.id))
-
-    val createdSummaries = spellingsCreated.map(s => DiffSummary(
-      entity = "MISSPELLING",
-      eventType = "created",
-      before = None,
-      after = Some(readableTermStatus(s.term, s.isActive))
-    ))
-
-    val deletedSummaries = spellingsDeleted.map(s => DiffSummary(
-      entity = "MISSPELLING",
-      eventType = "deleted",
-      before = Some(readableTermStatus(s.term, s.isActive)),
-      after = None
-    ))
-
-    val updatedSummaries = spellingsMaybeUpdated.map(beforeSpelling => {
-
-      val afterSpelling = afterSpellings.filter(s => s.id.equals(beforeSpelling.id)).head
-      diffTermStatus(
-        "MISSPELLING",
-        beforeSpelling.term, beforeSpelling.isActive,
-        afterSpelling.term, afterSpelling.isActive
-      )
-    }).filter(d => d.isDefined)
-      .map(o => o.get)
-
-    createdSummaries ++
-    deletedSummaries ++
-    updatedSummaries
-  }
-
-  private def diffSpellingEvents(beforeEvent: InputEvent, afterEvent: InputEvent): ActivityLogEntry = {
-
-    // TODO refactor to align diffSpellingEvents with diffSearchInputEvents
-
-    if ((afterEvent.eventType == SmuiEventType.CREATED.id) || (afterEvent.eventType == SmuiEventType.VIRTUALLY_CREATED.id)) {
-
-      // TODO log error in case JSON read validation fails
-      val afterSpelling = Json.parse(afterEvent.jsonPayload.get).validate[CanonicalSpellingWithAlternatives].asOpt.get
-
-      val diffSummary =
-        // summarise canonical spellings
-        List(
-          DiffSummary(
-            entity = "SPELLING",
-            eventType = "created",
-            before = None,
-            after = Some(readableTermStatus(afterSpelling.term.trim, afterSpelling.isActive))
-          )
-        ) ++
-        // summarise alternative terms
-        afterSpelling.alternativeSpellings.map(alt => {
-          DiffSummary(
-            entity = "MISSPELLING",
-            eventType = "created",
-            before = None,
-            after = Some(readableTermStatus(alt.term.trim, alt.isActive))
-          )
-        }) ++
-        // summarise comment (if present)
-        (if (afterSpelling.comment.trim.isEmpty)
-          Nil
-        else
-          List(
-            DiffSummary(
-              entity = "COMMENT",
-              eventType = "created",
-              before = None,
-              after = Some(afterSpelling.comment.trim)
-            )
-          )
-        )
-
-      ActivityLogEntry(
-        formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-        userInfo = if(afterEvent.eventType == SmuiEventType.VIRTUALLY_CREATED.id) Some("SMUI system (pre v3.8 migration)") else afterEvent.userInfo,
-        diffSummary = diffSummary
-      )
-
-    } else {
-
-      // TODO log error in case JSON read validation fails
-      val beforeSpelling = Json.parse(beforeEvent.jsonPayload.get).validate[CanonicalSpellingWithAlternatives].asOpt.get
-      val afterSpelling = Json.parse(afterEvent.jsonPayload.get).validate[CanonicalSpellingWithAlternatives].asOpt.get
-
-      val spellingDiff = diffTermStatus("SPELLING", beforeSpelling.term, beforeSpelling.isActive, afterSpelling.term, afterSpelling.isActive) match {
-        case Some(d: DiffSummary) => List(d)
-        case None => Nil
+    def virtualUserInfo(eventUserInfo: Option[String], rawEventType: Int) = {
+      eventUserInfo match {
+        case None => {
+          if(SmuiEventType.toSmuiEventType(rawEventType).equals(SmuiEventType.VIRTUALLY_CREATED))
+            Some(USER_INFO_MIGRATION)
+          else
+            None
+        }
+        case Some(i) => Some(i)
       }
-
-      val alternativesDiff = diffAlternativeSpellings(
-        beforeSpelling.alternativeSpellings,
-        afterSpelling.alternativeSpellings
-      )
-
-      val commDiff = (if (beforeSpelling.comment.trim.equals(afterSpelling.comment.trim))
-        Nil
-      else
-        List(
-          DiffSummary(
-            entity = "COMMENT",
-            eventType = "updated",
-            before = Some(beforeSpelling.comment.trim),
-            after = Some(afterSpelling.comment.trim)
-          )
-        )
-      )
-
-      val diffSummary =
-        spellingDiff ++
-        alternativesDiff ++
-        commDiff
-
-      ActivityLogEntry(
-        formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-        userInfo = afterEvent.userInfo,
-        diffSummary = diffSummary
-      )
     }
-  }
 
-  /*
-   * total SMUI acivity log
-   */
+    val afterEventType = SmuiEventType.toSmuiEventType(afterEvent.eventType)
+    val wrappedAfter = new InputWrapper(afterEvent)
 
-  private def compareInputEvents(beforeEvent: InputEvent, afterEvent: InputEvent): ActivityLogEntry = {
+    (beforeEventType, afterEventType) match {
+      case (None, SmuiEventType.CREATED)
+        | (None, SmuiEventType.VIRTUALLY_CREATED) => {
 
-    // input is SearchInput vs. CanonicalSpelling
+        ActivityLogEntry(
+          formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+          userInfo = virtualUserInfo(afterEvent.userInfo, afterEvent.eventType),
+          diffSummary = outputEvent(wrappedAfter, SmuiEventType.CREATED, false, encodeInputTerm)
+        )
 
-    beforeEvent.eventSource match {
-      case SmuiEventSource.SEARCH_INPUT => diffSearchInputEvents(beforeEvent, afterEvent)
-      case SmuiEventSource.SPELLING => diffSpellingEvents(beforeEvent, afterEvent)
-      // case _ => logger.error(s"Unexpected eventSource (${beforeEvent.eventSource}) in event with id = ${beforeEvent.id}")
+      }
+      case (Some(SmuiEventType.CREATED), SmuiEventType.DELETED)
+        | (Some(SmuiEventType.VIRTUALLY_CREATED), SmuiEventType.DELETED)
+        | (Some(SmuiEventType.UPDATED), SmuiEventType.DELETED) => {
+
+        val wrappedBefore = new InputWrapper(beforeEvent.get)
+
+        ActivityLogEntry(
+          formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+          userInfo = virtualUserInfo(afterEvent.userInfo, afterEvent.eventType),
+          diffSummary = outputEvent(wrappedBefore, SmuiEventType.DELETED, true, encodeInputTerm)
+        )
+
+      }
+      case (Some(SmuiEventType.CREATED), SmuiEventType.UPDATED)
+        | (Some(SmuiEventType.VIRTUALLY_CREATED), SmuiEventType.UPDATED)
+        | (Some(SmuiEventType.UPDATED), SmuiEventType.UPDATED) => {
+
+        val wrappedBefore = new InputWrapper(beforeEvent.get)
+
+        ActivityLogEntry(
+          formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+          userInfo = virtualUserInfo(afterEvent.userInfo, afterEvent.eventType),
+          diffSummary = outputDiff(wrappedBefore, wrappedAfter, encodeInputTerm)
+        )
+
+      }
+      case _ => {
+        logger.error(s"IllegalState: processInputEvents found event chain ($beforeEventType, $afterEventType)")
+        logger.error(s"beforeEvent = >>>$beforeEvent")
+        logger.error(s"afterEvent = >>>$afterEvent")
+        // TODO maybe throw IllegalState exception instead
+        ActivityLogEntry(
+          formattedDateTime = "error (see log)",
+          userInfo = None,
+          diffSummary = Nil
+        )
+      }
     }
   }
 
   /**
     * Interface
-    *
-    * @param id
-    * @param connection
-    * @return
     */
+
   def loadForId(id: String)(implicit connection: Connection): ActivityLog = {
 
     // get all persisted events for id
     val events = InputEvent.loadForId(id)
     if (events.isEmpty) {
       // TODO if there is not even one first CREATED event, virtually create one and reload events
+      // TODO that should have been done with migration (/smui/app/models/eventhistory/MigrationService.scala)
       return ActivityLog(Nil)
     }
     else {
 
-      // create new list with prepended dummy, non existent event
+      // create new list of pairwise events
+      // (important: 1st element must be an Option)
 
-      // TODO make this part of InputEvent.empty()?
-      val EMPTY_EVENT = InputEvent(
-        id = InputEventId("--NONE--"),
-        eventSource = events.head.eventSource, // !!!
-        eventType = -1, // TODO add NON_EXISTENT = Value(-1) to @see models/eventhistory/InputEvent.scala :: SmuiEventType?
-        eventTime = LocalDateTime.MIN,
-        userInfo = None,
-        inputId = "--NONE--", // semantically questionable, but the ID doesnt matter ;-)
-        None
-      )
-
-      val completeEvents = EMPTY_EVENT +: events
-      val pairwiseEvents = completeEvents zip completeEvents.tail
+      val allEvents = (List(None) ++ events.map(e => Some(e)))
+      val pairwiseEvents =
+        (allEvents zip allEvents.tail)
+        .map(eventPair =>
+          (eventPair._1, eventPair._2)
+        )
 
       // pairwise compare and map diffs to ActivityLog entries
-      // TODO determine diff summary within day-wise time spans
 
       val activityLogItems = pairwiseEvents.map( eventPair => {
-        compareInputEvents(eventPair._1, eventPair._2)
+        processInputEvents(eventPair._1, eventPair._2.get)
       })
 
       ActivityLog(
-        activityLogItems
+        items = activityLogItems
           .reverse
           .filter(entry => !entry.diffSummary.isEmpty)
+      )
+    }
+  }
+
+  // TODO write test
+  def changesForSolrIndexInPeriod(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime)(implicit connection: Connection): ActivityLog = {
+
+    val changedIds = InputEvent.allChangedInputIdsForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo)
+
+    logger.info(s":: changedIds.size = ${changedIds.size}")
+
+    if (changedIds.isEmpty) {
+      ActivityLog(
+        items = Nil
+      )
+    } else {
+
+      // load all corresponding activity log entries for the period
+
+      // TODO add deployment info (LIVE & PRELIVE), see above
+      val activityLogItems: List[ActivityLogEntry] = changedIds
+        .map(id => {
+          val (maybeBefore, maybeAfter) = InputEvent.changeEventsForIdInPeriod(id, dateFrom, dateTo)
+          // TODO UX: point to input/rule/spelling in "Entity event type"
+          // TODO add error for (None, None)
+          processInputEvents(maybeBefore, maybeAfter.get, true)
+        })
+        // add explicit sorting (sorted by event date of input)
+        .sortWith((a: ActivityLogEntry, b: ActivityLogEntry) => {
+          // reverse engineer date
+          // TODO could be nicer to not save a formattedDateTime, but rather do the string transformation later in JSON conversion
+          val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+          val aTime = LocalDateTime.parse(a.formattedDateTime, formatter)
+          val bTime = LocalDateTime.parse(b.formattedDateTime, formatter)
+          bTime.isBefore(aTime)
+        })
+
+      ActivityLog(
+        items = activityLogItems
       )
     }
   }

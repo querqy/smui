@@ -1,14 +1,33 @@
 package models.eventhistory
 
-import java.time.LocalDateTime
-
-import models.{ApplicationTestBase}
-import models.input.{SearchInputId, SearchInputWithRules}
-import models.spellings.{AlternativeSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import org.scalatest.{FlatSpec, Matchers}
-import play.api.libs.json.Json
+import org.scalatest.matchers.{BeMatcher, MatchResult}
 
-class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+import play.api.libs.json.Json
+import models.ApplicationTestBase
+import models.input.{FullSearchInputWithRules, SearchInputId, SearchInputWithRules}
+import models.reports.ActivityReport
+import models.spellings.{AlternativeSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives, FullCanonicalSpellingWithAlternatives}
+
+trait CustomerMatchers {
+
+  class DateEqualOrAfter(bTime: LocalDateTime) extends BeMatcher[LocalDateTime] {
+    override def apply(aTime: LocalDateTime) =
+      MatchResult(
+        (aTime.isEqual(bTime)) || (bTime.isAfter(aTime)),
+        s"$bTime is equal or after $aTime",
+        s"$bTime is before $aTime - this is unexpected"
+      )
+  }
+
+  def dateEqualOrAfter(bTime: LocalDateTime) = new DateEqualOrAfter(bTime)
+
+}
+
+class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with ApplicationTestBase {
 
   private var inputIds: Seq[SearchInputId] = Seq.empty
   private var spellingIds: Seq[CanonicalSpellingId] = Seq.empty
@@ -29,7 +48,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
     spellingIds = createTestSpellings()
   }
 
-  "CREATED events" should "be present for search inputs" in {
+  "CREATED events" should "be present for search input InputEvent" in {
     db.withConnection { implicit conn =>
 
       // input#0 (aerosmith)
@@ -44,13 +63,15 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
       inputEvents0(0).inputId shouldBe inputIds(0).id
 
       // whole payload should match
-      val readSearchInput0 = Json.parse(inputEvents0(1).jsonPayload.get).validate[SearchInputWithRules].asOpt.get
+      val readSearchInput0 = Json.parse(inputEvents0(1).jsonPayload.get).validate[FullSearchInputWithRules].asOpt.get
       readSearchInput0.term shouldBe "aerosmith"
       readSearchInput0.isActive shouldBe true
+      // ... incl a solrIndexId
+      readSearchInput0.solrIndexId shouldBe core1Id
     }
   }
 
-  "CREATED events" should "be present for spellings" in {
+  "CREATED events" should "be present for spelling InputEvent" in {
     db.withConnection { implicit conn =>
 
       // spelling#0 (freezer)
@@ -65,9 +86,11 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
       spellingEvents0(0).inputId shouldBe spellingIds(0).id
 
       // whole payload should match
-      val readSpelling0 = Json.parse(spellingEvents0(1).jsonPayload.get).validate[CanonicalSpellingWithAlternatives].asOpt.get
+      val readSpelling0 = Json.parse(spellingEvents0(1).jsonPayload.get).validate[FullCanonicalSpellingWithAlternatives].asOpt.get
       readSpelling0.term shouldBe "freezer"
       readSpelling0.isActive shouldBe true
+      // ... incl a solrIndexId
+      readSpelling0.solrIndexId shouldBe core1Id
     }
   }
 
@@ -412,10 +435,10 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
     }
   }
 
-
   "deletion of search input" should "result in a DELETED event" in {
     db.withConnection { implicit conn =>
 
+      // TODO remove!! Thread.sleep(60000)
       repo.deleteSearchInput(inputIds(0).id)
 
       val inputEvents0 = InputEvent.loadForId(inputIds(0).id)
@@ -433,6 +456,7 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
   "deletion of spelling" should "result in a DELETED event" in {
     db.withConnection { implicit conn =>
 
+      // TODO remove!! Thread.sleep(60000)
       repo.deleteSpelling(spellingIds(0).id)
 
       val spellingEvents0 = InputEvent.loadForId(spellingIds(0).id)
@@ -444,6 +468,102 @@ class EventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
       spellingEvents0(5).userInfo shouldBe None
       spellingEvents0(5).inputId shouldBe spellingIds(0).id
       spellingEvents0(5).jsonPayload shouldBe None
+    }
+  }
+
+  /**
+    * Test Activity Report for all the changes done above (especially for DELETED events).
+    */
+
+  "ActivityReport" should "inform about all changes for search input & spellings (incl deletion)" in {
+    db.withConnection { implicit conn =>
+
+      val tEnd = LocalDateTime.now()
+
+      val activityReport = ActivityReport.reportForSolrIndexIdInPeriod(core1Id, tStart, tEnd)
+
+      activityReport.items.size shouldBe 11
+
+      // check, that report is sorted by modificationTime
+
+      val items = activityReport.items
+
+      (items zip items.tail)
+        .map(itemPair => {
+          val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+          val aTime = LocalDateTime.parse(itemPair._1.modificationTime, formatter)
+          val bTime = LocalDateTime.parse(itemPair._2.modificationTime, formatter)
+
+          bTime shouldBe dateEqualOrAfter(aTime)
+        })
+
+      // check Activity Report content of past activities in Spec
+
+      items(0).inputTerm shouldBe "aerosmith"
+      items(0).entity shouldBe "INPUT"
+      items(0).eventType shouldBe "deleted"
+      items(0).before shouldBe Some("aerosmith (activated)")
+      items(0).after shouldBe None
+
+      items(1).inputTerm shouldBe "shipping"
+      items(1).entity shouldBe "RULE"
+      items(1).eventType shouldBe "created"
+      items(1).before shouldBe None
+      items(1).after shouldBe Some("URL: http://xyz.com/shipping (activated)")
+
+      items(2).inputTerm shouldBe "inactive"
+      items(2).entity shouldBe "INPUT"
+      items(2).eventType shouldBe "updated"
+      items(2).before shouldBe Some("inactive (activated)")
+      items(2).after shouldBe Some("inactive (deactivated)")
+
+      items(3).inputTerm shouldBe "inactive"
+      items(3).entity shouldBe "COMMENT"
+      items(3).eventType shouldBe "updated"
+      items(3).before shouldBe Some("") // TODO maybe require None here?
+      items(3).after shouldBe Some("inactive")
+
+      items(4).inputTerm shouldBe "freezer"
+      items(4).entity shouldBe "SPELLING"
+      items(4).eventType shouldBe "deleted"
+      items(4).before shouldBe Some("freezer (activated)")
+      items(4).after shouldBe None
+
+      items(5).inputTerm shouldBe "machine"
+      items(5).entity shouldBe "MISSPELLING"
+      items(5).eventType shouldBe "created"
+      items(5).before shouldBe None
+      items(5).after shouldBe Some("machin (deactivated)")
+
+      items(6).inputTerm shouldBe "machine"
+      items(6).entity shouldBe "MISSPELLING"
+      items(6).eventType shouldBe "created"
+      items(6).before shouldBe None
+      items(6).after shouldBe Some("mechine (activated)")
+
+      items(7).inputTerm shouldBe "pants"
+      items(7).entity shouldBe "INPUT"
+      items(7).eventType shouldBe "updated"
+      items(7).before shouldBe Some("pants (activated)")
+      items(7).after shouldBe Some("pants (deactivated)")
+
+      items(8).inputTerm shouldBe "pants"
+      items(8).entity shouldBe "MISSPELLING"
+      items(8).eventType shouldBe "created"
+      items(8).before shouldBe None
+      items(8).after shouldBe Some("pands (activated)")
+
+      items(9).inputTerm shouldBe "pants"
+      items(9).entity shouldBe "MISSPELLING"
+      items(9).eventType shouldBe "created"
+      items(9).before shouldBe None
+      items(9).after shouldBe Some("pents (activated)")
+
+      items(10).inputTerm shouldBe "pants"
+      items(10).entity shouldBe "COMMENT"
+      items(10).eventType shouldBe "updated"
+      items(10).before shouldBe Some("") // TODO see above (maybe require None?)
+      items(10).after shouldBe Some("This is a comment")
     }
   }
 

@@ -43,9 +43,16 @@ export class SolrService {
       )
   }
 
-  lastDeploymentLogInfo(solrIndexId: string, targetSystem: string): Promise<DeploymentLogInfo> {
+  lastDeploymentLogInfo(solrIndexId: string, targetSystem: string, raw: boolean = false): Promise<DeploymentLogInfo> {
+    const reqPrms = {
+      solrIndexId: solrIndexId,
+      targetSystem: targetSystem
+    }
+    if (raw) {
+      reqPrms['raw'] = true
+    }
     return this.http
-      .get(`${this.baseUrl}/log/deployment-info?solrIndexId=${solrIndexId}&targetSystem=${targetSystem}`)
+      .get(`${this.baseUrl}/log/deployment-info`, { params: reqPrms })
       .toPromise()
       .then(res =>  res.json() as DeploymentLogInfo)
   }

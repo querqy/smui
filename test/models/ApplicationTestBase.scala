@@ -67,7 +67,15 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     val filterRules = List(FilterRule(FilterRuleId(), "zz top", isActive = true))
 
     val aerosmithId = repo.addNewSearchInput(core1Id, "aerosmith", Seq.empty)
-    val searchInput = SearchInputWithRules(aerosmithId, "aerosmith", synonymRules, upDownRules, filterRules, isActive = true, comment = "")
+    val searchInput = SearchInputWithRules(
+      aerosmithId,
+      "aerosmith",
+      synonymRules,
+      upDownRules,
+      filterRules,
+      isActive = true,
+      comment = ""
+    )
     repo.updateSearchInput(searchInput)
 
     val tag = InputTag(InputTagId(), Some(core1Id), Some("testProperty"), "testValue", exported = true, predefined = false, LocalDateTime.now())
@@ -77,11 +85,24 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
 
     val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq(tag.id))
     val redirectRule = RedirectRule(RedirectRuleId(), "http://xyz.com/shipping", isActive = true)
-    val searchInputForRedirect = SearchInputWithRules(shippingId, "shipping", redirectRules = List(redirectRule), isActive = true, comment = "", tags = Seq(tag))
+    val searchInputForRedirect = SearchInputWithRules(
+      shippingId,
+      "shipping",
+      redirectRules = List(redirectRule),
+      isActive = true,
+      comment = "",
+      tags = Seq(tag)
+    )
     repo.updateSearchInput(searchInputForRedirect)
 
     val inactiveId = repo.addNewSearchInput(core1Id, "inactive", Seq.empty)
-    val inactiveSearchInput = SearchInputWithRules(inactiveId, "inactive", redirectRules = List.empty, isActive = false, comment = "inactive")
+    val inactiveSearchInput = SearchInputWithRules(
+      inactiveId,
+      "inactive",
+      redirectRules = List.empty,
+      isActive = false,
+      comment = "inactive"
+    )
     repo.updateSearchInput(inactiveSearchInput)
 
     Seq(aerosmithId, shippingId)
@@ -97,8 +118,11 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     pants = repo.addNewCanonicalSpelling(core1Id, "pants")
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
-      freezer.id, freezer.term, freezer.isActive, freezer.comment,
-      List(
+      freezer.id,
+      freezer.term,
+      freezer.isActive,
+      freezer.comment,
+      alternativeSpellings = List(
         AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frezer", true),
         AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freazer", true),
         AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer", true)
@@ -106,15 +130,19 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     ))
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
-      machine.id, machine.term, machine.isActive, machine.comment,
-      List(
+      machine.id,
+      machine.term,
+      machine.isActive,
+      machine.comment,
+      alternativeSpellings = List(
         AlternativeSpelling(AlternativeSpellingId(), machine.id, "machin", false),
         AlternativeSpelling(AlternativeSpellingId(), machine.id, "mechine", true)
       )
     ))
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
-      pants.id, pants.term,
+      pants.id,
+      pants.term,
       isActive = false,
       "This is a comment",
       List(

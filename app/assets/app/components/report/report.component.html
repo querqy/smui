@@ -1,6 +1,8 @@
 <smui-report-settingsbar
-        (selectReport)="selectReport($event)"
+        (changeReport)="changeReport($event)"
         (generateReport)="generateReport($event)"
+        [currentSolrIndexId]="currentSolrIndexId"
+        [generateBtnDisabled]="generateBtnDisabled"
         #smuiReportSettingsBar>
 </smui-report-settingsbar>
 
@@ -9,7 +11,7 @@
     No report generated yet. Use panel above to select and generate a report.
 </div>
 
-<div *ngIf="currentReport !== null"
+<div *ngIf="currentReport !== null && smuiReportSettingsBar.configReport === 'rules-report'"
     class="card card-gap">
     <div class="card-body">
         <div class="row">
@@ -24,13 +26,16 @@
                             Details
                         </th>
                         <th style="width:15%">
-                            Rule modified <small class="fa fa-sort-desc" aria-hidden="true"></small>
+                            Rule modified <small class="fa fa-sort-asc" aria-hidden="true"></small>
                         </th>
                         <th style="width:30%">
-                            Term (input)
+                            Term (input) <small class="fa fa-sort-asc" aria-hidden="true"></small>
                         </th>
                         <th style="width:15%">
-                            Input modified <small class="fa fa-sort-desc" aria-hidden="true"></small>
+                            Input modified <small class="fa fa-sort-asc" aria-hidden="true"></small>
+                        </th>
+                        <th>
+                            Input tags
                         </th>
                         <!--
                         <th>
@@ -50,16 +55,73 @@
                         </td>
                         <td>
                             {{ reportItem.inputTerm }}
+                            <!--
+                            TODO link to input in "Rule" section
+                            -->
                         </td>
                         <td>
                             {{ reportItem.inputModified }}
                         </td>
-                        <!--
                         <td>
-                            {{ reportItem.inputId }}
+                            {{ reportItem.inputTags }}
                         </td>
-                        -->
                     </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="currentReport !== null && smuiReportSettingsBar.configReport === 'activity-report'"
+     class="card card-gap">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+
+                <table class="table">
+                    <tr>
+                        <th>
+                            Modification time <small class="fa fa-sort-desc" aria-hidden="true"></small>
+                        </th>
+                        <th>
+                            User
+                        </th>
+                        <th>
+                            Term (input)
+                        </th>
+                        <th>
+                            Entity event type
+                        </th>
+                        <th>
+                            Before (input / rule)
+                        </th>
+                        <th>
+                            After (input / rule)
+                        </th>
+                    </tr>
+                    <ng-container *ngFor="let reportItem of currentReport.items">
+                        <tr>
+                            <td>
+                                {{ reportItem.modificationTime }}
+                            </td>
+                            <td>
+                                {{ reportItem.hasOwnProperty('user') ? reportItem.user : '' }}
+                            </td>
+                            <td>
+                                {{ reportItem.inputTerm }}
+                            </td>
+                            <td>
+                                {{ reportItem.entity }} ({{ reportItem.eventType }})
+                            </td>
+                            <td>
+                                {{ reportItem.hasOwnProperty('before') ? reportItem.before : '' }}
+                            </td>
+                            <td>
+                                {{ reportItem.hasOwnProperty('after') ? reportItem.after : '' }}
+                            </td>
+                        </tr>
+                    </ng-container>
                 </table>
 
             </div>

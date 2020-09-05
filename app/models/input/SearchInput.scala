@@ -3,8 +3,11 @@ package models.input
 import java.sql.Connection
 import java.time.LocalDateTime
 
+import play.api.libs.json.{Json, OFormat}
+
 import anorm.SqlParser.get
 import anorm._
+
 import models._
 
 class SearchInputId(id: String) extends Id(id)
@@ -33,6 +36,8 @@ case class SearchInput(id: SearchInputId = SearchInputId(),
 }
 
 object SearchInput {
+
+  implicit val jsonFormat: OFormat[SearchInput] = Json.format[SearchInput]
 
   val TABLE_NAME = "search_input"
   val ID = "id"

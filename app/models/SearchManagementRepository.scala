@@ -5,14 +5,13 @@ import java.time.LocalDateTime
 import java.util.{Date, UUID}
 
 import javax.inject.Inject
-import anorm.SqlParser.get
-import anorm._
 import play.api.db.DBApi
+import anorm._
 import models.FeatureToggleModel.FeatureToggleService
 import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
-import models.reports.RulesReport
+import models.reports.{ActivityReport, DeploymentLog, RulesReport}
 
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
@@ -80,7 +79,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       // add CREATED event for spelling
       if (toggleService.getToggleActivateEventHistory) {
         InputEvent.createForSpelling(
-          CanonicalSpellingWithAlternatives.loadById(spelling.id).get,
+          spelling.id,
           None, // TODO userInfo not being logged so far
           false
         )
@@ -101,7 +100,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       // add UPDATED event for spelling and associated alternatives
       if (toggleService.getToggleActivateEventHistory) {
         InputEvent.updateForSpelling(
-          CanonicalSpellingWithAlternatives.loadById(spelling.id).get,
+          spelling.id,
           None // TODO userInfo not being logged so far
         )
       }
@@ -151,7 +150,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     // add CREATED event for search input (maybe containing tags)
     if (toggleService.getToggleActivateEventHistory) {
       InputEvent.createForSearchInput(
-        SearchInputWithRules.loadById(id).get,
+        id,
         None, // TODO userInfo not being logged so far
         false
       )
@@ -170,7 +169,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     // add UPDATED event for search input and rules
     if (toggleService.getToggleActivateEventHistory) {
       InputEvent.updateForSearchInput(
-        SearchInputWithRules.loadById(searchInput.id).get,
+        searchInput.id,
         None // TODO userInfo not being logged so far
       )
     }
@@ -214,19 +213,9 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       .execute()
   }
 
-  case class DeploymentLogDetail(id: String, lastUpdate: LocalDateTime, result: Int)
-
-  val sqlParserDeploymentLogDetail: RowParser[DeploymentLogDetail] = {
-    get[String](s"deployment_log.id") ~
-      get[LocalDateTime](s"deployment_log.last_update") ~
-      get[Int](s"deployment_log.result") map { case id ~ lastUpdate ~ result =>
-      DeploymentLogDetail(id, lastUpdate, result)
-    }
-  }
-
-  def lastDeploymentLogDetail(solrIndexId: String, targetPlatform: String): Option[DeploymentLogDetail] = db.withConnection {
+  def lastDeploymentLogDetail(solrIndexId: String, targetPlatform: String): Option[DeploymentLog] = db.withConnection {
     implicit connection => {
-      SQL"select * from deployment_log where solr_index_id = $solrIndexId and target_platform = $targetPlatform order by last_update desc".as(sqlParserDeploymentLogDetail.*).headOption
+      DeploymentLog.loadForSolrIndexIdAndPlatform(solrIndexId, targetPlatform)
     }
   }
 
@@ -239,6 +228,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
       if (toggleService.getToggleActivateEventHistory) {
 
+        // TODO maybe add defaultUsername in ActivityLog already?
         val defaultUsername = if (toggleService.getToggleDefaultDisplayUsername.isEmpty) None else Some(toggleService.getToggleDefaultDisplayUsername)
 
         ActivityLog(
@@ -265,6 +255,22 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def getRulesReport(solrIndexId: SolrIndexId): RulesReport = db.withConnection {
     implicit connection => {
       RulesReport.loadForSolrIndexId(solrIndexId)
+    }
+  }
+
+  def getActivityReport(solrIndexId: SolrIndexId, dateFrom: LocalDateTime, dateTo: LocalDateTime): ActivityReport = db.withConnection {
+    implicit connection => {
+
+      // TODO maybe add defaultUsername in ActivityLog already?
+      val defaultUsername = if (toggleService.getToggleDefaultDisplayUsername.isEmpty) None else Some(toggleService.getToggleDefaultDisplayUsername)
+
+      // TODO ensure dateFrom/To span whole days (00:00 to 23:59)
+      ActivityReport(
+        items = ActivityReport.reportForSolrIndexIdInPeriod(solrIndexId, dateFrom, dateTo).items
+          .map(item => item.copy(
+            user = (if (item.user.isEmpty) defaultUsername else item.user),
+          ))
+      )
     }
   }
 

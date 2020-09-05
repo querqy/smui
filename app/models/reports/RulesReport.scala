@@ -5,10 +5,11 @@ import java.time.LocalDateTime
 
 import anorm._
 import anorm.SqlParser.get
-
+import models.input.{SearchInput, SearchInputId, SearchInputWithRules}
+import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import play.api.libs.json.{Json, OFormat}
 import play.api.Logging
-import models.SolrIndexId
+import models.{SolrIndexId, Status}
 
 case class RulesReportItem(
   inputId: String, // TODO inputType needed?
@@ -17,7 +18,8 @@ case class RulesReportItem(
   isActive: Boolean,
   modified: LocalDateTime,
   inputTerm: String,
-  inputModified: LocalDateTime
+  inputModified: LocalDateTime,
+  inputTags: Seq[String]
 )
 
 case class RulesReport(items: Seq[RulesReportItem])
@@ -27,12 +29,7 @@ object RulesReport extends Logging {
   implicit val jsonFormatRulesReportItem: OFormat[RulesReportItem] = Json.format[RulesReportItem]
   implicit val jsonFormatRulesReport: OFormat[RulesReport] = Json.format[RulesReport]
 
-  private def loadReportForTable(solrIndexId: SolrIndexId, tblRuleName: String, detailsDescr: String, termFieldName: String = "term", tblInputName: String = "search_input", refKeyFieldName: String = "search_input_id")(implicit connection: Connection): Seq[RulesReportItem] = {
-
-    // TODO consider moving this to a dedicated Status model in /app/models/input (for SearchInput and Rule as well)
-    def isActive(status: Int): Boolean = {
-      (status & 0x01) == 0x01
-    }
+  private def loadReportForTable(solrIndexId: SolrIndexId, tblRuleName: String, detailsDescr: String, termFieldName: String = "term", tblInputName: String = SearchInput.TABLE_NAME, refKeyFieldName: String = "search_input_id")(implicit connection: Connection): Seq[RulesReportItem] = {
 
     val sqlParser: RowParser[RulesReportItem] = {
       get[String](s"$tblInputName.id") ~
@@ -46,10 +43,15 @@ object RulesReport extends Logging {
           inputId = inputId,
           term = ruleTerm,
           details = detailsDescr,
-          isActive = isActive(ruleStatus) && isActive(inputStatus),
+          isActive = Status.isActiveFromStatus(ruleStatus) && Status.isActiveFromStatus(inputStatus),
           modified = ruleLastUpdate,
           inputTerm = inputTerm,
-          inputModified = inputLastUpdate
+          inputModified = inputLastUpdate,
+          // TODO consider writing one join-SQL to retrieve tags as well (or at least just one further SQL per input; not rule) ==> performance
+          inputTags = tblInputName match {
+            case SearchInput.TABLE_NAME => SearchInputWithRules.loadById(SearchInputId(inputId)).get.tags.map(t => t.displayValue)
+            case CanonicalSpelling.TABLE_NAME => Nil
+          }
         )
       }
     }
@@ -61,19 +63,38 @@ object RulesReport extends Logging {
   }
 
   private def sortAllRules(unsortedRules: Seq[RulesReportItem]): Seq[RulesReportItem] = {
-    // sort/group by: (1) modified (rule), (2) inputModified,
-    // TODO maybe sort for (3) inputTerm (case! quotations!)
+    // sort/group by
     def compareRulesReportItem(a: RulesReportItem, b: RulesReportItem): Int = {
-      if(a.modified.equals(b.modified)) {
-        a.inputModified.compareTo(b.inputModified)
-      }
-      else {
+      if (a.modified.equals(b.modified)) {
+        if (a.inputModified.equals(b.inputModified)) {
+          // sorting prio 3) inputTerm (case insensitive! quotations!)
+          // TODO maybe make this part of Input (as it is needed by sorting the result list as well)
+          def normalisedTerm(term: String): String = {
+            // kill first character, if there is a quotation
+            (if (term.trim.charAt(0).equals('"'))
+              term.substring(1).trim
+            else
+              term.trim)
+              // lowercase everything
+              .toLowerCase
+          }
+          // normalise & compare
+          val normA = normalisedTerm(a.inputTerm)
+          val normB = normalisedTerm(b.inputTerm)
+          normA.compareTo(normB)
+        } else {
+          // sorting prio 2) inputModified (of rule)
+          a.inputModified.compareTo(b.inputModified)
+        }
+      } else {
+        // sorting prio 1) modified date (of rule)
         a.modified.compareTo(b.modified)
       }
     }
     unsortedRules.sortWith((a,b) => (compareRulesReportItem(a,b) < 0))
   }
 
+  // TODO write test
   def loadForSolrIndexId(solrIndexId: SolrIndexId)(implicit connection: Connection): RulesReport = {
 
     val allSynonymRules = loadReportForTable(solrIndexId, "synonym_rule", "SYNONYM")
@@ -81,7 +102,7 @@ object RulesReport extends Logging {
     val allFilterRules = loadReportForTable(solrIndexId, "filter_rule", "FILTER")
     val allDeleteRules = loadReportForTable(solrIndexId, "delete_rule", "DELETE")
     val allRedirectRules = loadReportForTable(solrIndexId, "redirect_rule", "REDIRECT", termFieldName = "target")
-    val allSpellings = loadReportForTable(solrIndexId, "alternative_spelling", "SPELLING", tblInputName = "canonical_spelling", refKeyFieldName = "canonical_spelling_id")
+    val allSpellings = loadReportForTable(solrIndexId, "alternative_spelling", "SPELLING", tblInputName = CanonicalSpelling.TABLE_NAME, refKeyFieldName = "canonical_spelling_id")
 
     val reportItems = sortAllRules(
       allSynonymRules
