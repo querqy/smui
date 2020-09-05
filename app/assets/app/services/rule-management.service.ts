@@ -3,6 +3,7 @@ import { Headers, Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 
 import { ApiResult, SearchInput } from '../models/index';
+import { FeatureToggleService } from '../services/index'
 
 @Injectable()
 export class RuleManagementService {
@@ -12,8 +13,11 @@ export class RuleManagementService {
 
   private readonly jsonHeader = new Headers({'Content-Type': 'application/json'});
 
-  // TODO consider other persistence solution (e.g. REST)
-  public  readonly upDownDropdownDefinitionMappings = [
+  public readonly upDownDropdownDefinitionMappings = this.featureToggleService
+    .getSyncToggleCustomUpDownDropdownMappings()
+  /*
+  TODO consider providing a super-super fallback, if backend delivered values are invalid?
+  [
     { displayName: 'UP(+++++)', upDownType: 0, boostMalusValue: 500 },
     { displayName: 'UP(++++)', upDownType: 0, boostMalusValue: 100 },
     { displayName: 'UP(+++)', upDownType: 0, boostMalusValue: 50 },
@@ -24,9 +28,13 @@ export class RuleManagementService {
     { displayName: 'DOWN(---)', upDownType: 1, boostMalusValue: 50 },
     { displayName: 'DOWN(----)', upDownType: 1, boostMalusValue: 100 },
     { displayName: 'DOWN(-----)', upDownType: 1, boostMalusValue: 500 }
-  ];
+  ]
+  */
 
-  constructor(private http: Http) { }
+  constructor(
+    public featureToggleService: FeatureToggleService,
+    private http: Http
+  ) { }
 
   listAllSearchInputsInclSynonyms(solrIndexId: string): Promise<Array<SearchInput>> {
     return this.http

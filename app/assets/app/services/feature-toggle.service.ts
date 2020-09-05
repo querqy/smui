@@ -1,15 +1,16 @@
-import { Injectable } from '@angular/core';
-import { Headers, Http, Response } from '@angular/http';
+import { Injectable } from '@angular/core'
+import { Headers, Http, Response } from '@angular/http'
 
-import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/operator/toPromise'
 
-const FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED = 'toggle.ui-concept.updown-rules.combined';
-const FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS = 'toggle.ui-concept.all-rules.with-solr-fields';
-const FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT = 'toggle.rule-deployment.pre-live.present';
-const FEATURE_AUTH_SIMPLE_LOGOUT_BUTTON_TARGET_URL = 'smui.auth.ui-concept.simple-logout-button-target-url';
-const FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO = 'toggle.ui-list.limit-items-to';
-const FEATURE_ACTIVATE_SPELLING = 'toggle.activate-spelling';
-const FEATURE_ACTIVATE_EVENTHISTORY = 'toggle.activate-eventhistory';
+const FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED = 'toggle.ui-concept.updown-rules.combined'
+const FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS = 'toggle.ui-concept.all-rules.with-solr-fields'
+const FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT = 'toggle.rule-deployment.pre-live.present'
+const FEATURE_AUTH_SIMPLE_LOGOUT_BUTTON_TARGET_URL = 'smui.auth.ui-concept.simple-logout-button-target-url'
+const FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO = 'toggle.ui-list.limit-items-to'
+const FEATURE_ACTIVATE_SPELLING = 'toggle.activate-spelling'
+const FEATURE_ACTIVATE_EVENTHISTORY = 'toggle.activate-eventhistory'
+const FEATURE_CUSTOM_UP_DOWN_MAPPINGS = 'toggle.ui-concept.custom.up-down-dropdown-mappings'
 
 // TODO refactor into proper angular/export dependency (DI)
 declare var FEATURE_TOGGLE_LIST: any;
@@ -75,6 +76,10 @@ export class FeatureToggleService {
 
   getSyncToggleActivateEventHistory(): any {
     return this.getSync(FEATURE_ACTIVATE_EVENTHISTORY)
+  }
+
+  getSyncToggleCustomUpDownDropdownMappings(): any {
+    return this.getSync(FEATURE_CUSTOM_UP_DOWN_MAPPINGS)
   }
 
 }
