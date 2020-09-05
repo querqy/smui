@@ -63,13 +63,31 @@ object RulesReport extends Logging {
   }
 
   private def sortAllRules(unsortedRules: Seq[RulesReportItem]): Seq[RulesReportItem] = {
-    // sort/group by: (1) modified (rule), (2) inputModified,
-    // TODO maybe sort for (3) inputTerm (case! quotations!)
+    // sort/group by
     def compareRulesReportItem(a: RulesReportItem, b: RulesReportItem): Int = {
-      if(a.modified.equals(b.modified)) {
-        a.inputModified.compareTo(b.inputModified)
-      }
-      else {
+      if (a.modified.equals(b.modified)) {
+        if (a.inputModified.equals(b.inputModified)) {
+          // sorting prio 3) inputTerm (case insensitive! quotations!)
+          // TODO maybe make this part of Input (as it is needed by sorting the result list as well)
+          def normalisedTerm(term: String): String = {
+            // kill first character, if there is a quotation
+            (if (term.trim.charAt(0).equals('"'))
+              term.substring(1).trim
+            else
+              term.trim)
+              // lowercase everything
+              .toLowerCase
+          }
+          // normalise & compare
+          val normA = normalisedTerm(a.inputTerm)
+          val normB = normalisedTerm(b.inputTerm)
+          normA.compareTo(normB)
+        } else {
+          // sorting prio 2) inputModified (of rule)
+          a.inputModified.compareTo(b.inputModified)
+        }
+      } else {
+        // sorting prio 1) modified date (of rule)
         a.modified.compareTo(b.modified)
       }
     }

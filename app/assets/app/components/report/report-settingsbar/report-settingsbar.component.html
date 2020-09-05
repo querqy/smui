@@ -48,7 +48,8 @@
 
         <form class="form-inline">
             <button class="btn btn-outline-primary" type="submit"
-                (click)="clickGenerateReport()">
+                (click)="clickGenerateReport()"
+                [attr.disabled]="generateBtnDisabled ? '' : null">
                 Generate report
             </button>
         </form>

@@ -11,6 +11,7 @@ import { FeatureToggleService, SolrService } from '../../../services/index'
 export class ReportSettingsBarComponent implements OnInit, OnChanges {
 
   @Input() currentSolrIndexId: string = null
+  @Input() generateBtnDisabled = false
 
   @Output() changeReport: EventEmitter<void> = new EventEmitter()
   @Output() generateReport: EventEmitter<void> = new EventEmitter()

@@ -17,6 +17,7 @@ export class ReportComponent implements OnInit, OnChanges {
 
   @ViewChild('smuiReportSettingsBar') settingsBarComponent: ReportSettingsBarComponent
 
+  generateBtnDisabled = false
   currentReport = null
 
   constructor(
@@ -54,10 +55,15 @@ export class ReportComponent implements OnInit, OnChanges {
     console.log(':: settingsBarComponent.configDateFrom = ' + this.settingsBarComponent.configDateFrom)
     console.log(':: settingsBarComponent.configDateTo = ' + this.settingsBarComponent.configDateTo)
 
+    // reset currentReport (and disable button) for the time, the report is loading to avoid confusion
+    this.currentReport = null
+    this.generateBtnDisabled = true
+
     if (this.settingsBarComponent.configReport === 'rules-report') {
       this.reportService.getRulesReport(this.currentSolrIndexId)
         .then(retReport => {
           console.log(':: getRulesReport :: retReport received')
+          this.generateBtnDisabled = false
           this.currentReport = retReport
         })
         .catch(error => this.showErrorMsg(error))
@@ -69,6 +75,7 @@ export class ReportComponent implements OnInit, OnChanges {
       )
         .then(retReport => {
           console.log(':: getActivityReport :: retReport received')
+          this.generateBtnDisabled = false
           this.currentReport = retReport
         })
         .catch(error => this.showErrorMsg(error))
