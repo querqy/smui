@@ -2,7 +2,7 @@ import com.typesafe.sbt.GitBranchPrompt
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "3.9.0"
+version := "3.9.1"
 
 scalaVersion := "2.12.11"
 
