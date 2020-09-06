@@ -40,3 +40,8 @@ jobs:
     - tail --lines=500 build.log
     - echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin
     - sudo make docker-push
+
+# safelist
+branches:
+  only:
+    - master

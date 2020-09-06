@@ -2,10 +2,11 @@ package models
 
 import java.sql.Connection
 
-import models.input.{SearchInput, SearchInputWithRules, InputTag, TagInputAssociation}
-import models.rules.{SynonymRule, SynonymRuleId}
 import org.scalatest.{FlatSpec, Matchers}
 import utils.WithInMemoryDB
+
+import models.input.{SearchInput, SearchInputWithRules, InputTag, TagInputAssociation}
+import models.rules.{SynonymRule, SynonymRuleId}
 
 class SearchInputWithRulesSpec extends FlatSpec with Matchers with WithInMemoryDB with TestData {
 

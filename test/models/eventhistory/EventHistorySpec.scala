@@ -475,6 +475,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
     * Test Activity Report for all the changes done above (especially for DELETED events).
     */
 
+  // TODO test can be flaky and can fail from time to time -> this seems up to the final order of entities as creation/modification time windows are very small
   "ActivityReport" should "inform about all changes for search input & spellings (incl deletion)" in {
     db.withConnection { implicit conn =>
 

@@ -30,97 +30,85 @@ class CustomUpDownDropdownMappingsSpec extends FlatSpec with Matchers {
       BASE_APP_CONFIG ++
         additionalAppConfig
 
-    val application: Application = new GuiceApplicationBuilder().
+    new GuiceApplicationBuilder().
       in(Mode.Test).
       configure(allAppConfig: _*).
       build()
-    val injector: Injector = application.injector
+  }
 
-    injector.instanceOf[FeatureToggleService]
+  def shutdownAppAndDb(application: Application) = {
+    application.stop()
+    db.shutdown()
+  }
+
+  def createAppAndGetValueToTest(customMappings: String): (Application, String) = {
+    val application = applicationWithFeatureToggleService(
+      Seq(TOGGLE_TO_TEST -> customMappings)
+    )
+    val injector: Injector = application.injector
+    val featureToggleService = injector.instanceOf[FeatureToggleService]
+
+    val toTestValue = featureToggleService.getJsFrontendToggleList
+      .filter(t => t.toggleName.equals(TOGGLE_TO_TEST))
+      .head
+      .toggleValue
+      .render()
+
+    (application, toTestValue)
   }
 
   "FeatureToggleService" should "deliver valid custom UP/DOWN dropdown mappings" in {
     val VALID_CUSTOM_MAPPINGS =
       "[{\"displayName\":\"UP(+++++)\",\"upDownType\":0,\"boostMalusValue\":750},{\"displayName\":\"UP(++++)\",\"upDownType\":0,\"boostMalusValue\":100},{\"displayName\":\"UP(+++)\",\"upDownType\":0,\"boostMalusValue\":50},{\"displayName\":\"UP(++)\",\"upDownType\":0,\"boostMalusValue\":10},{\"displayName\":\"UP(+)\",\"upDownType\":0,\"boostMalusValue\": 5},{\"displayName\":\"DOWN(-)\",\"upDownType\":1,\"boostMalusValue\": 5},{\"displayName\":\"DOWN(--)\",\"upDownType\":1,\"boostMalusValue\": 10},{\"displayName\":\"DOWN(---)\",\"upDownType\":1,\"boostMalusValue\": 50},{\"displayName\":\"DOWN(----)\",\"upDownType\":1,\"boostMalusValue\": 100},{\"displayName\":\"DOWN(-----)\",\"upDownType\":1,\"boostMalusValue\": 750}]"
 
-    val featureToggleService = applicationWithFeatureToggleService(
-      Seq(TOGGLE_TO_TEST -> VALID_CUSTOM_MAPPINGS)
-    )
-
-    val toTestValue = featureToggleService.getJsFrontendToggleList
-      .filter(t => t.toggleName.equals(TOGGLE_TO_TEST))
-      .head
-      .toggleValue
-      .render()
+    val (application, toTestValue) = createAppAndGetValueToTest(VALID_CUSTOM_MAPPINGS)
 
     toTestValue shouldEqual VALID_CUSTOM_MAPPINGS
+
+    shutdownAppAndDb(application)
   }
 
   "FeatureToggleService" should "reject invalid JSON and provide default UP/DOWN dropdown mappings" in {
     val BROKEN_JSON = "[{\"displayName\":\"UP(+++++)\",\"upDownType\":0,\"boostMalusValue\":750}"
 
-    val featureToggleService = applicationWithFeatureToggleService(
-      Seq(TOGGLE_TO_TEST -> BROKEN_JSON)
-    )
-
-    val toTestValue = featureToggleService.getJsFrontendToggleList
-      .filter(t => t.toggleName.equals(TOGGLE_TO_TEST))
-      .head
-      .toggleValue
-      .render()
+    val (application, toTestValue) = createAppAndGetValueToTest(BROKEN_JSON)
 
     toTestValue shouldEqual DEFAULT_MAPPINGS
+
+    shutdownAppAndDb(application)
   }
 
   "FeatureToggleService" should "reject invalid custom UP/DOWN dropdown mappings with a wrong type and provide default" in {
     val INVALID_CUSTOM_MAPPINGS =
       "[{\"displayName\":\"UP(+++++)\",\"upDownType\":2,\"boostMalusValue\":750},{\"displayName\":\"UP(++++)\",\"upDownType\":0,\"boostMalusValue\":100},{\"displayName\":\"UP(+++)\",\"upDownType\":0,\"boostMalusValue\":50},{\"displayName\":\"UP(++)\",\"upDownType\":0,\"boostMalusValue\":10},{\"displayName\":\"UP(+)\",\"upDownType\":0,\"boostMalusValue\": 5},{\"displayName\":\"DOWN(-)\",\"upDownType\":1,\"boostMalusValue\": 5},{\"displayName\":\"DOWN(--)\",\"upDownType\":1,\"boostMalusValue\": 10},{\"displayName\":\"DOWN(---)\",\"upDownType\":1,\"boostMalusValue\": 50},{\"displayName\":\"DOWN(----)\",\"upDownType\":1,\"boostMalusValue\": 100},{\"displayName\":\"DOWN(-----)\",\"upDownType\":1,\"boostMalusValue\": 750}]"
 
-    val featureToggleService = applicationWithFeatureToggleService(
-      Seq(TOGGLE_TO_TEST -> INVALID_CUSTOM_MAPPINGS)
-    )
-
-    val toTestValue = featureToggleService.getJsFrontendToggleList
-      .filter(t => t.toggleName.equals(TOGGLE_TO_TEST))
-      .head
-      .toggleValue
-      .render()
+    val (application, toTestValue) = createAppAndGetValueToTest(INVALID_CUSTOM_MAPPINGS)
 
     toTestValue shouldEqual DEFAULT_MAPPINGS
+
+    shutdownAppAndDb(application)
   }
 
   "FeatureToggleService" should "reject invalid custom UP/DOWN dropdown mappings without DOWNs and provide default" in {
     val UNPLAUSIBLE_CUSTOM_MAPPINGS =
       "[{\"displayName\":\"UP(+++++)\",\"upDownType\":0,\"boostMalusValue\":750},{\"displayName\":\"UP(++++)\",\"upDownType\":0,\"boostMalusValue\":100},{\"displayName\":\"UP(+++)\",\"upDownType\":0,\"boostMalusValue\":50},{\"displayName\":\"UP(++)\",\"upDownType\":0,\"boostMalusValue\":10},{\"displayName\":\"UP(+)\",\"upDownType\":0,\"boostMalusValue\": 5}]"
 
-    val featureToggleService = applicationWithFeatureToggleService(
-      Seq(TOGGLE_TO_TEST -> UNPLAUSIBLE_CUSTOM_MAPPINGS)
-    )
-
-    val toTestValue = featureToggleService.getJsFrontendToggleList
-      .filter(t => t.toggleName.equals(TOGGLE_TO_TEST))
-      .head
-      .toggleValue
-      .render()
+    val (application, toTestValue) = createAppAndGetValueToTest(UNPLAUSIBLE_CUSTOM_MAPPINGS)
 
     toTestValue shouldEqual DEFAULT_MAPPINGS
+
+    shutdownAppAndDb(application)
   }
 
   "FeatureToggleService" should "reject invalid custom UP/DOWN dropdown mappings without UPs and provide default" in {
     val UNPLAUSIBLE_CUSTOM_MAPPINGS =
       "[{\"displayName\":\"DOWN(-)\",\"upDownType\":1,\"boostMalusValue\": 5},{\"displayName\":\"DOWN(--)\",\"upDownType\":1,\"boostMalusValue\": 10},{\"displayName\":\"DOWN(---)\",\"upDownType\":1,\"boostMalusValue\": 50},{\"displayName\":\"DOWN(----)\",\"upDownType\":1,\"boostMalusValue\": 100},{\"displayName\":\"DOWN(-----)\",\"upDownType\":1,\"boostMalusValue\": 750}]"
 
-    val featureToggleService = applicationWithFeatureToggleService(
-      Seq(TOGGLE_TO_TEST -> UNPLAUSIBLE_CUSTOM_MAPPINGS)
-    )
-
-    val toTestValue = featureToggleService.getJsFrontendToggleList
-      .filter(t => t.toggleName.equals(TOGGLE_TO_TEST))
-      .head
-      .toggleValue
-      .render()
+    val (application, toTestValue) = createAppAndGetValueToTest(UNPLAUSIBLE_CUSTOM_MAPPINGS)
 
     toTestValue shouldEqual DEFAULT_MAPPINGS
+
+    shutdownAppAndDb(application)
   }
 
 }
