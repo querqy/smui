@@ -16,6 +16,7 @@ import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 import controllers.auth.AuthActionFactory
 import models._
+import models.config.SmuiVersion
 import models.input.{InputTagId, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
@@ -339,6 +340,44 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       }
 
       Ok(Json.toJson(getRawVerboseDeplMsg()))
+    }
+  }
+
+  /**
+    * Config info
+    */
+
+  case class SmuiVersionInfo(
+    latestMarketStandard: Option[String],
+    current: Option[String],
+    /**
+      * infoType:
+      * - INFO
+      * - WARN
+      * - ERROR
+      */
+    infoType: String,
+    msg: String
+  )
+
+  implicit val smuiVersionInfoWrites = Json.writes[SmuiVersionInfo]
+
+  def getLatestVersionInfo() = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      // get latest version from dockerhub
+      val latestFromDockerHub = SmuiVersion.latestVersionFromDockerHub()
+
+
+      logger.info(s":: latestFromDockerHub = $latestFromDockerHub")
+
+
+      val versionInfo = SmuiVersionInfo(
+        None,
+        None,
+        "ERROR",
+        "TODO getVersionInfo() is not fully implemented yet!"
+      )
+      Ok(Json.toJson(versionInfo))
     }
   }
 
