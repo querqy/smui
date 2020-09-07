@@ -352,9 +352,9 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     current: Option[String],
     /**
       * infoType:
-      * - INFO
-      * - WARN
-      * - ERROR
+      * - INFO (usually an "up-to-date" message)
+      * - WARN (local instance in outdated)
+      * - ERROR (something bad happened)
       */
     infoType: String,
     msg: String
@@ -362,6 +362,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
   implicit val smuiVersionInfoWrites = Json.writes[SmuiVersionInfo]
 
+  // TODO consider outsourcing this "business logic" into the (config) model
   def getLatestVersionInfo() = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       // get latest version from dockerhub

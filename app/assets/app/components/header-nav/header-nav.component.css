@@ -21,3 +21,7 @@
 .help-table-col-4 {
   width: 55%;
 }
+
+.btn-smui-version-info {
+  cursor: pointer;
+}

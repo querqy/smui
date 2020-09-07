@@ -2,8 +2,15 @@
     <span class="navbar-brand" style="margin-right:0.5rem">{{ featureToggleService.getSync("toggle.headline") }}</span>
     <span class="smui-version">
         (v{{ featureToggleService.getSync("smui.version") }})
-        <ng-container *ngIf="smuiVersionInfo !== null">
-            <i class="fa fa-info-circle" aria-hidden="true"></i>
+        <ng-container *ngIf="(smuiVersionInfo !== null) && (smuiVersionInfo.infoType !== 'INFO')">
+            <button class="btn btn-sm btn-smui-version-info"
+                    [ngClass]="{'btn-outline-secondary': smuiVersionInfo.infoType==='INFO','btn-warning': smuiVersionInfo.infoType==='WARN','btn-danger': smuiVersionInfo.infoType==='ERROR'}"
+                    data-toggle="modal"
+                    data-target="#versionInfoModalModal">
+                <i class="fa"
+                   [ngClass]="{'fa-info-circle': smuiVersionInfo.infoType==='INFO','fa-exclamation-circle': smuiVersionInfo.infoType==='WARN','fa-exclamation-circle': smuiVersionInfo.infoType==='ERROR'}"
+                   aria-hidden="true"></i>
+            </button>
         </ng-container>
     </span>
 
@@ -64,6 +71,33 @@
 
     </div>
 </nav>
+
+<div class="modal fade" id="versionInfoModalModal" tabindex="-1" role="dialog" aria-labelledby="versionInfoModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="versionInfoModalLongTitle">Version Info for this SMUI instance ({{ smuiVersionInfo.infoType }})</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span *ngIf="smuiVersionInfo.hasOwnProperty('latestMarketStandard')">
+                    The current market standard for SMUI is: {{ smuiVersionInfo.latestMarketStandard }}
+                </span>
+                <span *ngIf="smuiVersionInfo.hasOwnProperty('current')">
+                    Local instance SMUI version is: {{ smuiVersionInfo.current }}
+                </span>
+                <span>
+                    {{ smuiVersionInfo.msg }}
+                </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="detailHelpModal" tabindex="-1" role="dialog" aria-labelledby="detailHelpModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
