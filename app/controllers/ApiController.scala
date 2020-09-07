@@ -391,13 +391,15 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
         val (infoType, msgHtml) = (if(latestFromDockerHub.get.greaterThan(current.get)) {
           (
             SmuiVersionInfoType.WARN.toString,
-            "<div>TODO getVersionInfo() is not fully implemented yet!<div>" +
-              "<hr>" +
-              "<div>" +
-              "<h6>What's new" +
-              "</h6>" +
-              "<div>TODO parse querqy.org/docs/smui/release-notes/ and teaser new features (optional)</div>" +
-              "<div>See <a href=\"https://querqy.org/docs/smui/release-notes/\" target=\"_new\">https://querqy.org/docs/smui/release-notes/</a></div>"
+            // note: logical HTML structure within modal dialog begins with <h5>
+            "<h5>Info</h5>" +
+              // TODO get maintainer from build.sbt
+              "<div>Your locally installed <strong>SMUI instance is outdated</strong>. Please consider an update. If you have issues, contact the maintainer (<a href=\"mailto:paulbartusch@gmx.de\">paulbartusch@gmx.de</a>) or file an issue to the project: <a href=\"https://github.com/querqy/smui/issues\" target=\"_new\">https://github.com/querqy/smui/issues</a><div>"
+              // TODO parse querqy.org/docs/smui/release-notes/ and teaser new features (optional) - might look like:
+              // "<hr>" +
+              // "<h5>What's new</h5>"
+              // "<ul>LIST_OF_RELEASE_NOTES</ul>" +
+              // "<div>See <a href=\"https://querqy.org/docs/smui/release-notes/\" target=\"_new\">https://querqy.org/docs/smui/release-notes/</a></div>"
           )
         } else (
             SmuiVersionInfoType.INFO.toString,
