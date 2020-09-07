@@ -14,7 +14,7 @@ import {
   FeatureToggleService,
   ListItemsService, RuleManagementService, SpellingsService,
   SolrService, TagsService,
-  ActivityLogService, ReportService
+  ActivityLogService, ReportService, ConfigService
 } from './services/index'
 
 // helpers
@@ -97,7 +97,8 @@ import {
       deps: [XHRBackend, RequestOptions, Router]
     },
     ActivityLogService,
-    ReportService
+    ReportService,
+    ConfigService
   ],
   bootstrap: [
     AppComponent

@@ -3,7 +3,7 @@ import { ToasterService } from 'angular2-toaster'
 
 import { ModalDialogComponent } from '../modal-dialog/index'
 import { InputTag, ListItem, SolrIndex, SuggestedSolrField } from '../../models/index';
-import { FeatureToggleService, SolrService } from '../../services/index';
+import { FeatureToggleService, SolrService, ConfigService } from '../../services/index';
 
 @Component({
   selector: 'smui-header-nav',
@@ -17,24 +17,34 @@ export class HeaderNavComponent implements OnInit {
   @Input() mainComponentDirty = false
   @Input() smuiModalDialog: ModalDialogComponent = null
 
-  public deploymentRunningForStage = null;
-  public hideDeploymentLogInfo = true;
-  public deploymentLogInfo = 'Loading info ...';
+  public deploymentRunningForStage = null
+  public hideDeploymentLogInfo = true
+  public deploymentLogInfo = 'Loading info ...'
 
-  public listSolrIndeces: SolrIndex[];
+  public listSolrIndeces: SolrIndex[]
   // TODO avoid to not separately keep currentSolrIndexId and according select-option model solrIndexSelectOptionModel
-  public solrIndexSelectOptionModel: string = null;
+  public solrIndexSelectOptionModel: string = null
+
+  public smuiVersionInfo = null
 
   constructor(
     private toasterService: ToasterService,
     public featureToggleService: FeatureToggleService,
-    private solrService: SolrService
+    private solrService: SolrService,
+    private configService: ConfigService
   ) {
     console.log('In HeaderNavComponent :: constructor')
   }
 
   ngOnInit() {
-    this.loadSolrIndices();
+    this.loadSolrIndices()
+    this.configService
+      .getLatestVersionInfo()
+      .then(retVer => {
+        console.log(':: configService :: getLatestVersionInfo :: retVer = ' + JSON.stringify(retVer))
+        this.smuiVersionInfo = retVer
+      })
+      .catch(error => this.showErrorMsg(error))
   }
 
   // TODO showSuccess/ErrorMsg repetitive implementation
