@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 
-import { RulesReport, ActivityReport	 } from '../models/index';
+import { RulesReport, ActivityReport } from '../models/index';
 
 @Injectable()
 export class ReportService {

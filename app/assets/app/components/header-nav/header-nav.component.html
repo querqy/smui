@@ -2,7 +2,9 @@
     <span class="navbar-brand" style="margin-right:0.5rem">{{ featureToggleService.getSync("toggle.headline") }}</span>
     <span class="smui-version">
         (v{{ featureToggleService.getSync("smui.version") }})
-        <i class="fa fa-info-circle" aria-hidden="true"></i>
+        <ng-container *ngIf="smuiVersionInfo !== null">
+            <i class="fa fa-info-circle" aria-hidden="true"></i>
+        </ng-container>
     </span>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
