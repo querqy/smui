@@ -350,15 +350,15 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   case class SmuiVersionInfo(
     latestMarketStandard: Option[String],
     current: Option[String],
-    /**
-      * infoType:
-      * - INFO (usually an "up-to-date" message)
-      * - WARN (local instance in outdated)
-      * - ERROR (something bad happened)
-      */
     infoType: String,
-    msg: String
+    msgHtml: String
   )
+
+  object SmuiVersionInfoType extends Enumeration {
+    val INFO = Value("INFO")
+    val WARN = Value("WARN")
+    val ERROR = Value("ERROR")
+  }
 
   implicit val smuiVersionInfoWrites = Json.writes[SmuiVersionInfo]
 
@@ -367,17 +367,53 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     Future {
       // get latest version from dockerhub
       val latestFromDockerHub = SmuiVersion.latestVersionFromDockerHub()
+      val current = SmuiVersion.parse(models.buildInfo.BuildInfo.version)
 
+      val versionInfo = (if (latestFromDockerHub.isEmpty || current.isEmpty) {
+        logger.error(s":: cannot determine version diff between latestFromDockerHub and current ($latestFromDockerHub, $current)")
 
-      logger.info(s":: latestFromDockerHub = $latestFromDockerHub")
+        def renderVersionOption(o: Option[SmuiVersion]) = o match {
+          case None => None
+          case Some(version) => Some(s"$version")
+        }
 
+        SmuiVersionInfo(
+          renderVersionOption(latestFromDockerHub),
+          renderVersionOption(current),
+          SmuiVersionInfoType.ERROR.toString,
+          "<div>Unable to determine version diff between market standard (on DockerHub) and local instance installation (see logs).<div>"
+        )
 
-      val versionInfo = SmuiVersionInfo(
-        None,
-        None,
-        "ERROR",
-        "TODO getVersionInfo() is not fully implemented yet!"
-      )
+      } else {
+
+        logger.info(s":: latest version from DockerHub = ${latestFromDockerHub.get}")
+
+        val (infoType, msgHtml) = (if(latestFromDockerHub.get.greaterThan(current.get)) {
+          (
+            SmuiVersionInfoType.WARN.toString,
+            "<div>TODO getVersionInfo() is not fully implemented yet!<div>" +
+              "<hr>" +
+              "<div>" +
+              "<h6>What's new" +
+              "</h6>" +
+              "<div>TODO parse querqy.org/docs/smui/release-notes/ and teaser new features (optional)</div>" +
+              "<div>See <a href=\"https://querqy.org/docs/smui/release-notes/\" target=\"_new\">https://querqy.org/docs/smui/release-notes/</a></div>"
+          )
+        } else (
+            SmuiVersionInfoType.INFO.toString,
+            // TODO only case, that does not deliver HTML - semantically not nice, but feasible
+            "SMUI is up-to-date!"
+          )
+        )
+
+        SmuiVersionInfo(
+          Some(s"${latestFromDockerHub.get}"),
+          Some(s"${current.get}"),
+          infoType,
+          msgHtml
+        )
+      })
+
       Ok(Json.toJson(versionInfo))
     }
   }

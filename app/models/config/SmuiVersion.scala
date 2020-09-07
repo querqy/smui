@@ -26,6 +26,10 @@ case class SmuiVersion(
     }
   }
 
+  override def toString: String = {
+    s"$major.$minor.$build"
+  }
+
 }
 
 object SmuiVersion extends Logging {
