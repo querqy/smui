@@ -10,6 +10,7 @@ import play.api.{Configuration, Environment, Logging}
 
 import scala.sys.process._
 
+// TODO consider moving this to a service (instead of models) package
 @javax.inject.Singleton
 class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
                                            appConfig: Configuration,
@@ -140,14 +141,29 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
 
   def executeDeploymentScript(rulesTxts: RulesTxtsForSolrIndex, targetSystem: String): DeploymentScriptResult = {
 
-    // interface to smui2solr.sh
-    def interfaceDeploymentScript(scriptPath: String, srcTmpFile: String, dstCpFileTo: String, solrHost: String,
-                                  solrCoreName: String, decompoundDstCpFileTo: String, targetSystem: String,
-                                  replaceRulesSrcTmpFile: String, replaceRulesDstCpFileTo: String
-                                 ): DeploymentScriptResult = {
-      // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
+    /**
+      * Interface to smui2solr.sh (or smui2git.sh)
+      */
+    // TODO perform file copying and solr core reload directly in the application (without any shell dependency)
+
+    def interfaceDeploymentScript(scriptCall: String): DeploymentScriptResult = {
+
+      val output = new StringBuilder()
+      val processLogger = ProcessLogger(line => output.append(line + "\n"))
+
+      // call
+      val exitCode = scriptCall.!(processLogger)
+      DeploymentScriptResult(exitCode, output.toString())
+
+    }
+
+    def interfaceSmui2SolrSh(scriptPath: String, srcTmpFile: String, dstCpFileTo: String, solrHost: String,
+                             solrCoreName: String, decompoundDstCpFileTo: String, targetSystem: String,
+                             replaceRulesSrcTmpFile: String, replaceRulesDstCpFileTo: String
+                            ): DeploymentScriptResult = {
+
       logger.info(
-        s""":: executeDeploymentScript config
+        s""":: interfaceSmui2SolrSh
            |:: scriptPath = $scriptPath
            |:: srcTmpFile = $srcTmpFile
            |:: dstCpFileTo = $dstCpFileTo
@@ -159,10 +175,8 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
            |:: replaceRulesDstCpFileTo = $replaceRulesDstCpFileTo
       """.stripMargin)
 
-      val output = new StringBuilder()
-      val processLogger = ProcessLogger(line => output.append(line + "\n"))
-      // define call and add parameters to the script (in expected order, see smui2solr.sh)
       val scriptCall =
+        // define call for regular smui2solr (default or custom script) and add parameters to the script (in expected order, see smui2solr.sh)
         scriptPath + " " +
         // SRC_TMP_FILE=$1
         srcTmpFile + " " +
@@ -181,9 +195,33 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
         // REPLACE_RULES_DST_CP_FILE_TO=$8
         replaceRulesDstCpFileTo
 
-      // call
-      val exitCode = scriptCall.!(processLogger)
-      DeploymentScriptResult(exitCode, output.toString())
+      interfaceDeploymentScript(scriptCall)
+    }
+
+    def interfaceSmui2GitSh(scriptPath: String, srcTmpFile: String,
+                            repoUrl: String, fnCommonRulesTxt: String
+                           ): DeploymentScriptResult = {
+      val scriptCall =
+        // define call for default smui2git.sh script
+        scriptPath + " " +
+        // SRC_TMP_FILE=$1
+        srcTmpFile + " " +
+        // SMUI_GIT_REPOSITORY=$2
+        repoUrl + " " +
+        // SMUI_GIT_FN_COMMON_RULES_TXT=$3
+        fnCommonRulesTxt
+
+      val firstResult = interfaceDeploymentScript(scriptCall)
+      if(!firstResult.success) {
+        // still accept, if no change happened
+        if(firstResult.output.trim.endsWith("nothing to commit, working tree clean")) {
+          DeploymentScriptResult(0, firstResult.output)
+        } else {
+          firstResult
+        }
+      } else {
+        firstResult
+      }
     }
 
     // determine script
@@ -221,16 +259,26 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     val replaceRulesDstCpFileTo = rulesTxts.replaceRules.map(_.destinationFileName).getOrElse("NONE")
 
     // execute script
-    val result = interfaceDeploymentScript(
-      scriptPath,
-      srcTmpFile,
-      dstCpFileTo,
-      solrHost,
-      solrCoreName,
-      decompoundDstCpFileTo,
-      targetSystem,
-      replaceRulesSrcTmpFile,
-      replaceRulesDstCpFileTo
+    val result = (if(!dstCpFileTo.equals("GIT"))
+      interfaceSmui2SolrSh(
+        scriptPath,
+        srcTmpFile,
+        dstCpFileTo,
+        solrHost,
+        solrCoreName,
+        decompoundDstCpFileTo,
+        targetSystem,
+        replaceRulesSrcTmpFile,
+        replaceRulesDstCpFileTo
+      )
+    else
+      // TODO support further rule files (decompound / replace) and maybe solrCoreName and/or targetSystem for git branch?
+      interfaceSmui2GitSh(
+        environment.rootPath.getAbsolutePath + "/conf/smui2git.sh",
+        srcTmpFile,
+        featureToggleService.getSmuiDeploymentGitRepoUrl,
+        featureToggleService.getSmuiDeploymentGitFilenameCommonRulesTxt,
+      )
     )
     if (result.success) {
       logger.info(s"Rules.txt deployment successful:\n${result.output}")

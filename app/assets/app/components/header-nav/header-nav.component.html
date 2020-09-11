@@ -88,7 +88,7 @@
                 <div class="modal-body">
                     <h5 *ngIf="smuiVersionInfo.hasOwnProperty('latestMarketStandard') || smuiVersionInfo.hasOwnProperty('current')">Version</h5>
                     <div *ngIf="smuiVersionInfo.hasOwnProperty('latestMarketStandard')">
-                        The current market standard for SMUI is: <strong>{{ smuiVersionInfo.latestMarketStandard }}</strong>
+                        The current market standard for SMUI is: <strong>{{ smuiVersionInfo.latestMarketStandard }}</strong> (see <a href="https://hub.docker.com/repository/docker/querqy/smui/" target="_new">https://hub.docker.com/repository/docker/querqy/smui/</a>)
                     </div>
                     <div *ngIf="smuiVersionInfo.hasOwnProperty('current')">
                         Local instance SMUI version is: <strong>{{ smuiVersionInfo.current }}</strong>

@@ -53,6 +53,8 @@ package object FeatureToggleModel extends Logging {
     private val SMUI_DEFAULT_DISPLAY_USERNAME = "toggle.display-username.default"
     private val SMUI_ACTIVATE_EVENTHISTORY = "toggle.activate-eventhistory"
     private val FEATURE_CUSTOM_UP_DOWN_MAPPINGS = "toggle.ui-concept.custom.up-down-dropdown-mappings"
+    private val SMUI_DEPLOYMENT_GIT_REPO_URL = "smui.deployment.git.repo-url"
+    private val SMUI_DEPLOYMENT_GIT_FN_COMMON_RULES_TXT = "smui2solr.deployment.git.filename.common-rules-txt"
 
     /**
       * helper for custom UP/DOWN mappings
@@ -140,7 +142,7 @@ package object FeatureToggleModel extends Logging {
             appConfig.getOptional[String](FEATURE_CUSTOM_UP_DOWN_MAPPINGS) match {
               case None => DEFAULT_UP_DOWN_MAPPINGS
               case Some(rawCustomUpDownMappings: String) => {
-                logger.info(s"FeatureToggleModel :: got rawCustomUpDownMappings = $rawCustomUpDownMappings")
+                logger.debug(s"FeatureToggleModel :: got rawCustomUpDownMappings = $rawCustomUpDownMappings")
                 // validate customUpDownMappings
                 if (isCustomUpDownMappingsValid(rawCustomUpDownMappings)) {
                   rawCustomUpDownMappings
@@ -194,6 +196,14 @@ package object FeatureToggleModel extends Logging {
 
     def getToggleActivateEventHistory: Boolean = {
       appConfig.getOptional[Boolean](SMUI_ACTIVATE_EVENTHISTORY).getOrElse(false)
+    }
+
+    def getSmuiDeploymentGitRepoUrl: String = {
+      appConfig.getOptional[String](SMUI_DEPLOYMENT_GIT_REPO_URL).getOrElse("localhost/smui_test_repo")
+    }
+
+    def getSmuiDeploymentGitFilenameCommonRulesTxt: String = {
+      appConfig.getOptional[String](SMUI_DEPLOYMENT_GIT_FN_COMMON_RULES_TXT).getOrElse("rules.txt")
     }
 
   }
