@@ -2,7 +2,7 @@ import com.typesafe.sbt.GitBranchPrompt
 import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
-version := "3.10.0"
+version := "3.11.0"
 
 scalaVersion := "2.12.11"
 
@@ -15,7 +15,6 @@ val packagingSettings = Seq(
   daemonUser in Linux := "smui",
   daemonGroup in Linux := (daemonUser in Linux).value,
   rpmVendor := globalMaintainer,
-/*  rpmVendor in Rpm := globalMaintainer, */
   rpmLicense := Some("SMUI License"),
   rpmBrpJavaRepackJars := false
 )
@@ -83,18 +82,6 @@ lazy val root = (project in file("."))
       logback -> "conf/logback.xml"
     }
 
-    /*,
-
-    TODO decide for addional service scripting parameters to be configured
-
-    mappings in Universal += {
-      val conf = (resourceDirectory in Compile).value / "reference.conf"
-      conf -> "conf/application.conf"
-    },
-    mappings in Universal ~= { _.filterNot { case (_, name) =>
-      Seq("conf/reference.conf", "conf/logback-dist.xml").contains(name)
-    }}
-    */
   )
 
 updateOptions := updateOptions.value.withCachedResolution(cachedResoluton = true)
@@ -173,7 +160,7 @@ libraryDependencies ++= {
     "org.webjars" % "bootstrap" % "4.0.0-beta.2",
     "org.webjars.bower" % "fontawesome" % "4.7.0",
 
-  // tslint dependency
+    // tslint dependency
 
     "org.webjars.npm" % "tslint-eslint-rules" % "3.4.0",
     "org.webjars.npm" % "tslint-microsoft-contrib" % "4.0.0",

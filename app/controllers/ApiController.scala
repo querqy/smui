@@ -201,7 +201,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     * @return Ok or BadRequest, if something failed.
     */
   def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
-    logger.debug("In ApiController :: updateRulesTxtForSolrIndex")
+    logger.debug("In ApiController :: updateRulesTxtForSolrIndexAndTargetPlatform")
 
     // generate rules.txt(s)
     val rulesFiles = rulesTxtDeploymentService.generateRulesTxtContentWithFilenames(SolrIndexId(solrIndexId), targetSystem)
