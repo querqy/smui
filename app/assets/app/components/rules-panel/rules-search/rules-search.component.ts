@@ -64,7 +64,7 @@ export class RulesSearchComponent implements OnChanges {
 
   private createItem(): void {
     this.executeWithChangeCheck.emit({
-      executeFnOk: this.isSpellingActive ? this.openAddItemModal : this.createNewRuleItem,
+      executeFnOk: this.isSpellingActive ? (() => (this.openAddItemModal())) : (() => (this.createNewRuleItem())),
       executeFnCancel: () => ({})
     })
   }
