@@ -47,6 +47,9 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
 
   protected val (core1Id, core2Id) = (SolrIndexId(), SolrIndexId())
 
+  // set to e.g. 2000, to receive a definite order of events (especially for EventHistorySpec)
+  protected val MILLIS_BETWEEN_CHANGE_EVENTS = 0
+
   protected def createTestCores(): Unit = {
     repo.addNewSolrIndex(SolrIndex(core1Id, "core1", "First core"))
     repo.addNewSolrIndex(SolrIndex(core2Id, "core2", "Second core"))
@@ -67,6 +70,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     val filterRules = List(FilterRule(FilterRuleId(), "zz top", isActive = true))
 
     val aerosmithId = repo.addNewSearchInput(core1Id, "aerosmith", Seq.empty)
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     val searchInput = SearchInputWithRules(
       aerosmithId,
       "aerosmith",
@@ -77,6 +81,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
       comment = ""
     )
     repo.updateSearchInput(searchInput)
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     val tag = InputTag(InputTagId(), Some(core1Id), Some("testProperty"), "testValue", exported = true, predefined = false, LocalDateTime.now())
     db.withConnection { implicit connection =>
@@ -84,6 +89,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     }
 
     val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq(tag.id))
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     val redirectRule = RedirectRule(RedirectRuleId(), "http://xyz.com/shipping", isActive = true)
     val searchInputForRedirect = SearchInputWithRules(
       shippingId,
@@ -94,8 +100,10 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
       tags = Seq(tag)
     )
     repo.updateSearchInput(searchInputForRedirect)
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     val inactiveId = repo.addNewSearchInput(core1Id, "inactive", Seq.empty)
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     val inactiveSearchInput = SearchInputWithRules(
       inactiveId,
       "inactive",
@@ -104,6 +112,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
       comment = "inactive"
     )
     repo.updateSearchInput(inactiveSearchInput)
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     Seq(aerosmithId, shippingId)
   }
@@ -114,8 +123,11 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
 
   protected def createTestSpellings(): Seq[CanonicalSpellingId] = {
     freezer = repo.addNewCanonicalSpelling(core1Id, "freezer")
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     machine = repo.addNewCanonicalSpelling(core1Id, "machine")
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     pants = repo.addNewCanonicalSpelling(core1Id, "pants")
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
       freezer.id,
@@ -128,6 +140,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
         AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer", true)
       )
     ))
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
       machine.id,
@@ -139,6 +152,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
         AlternativeSpelling(AlternativeSpellingId(), machine.id, "mechine", true)
       )
     ))
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
       pants.id,
@@ -150,6 +164,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
         AlternativeSpelling(AlternativeSpellingId(), pants.id, "pents", true)
       )
     ))
+    Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     Seq(freezer.id, machine.id, pants.id)
   }
@@ -158,6 +173,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     db.withConnection { implicit connection =>
       CanonicalSpelling.loadAllForIndex(solrIndexId).foreach { canonicalSpelling =>
         CanonicalSpellingWithAlternatives.delete(canonicalSpelling.id)
+        Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
       }
     }
   }
