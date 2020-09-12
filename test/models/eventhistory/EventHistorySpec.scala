@@ -38,6 +38,8 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
       "toggle.activate-eventhistory" -> true
     )
 
+  override protected val MILLIS_BETWEEN_CHANGE_EVENTS = 2000
+
   override protected def beforeAll(): Unit = {
     super.beforeAll()
 
@@ -48,7 +50,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
     spellingIds = createTestSpellings()
   }
 
-  "CREATED events" should "be present for search input InputEvent" in {
+  "CREATED events for createdTestRule" should "be present for search input InputEvent" in {
     db.withConnection { implicit conn =>
 
       // input#0 (aerosmith)
@@ -71,7 +73,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
     }
   }
 
-  "CREATED events" should "be present for spelling InputEvent" in {
+  "CREATED events for createTestSpellings" should "be present for spelling InputEvent" in {
     db.withConnection { implicit conn =>
 
       // spelling#0 (freezer)
@@ -184,30 +186,32 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
       inputLog0.items(0).userInfo shouldBe None
       inputLog0.items(0).diffSummary.size shouldBe 7
 
+      // NOTE: all created events for rules in (lowercase based) alphabetic order
+
       inputLog0.items(0).diffSummary(0).entity shouldBe "RULE"
       inputLog0.items(0).diffSummary(0).eventType shouldBe "created"
       inputLog0.items(0).diffSummary(0).before shouldBe None
-      inputLog0.items(0).diffSummary(0).after shouldBe Some("directed (activated)")
+      inputLog0.items(0).diffSummary(0).after shouldBe Some("battery (activated)")
 
       inputLog0.items(0).diffSummary(1).entity shouldBe "RULE"
       inputLog0.items(0).diffSummary(1).eventType shouldBe "created"
       inputLog0.items(0).diffSummary(1).before shouldBe None
-      inputLog0.items(0).diffSummary(1).after shouldBe Some("inactive (deactivated)")
+      inputLog0.items(0).diffSummary(1).after shouldBe Some("directed (activated)")
 
       inputLog0.items(0).diffSummary(2).entity shouldBe "RULE"
       inputLog0.items(0).diffSummary(2).eventType shouldBe "created"
       inputLog0.items(0).diffSummary(2).before shouldBe None
-      inputLog0.items(0).diffSummary(2).after shouldBe Some("mercury (activated)")
+      inputLog0.items(0).diffSummary(2).after shouldBe Some("inactive (deactivated)")
 
       inputLog0.items(0).diffSummary(3).entity shouldBe "RULE"
       inputLog0.items(0).diffSummary(3).eventType shouldBe "created"
       inputLog0.items(0).diffSummary(3).before shouldBe None
-      inputLog0.items(0).diffSummary(3).after shouldBe Some("battery (activated)")
+      inputLog0.items(0).diffSummary(3).after shouldBe Some("lenovo (deactivated)")
 
       inputLog0.items(0).diffSummary(4).entity shouldBe "RULE"
       inputLog0.items(0).diffSummary(4).eventType shouldBe "created"
       inputLog0.items(0).diffSummary(4).before shouldBe None
-      inputLog0.items(0).diffSummary(4).after shouldBe Some("lenovo (deactivated)")
+      inputLog0.items(0).diffSummary(4).after shouldBe Some("mercury (activated)")
 
       inputLog0.items(0).diffSummary(5).entity shouldBe "RULE"
       inputLog0.items(0).diffSummary(5).eventType shouldBe "created"
@@ -240,6 +244,8 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
       spellingLog0.items(0).userInfo shouldBe None
       spellingLog0.items(0).diffSummary.size shouldBe 3
 
+      // NOTE: all created events for misspellings in (lowercase based) alphabetic order
+
       spellingLog0.items(0).diffSummary(0).entity shouldBe "MISSPELLING"
       spellingLog0.items(0).diffSummary(0).eventType shouldBe "created"
       spellingLog0.items(0).diffSummary(0).before shouldBe None
@@ -264,6 +270,8 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
 
       val searchInput0 = SearchInputWithRules.loadById(inputIds(0)).get
       repo.updateSearchInput(searchInput0)
+      Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
+
       val inputEvents0 = InputEvent.loadForId(inputIds(0).id)
       inputEvents0.size shouldBe 3
       inputEvents0(2).eventType shouldBe SmuiEventType.UPDATED.id
@@ -274,6 +282,8 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
 
       val spelling0 = CanonicalSpellingWithAlternatives.loadById(spellingIds(0)).get
       repo.updateSpelling(spelling0)
+      Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
+
       val spellingEvents0 = InputEvent.loadForId(spellingIds(0).id)
       spellingEvents0.size shouldBe 3
       spellingEvents0(2).eventType shouldBe SmuiEventType.UPDATED.id
@@ -304,6 +314,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
           })
       )
       repo.updateSearchInput(newSearchInput0)
+      Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val inputEvents0 = InputEvent.loadForId(inputIds(0).id)
       inputEvents0.size shouldBe 4
@@ -337,7 +348,9 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
       val spelling0 = CanonicalSpellingWithAlternatives.loadById(spellingIds(0)).get
       val newSpelling0 = spelling0.copy(
         alternativeSpellings = spelling0.alternativeSpellings
+          // emulate deletion
           .filter(s => !(s.term.equals("frazer")))
+          // emulation update
           .map(s => {
             if (s.term.equals("frezer")) {
               AlternativeSpelling(s.id, spelling0.id, "freeeeeezy", false)
@@ -347,6 +360,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
           })
       )
       repo.updateSpelling(newSpelling0)
+      Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val spellingEvents0 = InputEvent.loadForId(spellingIds(0).id)
       spellingEvents0.size shouldBe 4
@@ -376,13 +390,14 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
 
       // input#0 (aerosmith)
 
-      val NEW_COMMENT = "I prefer Rap music. Will change the rule to a rule for the Wu-Tang Clan soon ..."
+      val NEW_INPUT0_COMMENT = "I prefer Rap music. Will change the rule to a rule for the Wu-Tang Clan soon ..."
 
       val searchInput0 = SearchInputWithRules.loadById(inputIds(0)).get
       val newSearchInput0 = searchInput0.copy(
-        comment = NEW_COMMENT
+        comment = NEW_INPUT0_COMMENT
       )
       repo.updateSearchInput(newSearchInput0)
+      Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val inputEvents0 = InputEvent.loadForId(inputIds(0).id)
       inputEvents0.size shouldBe 5
@@ -398,7 +413,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
       inputLog0.items(0).diffSummary(0).entity shouldBe "COMMENT"
       inputLog0.items(0).diffSummary(0).eventType shouldBe "updated"
       inputLog0.items(0).diffSummary(0).before shouldBe Some("") // TODO return None here seems semantically better ==> adjust @see models/eventhistory/ActivityLog.scala
-      inputLog0.items(0).diffSummary(0).after shouldBe Some(NEW_COMMENT)
+      inputLog0.items(0).diffSummary(0).after shouldBe Some(NEW_INPUT0_COMMENT)
 
     }
   }
@@ -408,13 +423,14 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
 
       // spelling#0 (freezer)
 
-      val NEW_COMMENT = "Fo' shizzle my nizzle like the salt on the freezle???"
+      val NEW_SPELLING0_COMMENT = "Fo' shizzle my nizzle like the salt on the freezle???"
 
       val spelling0 = CanonicalSpellingWithAlternatives.loadById(spellingIds(0)).get
       val newSpelling0 = spelling0.copy(
-        comment = NEW_COMMENT
+        comment = NEW_SPELLING0_COMMENT
       )
       repo.updateSpelling(newSpelling0)
+      Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val spellingEvents0 = InputEvent.loadForId(spellingIds(0).id)
       spellingEvents0.size shouldBe 5
@@ -430,7 +446,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
       spellingLog0.items(0).diffSummary(0).entity shouldBe "COMMENT"
       spellingLog0.items(0).diffSummary(0).eventType shouldBe "updated"
       spellingLog0.items(0).diffSummary(0).before shouldBe Some("") // TODO return None here seems semantically better ==> adjust @see models/eventhistory/ActivityLog.scala
-      spellingLog0.items(0).diffSummary(0).after shouldBe Some(NEW_COMMENT)
+      spellingLog0.items(0).diffSummary(0).after shouldBe Some(NEW_SPELLING0_COMMENT)
 
     }
   }
@@ -438,8 +454,8 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
   "deletion of search input" should "result in a DELETED event" in {
     db.withConnection { implicit conn =>
 
-      // TODO remove!! Thread.sleep(60000)
       repo.deleteSearchInput(inputIds(0).id)
+      Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val inputEvents0 = InputEvent.loadForId(inputIds(0).id)
       inputEvents0.size shouldBe 6
@@ -456,8 +472,8 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
   "deletion of spelling" should "result in a DELETED event" in {
     db.withConnection { implicit conn =>
 
-      // TODO remove!! Thread.sleep(60000)
       repo.deleteSpelling(spellingIds(0).id)
+      Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val spellingEvents0 = InputEvent.loadForId(spellingIds(0).id)
       spellingEvents0.size shouldBe 6
@@ -475,7 +491,6 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
     * Test Activity Report for all the changes done above (especially for DELETED events).
     */
 
-  // TODO test can be flaky and can fail from time to time -> this seems up to the final order of entities as creation/modification time windows are very small
   "ActivityReport" should "inform about all changes for search input & spellings (incl deletion)" in {
     db.withConnection { implicit conn =>
 
@@ -498,73 +513,78 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
           bTime shouldBe dateEqualOrAfter(aTime)
         })
 
+      // TODO impractical, but theoretically possible: test only creation of search input & spellings
+
       // check Activity Report content of past activities in Spec
 
-      items(0).inputTerm shouldBe "aerosmith"
-      items(0).entity shouldBe "INPUT"
+      items(0).inputTerm shouldBe "freezer"
+      items(0).entity shouldBe "SPELLING"
       items(0).eventType shouldBe "deleted"
-      items(0).before shouldBe Some("aerosmith (activated)")
+      items(0).before shouldBe Some("freezer (activated)")
       items(0).after shouldBe None
 
-      items(1).inputTerm shouldBe "shipping"
-      items(1).entity shouldBe "RULE"
-      items(1).eventType shouldBe "created"
-      items(1).before shouldBe None
-      items(1).after shouldBe Some("URL: http://xyz.com/shipping (activated)")
+      items(1).inputTerm shouldBe "aerosmith"
+      items(1).entity shouldBe "INPUT"
+      items(1).eventType shouldBe "deleted"
+      items(1).before shouldBe Some("aerosmith (activated)")
+      items(1).after shouldBe None
 
-      items(2).inputTerm shouldBe "inactive"
+      // NOTE: No further RULE, MISSPELLING and/or COMMENT updates or deleted expected, as whole search & canonical spelling input got deleted in period
+
+      items(2).inputTerm shouldBe "pants"
       items(2).entity shouldBe "INPUT"
       items(2).eventType shouldBe "updated"
-      items(2).before shouldBe Some("inactive (activated)")
-      items(2).after shouldBe Some("inactive (deactivated)")
+      items(2).before shouldBe Some("pants (activated)")
+      items(2).after shouldBe Some("pants (deactivated)")
 
-      items(3).inputTerm shouldBe "inactive"
-      items(3).entity shouldBe "COMMENT"
-      items(3).eventType shouldBe "updated"
-      items(3).before shouldBe Some("") // TODO maybe require None here?
-      items(3).after shouldBe Some("inactive")
+      items(3).inputTerm shouldBe "pants"
+      items(3).entity shouldBe "MISSPELLING"
+      items(3).eventType shouldBe "created"
+      items(3).before shouldBe None
+      items(3).after shouldBe Some("pands (activated)")
 
-      items(4).inputTerm shouldBe "freezer"
-      items(4).entity shouldBe "SPELLING"
-      items(4).eventType shouldBe "deleted"
-      items(4).before shouldBe Some("freezer (activated)")
-      items(4).after shouldBe None
+      items(4).inputTerm shouldBe "pants"
+      items(4).entity shouldBe "MISSPELLING"
+      items(4).eventType shouldBe "created"
+      items(4).before shouldBe None
+      items(4).after shouldBe Some("pents (activated)")
 
-      items(5).inputTerm shouldBe "machine"
-      items(5).entity shouldBe "MISSPELLING"
-      items(5).eventType shouldBe "created"
-      items(5).before shouldBe None
-      items(5).after shouldBe Some("machin (deactivated)")
+      items(5).inputTerm shouldBe "pants"
+      items(5).entity shouldBe "COMMENT"
+      items(5).eventType shouldBe "updated"
+      items(5).before shouldBe Some("") // TODO see above (maybe require None?)
+      items(5).after shouldBe Some("This is a comment")
 
       items(6).inputTerm shouldBe "machine"
       items(6).entity shouldBe "MISSPELLING"
       items(6).eventType shouldBe "created"
       items(6).before shouldBe None
-      items(6).after shouldBe Some("mechine (activated)")
+      items(6).after shouldBe Some("machin (deactivated)")
 
-      items(7).inputTerm shouldBe "pants"
-      items(7).entity shouldBe "INPUT"
-      items(7).eventType shouldBe "updated"
-      items(7).before shouldBe Some("pants (activated)")
-      items(7).after shouldBe Some("pants (deactivated)")
+      items(7).inputTerm shouldBe "machine"
+      items(7).entity shouldBe "MISSPELLING"
+      items(7).eventType shouldBe "created"
+      items(7).before shouldBe None
+      items(7).after shouldBe Some("mechine (activated)")
 
-      items(8).inputTerm shouldBe "pants"
-      items(8).entity shouldBe "MISSPELLING"
-      items(8).eventType shouldBe "created"
-      items(8).before shouldBe None
-      items(8).after shouldBe Some("pands (activated)")
+      items(8).inputTerm shouldBe "inactive"
+      items(8).entity shouldBe "INPUT"
+      items(8).eventType shouldBe "updated"
+      items(8).before shouldBe Some("inactive (activated)")
+      items(8).after shouldBe Some("inactive (deactivated)")
 
-      items(9).inputTerm shouldBe "pants"
-      items(9).entity shouldBe "MISSPELLING"
-      items(9).eventType shouldBe "created"
-      items(9).before shouldBe None
-      items(9).after shouldBe Some("pents (activated)")
+      items(9).inputTerm shouldBe "inactive"
+      items(9).entity shouldBe "COMMENT"
+      items(9).eventType shouldBe "updated"
+      items(9).before shouldBe Some("") // TODO maybe require None here?
+      items(9).after shouldBe Some("inactive")
 
-      items(10).inputTerm shouldBe "pants"
-      items(10).entity shouldBe "COMMENT"
-      items(10).eventType shouldBe "updated"
-      items(10).before shouldBe Some("") // TODO see above (maybe require None?)
-      items(10).after shouldBe Some("This is a comment")
+      items(10).inputTerm shouldBe "shipping"
+      items(10).entity shouldBe "RULE"
+      items(10).eventType shouldBe "created"
+      items(10).before shouldBe None
+      items(10).after shouldBe Some("URL: http://xyz.com/shipping (activated)")
+
     }
   }
 

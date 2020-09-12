@@ -311,9 +311,10 @@ object ActivityLog extends Logging {
         )
       )
 
-    createdSummaries ++
-    deletedSummaries ++
-    updatedSummaries
+    // as associating changes all happened on the same time index, define an explicit sorting for all change event types
+    createdSummaries.sortBy(d => d.after.get.trim.toLowerCase) ++
+    deletedSummaries.sortBy(d => d.before.get.trim.toLowerCase) ++
+    updatedSummaries.sortBy(d => d.before.get.trim.toLowerCase)
   }
 
   private def outputDiff(wrappedBefore: InputWrapper, wrappedAfter: InputWrapper, encodeInputTerm: Boolean) = {
@@ -336,7 +337,7 @@ object ActivityLog extends Logging {
 
     // diff & output associations (rules/spellings)
 
-    val rulesDiff = outputDiffAssociations(
+    val assocsDiff = outputDiffAssociations(
       wrappedBefore.associations,
       wrappedAfter.associations,
       wrappedBefore.trimmedTerm,
@@ -367,7 +368,7 @@ object ActivityLog extends Logging {
     // return concatenated
 
     inputDiff ++
-    rulesDiff ++
+    assocsDiff ++
     commDiff
   }
 
@@ -474,7 +475,7 @@ object ActivityLog extends Logging {
     if (events.isEmpty) {
       // TODO if there is not even one first CREATED event, virtually create one and reload events
       // TODO that should have been done with migration (/smui/app/models/eventhistory/MigrationService.scala)
-      return ActivityLog(Nil)
+      ActivityLog(Nil)
     }
     else {
 
