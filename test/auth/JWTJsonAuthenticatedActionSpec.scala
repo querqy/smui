@@ -86,6 +86,7 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
 
       val home: Future[Result] = route(app, request).get
 
+      // TODO test seems flaky, failed once!!
       whenReady(home) { result =>
         result.header.status mustBe 200
       }

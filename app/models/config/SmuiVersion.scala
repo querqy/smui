@@ -4,7 +4,7 @@ import play.api.Logging
 
 import scala.io.Source
 import scala.util.Try
-import play.api.libs.json.{JsError, JsPath, JsSuccess, Json}
+import play.api.libs.json.{JsError, JsPath, JsSuccess, Json, Reads}
 
 case class SmuiVersion(
   major: Int,
@@ -60,25 +60,37 @@ object SmuiVersion extends Logging {
     }).toOption match {
       case None => None
       case Some(rawDockerHubResp) => {
-        // parse JSON response
-        val jsonReadLatestVersionFromDockerHubResp = ((JsPath \ "results") (1) \ "name").read[String]
         // TODO make any plausibility checks (maybe, that "results"(0) contains "latest")?
-        Json.parse(rawDockerHubResp).validate[String](jsonReadLatestVersionFromDockerHubResp) match {
-          case JsSuccess(rawVer, _) => {
-            val _: String = rawVer
-            logger.info(s":: match :: rawVer = $rawVer")
-            parse(rawVer) match {
-              case None => {
-                logger.error(s":: unable to parse latest DockerHub version string for SMUI (rawVer = $rawVer)")
-                None
-              }
-              case Some(version) => Some(version)
+        def parseJsonResponse(jsonRead: Reads[String]): Option[String] = {
+          Json.parse(rawDockerHubResp).validate[String](jsonRead) match {
+            case JsSuccess(rawVer, _) => {
+              val _: String = rawVer
+              logger.info(s":: match :: rawVer = $rawVer")
+              Some(rawVer)
+            }
+            case e: JsError => {
+              logger.error(s":: error parsing latest DockerHub version JSON for SMUI (e = $e)")
+              None
             }
           }
-          case e: JsError => {
-            logger.error(s":: error parsing latest DockerHub version JSON for SMUI (e = $e)")
+        }
+        val jsonReadLatestVersionFromDockerHubResp1 = ((JsPath \ "results") (1) \ "name").read[String]
+        val rawVer1 = parseJsonResponse(jsonReadLatestVersionFromDockerHubResp1)
+        // TODO assume parsing works, might produce an exception
+        val rawVer = (if(rawVer1.get.equals("latest")) {
+          // hub.docker.com API does not seem to provide a stable interface to the latest version in 2nd JSON entry
+          val jsonReadLatestVersionFromDockerHubResp0 = ((JsPath \ "results") (0) \ "name").read[String]
+          val rawVer0 = parseJsonResponse(jsonReadLatestVersionFromDockerHubResp0)
+          rawVer0.get
+        } else {
+          rawVer1.get
+        })
+        parse(rawVer) match {
+          case None => {
+            logger.error(s":: unable to parse latest DockerHub version string for SMUI (rawVer = $rawVer)")
             None
           }
+          case Some(version) => Some(version)
         }
       }
     }

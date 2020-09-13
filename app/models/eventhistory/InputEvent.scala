@@ -88,10 +88,10 @@ object InputEvent extends Logging {
 
   private def insert(eventSource: String, eventType: SmuiEventType.Value, userInfo: Option[String], inputId: String, jsonPayload: Option[String])(implicit connection: Connection): InputEvent = {
 
-    // log ERROR, in case jsonPayload exceeds 5000 character limit (@see evolutions/default/6.sql)
+    // log ERROR, in case jsonPayload exceeds 10000 character limit (@see evolutions/default/6.sql)
     jsonPayload.map(payload => {
-      if (payload.size > 5000) {
-        logger.error(s"jsonPayload for inputId = $inputId (eventSource = $eventSource) exceeds 5000K (payload.size = ${payload.size}), INSERT will fail!!")
+      if (payload.size > 10000) {
+        logger.error(s"jsonPayload for inputId = $inputId (eventSource = $eventSource) exceeds 10K (payload.size = ${payload.size}), INSERT will fail!!")
       }
     })
 

@@ -2,12 +2,14 @@ package models
 
 import java.time.LocalDateTime
 
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
+
+import play.api.db.Database
+
 import models.input.{InputTag, InputTagId, SearchInput, SearchInputWithRules}
 import models.reports.RulesReport
 import models.rules._
 import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
-import play.api.db.Database
 
 abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData with BeforeAndAfterAll {
 
