@@ -69,6 +69,11 @@ EXPOSE $SMUI_CONF_HTTP_PORT
 RUN mkdir /tmp/smui-git-repo
 RUN chown -R smui:smui /tmp/smui-git-repo
 
+# setup ssh (to make known_host friendship with e.g. foreign git repos)
+
+RUN mkdir /home/smui/.ssh
+RUN chown smui:smui /home/smui/.ssh
+
 RUN chown -R smui:smui /smui
 # TODO consider permissions within the docker container as more restrictive than 0777
 RUN chmod -R 0777 /var

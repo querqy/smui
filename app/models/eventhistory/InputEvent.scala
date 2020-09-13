@@ -91,7 +91,7 @@ object InputEvent extends Logging {
     // log ERROR, in case jsonPayload exceeds 5000 character limit (@see evolutions/default/6.sql)
     jsonPayload.map(payload => {
       if (payload.size > 5000) {
-        logger.error(s"jsonPayload for inputId = $inputId exceeds 5000K, INSERT will fail!!")
+        logger.error(s"jsonPayload for inputId = $inputId (eventSource = $eventSource) exceeds 5000K (payload.size = ${payload.size}), INSERT will fail!!")
       }
     })
 
