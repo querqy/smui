@@ -26,7 +26,7 @@ package object FeatureToggleModel extends Logging {
     override def render(): String = s""""${StringEscapeUtils.escapeEcmaScript(value)}""""
   }
 
-  class JsObjFeatureToggleValue(rawObjAsString: String) extends JsFeatureToggleValue {
+  class JsRawObjFeatureToggleValue(rawObjAsString: String) extends JsFeatureToggleValue {
     override def render(): String = s"$rawObjAsString"
   }
 
@@ -138,7 +138,7 @@ package object FeatureToggleModel extends Logging {
         JsFeatureToggle(
           FEATURE_CUSTOM_UP_DOWN_MAPPINGS,
           // TODO consider rendering the UpDownDropdownMapping model by a proper JsJsonFeatureToggle type (instead of raw JsObjFeatureToggleValue)
-          new JsObjFeatureToggleValue(
+          new JsRawObjFeatureToggleValue(
             appConfig.getOptional[String](FEATURE_CUSTOM_UP_DOWN_MAPPINGS) match {
               case None => DEFAULT_UP_DOWN_MAPPINGS
               case Some(rawCustomUpDownMappings: String) => {

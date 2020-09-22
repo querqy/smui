@@ -20,7 +20,6 @@ import {
 import {CommonsService} from '../../../helpers/index';
 
 
-const DEFAULT_IDX_UP_DOWN_DROPDOWN_DEFINITION_MAPPING = 4;
 declare var $: any; // For jquery
 
 @Component({
@@ -131,28 +130,59 @@ export class RuleManagementComponent implements OnChanges {
     elem.on('tokenize:tokens:added tokenize:tokens:remove', handler);
   }
 
+  /**
+   * UP/DOWN mapping definitions
+   */
+
+  // TODO add tests for different UP/DOWN mapping definitions
+
   // Helper to find the closest matching mapping to an existing persisted UP/DOWN rule
-  private findIdxClosestUpDownDropdownDefinitionMapping(upDownRule) {
-    // TODO heaps of implicit knowledge about the model is necessary here. Consider refactoring (maybe model or even backend).
-    // Find minimum distance to comparision array. TODO Consider a more elegant functional solution.
-    const arrayComparison = [500, 100 , 50, 10, 5];
-    let idxMinimum = 0;
-    let lastMinimumValue = Math.abs(arrayComparison[0] - upDownRule.boostMalusValue);
-    for (let i = 1; i < 5; i++) {
-      const nextMinimumValue = Math.abs(arrayComparison[i] - upDownRule.boostMalusValue);
-      if (nextMinimumValue < lastMinimumValue) {
-        lastMinimumValue = nextMinimumValue;
-        idxMinimum = i;
+  // TODO heaps of implicit knowledge about the model is necessary here. Consider refactoring (maybe model or even backend)
+
+  private defaultIdxUpDownDropdownMappingForType(type) {
+    // make that value depend on featureToggleService.getSyncToggleCustomUpDownDropdownMappings()
+    const upDownMappings = this.featureToggleService.getSyncToggleCustomUpDownDropdownMappings()
+    let idxMinimumForType = 0
+    for (let i = 1; i < upDownMappings.length; i++) {
+      if (upDownMappings[i]['boostMalusValue'] < upDownMappings[idxMinimumForType]['boostMalusValue']) {
+        idxMinimumForType = i
       }
     }
-    switch (upDownRule.upDownType) {
-      case 0: // UP
-        return idxMinimum;
-      case 1: // DOWN
-        return 9 - idxMinimum;
-      default: // undefined
-        return DEFAULT_IDX_UP_DOWN_DROPDOWN_DEFINITION_MAPPING;
+    return idxMinimumForType
+  }
+
+  private findIdxClosestUpDownDropdownDefinitionMapping(upDownRule) {
+    // get UP/DOWN mapping definitions from the configuration (featureToggleService) as array of objects, that look like, e.g.:
+    // > {"displayName":"UP(+++++)","upDownType":0,"boostMalusValue":500}
+    const upDownMappings = this.featureToggleService.getSyncToggleCustomUpDownDropdownMappings()
+
+    function boostMalusValueForUpDownType(type) {
+      const boostMalusValues = []
+      for (let i = 0; i < upDownMappings.length; i++) {
+        if (type === upDownMappings[i]['upDownType']) {
+          boostMalusValues.push({
+            'idx': i,
+            'boostMalusValue': upDownMappings[i]['boostMalusValue']
+          })
+        }
+      }
+      return boostMalusValues
     }
+    const arrayComparison = boostMalusValueForUpDownType(upDownRule.upDownType)
+
+    // Find minimum distance to comparison array
+    // TODO Consider a more elegant functional solution
+    let idxMinimumDistance = arrayComparison[0]['idx']
+    let lastMinimumDistance = Math.abs(arrayComparison[0]['boostMalusValue'] - upDownRule.boostMalusValue)
+    for (let i = 1; i < arrayComparison.length; i++) {
+      const nextMinimumDistance = Math.abs(arrayComparison[i]['boostMalusValue'] - upDownRule.boostMalusValue)
+      if (nextMinimumDistance < lastMinimumDistance) {
+        lastMinimumDistance = nextMinimumDistance
+        idxMinimumDistance = arrayComparison[i]['idx']
+      }
+    }
+
+    return idxMinimumDistance
   }
 
   private extractSuggestedSolrFieldName(objList: Array<any>) {
@@ -297,7 +327,7 @@ export class RuleManagementComponent implements OnChanges {
     };
     if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()) {
       // NOTE: the attribute 'upDownDropdownDefinitionMapping' is frontend-only and not supposed to be part of REST transfer
-      emptyUpDownRule.upDownDropdownDefinitionMapping = DEFAULT_IDX_UP_DOWN_DROPDOWN_DEFINITION_MAPPING;
+      emptyUpDownRule.upDownDropdownDefinitionMapping = this.defaultIdxUpDownDropdownMappingForType(0)
     } else {
       emptyUpDownRule.upDownType = 0;
       emptyUpDownRule.boostMalusValue = 0;
