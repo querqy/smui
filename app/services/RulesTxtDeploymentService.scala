@@ -1,4 +1,4 @@
-package models
+package services
 
 import java.io.OutputStream
 import java.util.zip.{ZipEntry, ZipOutputStream}
@@ -6,6 +6,7 @@ import java.util.zip.{ZipEntry, ZipOutputStream}
 import javax.inject.Inject
 import models.FeatureToggleModel.FeatureToggleService
 import models.querqy.{QuerqyReplaceRulesGenerator, QuerqyRulesTxtGenerator}
+import models.{DeploymentScriptResult, SearchManagementRepository, SolrIndexId}
 import play.api.{Configuration, Environment, Logging}
 
 import scala.sys.process._
@@ -259,7 +260,9 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     val replaceRulesDstCpFileTo = rulesTxts.replaceRules.map(_.destinationFileName).getOrElse("NONE")
 
     // execute script
-    val result = (if(!dstCpFileTo.equals("GIT"))
+    val deployToGit = appConfig.get[String]("smui2solr.DST_CP_FILE_TO").equals("GIT")
+    val result = (if(!deployToGit) {
+      logger.info(s":: executeDeploymentScript :: regular script configured calling interfaceSmui2SolrSh(scriptPath = '$scriptPath')")
       interfaceSmui2SolrSh(
         scriptPath,
         srcTmpFile,
@@ -271,7 +274,8 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
         replaceRulesSrcTmpFile,
         replaceRulesDstCpFileTo
       )
-    else
+    } else {
+      logger.info(":: executeDeploymentScript :: GIT configured calling interfaceSmui2GitSh")
       // TODO support further rule files (decompound / replace) and maybe solrCoreName and/or targetSystem for git branch?
       interfaceSmui2GitSh(
         environment.rootPath.getAbsolutePath + "/conf/smui2git.sh",
@@ -279,7 +283,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
         featureToggleService.getSmuiDeploymentGitRepoUrl,
         featureToggleService.getSmuiDeploymentGitFilenameCommonRulesTxt,
       )
-    )
+    })
     if (result.success) {
       logger.info(s"Rules.txt deployment successful:\n${result.output}")
     } else {

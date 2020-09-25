@@ -20,6 +20,7 @@ import models.config.SmuiVersion
 import models.input.{InputTagId, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
+import services.RulesTxtDeploymentService
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
 class ApiController @Inject()(searchManagementRepository: SearchManagementRepository,

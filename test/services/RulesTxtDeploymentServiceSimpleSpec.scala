@@ -1,13 +1,13 @@
-package models
+package services
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.zip.ZipInputStream
 
+import models.ApplicationTestBase
 import models.input.SearchInputId
 import org.apache.commons.io.IOUtils
 import org.scalatest.{FlatSpec, Matchers}
 
-// TODO consider moving spec to test/models/deployment?
 class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with ApplicationTestBase {
 
   private lazy val service = injector.instanceOf[RulesTxtDeploymentService]

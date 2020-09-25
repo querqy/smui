@@ -25,6 +25,8 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
   // override this val to add spec specific application config
   protected lazy val additionalAppConfig: Seq[(String, Any)] = Nil
 
+  protected lazy val activateSpelling = true
+
   // TestBase wide application config
   protected lazy val baseAppConfig: Seq[(String, Any)] = Seq(
       "db.default.url" -> db.url,
@@ -32,7 +34,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
       "db.default.username" -> "",
       "db.default.password" -> "",
       "toggle.rule-deployment.log-rule-id" -> true,
-      "toggle.activate-spelling" -> true
+      "toggle.activate-spelling" -> activateSpelling
     ) ++
     additionalAppConfig
 
