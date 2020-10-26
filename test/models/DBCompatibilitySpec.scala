@@ -1,15 +1,15 @@
 package models
 
 import java.time.LocalDateTime
+import scala.util.{Try, Failure}
 
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
-
 import play.api.db.Database
-
 import models.input.{InputTag, InputTagId, SearchInput, SearchInputWithRules}
 import models.reports.RulesReport
 import models.rules._
 import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
+import services.SmuiMigrationLock
 
 abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData with BeforeAndAfterAll {
 
@@ -94,4 +94,39 @@ abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData 
       RulesReport.loadForSolrIndexId(indexDe.id)
     }
   }
+
+  "lock on table rows (for SMUI migrations)" should "work" in {
+    db.withConnection { implicit conn =>
+
+      val MIGRATION_KEY = "test_migration"
+
+      val thread1 = new Thread {
+        override def run: Unit = {
+          // thread#1: wait 1 sec to make sure, database communication attempts happen after thread#0 acquired the row lock before
+          Thread.sleep(1000)
+          // thread#1: make sure, the test migration can't be created a second time
+          val trySecondCreate = Try(
+            SmuiMigrationLock.create(MIGRATION_KEY)
+          )
+          trySecondCreate shouldBe Failure
+          // thread#1: make sure, the test migration can be selected (while its locked), but is not completed yet
+          val migrationLockEntry = SmuiMigrationLock.select(MIGRATION_KEY).get
+          migrationLockEntry.migrationKey shouldBe MIGRATION_KEY
+          migrationLockEntry.completed shouldBe None
+          // TODO thread#1: make sure, test migration can't be locked again while thread#0 performs its migration simulation (delay)
+        }
+      }
+
+      thread1.start()
+      // thread#0: create a test migration entry and keep a row lock on that for 3 secs
+      SmuiMigrationLock.executeOnce(MIGRATION_KEY, () => {
+        Thread.sleep(3*1000)
+      })
+
+      // thread#0: make sure transaction is completed
+      val completedMigration = SmuiMigrationLock.select(MIGRATION_KEY).get
+      completedMigration.completed shouldBe Some(true)
+    }
+  }
+
 }

@@ -39,6 +39,7 @@ object SmuiEventSource extends Enumeration {
 class InputEventId(id: String) extends Id(id)
 object InputEventId extends IdObject[InputEventId](new InputEventId(_))
 
+// TODO consider to introduce an event number sequence to trace event order (regardless the eventTime)
 case class InputEvent(
   id: InputEventId = InputEventId(),
   eventSource: String,
