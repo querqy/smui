@@ -96,7 +96,7 @@ export class RuleManagementComponent implements OnChanges {
   handleError(error: any) {
     console.log('In SearchInputDetailComponent :: handleError');
     console.log(':: error = ' + error);
-    this.showErrorMsg.emit('An error occurred.'); // TODO Do a more detaillied error description
+    this.showErrorMsg.emit('An error occurred.'); // TODO Do a more detailled error description
   }
 
   // TODO consider evaluate a more elegant solution to dispatch upDownDropdownDefinitionMappings from smm to the template
@@ -236,17 +236,7 @@ export class RuleManagementComponent implements OnChanges {
           }
 
           // take care of UP/DOWN mappings
-          if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()) {
-            if ((this.detailSearchInput.upDownRules !== null) && (this.detailSearchInput.upDownRules.length > 0)) {
-              // convert to simple combined UP/DOWN dropdown definition mappings
-              // TODO consider a more elegant functional solution
-              for (let idxUpDownRules = 0; idxUpDownRules < this.detailSearchInput.upDownRules.length; idxUpDownRules++) {
-                this.detailSearchInput.upDownRules[idxUpDownRules]
-                  .upDownDropdownDefinitionMapping = this.findIdxClosestUpDownDropdownDefinitionMapping(
-                    this.detailSearchInput.upDownRules[idxUpDownRules]);
-              }
-            }
-          }
+          this.encodeValuesToUpDownMappings()
 
           this.initDetailSearchInputHashForDirtyState = JSON.stringify(this.detailSearchInput); // TODO hash string value
         })
@@ -418,22 +408,23 @@ export class RuleManagementComponent implements OnChanges {
     this.detailSearchInput.redirectRules.splice(index, 1);
   }
 
-  public saveSearchInputDetails() {
-    console.log('In SearchInputDetailComponent :: saveSearchInputDetails');
-
-    // TODO routine directly operating on this.detailSearchInput frontend model. Therefore it flickers. Refactor!
-
-    // take care of extracted Solr syntax
-    // WARNING: this must be done first (before UP/DOWN mappings) as below routine potentially removes 'suggestedSolrFieldName' attribute
-    if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) {
-      this.integrateSuggestedSolrFieldName(this.detailSearchInput.upDownRules);
-      this.integrateSuggestedSolrFieldName(this.detailSearchInput.filterRules);
+  private encodeValuesToUpDownMappings() {
+    if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()) {
+      if ((this.detailSearchInput.upDownRules !== null) && (this.detailSearchInput.upDownRules.length > 0)) {
+        // convert to simple combined UP/DOWN dropdown definition mappings
+        // TODO consider a more elegant functional solution
+        for (let idxUpDownRules = 0; idxUpDownRules < this.detailSearchInput.upDownRules.length; idxUpDownRules++) {
+          this.detailSearchInput.upDownRules[idxUpDownRules]
+            .upDownDropdownDefinitionMapping = this.findIdxClosestUpDownDropdownDefinitionMapping(
+              this.detailSearchInput.upDownRules[idxUpDownRules]
+            )
+        }
+      }
     }
+  }
 
-    this.updateSelectedTagsInModel()
-
-    // take care of UP/DOWN mappings
-    console.log(':: this.detailSearchInput.upDownRules = ' + this.detailSearchInput.upDownRules);
+  private decodeUpDownMappingsToValues() {
+    console.log('applyUpDownMappings :: this.detailSearchInput.upDownRules = ' + this.detailSearchInput.upDownRules);
     if (this.featureToggleService.getSyncToggleUiConceptUpDownRulesCombined()) {
       if ((this.detailSearchInput.upDownRules !== null) && (this.detailSearchInput.upDownRules.length > 0)) {
         // convert from simple combined UP/DOWN dropdown definition mappings to detailed upDownType and bonus/malus value
@@ -449,9 +440,27 @@ export class RuleManagementComponent implements OnChanges {
               ].boostMalusValue,
             isActive: upDownRule.isActive
           }
-        });
+        })
       }
     }
+  }
+
+  public saveSearchInputDetails() {
+    console.log('In SearchInputDetailComponent :: saveSearchInputDetails');
+
+    // TODO routine directly operating on this.detailSearchInput frontend model. Therefore it flickers. Refactor!
+
+    // take care of extracted Solr syntax
+    // WARNING: this must be done first (before UP/DOWN mappings) as below routine potentially removes 'suggestedSolrFieldName' attribute
+    if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) {
+      this.integrateSuggestedSolrFieldName(this.detailSearchInput.upDownRules);
+      this.integrateSuggestedSolrFieldName(this.detailSearchInput.filterRules);
+    }
+
+    this.updateSelectedTagsInModel()
+
+    // take care of UP/DOWN mappings
+    this.decodeUpDownMappingsToValues()
 
     // and persist against REST backend
     this.ruleManagementService
@@ -460,6 +469,14 @@ export class RuleManagementComponent implements OnChanges {
       .then(_ => this.showSuccessMsg.emit('Saving Details successful.'))
       .catch(error => {
         if (error.status === 400) {
+          console.log(':: ruleManagementService :: catch :: error = ' + JSON.stringify(error))
+          // take care of extracted Solr syntax and UP/DOWN mappings
+          if (this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) {
+            this.extractSuggestedSolrFieldName(this.detailSearchInput.upDownRules)
+            this.extractSuggestedSolrFieldName(this.detailSearchInput.filterRules)
+          }
+          this.encodeValuesToUpDownMappings()
+          // pass message to frontend
           const msg = error.json().message;
           this.saveError = msg.split('\n')
         } else {

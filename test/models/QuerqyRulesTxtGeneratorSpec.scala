@@ -219,6 +219,144 @@ class QuerqyRulesTxtGeneratorSpec extends FlatSpec with Matchers with MockitoSug
     Some("Line 31: Cannot parse line: ADD AN INVALID INSTRUCTION")
   }
 
-  // TODO add tests for validateSearchInputToErrMsg
+  /**
+    * Validation extension spec, see https://github.com/querqy/smui/issues/51
+    */
+
+  def staticDownRuleWithTerm(term: String) = {
+    UpDownRule(
+      upDownType = UpDownRule.TYPE_DOWN,
+      boostMalusValue = 50,
+      term = term,
+      isActive = true
+    )
+  }
+
+  def staticFilterRuleWithTerm(term: String) = {
+    FilterRule(
+      term = term,
+      isActive = true
+    )
+  }
+
+  def staticSynonymRuleWithTerm(term: String) = {
+    SynonymRule(
+      synonymType = SynonymRule.TYPE_UNDIRECTED,
+      term = term,
+      isActive = true
+    )
+  }
+
+  def staticDeleteRuleWithTerm(term: String) = {
+    DeleteRule(
+      term = term,
+      isActive = true
+    )
+  }
+
+  "SearchInputWithRules with empty rules" should "return a validation error" in {
+    val invalidInput = SearchInputWithRules(
+      id = SearchInputId(),
+      term = "test query",
+      synonymRules = List(
+        // add this to make the rules.txt partial valid in general (for querqy validation)
+        staticSynonymRuleWithTerm("valid synonym"),
+        // start with the invalid rules (SMUI validated)
+        staticSynonymRuleWithTerm(""),
+        staticSynonymRuleWithTerm("     ")
+      ),
+      upDownRules = List(
+        staticDownRuleWithTerm(""),
+        staticDownRuleWithTerm("     ")
+      ),
+      filterRules = List(
+        staticFilterRuleWithTerm(""),
+        staticFilterRuleWithTerm("     ")
+      ),
+      deleteRules = List(
+        staticDeleteRuleWithTerm(""),
+        staticDeleteRuleWithTerm("     ")
+      ),
+      redirectRules = Nil,
+      tags = Seq.empty,
+      isActive = true,
+      comment = ""
+    )
+
+    val errors = generator.validateSearchInputToErrMsg(invalidInput)
+
+    errors shouldBe Some("Rule '' is empty, Rule '     ' is empty, Rule '' is empty, Rule '     ' is empty, Rule '' is empty, Rule '     ' is empty, Rule '' is empty, Rule '     ' is empty")
+  }
+
+  "SearchInputWithRules with invalid native queries" should "return a validation error" in {
+
+    val invalidInput = SearchInputWithRules(
+      id = SearchInputId(),
+      term = "test query",
+      synonymRules = Nil,
+      upDownRules = List(
+        staticDownRuleWithTerm("*"),
+        staticDownRuleWithTerm("   *      "),
+        staticDownRuleWithTerm("* manufacturer:"),
+        staticDownRuleWithTerm("* :Wiko"),
+        staticDownRuleWithTerm("* manufacturer:     "),
+        staticDownRuleWithTerm("*      :Wiko"),
+      ),
+      filterRules = List(
+        staticFilterRuleWithTerm("*"),
+        staticFilterRuleWithTerm("   *      "),
+        staticFilterRuleWithTerm("* -searchText:"),
+        staticFilterRuleWithTerm("* :\"Mi Smart Plug\""),
+        staticFilterRuleWithTerm("* -searchText:     "),
+        staticFilterRuleWithTerm("*      :\"Mi Smart Plug\"")
+      ),
+      deleteRules = Nil,
+      redirectRules = Nil,
+      tags = Seq.empty,
+      isActive = true,
+      comment = ""
+    )
+
+    val errors = generator.validateSearchInputToErrMsg(invalidInput)
+
+    // TODO There should also be a "Missing raw query" validation error for "Line 3" and 8 and 9 (first FILTER expressions), where there is also no native query - maybe a querqy issue?
+    errors shouldBe Some(
+      "Line 2: Missing raw query after * in line: DOWN(50): *, No FIELD_NAME:FIELD_VALUE pattern given for native query rule = * manufacturer:, No FIELD_NAME:FIELD_VALUE pattern given for native query rule = * :Wiko, No FIELD_NAME:FIELD_VALUE pattern given for native query rule = * manufacturer:     , No FIELD_NAME:FIELD_VALUE pattern given for native query rule = *      :Wiko, No FIELD_NAME:FIELD_VALUE pattern given for native query rule = * -searchText:, No FIELD_NAME:FIELD_VALUE pattern given for native query rule = * :\"Mi Smart Plug\", No FIELD_NAME:FIELD_VALUE pattern given for native query rule = * -searchText:     , No FIELD_NAME:FIELD_VALUE pattern given for native query rule = *      :\"Mi Smart Plug\""
+    )
+  }
+
+  "SearchInputWithRules with valid native queries" should "return no validation error" in {
+
+    val validInput = SearchInputWithRules(
+      id = SearchInputId(),
+      term = "test query",
+      synonymRules = Nil,
+      upDownRules = List(
+        staticDownRuleWithTerm("* a:a"),
+        staticDownRuleWithTerm("*     a:    a    "),
+        staticDownRuleWithTerm("* manufacturer:Wiko"),
+        staticDownRuleWithTerm("manufacturer:ZTE"),
+        staticDownRuleWithTerm("searchText:\"Iphone 11\"")
+      ),
+      filterRules = List(
+        staticFilterRuleWithTerm("* a:a"),
+        staticFilterRuleWithTerm("*     a:    a    "),
+        staticFilterRuleWithTerm("* -searchText:\"Mi Smart Plug\"\""),
+        staticFilterRuleWithTerm("* -searchText:\"Roboter-Staubsauger\"")
+
+      ),
+      deleteRules = Nil,
+      redirectRules = Nil,
+      tags = Seq.empty,
+      isActive = true,
+      comment = ""
+    )
+
+    val errors = generator.validateSearchInputToErrMsg(validInput)
+
+    errors shouldBe None
+  }
+
+  // TODO add more tests for validateSearchInputToErrMsg
 
 }

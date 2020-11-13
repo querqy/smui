@@ -202,7 +202,37 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     }
   }
 
-
+  def validateNativeQuery(ruleTerm: String): Option[String] = {
+    // if there is a native query configured (indicated by *)
+    val posNativeQueryIndicator = ruleTerm.indexOf('*')
+    if (posNativeQueryIndicator != -1) {
+      // ... then is this to be non empty
+      val nativeQuery = ruleTerm.substring(posNativeQueryIndicator+1).trim
+      if (nativeQuery.isEmpty) {
+        // Intuitively this should be a validation error as well, but this constellation is covered by querqy itself.
+        // So, this validation will accept empty native queries as querqy does the validation (see validateSearchInputToErrMsg).
+        None
+      } else {
+        // TODO this is Solr only (and might need to be adjusted, in case of native Elasticsearch queries)
+        // if there is a field/value indicator present
+        val posFieldValueIndicator = nativeQuery.indexOf(':')
+        if (posFieldValueIndicator != -1) {
+          // ... then this needs to be followed by a (non-empty) FIELD_NAME:FIELD_VALUE pattern
+          val fieldName = nativeQuery.substring(0, posFieldValueIndicator).trim
+          val fieldValue = nativeQuery.substring(posFieldValueIndicator+1).trim
+          if(fieldName.isEmpty || fieldValue.isEmpty) {
+            Some(s"No FIELD_NAME:FIELD_VALUE pattern given for native query rule = $ruleTerm")
+          } else {
+            None
+          }
+        } else {
+          None
+        }
+      }
+    } else {
+      None
+    }
+  }
 
   /**
     * Validate a {{searchInput}} instance for (1) SMUI plausibility as well as (2) the resulting rules.txt fragment
@@ -211,13 +241,10 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     * @param searchInput Input instance to be validated.
     * @return None, if no validation error, otherwise a String containing the error.
     */
+  // TODO maybe the validation concern should be moved into the input model?
   def validateSearchInputToErrMsg(searchInput: SearchInputWithRules): Option[String] = {
 
-    // TODO validation ends with first broken rule, it should collect all errors to a line.
-    // TODO decide, if input having no rule at all is legit ... (e.g. newly created). Will currently being filtered.
-
     // validate against SMUI plausibility rules
-    // TODO evaluate to refactor the validation implementation into models/QuerqyRulesTxtGenerator
 
     // if input contains *-Wildcard, all synonyms must be directed
     // TODO discuss if (1) contains or (2) endsWith is the right interpretation
@@ -234,11 +261,35 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
 
     val redirectRuleErrors = searchInput.redirectRules.map(r => validateRedirectTarget(r.target))
 
+    val nativeQueryValidationError = (
+      // native search-engine queries can occur with UP/DOWN and FILTER rules
+      searchInput.upDownRules
+      ++ searchInput.filterRules
+    ).map(r => validateNativeQuery(r.term))
+
+    val emptyRuleValidationError = (searchInput.synonymRules ++ searchInput.upDownRules ++ searchInput.filterRules ++ searchInput.deleteRules)
+      .map {
+        case r: RuleWithTerm => r
+      }
+      .map(r => {
+        if(r.term.trim.isEmpty) {
+          Some(s"Rule '${r.term}' is empty")
+        } else {
+          None
+        }
+      })
+
+    // validate as well against querqy parser
+
     val querqyRuleValidationError = validateQuerqyRulesTxtToErrMsg(renderSearchInputRulesForTerm(searchInput.term, searchInput))
 
-    val errors = List(querqyRuleValidationError, undirectedSynonymsCheck, synonymsDirectedCheck) ++ redirectRuleErrors
+    // aggregate validation feedback
 
-    // finally validate as well against querqy parser
+    val errors = List(
+      querqyRuleValidationError,
+      undirectedSynonymsCheck,
+      synonymsDirectedCheck
+    ) ++ redirectRuleErrors ++ nativeQueryValidationError ++ emptyRuleValidationError
 
     // TODO validate both inputs and rules, for all undirected synonym terms in this input
     errors.foldLeft[Option[String]](None) {
@@ -267,4 +318,5 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       case Failure(t: Throwable) => Some(s"Error validating $target: ${t.getMessage}")
     }
   }
+
 }
