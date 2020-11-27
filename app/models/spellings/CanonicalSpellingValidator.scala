@@ -2,11 +2,13 @@ package models.spellings
 
 import models.querqy.QuerqyReplaceRulesGenerator
 
+// TODO add test for validator
 object CanonicalSpellingValidator {
 
   def validateCanonicalSpellingsAndAlternatives(spellings: CanonicalSpellingWithAlternatives,
                                                 allCanonicalSpellings: List[CanonicalSpellingWithAlternatives]): Seq[String] = {
     Seq(
+      validateNoEmptySpelling(spellings.term),
       validateNoEmptyAlternatives(spellings),
       validateNoDuplicateAlternativeSpellingsSameCanonical(spellings),
       validateNoDuplicateAlternativeSpellingsOtherCanonical(spellings, allCanonicalSpellings),
@@ -16,6 +18,14 @@ object CanonicalSpellingValidator {
       validateNoMultipleAlternativesWhenWildcard(spellings),
       QuerqyReplaceRulesGenerator.validateQuerqyReplaceRulesTxtToErrMsg(spellings)
     ).flatten
+  }
+
+  def validateNoEmptySpelling(spellingTerm: String): Option[String] = {
+    if(spellingTerm.trim.isEmpty) {
+      Some(s"Invalid empty spelling for term '$spellingTerm'")
+    } else {
+      None
+    }
   }
 
   def validateNoEmptyAlternatives(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
