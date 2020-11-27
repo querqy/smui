@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import controllers.auth.AuthActionFactory
 import models._
 import models.config.SmuiVersion
-import models.input.{InputTagId, ListItem, SearchInputId, SearchInputWithRules}
+import models.input.{InputTagId, ListItem, SearchInputId, SearchInputWithRules, InputValidator}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
 import services.RulesTxtDeploymentService
@@ -96,9 +96,18 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       jsonBody.map { json =>
         val searchInputTerm = (json \ "term").as[String]
         val tags = (json \ "tags").as[Seq[String]].map(InputTagId(_))
-        val searchInputId = searchManagementRepository.addNewSearchInput(SolrIndexId(solrIndexId), searchInputTerm, tags)
 
-        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", Some(searchInputId))))
+        InputValidator.validateInputTerm(searchInputTerm) match {
+          case Nil => {
+            val searchInputId = searchManagementRepository.addNewSearchInput(SolrIndexId(solrIndexId), searchInputTerm, tags)
+            Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", Some(searchInputId))))
+          }
+          case errors => {
+            val msgs = s"Failed to add new input ${searchInputTerm}: " +  errors.mkString("\n")
+            logger.error(msgs)
+            BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
+          }
+        }
       }.getOrElse {
         BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
       }
@@ -113,17 +122,28 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     jsonBody.map { json =>
       val searchInput = json.as[SearchInputWithRules]
 
-      querqyRulesTxtGenerator.validateSearchInputToErrMsg(searchInput) match {
-        case Some(strErrMsg: String) =>
-          logger.error("updateSearchInput failed on validation of searchInput with id " + searchInputId + " - validation returned the following error output: <<<" + strErrMsg + ">>>")
-          BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, strErrMsg, None)))
-        case None => {
-          // TODO handle potential conflict between searchInputId and JSON-passed searchInput.id
-          searchManagementRepository.updateSearchInput(searchInput)
-          // TODO consider Update returning the updated SearchInput(...) instead of an ApiResult(...)
-          Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(SearchInputId(searchInputId)))))
+      InputValidator.validateInputTerm(searchInput.term) match {
+        case Nil => {
+          // proceed updating input with rules
+          querqyRulesTxtGenerator.validateSearchInputToErrMsg(searchInput) match {
+            case Some(strErrMsg: String) =>
+              logger.error("updateSearchInput failed on validation of searchInput with id " + searchInputId + " - validation returned the following error output: <<<" + strErrMsg + ">>>")
+              BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, strErrMsg, None)))
+            case None => {
+              // TODO handle potential conflict between searchInputId and JSON-passed searchInput.id
+              searchManagementRepository.updateSearchInput(searchInput)
+              // TODO consider Update returning the updated SearchInput(...) instead of an ApiResult(...)
+              Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating Search Input successful.", Some(SearchInputId(searchInputId)))))
+            }
+          }
+        }
+        case errors => {
+          val msgs = s"Failed to update input with new term ${searchInput.term}: " +  errors.mkString("\n")
+          logger.error(msgs)
+          BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
         }
       }
+
     }.getOrElse {
       BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
     }
@@ -149,8 +169,15 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
       val optTerm = jsonBody.flatMap(json => (json \"term").asOpt[String])
       optTerm.map { term =>
-        val canonicalSpelling = searchManagementRepository.addNewCanonicalSpelling(SolrIndexId(solrIndexId), term)
-        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding new canonical spelling '" + term + "' successful.", Some(canonicalSpelling.id))))
+        CanonicalSpellingValidator.validateNoEmptySpelling(term) match {
+          case None => {
+            val canonicalSpelling = searchManagementRepository.addNewCanonicalSpelling(SolrIndexId(solrIndexId), term)
+            Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding new canonical spelling '" + term + "' successful.", Some(canonicalSpelling.id))))
+          }
+          case Some(error) => {
+            BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, error, None)))
+          }
+        }
       }.getOrElse {
         BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new canonical spelling failed. Unexpected body data.", None)))
       }
