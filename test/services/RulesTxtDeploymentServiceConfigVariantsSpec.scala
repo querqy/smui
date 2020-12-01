@@ -354,24 +354,39 @@ class RulesTxtDeploymentGitTargetSpec extends FlatSpec with Matchers with Common
   // TODO think about make the interface to smui2git.sh also interchangable (like with smui2solr.sh) to inject a echoing test script
   // TODO think about bootstrapping a local git server (docker) within test, to test the whole roundtrip
 
-  "interfaceSmui2GitSh" should "interface the test script should return all rules.txts for PRELIVE/LIVE" in {
+  "interfaceSmui2GitSh" should "interface the test script should return all rules.txts for LIVE" in {
 
-    Seq("PRELIVE", "LIVE").map { deploymentTarget =>
+    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
+    val res = service.executeDeploymentScript(deploymentDescriptor, "LIVE")
 
-      val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, deploymentTarget, logDebug = false)
-      val res = service.executeDeploymentScript(deploymentDescriptor, deploymentTarget)
+    // TODO script result itself failed - this is cheesy, but cristal clear, as we don't have a local git server running or a test script instead
 
-      // TODO script result itself failed - this is cheesy, but cristal clear, as we don't have a local git server running or a test script instead
-
-      res.output should include ("SRC_TMP_FILE:                 /changed-common-rules-temp-path/search-management-ui_rules-txt.tmp")
-      res.output should include ("SMUI_GIT_REPOSITORY:          ssh://git@changed-git-server.tld/repos/smui_rulestxt_repo.git")
-      res.output should include ("SMUI_GIT_FN_COMMON_RULES_TXT: common-rules.txt")
-    }
+    res.output should include ("SRC_TMP_FILE:                 /changed-common-rules-temp-path/search-management-ui_rules-txt.tmp")
+    res.output should include ("SMUI_GIT_REPOSITORY:          ssh://git@changed-git-server.tld/repos/smui_rulestxt_repo.git")
+    res.output should include ("SMUI_GIT_FN_COMMON_RULES_TXT: common-rules.txt")
 
     // TODO As of v3.11.7 there is no option:
     // TODO ... to deploy to different git hosts / repos / branches (it all makes sense)
     // TODO ... to deploy further rules.txts (like replace-rules.txt, decompound-rules.txt)
 
   }
+
+  "interfacing git configured SMUI" should "stick with file copy deployment configuration PRELIVE" in {
+
+    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "PRELIVE", logDebug = false)
+    val res = service.executeDeploymentScript(deploymentDescriptor, "PRELIVE")
+
+    // TODO script result itself failed - this is cheesy, but cristal clear, as we don't have a local git server running or a test script instead
+
+    res.output should include ("/deployment-path-prelive/common-rules.txt")
+    res.output should include ("/deployment-path-prelive/replace-rules.txt")
+    res.output should include ("/deployment-path-prelive/decompound-rules.txt")
+
+    // TODO As of v3.11.7 there is no option:
+    // TODO ... to deploy to different git hosts / repos / branches (it all makes sense)
+    // TODO ... to deploy further rules.txts (like replace-rules.txt, decompound-rules.txt)
+
+  }
+
 
 }
