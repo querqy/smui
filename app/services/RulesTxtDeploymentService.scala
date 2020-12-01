@@ -260,7 +260,8 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     val replaceRulesDstCpFileTo = rulesTxts.replaceRules.map(_.destinationFileName).getOrElse("NONE")
 
     // execute script
-    val deployToGit = appConfig.get[String]("smui2solr.DST_CP_FILE_TO").equals("GIT")
+    // TODO currently only git deployment for LIVE instance available
+    val deployToGit = targetSystem.equals("LIVE") && appConfig.get[String]("smui2solr.DST_CP_FILE_TO").equals("GIT")
     val result = (if(!deployToGit) {
       logger.info(s":: executeDeploymentScript :: regular script configured calling interfaceSmui2SolrSh(scriptPath = '$scriptPath')")
       interfaceSmui2SolrSh(
