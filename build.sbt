@@ -1,26 +1,12 @@
 import com.typesafe.sbt.GitBranchPrompt
-import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport.{rpmBrpJavaRepackJars, rpmLicense}
 
 name := "search-management-ui"
 version := "3.12.0"
 
 scalaVersion := "2.12.11"
 
-val globalMaintainer = "Paul M. Bartusch <paulbartusch@gmx.de>"
-
-// TODO remove RPM build option for Play application
-
-val packagingSettings = Seq(
-  maintainer in Linux := globalMaintainer,
-  daemonUser in Linux := "smui",
-  daemonGroup in Linux := (daemonUser in Linux).value,
-  rpmVendor := globalMaintainer,
-  rpmLicense := Some("SMUI License"),
-  rpmBrpJavaRepackJars := false
-)
-
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, RpmPlugin)
+  .enablePlugins(PlayScala)
   .enablePlugins(BuildInfoPlugin)
   .enablePlugins(GitBranchPrompt)
   .settings(
@@ -29,60 +15,7 @@ lazy val root = (project in file("."))
     buildInfoPackage := "models.buildInfo",
     buildInfoKeys := Seq[BuildInfoKey](name, version, "gitHash" -> git.gitHeadCommit.value.getOrElse("emptyRepository"))
   )
-
-  .settings(packagingSettings: _*)
   .settings(dependencyCheckSettings: _*)
-  .settings(
-    publishArtifact in (Compile, packageDoc) := false,
-    publishArtifact in packageDoc := false,
-    sources in (Compile, doc) := Seq.empty,
-
-    // RPM service environment
-
-    // TODO make service-start-config.sh customizeable per client/shipping (like CLIENT2_...)
-    // TODO clarify role of /etc/default/search-management-ui in start script and eval according alternative
-
-    bashScriptExtraDefines += """# SMUI customization section - START
- |CLIENT1_CONF_FILE="/srv/search-management-ui/service-start-config.sh"
- |if [ -f "$CLIENT1_CONF_FILE" ]
- |then
- |
- |  source $CLIENT1_CONF_FILE
- |
- |  addJava "-Dpidfile.path=${SMUI_CONF_PID_PATH}"
- |  addJava "-DLOG_BASE_PATH=${SMUI_CONF_LOG_BASE_PATH}"
- |  addJava "-Dlogback.configurationFile=${SMUI_CONF_LOGBACK_XML_PATH}"
- |  addJava "-Dconfig.file=${SMUI_CONF_APP_CONF}"
- |  addJava "-Dhttp.port=${SMUI_CONF_HTTP_PORT}"
- |
- |else
- |
- |  RES_SMUI_CONF_PID_PATH="/var/run/play.pid"
- |  RES_SMUI_CONF_LOG_BASE_PATH="/var/log"
- |  RES_SMUI_CONF_LOGBACK_XML_PATH="${app_home}/../conf/logback.xml"
- |  RES_SMUI_CONF_APP_CONF="${app_home}/../conf/application.conf"
- |  RES_SMUI_CONF_HTTP_PORT="9000"
- |
- |  if [ ! -z "${SMUI_CONF_PID_PATH}" ]; then RES_SMUI_CONF_PID_PATH="${SMUI_CONF_PID_PATH}"; fi
- |  if [ ! -z "${SMUI_CONF_LOG_BASE_PATH}" ]; then RES_SMUI_CONF_LOG_BASE_PATH="${SMUI_CONF_LOG_BASE_PATH}"; fi
- |  if [ ! -z "${SMUI_CONF_LOGBACK_XML_PATH}" ]; then RES_SMUI_CONF_LOGBACK_XML_PATH="${SMUI_CONF_LOGBACK_XML_PATH}"; fi
- |  if [ ! -z "${SMUI_CONF_APP_CONF}" ]; then RES_SMUI_CONF_APP_CONF="${SMUI_CONF_APP_CONF}"; fi
- |  if [ ! -z "${SMUI_CONF_HTTP_PORT}" ]; then RES_SMUI_CONF_HTTP_PORT="${SMUI_CONF_HTTP_PORT}"; fi
- |
- |  addJava "-Dpidfile.path=${RES_SMUI_CONF_PID_PATH}"
- |  addJava "-DLOG_BASE_PATH=${RES_SMUI_CONF_LOG_BASE_PATH}"
- |  addJava "-Dlogback.configurationFile=${RES_SMUI_CONF_LOGBACK_XML_PATH}"
- |  addJava "-Dconfig.file=${RES_SMUI_CONF_APP_CONF}"
- |  addJava "-Dhttp.port=${RES_SMUI_CONF_HTTP_PORT}"
- |
- |fi
- |# smui customization section - END""".stripMargin,
-    mappings in Universal += {
-      val logback = file("build/shipping/conf/logback.xml") // TODO noch nötig? --- (resourceDirectory in Compile).value / "logback.xml"
-      logback -> "conf/logback.xml"
-    }
-
-  )
 
 updateOptions := updateOptions.value.withCachedResolution(cachedResoluton = true)
 // we use nodejs to make our typescript build as fast as possible
