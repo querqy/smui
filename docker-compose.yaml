@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+  smui:
+    image: querqy/smui:latest
+    ports:
+      - 9000:9000
+    init: true
+    environment:
+      SMUI_PLAY_APPLICATION_SECRET: "change_this_secret_in_production!"
+      SMUI_DB_JDBC_DRIVER: "org.postgresql.Driver"
+      SMUI_DB_URL: jdbc:postgresql://database/smui
+      SMUI_HEADLINE: "SMUI demo installation"
+      SMUI_DB_USER: smui
+      SMUI_DB_PASSWORD: smui
+      SMUI_SKIP_FILE_LOGGING: "true"
+      SMUI_LOG_LEVEL: "INFO"
+    
+  database:
+    image: postgres:12.5
+    environment:
+      POSTGRES_USER: smui
+      POSTGRES_PASSWORD: smui
+      POSTGRES_DB: smui
