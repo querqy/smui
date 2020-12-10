@@ -1,0 +1,18 @@
+<toaster-container [toasterconfig]="toasterConfig"></toaster-container>
+
+<div class="container-fluid">
+  <div *ngFor="let error of errors">
+    <ngb-alert type="danger" [dismissible]="false" class="error">
+      <strong>Error!</strong> {{ error }}
+    </ngb-alert>
+  </div>
+
+  <div *ngIf="!isInitialized">
+    <div class="smui-loading-spinner"></div>
+  </div>
+
+  <div *ngIf="isInitialized">
+    <smui-header-nav></smui-header-nav>
+    <router-outlet></router-outlet>
+  </div>
+</div>

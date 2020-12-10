@@ -1,0 +1,48 @@
+<smui-card>
+  <div class="input-group">
+    <input type="text"
+           class="form-control"
+           placeholder="Search or Create Item..."
+           [ngModel]="searchInputTerm"
+           (ngModelChange)="searchInputTermChange.emit($event)"
+           (keyup.enter)="createItem()">
+
+    <span class="input-group-btn" *ngIf="isTaggingActive && allTags.length > 0">
+      <button id="filterTagsDropdown"
+              type="button"
+              class="btn btn-outline-primary dropdown-toggle"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false">
+        {{ !appliedTagFilter ? "All Tags" : appliedTagFilter.displayValue }}
+      </button>
+
+      <div class="dropdown-menu" aria-labelledby="filterTagsDropdown">
+        <span class="dropdown-item" (click)="filterByTag(undefined)">All Tags</span>
+        <span *ngFor="let tag of allTags" class="dropdown-item" (click)="filterByTag(tag)">
+          {{tag.displayValue}}
+        </span>
+      </div>
+    </span>
+
+    <span class="input-group-btn">
+      <button class="btn btn-success"  type="button" (click)="createItem()">
+        <i class="fa fa-plus" aria-hidden="true"></i> New
+      </button>
+    </span>
+  </div>
+</smui-card>
+
+<smui-modal id="create-modal" title="Add new rule management or spelling item">
+  <div content>
+    <p>Please select if you want to add a new rule management or spelling item...</p>
+  </div>
+  <div footer class="btn-toolbar">
+    <button type="button" class="btn btn-primary mr-2" data-dismiss="modal" (click)="createNewSpellingItem()">
+      <i class="fa fa-book smui-icon"></i>Spelling
+    </button>
+    <button type="button" class="btn btn-success" data-dismiss="modal" (click)="createNewRuleItem()">
+      <i class="fa fa-list smui-icon"></i>Rule Management
+    </button>
+  </div>
+</smui-modal>

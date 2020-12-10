@@ -29,19 +29,17 @@ class BasicAuthAuthenticatedAction(parser: BodyParsers.Default, appConfig: Confi
       "smui"
   }
 
+  /**
+   * Helper method to verify, that the request is basic authenticated with configured user/pass.
+   * Code is adopted from: https://dzone.com/articles/play-basic-authentication
+   *
+   * @param request
+   * @return {{true}}, for user is authenticated.
+   */
   override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
-
     logger.debug(s":: invokeBlock :: request.path = ${request.path}")
 
-    /**
-      * Helper method to verify, that the request is basic authenticated with configured user/pass.
-      * Code is adopted from: https://dzone.com/articles/play-basic-authentication
-      *
-      * @param request
-      * @return {{true}}, for user is authenticated.
-      */
     def requestAuthenticated(request: Request[A]): Boolean = {
-
       request.headers.get("Authorization") match {
         case Some(authorization: String) =>
           authorization.split(" ").drop(1).headOption.filter { encoded =>

@@ -26,9 +26,8 @@ object QuerqyReplaceRulesGenerator {
 
   def validateQuerqyReplaceRulesTxtToErrMsg(spellings: CanonicalSpellingWithAlternatives): Option[String] = {
     val renderedRule = renderReplaceRule(spellings)
-    renderedRule.flatMap {
-      case rule => validateQuerqyReplaceRulesTxtToErrMsg(rule)
-      case _ => None
+    renderedRule.flatMap { rule =>
+      validateQuerqyReplaceRulesTxtToErrMsg(rule)
     }
   }
 

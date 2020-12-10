@@ -1,0 +1,15 @@
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+
+@Component({
+  selector: 'smui-button-row',
+  templateUrl: './button-row.component.html',
+  styleUrls: ['./button-row.component.css']
+})
+export class ButtonRowComponent {
+  @Input() addLabel: string = '';
+  @Input() saveLabel: string = '';
+  @Input() disabled: boolean = false;
+
+  @Output() handleAdd = new EventEmitter();
+  @Output() handleSave = new EventEmitter();
+}

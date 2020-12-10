@@ -15,18 +15,20 @@ import java.time.LocalDateTime
 
 import scala.concurrent.{ExecutionContext, Future}
 import controllers.auth.AuthActionFactory
+import models.FeatureToggleModel.FeatureToggleService
 import models._
 import models.config.SmuiVersion
-import models.input.{InputTagId, ListItem, SearchInputId, SearchInputWithRules, InputValidator}
+import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
 import services.RulesTxtDeploymentService
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
-class ApiController @Inject()(searchManagementRepository: SearchManagementRepository,
+class ApiController @Inject()(authActionFactory: AuthActionFactory,
+                              featureToggleService: FeatureToggleService,
+                              searchManagementRepository: SearchManagementRepository,
                               querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
                               cc: MessagesControllerComponents,
-                              authActionFactory: AuthActionFactory,
                               rulesTxtDeploymentService: RulesTxtDeploymentService)(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) with Logging {
 
@@ -34,8 +36,12 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   val API_RESULT_FAIL = "KO"
 
   case class ApiResult(result: String, message: String, returnId: Option[Id])
+
   implicit val apiResultWrites = Json.writes[ApiResult]
 
+  def getFeatureToggles = authActionFactory.getAuthenticatedAction(Action) {
+    Ok(Json.toJson(featureToggleService.getJsFrontendToggleList))
+  }
 
   def listAllSolrIndeces = authActionFactory.getAuthenticatedAction(Action) {
     Ok(Json.toJson(searchManagementRepository.listAllSolrIndexes))
@@ -103,7 +109,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
             Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", Some(searchInputId))))
           }
           case errors => {
-            val msgs = s"Failed to add new input ${searchInputTerm}: " +  errors.mkString("\n")
+            val msgs = s"Failed to add new input ${searchInputTerm}: " + errors.mkString("\n")
             logger.error(msgs)
             BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
           }
@@ -138,7 +144,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
           }
         }
         case errors => {
-          val msgs = s"Failed to update input with new term ${searchInput.term}: " +  errors.mkString("\n")
+          val msgs = s"Failed to update input with new term ${searchInput.term}: " + errors.mkString("\n")
           logger.error(msgs)
           BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
         }
@@ -205,7 +211,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
           searchManagementRepository.updateSpelling(spellingWithAlternatives)
           Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating canonical spelling successful.", Some(CanonicalSpellingId(canonicalSpellingId)))))
         case errors =>
-          val msgs = s"Failed to update spelling ${spellingWithAlternatives.term}: " +  errors.mkString("\n")
+          val msgs = s"Failed to update spelling ${spellingWithAlternatives.term}: " + errors.mkString("\n")
           logger.error(msgs)
           BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
       }
@@ -222,13 +228,13 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   }
 
   /**
-    * Performs an update of the rules.txt (or separate rules.txt files) to the configured Solr instance
-    * while using the smui2solr.sh or a custom script.
-    *
-    * @param solrIndexId  Id of the Solr Index in the database
-    * @param targetSystem "PRELIVE" vs. "LIVE" ... for reference @see evolutions/default/1.sql
-    * @return Ok or BadRequest, if something failed.
-    */
+   * Performs an update of the rules.txt (or separate rules.txt files) to the configured Solr instance
+   * while using the smui2solr.sh or a custom script.
+   *
+   * @param solrIndexId  Id of the Solr Index in the database
+   * @param targetSystem "PRELIVE" vs. "LIVE" ... for reference @see evolutions/default/1.sql
+   * @return Ok or BadRequest, if something failed.
+   */
   def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
     logger.debug("In ApiController :: updateRulesTxtForSolrIndexAndTargetPlatform")
 
@@ -275,7 +281,7 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
     }
   }
 
-  def addNewSuggestedSolrField(solrIndexId: String)= authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def addNewSuggestedSolrField(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
       val body: AnyContent = request.body
       val jsonBody: Option[JsValue] = body.asJson
@@ -324,10 +330,11 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   }
 
   /**
-    * Deployment info (raw or formatted)
-    */
+   * Deployment info (raw or formatted)
+   */
 
   case class DeploymentInfo(msg: Option[String])
+
   implicit val logDeploymentInfoWrites = Json.writes[DeploymentInfo]
 
   def getLatestDeploymentResult(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
@@ -346,8 +353,9 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
       logger.debug(s"... isRawRequested = $isRawRequested")
 
       val deplLogDetail = searchManagementRepository.lastDeploymentLogDetail(solrIndexId, targetSystem)
+
       def getRawVerboseDeplMsg() = {
-        if(isRawRequested) {
+        if (isRawRequested) {
           // raw date output
           deplLogDetail match {
             case Some(deploymentLogDetail) => {
@@ -373,15 +381,15 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   }
 
   /**
-    * Config info
-    */
+   * Config info
+   */
 
   case class SmuiVersionInfo(
-    latestMarketStandard: Option[String],
-    current: Option[String],
-    infoType: String,
-    msgHtml: String
-  )
+                              latestMarketStandard: Option[String],
+                              current: Option[String],
+                              infoType: String,
+                              msgHtml: String
+                            )
 
   object SmuiVersionInfoType extends Enumeration {
     val INFO = Value("INFO")
@@ -417,25 +425,25 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
 
         logger.info(s":: latest version from DockerHub = ${latestFromDockerHub.get}")
 
-        val (infoType, msgHtml) = (if(latestFromDockerHub.get.greaterThan(current.get)) {
+        val (infoType, msgHtml) = (if (latestFromDockerHub.get.greaterThan(current.get)) {
           (
             SmuiVersionInfoType.WARN.toString,
             // note: logical HTML structure within modal dialog begins with <h5>
             "<h5>Info</h5>" +
               // TODO get maintainer from build.sbt
               "<div>Your locally installed <strong>SMUI instance is outdated</strong>. Please consider an update. If you have issues, contact the maintainer (<a href=\"mailto:paulbartusch@gmx.de\">paulbartusch@gmx.de</a>) or file an issue to the project: <a href=\"https://github.com/querqy/smui/issues\" target=\"_new\">https://github.com/querqy/smui/issues</a><div>"
-              // TODO parse querqy.org/docs/smui/release-notes/ and teaser new features (optional) - might look like:
-              // "<hr>" +
-              // "<h5>What's new</h5>"
-              // "<ul>LIST_OF_RELEASE_NOTES</ul>" +
-              // "<div>See <a href=\"https://querqy.org/docs/smui/release-notes/\" target=\"_new\">https://querqy.org/docs/smui/release-notes/</a></div>"
+            // TODO parse querqy.org/docs/smui/release-notes/ and teaser new features (optional) - might look like:
+            // "<hr>" +
+            // "<h5>What's new</h5>"
+            // "<ul>LIST_OF_RELEASE_NOTES</ul>" +
+            // "<div>See <a href=\"https://querqy.org/docs/smui/release-notes/\" target=\"_new\">https://querqy.org/docs/smui/release-notes/</a></div>"
           )
         } else (
-            SmuiVersionInfoType.INFO.toString,
-            // TODO only case, that does not deliver HTML - semantically not nice, but feasible
-            "SMUI is up-to-date!"
-          )
+          SmuiVersionInfoType.INFO.toString,
+          // TODO only case, that does not deliver HTML - semantically not nice, but feasible
+          "SMUI is up-to-date!"
         )
+          )
 
         SmuiVersionInfo(
           Some(s"${latestFromDockerHub.get}"),
@@ -450,8 +458,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   }
 
   /**
-    * Activity log
-    */
+   * Activity log
+   */
 
   def getActivityLog(inputId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
@@ -461,8 +469,8 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   }
 
   /**
-    * Reports (for Activity log as well)
-    */
+   * Reports (for Activity log as well)
+   */
 
   def getRulesReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
@@ -472,30 +480,30 @@ class ApiController @Inject()(searchManagementRepository: SearchManagementReposi
   }
 
   def getActivityReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] => {
-      Future {
-        val rawDateFrom: Option[String] = request.getQueryString("dateFrom")
-        val rawDateTo: Option[String] = request.getQueryString("dateTo")
+    Future {
+      val rawDateFrom: Option[String] = request.getQueryString("dateFrom")
+      val rawDateTo: Option[String] = request.getQueryString("dateTo")
 
-        // TODO switch to debug
-        logger.debug("In ApiController :: getActivityReport")
-        logger.debug(s":: rawDateFrom = $rawDateFrom")
-        logger.debug(s":: rawDateTo = $rawDateTo")
+      // TODO switch to debug
+      logger.debug("In ApiController :: getActivityReport")
+      logger.debug(s":: rawDateFrom = $rawDateFrom")
+      logger.debug(s":: rawDateTo = $rawDateTo")
 
-        // TODO ensure aligned date pattern between frontend and backend
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        // TODO make error nicer, in case either From or To parameter did not exist
-        // fyi: hours/minutes/seconds needs to be added
-        // (see https://stackoverflow.com/questions/22463062/how-to-parse-format-dates-with-localdatetime-java-8)
-        val dateFrom = LocalDateTime.parse(s"${rawDateFrom.get} 00:00:00", formatter)
-        val dateTo = LocalDateTime.parse(s"${rawDateTo.get} 23:59:59", formatter)
+      // TODO ensure aligned date pattern between frontend and backend
+      val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+      // TODO make error nicer, in case either From or To parameter did not exist
+      // fyi: hours/minutes/seconds needs to be added
+      // (see https://stackoverflow.com/questions/22463062/how-to-parse-format-dates-with-localdatetime-java-8)
+      val dateFrom = LocalDateTime.parse(s"${rawDateFrom.get} 00:00:00", formatter)
+      val dateTo = LocalDateTime.parse(s"${rawDateTo.get} 23:59:59", formatter)
 
-        logger.debug(s":: dateFrom = $dateFrom")
-        logger.debug(s":: dateTo = $dateTo")
+      logger.debug(s":: dateFrom = $dateFrom")
+      logger.debug(s":: dateTo = $dateTo")
 
-        val report = searchManagementRepository.getActivityReport(SolrIndexId(solrIndexId), dateFrom, dateTo)
-        Ok(Json.toJson(report))
-      }
+      val report = searchManagementRepository.getActivityReport(SolrIndexId(solrIndexId), dateFrom, dateTo)
+      Ok(Json.toJson(report))
     }
+  }
   }
 
 }

@@ -3,11 +3,12 @@
 # ~~~~
 
 # Handle Requests to the Server's root, and supply the Angular SPA
-GET     /         controllers.HomeController.index(urlPath = "")
+GET     /         controllers.FrontendController.index()
 GET     /health   controllers.HealthController.health
 
 # serve the API v1 Specification
 # TODO search-input URL path partially "behind" solrIndexId path component and partially not
+GET     /api/v1/featureToggles                                  controllers.ApiController.getFeatureToggles
 GET     /api/v1/solr-index                                      controllers.ApiController.listAllSolrIndeces
 PUT     /api/v1/solr-index                                      controllers.ApiController.addNewSolrIndex
 GET     /api/v1/inputTags                                       controllers.ApiController.listAllInputTags
@@ -33,8 +34,4 @@ GET     /api/v1/report/activity-report/:solrIndexId             controllers.ApiC
 GET     /api/v1/version/latest-info                             controllers.ApiController.getLatestVersionInfo()
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file   controllers.Assets.versioned(path="/public", file: Asset)
-
-# Catch anything else, and just supply the Angular SPA as well
-GET     /*urlPath       controllers.HomeController.index(urlPath)
-
+GET     /*file   controllers.FrontendController.assetOrDefault(file)

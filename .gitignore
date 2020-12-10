@@ -24,3 +24,4 @@ smui2solr-dev.sh
 var/test.db
 node_modules/
 package-lock.json
+public/

@@ -1,12 +1,11 @@
 package models
 
 import javax.inject.Inject
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{JsValue, Json, OFormat, OWrites, Writes}
 import play.api.{Configuration, Logging}
 import play.twirl.api.utils.StringEscapeUtils
 
 import scala.util.Try
-
 import models.rules.UpDownRule
 
 // TODO refactor FeatureToggleModel (and FeatureToggleService) to config package (for being in sync with Spec structure)
@@ -16,14 +15,20 @@ package object FeatureToggleModel extends Logging {
     def render(): String
   }
 
-  class JsBoolFeatureToggleValue(bState: Boolean) extends JsFeatureToggleValue {
+  implicit val toggleValueWrites: Writes[JsFeatureToggleValue] = {
+    case bool: JsBoolFeatureToggleValue => Json.toJson(bool.bState)
+    case str: JsStringFeatureToggleValue => Json.toJson(str.render())
+    case raw: JsRawObjFeatureToggleValue => Json.toJson(raw.render())
+  }
+
+  class JsBoolFeatureToggleValue(val bState: Boolean) extends JsFeatureToggleValue {
     override def render(): String = {
       bState.toString
     }
   }
 
   class JsStringFeatureToggleValue(value: String) extends JsFeatureToggleValue {
-    override def render(): String = s""""${StringEscapeUtils.escapeEcmaScript(value)}""""
+    override def render(): String = StringEscapeUtils.escapeEcmaScript(value)
   }
 
   class JsRawObjFeatureToggleValue(rawObjAsString: String) extends JsFeatureToggleValue {
@@ -31,6 +36,10 @@ package object FeatureToggleModel extends Logging {
   }
 
   case class JsFeatureToggle(toggleName: String, toggleValue: JsFeatureToggleValue)
+
+  object JsFeatureToggle {
+    implicit val toJson: OWrites[JsFeatureToggle] = Json.writes[JsFeatureToggle]
+  }
 
   @javax.inject.Singleton
   class FeatureToggleService @Inject()(appConfig: Configuration) {

@@ -1,0 +1,31 @@
+.selectpicker {
+  margin-right: 0.5em;
+  max-width: 250px;
+}
+
+.smui-version {
+  font-size: x-small;
+}
+
+.help-table-col-1 {
+  width: 15%;
+}
+
+.help-table-col-2 {
+  width: 15%;
+}
+
+.help-table-col-3 {
+  width: 15%;
+}
+
+.help-table-col-4 {
+  width: 55%;
+}
+
+.btn-smui-version-info {
+  cursor: pointer;
+}
+
+.smui-safe-querqydocs-html {
+}
