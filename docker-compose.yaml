@@ -13,9 +13,7 @@ services:
       SMUI_HEADLINE: "SMUI demo installation"
       SMUI_DB_USER: smui
       SMUI_DB_PASSWORD: smui
-      SMUI_SKIP_FILE_LOGGING: "true"
-      SMUI_LOG_LEVEL: "INFO"
-    
+
   database:
     image: postgres:12.5
     environment:
