@@ -9,6 +9,7 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .enablePlugins(BuildInfoPlugin)
   .enablePlugins(GitBranchPrompt)
+  .enablePlugins(sbtdocker.DockerPlugin)
   .settings(
     buildInfoOptions += BuildInfoOption.BuildTime,
     buildInfoOptions += BuildInfoOption.ToJson,
@@ -82,3 +83,28 @@ assemblyMergeStrategy in assembly := {
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
 }
+
+lazy val dockerNamespace = "querqy"
+lazy val dockerRepo = "smui"
+
+imageNames in docker := Seq(
+  ImageName(
+    namespace = Some(dockerNamespace),
+    repository = dockerRepo
+  ),
+  ImageName(
+    namespace = Some(dockerNamespace),
+    repository = dockerRepo,
+    tag = Some(version.value)
+  )
+)
+
+dockerfile in docker := NativeDockerfile(baseDirectory.value / "Dockerfile")
+
+dockerBuildArguments in docker := Map(
+  "VERSION" -> version.value,
+)
+
+buildOptions in docker := BuildOptions(
+  pullBaseImage = BuildOptions.Pull.Always
+)
