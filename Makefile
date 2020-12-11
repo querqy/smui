@@ -1,4 +1,7 @@
-all: docker-build-only
+all:
+
+serve:
+	@sbt run
 
 docker-build-only:
 	DOCKER_BUILDKIT=1 sbt docker
