@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:1.0-experimental
-FROM openjdk:8-buster as builder
+FROM openjdk:11-buster as builder
 
 ARG NODE_VERSION=10
 
@@ -21,7 +21,7 @@ WORKDIR /smui
 
 RUN --mount=target=/root/.ivy2,type=cache sbt "set test in assembly := {}" clean assembly
 
-FROM openjdk:8-jre-slim-buster
+FROM openjdk:11-jre-slim-buster
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends openssh-client sshpass bash curl git \
