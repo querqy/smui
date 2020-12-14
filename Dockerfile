@@ -30,7 +30,9 @@ RUN apt-get update \
 ARG VERSION
 ENV SMUI_VERSION=$VERSION
 
-ENV SMUI_CONF_PID_PATH=/var/run/smui/play.pid
+# PID file should be /dev/null in docker containers, as SMUI is the only process in the container, anyway
+# and present PID files from previous runs prevent startup
+ENV SMUI_CONF_PID_PATH=/dev/null
 ENV SMUI_CONF_HTTP_PORT=9000
 ENV SMUI_CONF_LOGBACK_XML_PATH=/smui/logback.xml
 
@@ -42,8 +44,8 @@ RUN addgroup --gid 1024 smui \
 
 WORKDIR /smui
 
-RUN mkdir /tmp/smui-git-repo /var/run/smui /home/smui/.ssh \
-    && chown -R smui:smui /smui /tmp/smui-git-repo /var/run/smui /home/smui/.ssh
+RUN mkdir /tmp/smui-git-repo /home/smui/.ssh \
+    && chown -R smui:smui /smui /tmp/smui-git-repo /home/smui/.ssh
 
 USER smui
 
