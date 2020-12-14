@@ -87,17 +87,20 @@ assemblyMergeStrategy in assembly := {
 lazy val dockerNamespace = "querqy"
 lazy val dockerRepo = "smui"
 
-imageNames in docker := Seq(
-  ImageName(
-    namespace = Some(dockerNamespace),
-    repository = dockerRepo
-  ),
-  ImageName(
-    namespace = Some(dockerNamespace),
-    repository = dockerRepo,
-    tag = Some(version.value)
-  )
-)
+imageNames in docker := {
+  val semVerLevels = version.value.split('.')
+  val majorVersion = semVerLevels.head
+  val minorVersion = semVerLevels.drop(1).head
+
+  // create tags for 'latest', and all SemVer levels
+  Seq("latest", majorVersion, s"$majorVersion.$minorVersion", version.value).map { tag =>
+    ImageName(
+      namespace = Some(dockerNamespace),
+      repository = dockerRepo,
+      tag = Some(tag)
+    )
+  }
+}
 
 dockerfile in docker := NativeDockerfile(baseDirectory.value / "Dockerfile")
 
