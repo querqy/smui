@@ -14,9 +14,7 @@ import {
   SpellingsService,
   TagsService
 } from '../../../services'
-import { InputTag, ListItem } from '../../../models'
-
-declare var $: any // TODO include @types/jquery properly, make this workaround unnecessary
+import {InputTag, ListItem} from '../../../models'
 
 @Component({
   selector: 'smui-rules-search',
@@ -31,9 +29,7 @@ export class RulesSearchComponent implements OnChanges {
 
   @Output() searchInputTermChange: EventEmitter<string> = new EventEmitter()
   @Output() appliedTagFilterChange: EventEmitter<InputTag> = new EventEmitter()
-  @Output() refreshAndSelectListItemById: EventEmitter<
-    string
-  > = new EventEmitter()
+  @Output() refreshAndSelectListItemById: EventEmitter<string> = new EventEmitter()
   @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter()
   @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter()
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter()
@@ -51,7 +47,7 @@ export class RulesSearchComponent implements OnChanges {
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.listItems && changes.listItems.currentValue) {
+    if (changes.listItems && changes.listItems.currentValue && this.isTaggingActive) {
       this.refreshTags(changes.listItems.currentValue)
     }
   }
@@ -61,7 +57,7 @@ export class RulesSearchComponent implements OnChanges {
 
     // Reset tagFilter if the tag is no longer available in the current search inputs
     if (this.appliedTagFilter) {
-      const { displayValue } = this.appliedTagFilter
+      const {displayValue} = this.appliedTagFilter
       if (
         this.allTags.filter(tag => tag.displayValue === displayValue).length ===
         0

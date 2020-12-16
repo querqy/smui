@@ -10,13 +10,11 @@ import {
 import {
   CommonsService,
   FeatureToggleService,
-  ListItemsService, ModalService,
+  ListItemsService,
   RuleManagementService,
   SpellingsService
 } from '../../../services'
-import {InputTag, ListItem} from '../../../models'
-
-declare var $: any // TODO include @types/jquery properly, make this workaround unnecessary
+import { InputTag, ListItem } from '../../../models'
 
 @Component({
   selector: 'smui-rules-list',
@@ -44,10 +42,8 @@ export class RulesListComponent implements OnChanges {
     private ruleManagementService: RuleManagementService,
     private spellingsService: SpellingsService,
     private listItemsService: ListItemsService,
-    private commonService: CommonsService,
-    private modalService: ModalService
-  ) {
-  }
+    private commonService: CommonsService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.commonService.hasChanged(changes, 'currentSolrIndexId')) {
@@ -58,12 +54,12 @@ export class RulesListComponent implements OnChanges {
   refreshItemsInList() {
     return this.currentSolrIndexId
       ? this.listItemsService
-        .getAllItemsForInputList(this.currentSolrIndexId)
-        .then(listItems => {
-          this.listItems = listItems
-          this.listItemsChange.emit(listItems)
-          this.searchInputTerm = ''
-        })
+          .getAllItemsForInputList(this.currentSolrIndexId)
+          .then(listItems => {
+            this.listItems = listItems
+            this.listItemsChange.emit(listItems)
+            this.searchInputTerm = ''
+          })
       : Promise.reject('No selected Solr index')
   }
 
@@ -88,17 +84,13 @@ export class RulesListComponent implements OnChanges {
   }
 
   getFilteredListItems(): ListItem[] {
-    if (this.searchInputTerm) {
-      const searchTerm = this.searchInputTerm.trim().toLowerCase()
-
-      if (searchTerm.length > 0 || this.appliedTagFilter) {
-        return this.listItems.filter(item => {
-          return (
-            this.listItemContainsString(item, searchTerm) &&
-            this.listItemContainsTag(item, this.appliedTagFilter)
-          )
-        })
-      }
+    if (this.searchInputTerm || this.appliedTagFilter) {
+      return this.listItems.filter(item => {
+        return (
+          this.listItemContainsString(item) &&
+          this.listItemContainsTag(item)
+        )
+      })
     }
 
     return this.listItems
@@ -119,7 +111,7 @@ export class RulesListComponent implements OnChanges {
         .then(() => this.selectListItem(undefined))
         .catch(error => this.showErrorMsg.emit(error))
 
-    this.openDeleteConfirmModal.emit({deleteCallback})
+    this.openDeleteConfirmModal.emit({ deleteCallback })
   }
 
   deleteRuleItem(id: string, event: Event) {
@@ -131,7 +123,7 @@ export class RulesListComponent implements OnChanges {
         .then(() => this.selectListItem(undefined))
         .catch(error => this.showErrorMsg.emit(error))
 
-    this.openDeleteConfirmModal.emit({deleteCallback})
+    this.openDeleteConfirmModal.emit({ deleteCallback })
   }
 
   toggleShowMore() {
@@ -139,9 +131,10 @@ export class RulesListComponent implements OnChanges {
   }
 
   private listItemContainsString(
-    item: ListItem,
-    searchTermLower: string
+    item: ListItem
   ): Boolean {
+    const searchTermLower = (this.searchInputTerm || "").trim().toLowerCase()
+
     function searchTermIncludesString(s: string) {
       return s.toLowerCase().indexOf(searchTermLower) !== -1
     }
@@ -171,12 +164,13 @@ export class RulesListComponent implements OnChanges {
     return false
   }
 
-  private listItemContainsTag(i: ListItem, tag?: InputTag): Boolean {
-    if (!tag) {
+  private listItemContainsTag(i: ListItem): Boolean {
+    if (!this.appliedTagFilter) {
       return true
     }
+
     for (const t of i.tags) {
-      if (t.id === tag.id) {
+      if (t.id === this.appliedTagFilter.id) {
         return true
       }
     }

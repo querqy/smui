@@ -41,6 +41,7 @@ export class SearchManagementComponent implements OnInit {
   searchInputTerm?: string
   selectedListItem?: ListItem
   suggestedSolrFieldNames: SuggestedSolrField[] = []
+  showTags: boolean = false
   allTags: InputTag[] = []
   appliedTagFilter?: InputTag
 
@@ -61,6 +62,7 @@ export class SearchManagementComponent implements OnInit {
   ngOnInit() {
     console.log('In SearchManagementComponent :: ngOnInit')
     this.currentSolrIndexId = this.solrService.currentSolrIndexId
+    this.showTags = this.featureToggleService.isRuleTaggingActive()
 
     if (this.currentSolrIndexId) {
       this.selectedSolrIndexChange(this.currentSolrIndexId)
@@ -88,12 +90,14 @@ export class SearchManagementComponent implements OnInit {
       })
       .catch(error => this.showErrorMsg(error))
 
-    this.tagsService
-      .listAllInputTags()
-      .then(allTags => {
-        this.allTags = allTags
-      })
-      .catch(error => this.showErrorMsg(error))
+    if (this.showTags) {
+      this.tagsService
+        .listAllInputTags()
+        .then(allTags => {
+          this.allTags = allTags
+        })
+        .catch(error => this.showErrorMsg(error))
+    }
 
     this.selectedListItem = undefined
     this.searchInputTerm = undefined

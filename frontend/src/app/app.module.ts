@@ -7,10 +7,9 @@ import { HttpClientModule } from '@angular/common/http'
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
 import { ToasterModule } from 'angular2-toaster'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
-// import { AngularMultiSelectModule } from 'angular2-multiselect-dropdown';
-// import { Http, XHRBackend, RequestOptions } from '@angular/http';
-// import { Router } from '@angular/router';
+import { AngularMultiSelectModule } from 'angular2-multiselect-dropdown';
 
+// services
 import {
   FeatureToggleService,
   ListItemsService,
@@ -24,25 +23,15 @@ import {
   CommonsService
 } from './services'
 
-// interceptors
-// import {
-//   AuthInterceptor
-// } from './interceptors';
-
 // // components
 import { AppComponent } from './components/app.component'
-
 import { ModalComponent, ModalConfirmComponent } from './components/modal'
-
 import { HeaderNavComponent } from './components/header-nav'
-
 import { SearchManagementComponent } from './components/search-management'
-
 import {
   ReportComponent,
   ReportSettingsBarComponent
 } from './components/report'
-
 import {
   ButtonRowComponent,
   CardComponent,
@@ -55,27 +44,10 @@ import {
   RuleManagementComponent,
   ActivityLogComponent
 } from './components/details'
-
 import {
   RulesListComponent,
   RulesSearchComponent
 } from './components/rules-panel'
-
-// !!!! vllt sowas fürs intercepten
-// import { NgModule } from '@angular/core';
-// import { HTTP_INTERCEPTORS } from '@angular/common/http';
-// import { HttpErrorInterceptor } from './path/http-error.interceptor';
-//
-// @NgModule({
-//   ...
-//     providers: [{
-//   provide: HTTP_INTERCEPTORS,
-//   useClass: HttpErrorInterceptor,
-//   multi: true,
-// }],
-// ...
-// })
-// export class AppModule {}
 
 @NgModule({
   imports: [
@@ -85,7 +57,7 @@ import {
     AppRoutingModule,
     ToasterModule,
     BrowserAnimationsModule,
-    // AngularMultiSelectModule,
+    AngularMultiSelectModule,
     NgbModule
   ],
   declarations: [
@@ -117,13 +89,6 @@ import {
     SpellingsService,
     SolrService,
     TagsService,
-    // // {
-    // //   provide: Http,
-    // //   useFactory:
-    // //     (xhrBackend: XHRBackend, requestOptions: RequestOptions, router: Router) =>
-    // //       new HttpAuthInterceptor(xhrBackend, requestOptions, router),
-    // //   deps: [XHRBackend, RequestOptions, Router]
-    // // },
     ActivityLogService,
     ReportService,
     ConfigService

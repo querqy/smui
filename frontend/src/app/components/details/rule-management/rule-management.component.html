@@ -12,7 +12,7 @@
               <!-- TODO ng-container wrapping could be solved more elegant, maybe as a separate "empty detailSearchInput view"? -->
               <input
                 type="checkbox"
-                class=" smui-realign-check-input"
+                class="mr-2"
                 [disabled]="!detailSearchInput"
                 [(ngModel)]="detailSearchInput && detailSearchInput.isActive"
               />
@@ -20,7 +20,7 @@
             </td>
             <td
               [style.width]="showTags ? '30%' : '60%'"
-              [style.padding-right]="'0.5rem'"
+              [style.padding-right]="!showTags && '0.5rem'"
             >
               <ng-container *ngIf="detailSearchInput">
                 <input
@@ -47,21 +47,14 @@
               style="width:20%"
               class="smui-tags-container"
             >
-<!--              <angular2-multiselect-->
-<!--                [disabled]="!detailSearchInput"-->
-<!--                [data]="availableTags"-->
-<!--                [(ngModel)]="selectedTags"-->
-<!--                [settings]="tagsDropDownSettings"-->
-<!--                (onSelect)="onItemSelect($event)"-->
-<!--                (onDeSelect)="OnItemDeSelect($event)"-->
-<!--                (onSelectAll)="onSelectAll($event)"-->
-<!--                (onDeSelectAll)="onDeSelectAll($event)"-->
-<!--              ></angular2-multiselect>-->
-              <!--              <select class="inputTags" multiple>-->
-              <!--                <option *ngFor="let tag of availableTags" [value]="tag.id">{{-->
-              <!--                  tag.displayValue-->
-              <!--                }}</option>-->
-              <!--              </select>-->
+              <div *ngIf="detailSearchInput && tagsDropDownSettings">
+                <angular2-multiselect
+                  [data]="availableTags"
+                  [(ngModel)]="selectedTags"
+                  [settings]="tagsDropDownSettings"
+                  (onDeSelectAll)="onDeSelectAllTags()"
+                ></angular2-multiselect>
+              </div>
             </td>
             <td style="width:20%">
               <button
@@ -111,7 +104,7 @@
             <ng-container *ngIf="!associatedSpelling.exists">
               <small>{{ associatedSpelling.term }}</small>
               <i
-                class="fa fa-plus-circle active align-middle"
+                class="fa fa-plus-circle active align-middle ml-2"
                 aria-hidden="true"
                 (click)="createNewSpellingItemForTerm(associatedSpelling.term)"
               >
@@ -211,7 +204,7 @@
           <td style="width:20%">
             <input
               type="checkbox"
-              class=" smui-realign-check-input"
+              class="mr-2"
               [(ngModel)]="synonymRule.isActive"
             />
             <small style="text-transform: uppercase">Synonym Rule:</small>
@@ -263,7 +256,7 @@
           <td style="width:20%">
             <input
               type="checkbox"
-              class=" smui-realign-check-input"
+              class="mr-2"
               [(ngModel)]="upDownRule.isActive"
             />
             <small style="text-transform: uppercase">UP/DOWN Rule:</small>
@@ -373,7 +366,7 @@
           <td style="width:20%">
             <input
               type="checkbox"
-              class=" smui-realign-check-input"
+              class="mr-2"
               [(ngModel)]="filterRule.isActive"
             />
             <small style="text-transform: uppercase">FILTER Rule:</small>
@@ -435,7 +428,7 @@
           <td style="width:20%">
             <input
               type="checkbox"
-              class=" smui-realign-check-input"
+              class="mr-2"
               [(ngModel)]="deleteRule.isActive"
             />
             <small style="text-transform: uppercase">DELETE Rule:</small>
@@ -481,7 +474,7 @@
           <td style="width:20%">
             <input
               type="checkbox"
-              class=" smui-realign-check-input"
+              class="mr-2"
               [(ngModel)]="redirectRule.isActive"
             />
             <small style="text-transform: uppercase">REDIRECT Rule:</small>

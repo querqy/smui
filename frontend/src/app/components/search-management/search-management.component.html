@@ -29,45 +29,56 @@
     </smui-rules-list>
   </div>
   <div class="col-8">
-    <smui-rule-management
-      *ngIf="!selectedListItem || selectedListItem.itemType.toString() === 'RuleManagement'"
-      [currentSolrIndexId]="currentSolrIndexId"
-      [selectedListItem]="selectedListItem"
-      [listItems]="listItems"
-      [allTags]="allTags"
-      [suggestedSolrFieldNames]="suggestedSolrFieldNames"
-      (refreshAndSelectListItemById)="
-        rulesListComponent.refreshAndSelectListItemById($event)
-      "
-      (executeWithChangeCheck)="executeWithChangeCheck($event)"
-      (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
-      (showErrorMsg)="showErrorMsg($event)"
-      (showSuccessMsg)="showSuccessMsg($event)"
-      #ruleManagementComponent
-    >
-    </smui-rule-management>
+    <div *ngIf="!selectedListItem">
+      <smui-card>
+        <ngb-alert [dismissible]="false" type="light">
+          Please select a rule or spelling item from the list or create a new one.
+        </ngb-alert>
+      </smui-card>
+    </div>
 
-    <smui-spellings
-      *ngIf="selectedListItem && selectedListItem.itemType.toString() === 'Spelling'"
-      [currentSolrIndexId]="currentSolrIndexId"
-      [selectedListItem]="selectedListItem"
-      (refreshAndSelectListItemById)="
-        rulesListComponent.refreshAndSelectListItemById($event)
-      "
-      (showErrorMsg)="showErrorMsg($event)"
-      (showSuccessMsg)="showSuccessMsg($event)"
-      (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
-      #spellingDetailComponent
-    >
-    </smui-spellings>
+    <div *ngIf="selectedListItem">
+      <smui-rule-management
+        *ngIf="selectedListItem.itemType.toString() === 'RuleManagement'"
+        [currentSolrIndexId]="currentSolrIndexId"
+        [selectedListItem]="selectedListItem"
+        [listItems]="listItems"
+        [showTags]="showTags"
+        [allTags]="allTags"
+        [suggestedSolrFieldNames]="suggestedSolrFieldNames"
+        (refreshAndSelectListItemById)="
+          rulesListComponent.refreshAndSelectListItemById($event)
+        "
+        (executeWithChangeCheck)="executeWithChangeCheck($event)"
+        (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
+        (showErrorMsg)="showErrorMsg($event)"
+        (showSuccessMsg)="showSuccessMsg($event)"
+        #ruleManagementComponent
+      >
+      </smui-rule-management>
 
-    <smui-activity-log
-      *ngIf="selectedListItem"
-      [selectedListItem]="selectedListItem"
-      (showErrorMsg)="showErrorMsg($event)"
-      #activityLogComponent
-    >
-    </smui-activity-log>
+      <smui-spellings
+        *ngIf="selectedListItem.itemType.toString() === 'Spelling'"
+        [currentSolrIndexId]="currentSolrIndexId"
+        [selectedListItem]="selectedListItem"
+        (refreshAndSelectListItemById)="
+          rulesListComponent.refreshAndSelectListItemById($event)
+        "
+        (showErrorMsg)="showErrorMsg($event)"
+        (showSuccessMsg)="showSuccessMsg($event)"
+        (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
+        #spellingDetailComponent
+      >
+      </smui-spellings>
+
+      <smui-activity-log
+        *ngIf="selectedListItem"
+        [selectedListItem]="selectedListItem"
+        (showErrorMsg)="showErrorMsg($event)"
+        #activityLogComponent
+      >
+      </smui-activity-log>
+    </div>
   </div>
 </div>
 

@@ -2,14 +2,14 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges, OnInit,
+  OnChanges,
+  OnInit,
   Output,
   SimpleChanges
 } from '@angular/core'
 import { Observable } from 'rxjs'
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators'
-import * as $ from 'jquery';
-// import {DropdownSettings} from "angular2-multiselect-dropdown/lib/multiselect.interface";
+import { DropdownSettings } from 'angular2-multiselect-dropdown/lib/multiselect.interface'
 
 import {
   AssociatedSpelling,
@@ -41,6 +41,7 @@ export class RuleManagementComponent implements OnChanges, OnInit {
   @Input() currentSolrIndexId?: string
   @Input() listItems: ListItem[] = []
   @Input() suggestedSolrFieldNames: SuggestedSolrField[] = []
+  @Input() showTags: boolean = false
   @Input() allTags: InputTag[] = []
 
   @Output() refreshAndSelectListItemById: EventEmitter<
@@ -53,15 +54,13 @@ export class RuleManagementComponent implements OnChanges, OnInit {
 
   detailSearchInput?: SearchInput
   initDetailSearchInputHashForDirtyState?: string
-  showTags: boolean = false
-  availableTags: InputTag[] = []
   saveError?: string
-  previousTagEventHandler?: Function
   associatedSpellings: AssociatedSpelling[] = []
   activateSpelling?: string = this.featureToggleService.getSyncToggleActivateSpelling()
   searchListItems: ListItem[] = []
-  // tagsDropDownSettings?: DropdownSettings;
-  selectedTags: InputTag[] = [];
+  tagsDropDownSettings?: DropdownSettings
+  availableTags: InputTag[] = []
+  selectedTags: InputTag[] = []
 
   // TODO open typeahead popup on focus -- focus$ = new Subject<string>();
   searchSuggestedSolrFieldNames = (text$: Observable<string>) =>
@@ -90,29 +89,15 @@ export class RuleManagementComponent implements OnChanges, OnInit {
 
   ngOnInit() {
     // @ts-ignore
-    // this.tagsDropDownSettings = {
-    //   singleSelection: false,
-    //   enableCheckAll: false,
-    //   text:"Tags",
-    //   enableSearchFilter: true,
-    //   badgeShowLimit: 2,
-    //   labelKey: "displayValue"
-    // };
-  }
-
-  onItemSelect(item:any){
-    console.log(item);
-    console.log(this.selectedTags);
-  }
-  OnItemDeSelect(item:any){
-    console.log(item);
-    console.log(this.selectedTags);
-  }
-  onSelectAll(items: any){
-    console.log(items);
-  }
-  onDeSelectAll(items: any){
-    console.log(items);
+    this.tagsDropDownSettings = {
+      singleSelection: false,
+      enableCheckAll: false,
+      text: 'Tags',
+      enableSearchFilter: true,
+      badgeShowLimit: 2,
+      labelKey: 'displayValue',
+      noDataLabel: "No Tags available"
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -148,52 +133,13 @@ export class RuleManagementComponent implements OnChanges, OnInit {
     return this.ruleManagementService.upDownDropdownDefinitionMappings
   }
 
-  test(event: any) {
-    console.log(event.target.value)
-  }
-
   private initTags(tags: InputTag[]) {
     this.availableTags = this.availableTagsForCurrentSolrIndex()
-    this.showTags = this.featureToggleService.isRuleTaggingActive()
+    this.selectedTags = tags
+  }
 
-    console.log(this.availableTags)
-
-
-
-
-    // const elem = $('.inputTags')
-    // if (this.previousTagEventHandler) {
-    //   // @ts-ignore
-    //   elem.off(
-    //     'tokenize:tokens:added tokenize:tokens:remove',
-    //     this.previousTagEventHandler
-    //   )
-    // }
-    //
-    // // Create tag input from multiselect input
-    // // @ts-ignore
-    // elem.tokenize2({
-    //   placeholder: 'Tags',
-    //   dropdownMaxItems: 20,
-    //   searchFromStart: false
-    // })
-    // // Remove previous event handlers that update the model
-    // elem.off('tokenize:tokens:added	tokenize:tokens:remove')
-    // // Remove all previously selected tags and add all current tags
-    // // @ts-ignore
-    // elem.tokenize2().trigger('tokenize:clear')
-    // tags.forEach(tag => {
-    //   elem
-    //     // @ts-ignore
-    //     .tokenize2()
-    //     .trigger('tokenize:tokens:add', [tag.id, tag.displayValue, true])
-    // })
-    // const handler = () => {
-    //   this.updateSelectedTagsInModel()
-    // }
-    // this.previousTagEventHandler = handler
-    // // Register event handlers that update the model value on change
-    // elem.on('tokenize:tokens:added tokenize:tokens:remove', handler)
+  onDeSelectAllTags() {
+    this.selectedTags = []
   }
 
   /**
@@ -306,14 +252,16 @@ export class RuleManagementComponent implements OnChanges, OnInit {
 
     if (!searchInputId) {
       this.detailSearchInput = undefined
-      this.showTags = false
     } else {
       this.ruleManagementService
         .getDetailedSearchInput(searchInputId)
         .then(retSearchInput => {
           this.saveError = undefined
-          this.initTags(retSearchInput.tags)
           this.detailSearchInput = retSearchInput
+
+          if (this.showTags) {
+            this.initTags(retSearchInput.tags)
+          }
 
           // take care of extracted Solr syntax
           if (
@@ -518,17 +466,9 @@ export class RuleManagementComponent implements OnChanges, OnInit {
     }
   }
 
-  private currentlySelectedTags() {
-    // @ts-ignore
-    const ids: string[] = $('.inputTags').val()
-    return this.availableTagsForCurrentSolrIndex().filter(
-      tag => ids.indexOf(tag.id) !== -1
-    )
-  }
-
   private updateSelectedTagsInModel() {
     if (this.detailSearchInput) {
-      this.detailSearchInput.tags = this.currentlySelectedTags()
+      this.detailSearchInput.tags = this.selectedTags
     }
   }
 

@@ -21,7 +21,7 @@ export class SolrService {
     'Content-Type': 'application/json'
   })
 
-  currentSolrIndexId?: string
+  currentSolrIndexId?: string = "-1"
   currentSolrIndexIdSubject: Subject<string> = new Subject<string>()
   solrIndices: SolrIndex[]
 
