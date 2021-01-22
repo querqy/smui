@@ -13,14 +13,6 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Setup NPM environment specfic to SMUI
-        uses: actions/setup-node@v2
-        with:
-          node-version: '12'
-      - run: npm i graceful-fs
-      - run: npm i resolve
-      - run: npm i esutils
-      - run: npm i semver
 #      # install docker, see https://github.com/marketplace/actions/setup-docker
 #      - uses: docker-practice/actions-setup-docker@master
 #        with:
@@ -43,6 +35,14 @@ jobs:
           docker version -f '{{.Server.Experimental}}'
 
       - uses: actions/checkout@v2
+      - name: Setup NPM environment specfic to SMUI
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: npm i graceful-fs
+      - run: npm i resolve
+      - run: npm i esutils
+      - run: npm i semver
       - name: Run tests
         run: sbt test
 # TODO build
