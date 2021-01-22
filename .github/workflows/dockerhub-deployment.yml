@@ -1,0 +1,53 @@
+name: dockerhub-deployment
+
+on:
+  push:
+    branches: master
+
+jobs:
+  test-build-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up JDK 1.8
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: 1.8
+
+      - name: Setup NPM environment specfic to SMUI
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: npm i graceful-fs
+      - run: npm i resolve
+      - run: npm i esutils
+      - run: npm i semver
+#      # install docker, see https://github.com/marketplace/actions/setup-docker
+#      - uses: docker-practice/actions-setup-docker@master
+#        with:
+#          docker_channel: nightly
+#          # this value please see https://github.com/AkihiroSuda/moby-snapshot/releases
+#          docker_nightly_version: snapshot-20201109
+
+      # enable experimental status for docker in order to support SMUI's backend tests that rely on Ryuk images
+      # (see https://github.com/actions/virtual-environments/issues/368)
+      - name: Experimental Status
+        run: |
+          docker version -f '{{.Server.Experimental}}'
+      # see https://github.com/boot2docker/boot2docker/issues/782
+      #sudo /etc/init.d/docker restart
+      - name: Docker
+        run: |
+          sudo rm /etc/docker/daemon.json || true
+          echo $'{ "experimental": true }' | sudo tee /etc/docker/daemon.json
+          sudo service docker restart
+          docker version -f '{{.Server.Experimental}}'
+
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: sbt test
+# TODO build
+# TODO deploy
+
+#      - name: build docker image
+#        run: make docker-build-only > build.log 2>&1
+
