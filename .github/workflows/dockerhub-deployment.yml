@@ -12,28 +12,17 @@ jobs:
         uses: olafurpg/setup-scala@v10
         with:
           java-version: 1.8
-
-#      # install docker, see https://github.com/marketplace/actions/setup-docker
-#      - uses: docker-practice/actions-setup-docker@master
-#        with:
-#          docker_channel: nightly
-#          # this value please see https://github.com/AkihiroSuda/moby-snapshot/releases
-#          docker_nightly_version: snapshot-20201109
-
       # enable experimental status for docker in order to support SMUI's backend tests that rely on Ryuk images
       # (see https://github.com/actions/virtual-environments/issues/368)
-      - name: Experimental Status
+      - name: Docker experimental Status
         run: |
           docker version -f '{{.Server.Experimental}}'
-      # see https://github.com/boot2docker/boot2docker/issues/782
-      #sudo /etc/init.d/docker restart
-      - name: Docker
+      - name: Docker restart (with experimental status)
         run: |
           sudo rm /etc/docker/daemon.json || true
           echo $'{ "experimental": true }' | sudo tee /etc/docker/daemon.json
           sudo service docker restart
           docker version -f '{{.Server.Experimental}}'
-
       - uses: actions/checkout@v2
       - name: Setup NPM environment specfic to SMUI
         uses: actions/setup-node@v2
@@ -45,9 +34,13 @@ jobs:
       - run: npm i semver
       - name: Run tests
         run: sbt test
-# TODO build
-# TODO deploy
-
-#      - name: build docker image
-#        run: make docker-build-only > build.log 2>&1
-
+      # see https://github.com/marketplace/actions/docker-login
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build & deploy SMUI
+        run: |
+          make docker-build-only > build.log 2>&1
+          make docker-push
