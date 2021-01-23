@@ -34,9 +34,8 @@ jobs:
       - run: npm i semver
       - name: Run tests
         run: sbt test
-      # https://github.community/t/github-actions-docker-login/16053/3
-      # https://community.atlassian.com/t5/Bitbucket-questions/Piplenes-docker-login-can-not-perform-an-interactive-login-from/qaq-p/595736
-      - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      # see https://github.community/t/github-actions-docker-login/16053/3
+      - run: echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
