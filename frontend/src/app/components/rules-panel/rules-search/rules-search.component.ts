@@ -58,10 +58,7 @@ export class RulesSearchComponent implements OnChanges {
     // Reset tagFilter if the tag is no longer available in the current search inputs
     if (this.appliedTagFilter) {
       const {displayValue} = this.appliedTagFilter
-      if (
-        this.allTags.filter(tag => tag.displayValue === displayValue).length ===
-        0
-      ) {
+      if (this.allTags.filter(tag => tag.displayValue === displayValue).length === 0) {
         this.filterByTag(undefined)
       }
     }

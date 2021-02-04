@@ -57,7 +57,7 @@ export class ModalConfirmComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.modalService.remove(this.id)
-    this.element.remove()
+    this.element?.remove()
   }
 
   open(options?: NgbModalOptions): Deferred<boolean> {
@@ -67,15 +67,15 @@ export class ModalConfirmComponent implements OnInit, OnDestroy {
   }
 
   close(): void {
-    this.modalReference.close()
+    this.modalReference?.close()
   }
 
   ok() {
-    this.modalConfirmDeferred.resolve(true)
+    this.modalConfirmDeferred?.resolve(true)
   }
 
   cancel() {
-    this.modalConfirmDeferred.resolve(false)
-    this.modalReference.close()
+    this.modalConfirmDeferred?.resolve(false)
+    this.modalReference?.close()
   }
 }

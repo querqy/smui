@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { ToasterService } from 'angular2-toaster'
+import {Router} from "@angular/router";
 
 import { DeploymentLogInfo, SmuiVersionInfo, SolrIndex } from '../../models'
 import {
@@ -27,6 +28,7 @@ export class HeaderNavComponent implements OnInit {
     public featureToggleService: FeatureToggleService,
     private solrService: SolrService,
     private configService: ConfigService,
+    public router: Router,
     public modalService: ModalService
   ) {
     this.solrService.currentSolrIndexIdSubject.subscribe(value => {

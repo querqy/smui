@@ -132,7 +132,7 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
     console.log('In ReportSettingsBarComponent :: clickGenerateReport')
     // validate input for activity-report
     if (this.configReport === 'activity-report') {
-      if (this.configDateFrom === null || this.configDateTo === null) {
+      if (!this.configDateFrom || !this.configDateTo) {
         // TODO make validation violation a nicer UX
         this.showErrorMsg(
           'Please select a from and to date for your rules activity report.'

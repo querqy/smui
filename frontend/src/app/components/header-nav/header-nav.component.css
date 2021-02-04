@@ -2,8 +2,12 @@
   margin-bottom: 1rem;
 }
 
+.leftSpace {
+  margin-left: 1rem;
+}
+
 .selectpicker {
-  margin-right: 0.5em;
+  margin: 0 1rem;
   max-width: 250px;
 }
 
@@ -32,4 +36,11 @@
 }
 
 .smui-safe-querqydocs-html {
+}
+
+.solrPanel {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  justify-items: center;
 }

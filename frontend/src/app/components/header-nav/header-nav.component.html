@@ -36,17 +36,23 @@
     <span class="navbar-toggler-icon"></span>
   </button>
 
-  <div
-    class="collapse navbar-collapse"
-    id="navbarSupportedContent"
-    style="margin-left:1rem"
-  >
+  <div id="navbarSupportedContent" class="collapse navbar-collapse leftSpace">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" routerLink="/rules">Rules</a>
+        <a
+          class="nav-link"
+          [ngClass]="{ active: router.url === '/rules' }"
+          routerLink="/rules"
+          >Rules</a
+        >
       </li>
       <li class="nav-item">
-        <a class="nav-link" routerLink="/report">Report</a>
+        <a
+          class="nav-link"
+          [ngClass]="{ active: router.url === '/report' }"
+          routerLink="/report"
+          >Report</a
+        >
       </li>
       <li>
         <button class="btn btn-outline-secondary" (click)="openHelpModal()">
@@ -58,58 +64,73 @@
     <div *ngIf="!currentSolrIndexId || currentSolrIndexId === '-1'">
       In order to push the rules, please create a Solr collection first.
     </div>
-    <div *ngIf="currentSolrIndexId && currentSolrIndexId !== '-1'">
-    <span
-      *ngIf="!hideDeploymentLogInfo"
-      style="font-size:x-small;margin-right:10px;width:8.5rem;"
+    <div
+      *ngIf="currentSolrIndexId && currentSolrIndexId !== '-1'"
+      class="solrPanel"
     >
-      {{ deploymentLogInfo }}
-    </span>
-    <select
-      class="selectpicker custom-select"
-      (change)="changeSolrIndexId($event)"
-      [ngModel]="currentSolrIndexId"
-      [disabled]="!currentSolrIndexId"
-    >
-      <option *ngFor="let solrIndex of solrIndices" [value]="solrIndex.id">
-        {{ solrIndex.description }}
-      </option>
-    </select>
-    <div class="btn-group">
-      <button
-        type="button"
-        class="btn btn-outline-primary"
-        (click)="publishSolrConfig()"
-        (mouseenter)="loadAndShowDeploymentLogInfo('PRELIVE')"
-        (mouseleave)="hideDeploymentLogInfo = true"
-        [attr.disabled]="!currentSolrIndexId || deploymentRunningForStage == 'PRELIVE' ? '' : null"
+      <span
+        *ngIf="!hideDeploymentLogInfo"
+        style="font-size:x-small;margin-right:10px;width:8.5rem;"
       >
-        {{ publishToPreliveButtonText() }}
-      </button>
-      <button
-        *ngIf="featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()"
-        type="button"
-        class="btn btn-outline-danger"
-        (click)="modalService.open('confirm-publish-live')"
-        (mouseenter)="loadAndShowDeploymentLogInfo('LIVE')"
-        (mouseleave)="hideDeploymentLogInfo = true"
-        [attr.disabled]="!currentSolrIndexId || deploymentRunningForStage == 'LIVE' ? '' : null"
-      >
-        {{ publishToLiveButtonText() }}
-      </button>
-      <button
-        *ngIf="
-          featureToggleService.getSimpleLogoutButtonTargetUrl().trim().length >
-          0
-        "
-        type="button"
-        class="btn btn-outline-secondary"
-        (click)="callSimpleLogoutUrl()"
-      >
-        Logout
-      </button>
+        {{ deploymentLogInfo }}
+      </span>
+      <div class="selectpicker">
+        <select
+          class="custom-select"
+          (change)="changeSolrIndexId($event)"
+          [ngModel]="currentSolrIndexId"
+          [disabled]="!currentSolrIndexId"
+        >
+          <option *ngFor="let solrIndex of solrIndices" [value]="solrIndex.id">
+            {{ solrIndex.description }}
+          </option>
+        </select>
+      </div>
+      <div class="btn-group">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          (click)="publishSolrConfig()"
+          (mouseenter)="loadAndShowDeploymentLogInfo('PRELIVE')"
+          (mouseleave)="hideDeploymentLogInfo = true"
+          [attr.disabled]="
+            !currentSolrIndexId || deploymentRunningForStage == 'PRELIVE'
+              ? ''
+              : null
+          "
+        >
+          {{ publishToPreliveButtonText() }}
+        </button>
+        <button
+          *ngIf="
+            featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()
+          "
+          type="button"
+          class="btn btn-outline-danger"
+          (click)="modalService.open('confirm-publish-live')"
+          (mouseenter)="loadAndShowDeploymentLogInfo('LIVE')"
+          (mouseleave)="hideDeploymentLogInfo = true"
+          [attr.disabled]="
+            !currentSolrIndexId || deploymentRunningForStage == 'LIVE'
+              ? ''
+              : null
+          "
+        >
+          {{ publishToLiveButtonText() }}
+        </button>
+        <button
+          *ngIf="
+            featureToggleService.getSimpleLogoutButtonTargetUrl().trim()
+              .length > 0
+          "
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="callSimpleLogoutUrl()"
+        >
+          Logout
+        </button>
+      </div>
     </div>
-  </div>
   </div>
 </nav>
 
