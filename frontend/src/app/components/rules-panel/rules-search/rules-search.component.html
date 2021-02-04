@@ -38,7 +38,9 @@
         class="btn btn-success create-button"
         type="button"
         (click)="createItem()"
-        [disabled]="!currentSolrIndexId || !searchInputTerm || !searchInputTerm.trim()"
+        [disabled]="
+          !currentSolrIndexId || !searchInputTerm || !searchInputTerm.trim()
+        "
       >
         <i class="fa fa-plus" aria-hidden="true"></i> New
       </button>
@@ -46,7 +48,10 @@
   </div>
 </app-smui-card>
 
-<app-smui-modal id="create-modal" title="Add new rule management or spelling item">
+<app-smui-modal
+  id="create-modal"
+  title="Add new rule management or spelling item"
+>
   <div content>
     <p>
       Please select if you want to add a new rule management or spelling item...

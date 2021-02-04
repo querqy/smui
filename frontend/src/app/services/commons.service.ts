@@ -12,7 +12,7 @@ export class CommonsService {
     /* eslint-enable */
   }
 
-  isDirty(obj, origObj: string): boolean {
+  isDirty(obj: any, origObj: string): boolean {
     return obj ? JSON.stringify(obj) !== origObj : false;
   }
 

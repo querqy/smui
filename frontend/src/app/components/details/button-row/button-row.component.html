@@ -1,21 +1,23 @@
 <div class="button-row">
-    <div *ngIf="addLabel.length > 0"
-         class="button-row-add">
-        <button type="button"
-                class="btn btn-success btn-block"
-                [disabled]="disabled"
-                (click)="handleAdd.emit()">
-            <i class="fa fa-plus" aria-hidden="true"></i>
-            {{ addLabel }}
-        </button>
-    </div>
-    <div *ngIf="saveLabel.length > 0"
-         class="button-row-save">
-        <button type="button"
-                class="btn btn-primary btn-block"
-                (click)="handleSave.emit()">
-            <i class="far fa-save" aria-hidden="true"></i>
-            {{ saveLabel }}
-        </button>
-    </div>
+  <div *ngIf="addLabel.length > 0" class="button-row-add">
+    <button
+      type="button"
+      class="btn btn-success btn-block"
+      [disabled]="disabled"
+      (click)="handleAdd.emit()"
+    >
+      <i class="fa fa-plus" aria-hidden="true"></i>
+      {{ addLabel }}
+    </button>
+  </div>
+  <div *ngIf="saveLabel.length > 0" class="button-row-save">
+    <button
+      type="button"
+      class="btn btn-primary btn-block"
+      (click)="handleSave.emit()"
+    >
+      <i class="far fa-save" aria-hidden="true"></i>
+      {{ saveLabel }}
+    </button>
+  </div>
 </div>

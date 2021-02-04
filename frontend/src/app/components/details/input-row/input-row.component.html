@@ -1,31 +1,34 @@
 <div class="detail-input-row">
-    <div class="detail-input-row-checkbox">
-      <label>
-        <input type="checkbox"
-               [disabled]="disabled"
-               [ngModel]="active"
-               (ngModelChange)="activeChange.emit($event)"
-        />
-      </label>
-    </div>
-    <div class="detail-input-row-label">
-        <small class="uppercase">{{ label }}</small>
-    </div>
-    <div class="detail-input-row-input">
-      <label>
-        <input type="text"
-               class="form-control"
-               [placeholder]="placeholder"
-               [disabled]="disabled || !active"
-               [ngModel]="term"
-               (ngModelChange)="termChange.emit($event)"
-               (keyup.enter)="handleSave.emit()">
-      </label>
-    </div>
-    <div class="detail-input--row-delete">
-        <button type="button"
-                class="btn btn-danger btn-sm"
-                [disabled]="disabled || !active"
-                (click)="handleDeleteRow.emit()">-</button>
-    </div>
+  <div class="detail-input-row-checkbox">
+    <input
+      type="checkbox"
+      [disabled]="disabled"
+      [ngModel]="active"
+      (ngModelChange)="activeChange.emit($event)"
+    />
+  </div>
+  <div class="detail-input-row-label">
+    <small class="uppercase">{{ label }}</small>
+  </div>
+  <div class="detail-input-row-input">
+    <input
+      type="text"
+      class="form-control"
+      [placeholder]="placeholder"
+      [disabled]="disabled || !active"
+      [ngModel]="term"
+      (ngModelChange)="termChange.emit($event)"
+      (keyup.enter)="handleSave.emit()"
+    />
+  </div>
+  <div class="detail-input--row-delete">
+    <button
+      type="button"
+      class="btn btn-danger btn-sm"
+      [disabled]="disabled || !active"
+      (click)="handleDeleteRow.emit()"
+    >
+      -
+    </button>
+  </div>
 </div>
