@@ -5,7 +5,9 @@ import {
   OnChanges,
   OnInit,
   Output,
-  SimpleChanges
+  SimpleChanges,
+  ChangeDetectorRef,
+  AfterContentChecked
 } from '@angular/core';
 import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
@@ -36,7 +38,7 @@ import {
   templateUrl: './rule-management.component.html',
   styleUrls: ['./rule-management.component.css']
 })
-export class RuleManagementComponent implements OnChanges, OnInit {
+export class RuleManagementComponent implements OnChanges, OnInit, AfterContentChecked {
   @Input() selectedListItem?: ListItem;
   @Input() currentSolrIndexId?: string;
   @Input() listItems: ListItem[] = [];
@@ -66,26 +68,9 @@ export class RuleManagementComponent implements OnChanges, OnInit {
     private commonsService: CommonsService,
     private ruleManagementService: RuleManagementService,
     private spellingService: SpellingsService,
+    private changeDetector: ChangeDetectorRef,
     public featureToggleService: FeatureToggleService
   ) {}
-
-  // TODO open typeahead popup on focus -- focus$ = new Subject<string>();
-  searchSuggestedSolrFieldNames = (text$: Observable<string>) =>
-    text$.pipe(
-      debounceTime(200),
-      distinctUntilChanged(),
-      map((term: string) =>
-        this.suggestedSolrFieldNames === null
-          ? []
-          : (term === ''
-              ? this.suggestedSolrFieldNames
-              : this.suggestedSolrFieldNames.filter(
-                  (s: SuggestedSolrField) =>
-                    s.name.toLowerCase().indexOf(term.toLowerCase()) > -1
-                )
-            ).slice(0, 10)
-      )
-    );
 
   ngOnInit() {
     // @ts-ignore
@@ -105,6 +90,7 @@ export class RuleManagementComponent implements OnChanges, OnInit {
 
     if (this.selectedListItem) {
       this.showDetailsForSearchInputWithId(this.selectedListItem.id);
+      this.changeDetector.detectChanges();
     }
 
     if (changes.selectedListItem && !this.selectedListItem) {
@@ -115,6 +101,28 @@ export class RuleManagementComponent implements OnChanges, OnInit {
       this.searchListItems = this.filterSearchListItems(this.listItems);
     }
   }
+
+  ngAfterContentChecked(): void {
+    this.changeDetector.detectChanges();
+  }
+
+  // TODO open typeahead popup on focus -- focus$ = new Subject<string>();
+  searchSuggestedSolrFieldNames = (text$: Observable<string>) =>
+    text$.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      map((term: string) =>
+        this.suggestedSolrFieldNames === null
+          ? []
+          : (term === ''
+              ? this.suggestedSolrFieldNames
+              : this.suggestedSolrFieldNames.filter(
+                  (s: SuggestedSolrField) =>
+                    s.name.toLowerCase().indexOf(term.toLowerCase()) > -1
+                )
+            ).slice(0, 10)
+      )
+    );
 
   handleError(error: any) {
     console.log('In SearchInputDetailComponent :: handleError');
