@@ -24,7 +24,7 @@ export class ReportService {
         ...(dateFrom && {dateFrom}),
         ...(dateTo && {dateTo})
       }
-    }
+    };
     return this.http
       .get<ActivityReport>(this.baseUrl + '/report/activity-report/' + solrIndexId, options)
       .toPromise();

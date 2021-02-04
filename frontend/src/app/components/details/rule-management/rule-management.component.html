@@ -1,4 +1,4 @@
-<smui-card>
+<app-smui-card>
   <div class="row">
     <div class="col">
       <div class="form-group smui-no-bottom-margin">
@@ -10,12 +10,14 @@
           >
             <td style="width:10%">
               <!-- TODO ng-container wrapping could be solved more elegant, maybe as a separate "empty detailSearchInput view"? -->
-              <input
-                type="checkbox"
-                class="mr-2"
-                [disabled]="!detailSearchInput"
-                [(ngModel)]="detailSearchInput && detailSearchInput.isActive"
-              />
+              <label>
+                <input
+                  type="checkbox"
+                  class="mr-2"
+                  [disabled]="!detailSearchInput"
+                  [(ngModel)]="detailSearchInput && detailSearchInput.isActive"
+                />
+              </label>
               <small style="text-transform: uppercase">Input Term:</small>
             </td>
             <td
@@ -23,7 +25,7 @@
               [style.padding-right]="!showTags && '0.5rem'"
             >
               <ng-container *ngIf="detailSearchInput">
-                <input
+                <label for="inputSearchInput"></label><input
                   type="text"
                   class="form-control"
                   id="inputSearchInput"
@@ -115,9 +117,9 @@
       </div>
     </div>
   </div>
-</smui-card>
+</app-smui-card>
 
-<smui-card>
+<app-smui-card>
   <div class="smui-no-bottom-padding">
     <div class="row">
       <div class="col">
@@ -558,4 +560,4 @@
       </div>
     </div>
   </div>
-</smui-card>
+</app-smui-card>

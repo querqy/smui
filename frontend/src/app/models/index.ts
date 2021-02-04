@@ -1,4 +1,4 @@
-export * from './auth-validation.model'
+export * from './auth-validation.model';
 export * from './list.model';
 export * from './results.model';
 export * from './rules.model';
@@ -8,4 +8,4 @@ export * from './tags.model';
 export * from './activity-log.model';
 export * from './report.model';
 export * from './config.model';
-export * from './feature-toggle.model'
+export * from './feature-toggle.model';

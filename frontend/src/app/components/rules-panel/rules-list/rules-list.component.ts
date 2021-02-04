@@ -5,7 +5,7 @@ import {
   EventEmitter,
   OnChanges,
   SimpleChanges
-} from '@angular/core'
+} from '@angular/core';
 
 import {
   CommonsService,
@@ -13,29 +13,29 @@ import {
   ListItemsService,
   RuleManagementService,
   SpellingsService
-} from '../../../services'
-import { InputTag, ListItem } from '../../../models'
+} from '../../../services';
+import { InputTag, ListItem } from '../../../models';
 
 @Component({
-  selector: 'smui-rules-list',
+  selector: 'app-smui-rules-list',
   templateUrl: './rules-list.component.html',
   styleUrls: ['./rules-list.component.css']
 })
 export class RulesListComponent implements OnChanges {
-  @Input() currentSolrIndexId?: string
-  @Input() searchInputTerm?: string
-  @Input() appliedTagFilter?: InputTag
-  @Input() selectedListItem?: ListItem
-  @Input() listItems: Array<ListItem> = []
+  @Input() currentSolrIndexId?: string;
+  @Input() searchInputTerm?: string;
+  @Input() appliedTagFilter?: InputTag;
+  @Input() selectedListItem?: ListItem;
+  @Input() listItems: Array<ListItem> = [];
 
-  @Output() selectedListItemChange = new EventEmitter<ListItem>()
-  @Output() listItemsChange = new EventEmitter<Array<ListItem>>()
-  @Output() openDeleteConfirmModal: EventEmitter<any> = new EventEmitter()
-  @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter()
-  @Output() showErrorMsg: EventEmitter<string> = new EventEmitter()
+  @Output() selectedListItemChange = new EventEmitter<ListItem>();
+  @Output() listItemsChange = new EventEmitter<Array<ListItem>>();
+  @Output() openDeleteConfirmModal: EventEmitter<any> = new EventEmitter();
+  @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter();
+  @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
 
-  readonly limitItemsTo: number = +this.featureToggleService.getSyncToggleUiListLimitItemsTo()
-  isShowingAllItems: boolean = this.limitItemsTo < 0
+  readonly limitItemsTo: number = +this.featureToggleService.getSyncToggleUiListLimitItemsTo();
+  isShowingAllItems: boolean = this.limitItemsTo < 0;
 
   constructor(
     private featureToggleService: FeatureToggleService,
@@ -47,7 +47,7 @@ export class RulesListComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.commonService.hasChanged(changes, 'currentSolrIndexId')) {
-      this.refreshItemsInList().catch(error => this.showErrorMsg.emit(error))
+      this.refreshItemsInList().catch(error => this.showErrorMsg.emit(error));
     }
   }
 
@@ -56,20 +56,65 @@ export class RulesListComponent implements OnChanges {
       ? this.listItemsService
           .getAllItemsForInputList(this.currentSolrIndexId)
           .then(listItems => {
-            this.listItems = listItems
-            this.listItemsChange.emit(listItems)
-            this.searchInputTerm = ''
+            this.listItems = listItems;
+            this.listItemsChange.emit(listItems);
+            this.searchInputTerm = '';
           })
-      : Promise.reject('No selected Solr index')
+      : Promise.reject('No selected Solr index');
   }
 
   refreshAndSelectListItemById(listItemId: string) {
     return this.refreshItemsInList()
       .then(() => {
-        const listItem = this.listItems.find(item => item.id === listItemId)
-        this.selectListItem(listItem || undefined)
+        const listItem = this.listItems.find(item => item.id === listItemId);
+        this.selectListItem(listItem || undefined);
       })
-      .catch(error => this.showErrorMsg.emit(error))
+      .catch(error => this.showErrorMsg.emit(error));
+  }
+
+  getFilteredListItems(): ListItem[] {
+    if (this.searchInputTerm || this.appliedTagFilter) {
+      return this.listItems.filter(item => (
+          this.listItemContainsString(item) &&
+          this.listItemContainsTag(item)
+        ));
+    }
+
+    return this.listItems;
+  }
+
+  selectListItemWithCheck(listItem: ListItem) {
+    this.executeWithChangeCheck.emit({
+      executeFnOk: () => this.selectListItem(listItem)
+    });
+  }
+
+  deleteSpellingItem(id: string, event: Event) {
+    event.stopPropagation();
+    const deleteCallback = () =>
+      this.spellingsService
+        .deleteSpelling(id)
+        .then(() => this.refreshItemsInList())
+        .then(() => this.selectListItem(undefined))
+        .catch(error => this.showErrorMsg.emit(error));
+
+    this.openDeleteConfirmModal.emit({ deleteCallback });
+  }
+
+  deleteRuleItem(id: string, event: Event) {
+    event.stopPropagation();
+    const deleteCallback = () =>
+      this.ruleManagementService
+        .deleteSearchInput(id)
+        .then(() => this.refreshItemsInList())
+        .then(() => this.selectListItem(undefined))
+        .catch(error => this.showErrorMsg.emit(error));
+
+    this.openDeleteConfirmModal.emit({ deleteCallback });
+  }
+
+  toggleShowMore() {
+    this.isShowingAllItems = !this.isShowingAllItems;
   }
 
   private selectListItem(listItem?: ListItem) {
@@ -77,103 +122,52 @@ export class RulesListComponent implements OnChanges {
       `In SearchInputListComponent :: selectListItem :: id = ${
         listItem ? JSON.stringify(listItem) : 'null'
       }`
-    )
+    );
 
-    this.selectedListItem = listItem
-    this.selectedListItemChange.emit(listItem)
+    this.selectedListItem = listItem;
+    this.selectedListItemChange.emit(listItem);
   }
 
-  getFilteredListItems(): ListItem[] {
-    if (this.searchInputTerm || this.appliedTagFilter) {
-      return this.listItems.filter(item => {
-        return (
-          this.listItemContainsString(item) &&
-          this.listItemContainsTag(item)
-        )
-      })
-    }
+  private listItemContainsString(item: ListItem): boolean {
+    const searchTermLower = (this.searchInputTerm || '').trim().toLowerCase();
 
-    return this.listItems
-  }
-
-  selectListItemWithCheck(listItem: ListItem) {
-    this.executeWithChangeCheck.emit({
-      executeFnOk: () => this.selectListItem(listItem)
-    })
-  }
-
-  deleteSpellingItem(id: string, event: Event) {
-    event.stopPropagation()
-    const deleteCallback = () =>
-      this.spellingsService
-        .deleteSpelling(id)
-        .then(() => this.refreshItemsInList())
-        .then(() => this.selectListItem(undefined))
-        .catch(error => this.showErrorMsg.emit(error))
-
-    this.openDeleteConfirmModal.emit({ deleteCallback })
-  }
-
-  deleteRuleItem(id: string, event: Event) {
-    event.stopPropagation()
-    const deleteCallback = () =>
-      this.ruleManagementService
-        .deleteSearchInput(id)
-        .then(() => this.refreshItemsInList())
-        .then(() => this.selectListItem(undefined))
-        .catch(error => this.showErrorMsg.emit(error))
-
-    this.openDeleteConfirmModal.emit({ deleteCallback })
-  }
-
-  toggleShowMore() {
-    this.isShowingAllItems = !this.isShowingAllItems
-  }
-
-  private listItemContainsString(
-    item: ListItem
-  ): Boolean {
-    const searchTermLower = (this.searchInputTerm || "").trim().toLowerCase()
-
-    function searchTermIncludesString(s: string) {
-      return s.toLowerCase().indexOf(searchTermLower) !== -1
-    }
+    const searchTermIncludesString = (s: string) => s.toLowerCase().indexOf(searchTermLower) !== -1;
 
     if (searchTermLower.length === 0) {
-      return true
+      return true;
     }
 
     if (searchTermIncludesString(item.term)) {
-      return true
+      return true;
     }
 
     // otherwise, we have a chance in the synonyms ...
     // TODO evaluate to check for undirected synonyms (synonymType) only
     for (const s of item.synonyms) {
       if (searchTermIncludesString(s)) {
-        return true
+        return true;
       }
     }
 
     for (const at of item.additionalTermsForSearch) {
       if (searchTermIncludesString(at)) {
-        return true
+        return true;
       }
     }
 
-    return false
+    return false;
   }
 
-  private listItemContainsTag(i: ListItem): Boolean {
+  private listItemContainsTag(i: ListItem): boolean {
     if (!this.appliedTagFilter) {
-      return true
+      return true;
     }
 
     for (const t of i.tags) {
       if (t.id === this.appliedTagFilter.id) {
-        return true
+        return true;
       }
     }
-    return false
+    return false;
   }
 }

@@ -1,34 +1,34 @@
-import { Injectable } from '@angular/core'
-import { HttpClient } from '@angular/common/http'
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 import {
   DeploymentLogInfo,
   SolrIndex,
   SuggestedSolrField,
   ApiResult
-} from '../models'
-import { Subject } from 'rxjs'
+} from '../models';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SolrService {
-  private readonly baseUrl = 'api/v1'
-  private readonly solrRulesApiPath: string = 'rules-txt'
-  private readonly solrFieldsApiPath: string = 'suggested-solr-field'
-  private readonly solrIndexApiPath: string = 'solr-index'
+  currentSolrIndexId = '-1';
+  currentSolrIndexIdSubject: Subject<string> = new Subject<string>();
+  solrIndices: SolrIndex[];
+
+  private readonly baseUrl = 'api/v1';
+  private readonly solrRulesApiPath: string = 'rules-txt';
+  private readonly solrFieldsApiPath: string = 'suggested-solr-field';
+  private readonly solrIndexApiPath: string = 'solr-index';
   private readonly jsonHeader = new Headers({
     'Content-Type': 'application/json'
-  })
-
-  currentSolrIndexId?: string = "-1"
-  currentSolrIndexIdSubject: Subject<string> = new Subject<string>()
-  solrIndices: SolrIndex[]
+  });
 
   constructor(private http: HttpClient) {
     this.currentSolrIndexIdSubject.subscribe(
       value => (this.currentSolrIndexId = value)
-    )
+    );
   }
 
   listAllSolrIndices(): Promise<void> {
@@ -37,21 +37,21 @@ export class SolrService {
       .toPromise()
       .then(solrIndices => {
         if (solrIndices.length > 0) {
-          this.solrIndices = solrIndices
-          this.currentSolrIndexIdSubject.next(solrIndices[0].id)
+          this.solrIndices = solrIndices;
+          this.currentSolrIndexIdSubject.next(solrIndices[0].id);
         }
-      })
+      });
   }
 
   changeCurrentSolrIndexId(solrIndexId: string) {
-    this.currentSolrIndexIdSubject.next(solrIndexId)
+    this.currentSolrIndexIdSubject.next(solrIndexId);
   }
 
   updateRulesTxtForSolrIndex(
     solrIndexId: string,
     targetPlatform: string
   ): Promise<ApiResult> {
-    const headers = { headers: this.jsonHeader }
+    const headers = { headers: this.jsonHeader };
 
     return this.http
       .post<ApiResult>(
@@ -60,7 +60,7 @@ export class SolrService {
         }/${targetPlatform}`,
         headers
       )
-      .toPromise()
+      .toPromise();
   }
 
   listAllSuggestedSolrFields(
@@ -76,7 +76,7 @@ export class SolrService {
           (r: any[], s: SuggestedSolrField) => r.concat(s.name, '-' + s.name),
           []
         )
-      )
+      );
   }
 
   lastDeploymentLogInfo(
@@ -90,10 +90,10 @@ export class SolrService {
         targetSystem,
         raw: raw.toString()
       }
-    }
+    };
 
     return this.http
       .get<DeploymentLogInfo>(`${this.baseUrl}/log/deployment-info`, options)
-      .toPromise()
+      .toPromise();
   }
 }

@@ -1,4 +1,4 @@
-export * from './commons.service'
+export * from './commons.service';
 export * from './feature-toggle.service';
 export * from './list-items.service';
 export * from './rule-management.service';
@@ -8,4 +8,4 @@ export * from './tags.service';
 export * from './activity-log.service';
 export * from './report.service';
 export * from './config.service';
-export * from './modal.service'
+export * from './modal.service';

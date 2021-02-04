@@ -15,7 +15,6 @@ const httpOptions = {
 export class SpellingsService {
   private readonly baseUrl = 'api/v1';
   private readonly spellingsApiPath: string = 'spelling';
-  private readonly jsonHeader = new Headers({'Content-Type': 'application/json'});
 
   constructor(private http: HttpClient) { }
 
@@ -26,7 +25,7 @@ export class SpellingsService {
   }
 
   addNewSpelling(solrIndexId: string, term?: string): Promise<ApiResult> {
-    const body = JSON.stringify( { term: term || "" });
+    const body = JSON.stringify( { term: term || '' });
 
     return this.http
       .put<ApiResult>(`${this.baseUrl}/${solrIndexId}/${this.spellingsApiPath}`, body, httpOptions)

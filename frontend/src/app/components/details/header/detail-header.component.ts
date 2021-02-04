@@ -1,16 +1,16 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'smui-detail-header',
+  selector: 'app-smui-detail-header',
   templateUrl: './detail-header.component.html',
   styleUrls: ['./detail-header.component.css']
 })
 export class DetailHeaderComponent {
-  @Input() title: string = '';
-  @Input() placeholder: string = 'Please enter...';
-  @Input() term: string = '';
-  @Input() disabled: boolean = false;
-  @Input() active: boolean = true;
+  @Input() title = '';
+  @Input() placeholder = 'Please enter...';
+  @Input() term = '';
+  @Input() disabled = false;
+  @Input() active = true;
 
   @Output() termChange = new EventEmitter();
   @Output() activeChange = new EventEmitter();

@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-4">
-    <smui-rules-search
+    <app-smui-rules-search
       [currentSolrIndexId]="currentSolrIndexId"
       [listItems]="listItems"
       (refreshAndSelectListItemById)="
@@ -13,9 +13,9 @@
       [(appliedTagFilter)]="appliedTagFilter"
       #rulesSearchComponent
     >
-    </smui-rules-search>
+    </app-smui-rules-search>
 
-    <smui-rules-list
+    <app-smui-rules-list
       [currentSolrIndexId]="currentSolrIndexId"
       [searchInputTerm]="searchInputTerm"
       [appliedTagFilter]="appliedTagFilter"
@@ -26,17 +26,17 @@
       [(listItems)]="listItems"
       #rulesListComponent
     >
-    </smui-rules-list>
+    </app-smui-rules-list>
   </div>
   <div class="col-8">
     <div *ngIf="!selectedListItem">
-      <smui-card>
+      <app-smui-card>
         Please select a rule or spelling item from the list or create a new one.
-      </smui-card>
+      </app-smui-card>
     </div>
 
     <div *ngIf="selectedListItem">
-      <smui-rule-management
+      <app-smui-rule-management
         *ngIf="selectedListItem.itemType.toString() === 'RuleManagement'"
         [currentSolrIndexId]="currentSolrIndexId"
         [selectedListItem]="selectedListItem"
@@ -53,9 +53,9 @@
         (showSuccessMsg)="showSuccessMsg($event)"
         #ruleManagementComponent
       >
-      </smui-rule-management>
+      </app-smui-rule-management>
 
-      <smui-spellings
+      <app-smui-spellings
         *ngIf="selectedListItem.itemType.toString() === 'Spelling'"
         [currentSolrIndexId]="currentSolrIndexId"
         [selectedListItem]="selectedListItem"
@@ -67,20 +67,20 @@
         (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
         #spellingDetailComponent
       >
-      </smui-spellings>
+      </app-smui-spellings>
 
-      <smui-activity-log
+      <app-smui-activity-log
         *ngIf="selectedListItem"
         [selectedListItem]="selectedListItem"
         (showErrorMsg)="showErrorMsg($event)"
         #activityLogComponent
       >
-      </smui-activity-log>
+      </app-smui-activity-log>
     </div>
   </div>
 </div>
 
-<smui-confirm-modal
+<app-smui-confirm-modal
   id="confirm-unsaved"
   title="Confirm to discard unsaved input"
   okLabel="Yes, Cancel Editing"
@@ -90,13 +90,13 @@
     You have unsaved input! Do you really want to Cancel Editing of Search Input
     or Continue with it?
   </p>
-</smui-confirm-modal>
+</app-smui-confirm-modal>
 
-<smui-confirm-modal
+<app-smui-confirm-modal
   id="confirm-delete"
   title="Confirm deletion"
   okLabel="Yes"
   cancelLabel="No"
 >
   <p>Are you sure you want to delete the item?</p>
-</smui-confirm-modal>
+</app-smui-confirm-modal>

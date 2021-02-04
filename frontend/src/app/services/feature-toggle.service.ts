@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {FeatureToggle, SolrIndex} from "../models";
-import {HttpClient} from "@angular/common/http";
+import {FeatureToggle, SolrIndex} from '../models';
+import {HttpClient} from '@angular/common/http';
 
 const FEATURE_TOGGLE_UI_CONCEPT_UPDOWN_RULES_COMBINED = 'toggle.ui-concept.updown-rules.combined';
 const FEATURE_TOGGLE_UI_CONCEPT_ALL_RULES_WITH_SOLR_FIELDS = 'toggle.ui-concept.all-rules.with-solr-fields';
@@ -26,8 +26,8 @@ export class FeatureToggleService {
       .get<FeatureToggle[]>(`${this.baseUrl}/${this.featureToggleApiPath}`)
       .toPromise()
       .then(featureToggles => {
-        this.featureToggles = featureToggles
-      })
+        this.featureToggles = featureToggles;
+      });
   }
 
   getSync(toggleName: string): any {

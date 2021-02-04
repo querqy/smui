@@ -5,7 +5,7 @@ import {
   EventEmitter,
   OnChanges,
   SimpleChanges
-} from '@angular/core'
+} from '@angular/core';
 
 import {
   FeatureToggleService,
@@ -13,30 +13,30 @@ import {
   RuleManagementService,
   SpellingsService,
   TagsService
-} from '../../../services'
-import {InputTag, ListItem} from '../../../models'
+} from '../../../services';
+import {InputTag, ListItem} from '../../../models';
 
 @Component({
-  selector: 'smui-rules-search',
+  selector: 'app-smui-rules-search',
   templateUrl: './rules-search.component.html',
   styleUrls: ['./rules-search.component.css']
 })
 export class RulesSearchComponent implements OnChanges {
-  @Input() currentSolrIndexId?: string
-  @Input() searchInputTerm?: string
-  @Input() appliedTagFilter?: InputTag = undefined
-  @Input() listItems: ListItem[] = []
+  @Input() currentSolrIndexId?: string;
+  @Input() searchInputTerm?: string;
+  @Input() appliedTagFilter?: InputTag = undefined;
+  @Input() listItems: ListItem[] = [];
 
-  @Output() searchInputTermChange: EventEmitter<string> = new EventEmitter()
-  @Output() appliedTagFilterChange: EventEmitter<InputTag> = new EventEmitter()
-  @Output() refreshAndSelectListItemById: EventEmitter<string> = new EventEmitter()
-  @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter()
-  @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter()
-  @Output() showErrorMsg: EventEmitter<string> = new EventEmitter()
+  @Output() searchInputTermChange: EventEmitter<string> = new EventEmitter();
+  @Output() appliedTagFilterChange: EventEmitter<InputTag> = new EventEmitter();
+  @Output() refreshAndSelectListItemById: EventEmitter<string> = new EventEmitter();
+  @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter();
+  @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
+  @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
 
-  private readonly isSpellingActive = this.featureToggleService.getSyncToggleActivateSpelling()
-  readonly isTaggingActive = this.featureToggleService.isRuleTaggingActive()
-  allTags: InputTag[] = []
+  allTags: InputTag[] = [];
+  readonly isTaggingActive = this.featureToggleService.isRuleTaggingActive();
+  private readonly isSpellingActive = this.featureToggleService.getSyncToggleActivateSpelling();
 
   constructor(
     private featureToggleService: FeatureToggleService,
@@ -48,30 +48,13 @@ export class RulesSearchComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.listItems && changes.listItems.currentValue && this.isTaggingActive) {
-      this.refreshTags(changes.listItems.currentValue)
-    }
-  }
-
-  private refreshTags(listItems: ListItem[]) {
-    this.allTags = this.tagsService.getAllTagsFromListItems(listItems)
-
-    // Reset tagFilter if the tag is no longer available in the current search inputs
-    if (this.appliedTagFilter) {
-      const {displayValue} = this.appliedTagFilter
-      if (this.allTags.filter(tag => tag.displayValue === displayValue).length === 0) {
-        this.filterByTag(undefined)
-      }
+      this.refreshTags(changes.listItems.currentValue);
     }
   }
 
   filterByTag(tag?: InputTag) {
-    this.appliedTagFilter = undefined
-    this.appliedTagFilterChange.emit(tag)
-  }
-
-  private changeSearchInput(value: string) {
-    this.searchInputTerm = value
-    this.searchInputTermChange.emit(value)
+    this.appliedTagFilter = undefined;
+    this.appliedTagFilterChange.emit(tag);
   }
 
   createItem(): void {
@@ -79,7 +62,7 @@ export class RulesSearchComponent implements OnChanges {
       executeFnOk: this.isSpellingActive
         ? () => this.modalService.open('create-modal')
         : () => this.createNewRuleItem()
-    })
+    });
   }
 
   createNewSpellingItem() {
@@ -91,13 +74,13 @@ export class RulesSearchComponent implements OnChanges {
         )
         .then(() => this.changeSearchInput(''))
         .then(() => this.modalService.close('create-modal'))
-        .catch(error => this.showErrorMsg.emit(error.error.message))
+        .catch(error => this.showErrorMsg.emit(error.error.message));
     }
   }
 
   createNewRuleItem() {
     if (this.currentSolrIndexId) {
-      const tags = this.appliedTagFilter ? [this.appliedTagFilter.id] : []
+      const tags = this.appliedTagFilter ? [this.appliedTagFilter.id] : [];
       this.ruleManagementService
         .addNewRuleItem(this.currentSolrIndexId, this.searchInputTerm, tags)
         .then(spellingId =>
@@ -105,7 +88,24 @@ export class RulesSearchComponent implements OnChanges {
         )
         .then(() => this.changeSearchInput(''))
         .then(() => this.modalService.close('create-modal'))
-        .catch(error => this.showErrorMsg.emit(error.error.message))
+        .catch(error => this.showErrorMsg.emit(error.error.message));
     }
+  }
+
+  private refreshTags(listItems: ListItem[]) {
+    this.allTags = this.tagsService.getAllTagsFromListItems(listItems);
+
+    // Reset tagFilter if the tag is no longer available in the current search inputs
+    if (this.appliedTagFilter) {
+      const {displayValue} = this.appliedTagFilter;
+      if (this.allTags.filter(tag => tag.displayValue === displayValue).length === 0) {
+        this.filterByTag(undefined);
+      }
+    }
+  }
+
+  private changeSearchInput(value: string) {
+    this.searchInputTerm = value;
+    this.searchInputTermChange.emit(value);
   }
 }

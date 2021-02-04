@@ -1,11 +1,11 @@
-<smui-report-settingsbar
+<app-smui-report-settingsbar
   (changeReport)="changeReport()"
   (generateReport)="generateReport()"
   [currentSolrIndexId]="currentSolrIndexId"
   [generateBtnDisabled]="generateBtnDisabled"
   #smuiReportSettingsBar
 >
-</smui-report-settingsbar>
+</app-smui-report-settingsbar>
 
 <div
   *ngIf="!rulesReport && !activityReport"

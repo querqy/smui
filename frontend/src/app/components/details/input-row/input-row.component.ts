@@ -1,17 +1,17 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'smui-input-row',
+  selector: 'app-smui-input-row',
   templateUrl: './input-row.component.html',
   styleUrls: ['./input-row.component.css']
 })
-export class DetailInputRow {
-  @Input() iconClass: string = '';
-  @Input() label: string = '';
-  @Input() placeholder: string = 'Please enter...';
-  @Input() term: string = '';
-  @Input() disabled: boolean = false;
-  @Input() active: boolean = true;
+export class InputRowComponent {
+  @Input() iconClass = '';
+  @Input() label = '';
+  @Input() placeholder = 'Please enter...';
+  @Input() term = '';
+  @Input() disabled = false;
+  @Input() active = true;
 
   @Output() termChange = new EventEmitter();
   @Output() activeChange = new EventEmitter();

@@ -1,15 +1,18 @@
 <div class="detail-input-row">
     <div class="detail-input-row-checkbox">
+      <label>
         <input type="checkbox"
                [disabled]="disabled"
                [ngModel]="active"
                (ngModelChange)="activeChange.emit($event)"
         />
+      </label>
     </div>
     <div class="detail-input-row-label">
         <small class="uppercase">{{ label }}</small>
     </div>
     <div class="detail-input-row-input">
+      <label>
         <input type="text"
                class="form-control"
                [placeholder]="placeholder"
@@ -17,6 +20,7 @@
                [ngModel]="term"
                (ngModelChange)="termChange.emit($event)"
                (keyup.enter)="handleSave.emit()">
+      </label>
     </div>
     <div class="detail-input--row-delete">
         <button type="button"

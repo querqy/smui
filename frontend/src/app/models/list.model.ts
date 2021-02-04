@@ -1,5 +1,6 @@
 import { InputTag } from './tags.model';
 
+// eslint-disable-next-line no-shadow
 export enum ListItemType {
   RuleManagement, Spelling
 }

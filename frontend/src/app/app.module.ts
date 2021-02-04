@@ -1,12 +1,12 @@
 // angular modules
-import { NgModule } from '@angular/core'
-import { BrowserModule } from '@angular/platform-browser'
-import { AppRoutingModule } from './app-routing.module'
-import { FormsModule } from '@angular/forms'
-import { HttpClientModule } from '@angular/common/http'
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
-import { ToasterModule } from 'angular2-toaster'
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { AppRoutingModule } from './app-routing.module';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ToasterModule } from 'angular2-toaster';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularMultiSelectModule } from 'angular2-multiselect-dropdown';
 
 // services
@@ -21,17 +21,17 @@ import {
   ReportService,
   ConfigService,
   CommonsService
-} from './services'
+} from './services';
 
 // // components
-import { AppComponent } from './components/app.component'
-import { ModalComponent, ModalConfirmComponent } from './components/modal'
-import { HeaderNavComponent } from './components/header-nav'
-import { SearchManagementComponent } from './components/search-management'
+import { AppComponent } from './components/app.component';
+import { ModalComponent, ModalConfirmComponent } from './components/modal';
+import { HeaderNavComponent } from './components/header-nav';
+import { SearchManagementComponent } from './components/search-management';
 import {
   ReportComponent,
   ReportSettingsBarComponent
-} from './components/report'
+} from './components/report';
 import {
   ButtonRowComponent,
   CardComponent,
@@ -39,15 +39,15 @@ import {
   ErrorComponent,
   DetailHeaderComponent,
   InputRowContainerComponent,
-  DetailInputRow,
+  InputRowComponent,
   SpellingsComponent,
   RuleManagementComponent,
   ActivityLogComponent
-} from './components/details'
+} from './components/details';
 import {
   RulesListComponent,
   RulesSearchComponent
-} from './components/rules-panel'
+} from './components/rules-panel';
 
 @NgModule({
   imports: [
@@ -71,7 +71,7 @@ import {
     ErrorComponent,
     DetailHeaderComponent,
     InputRowContainerComponent,
-    DetailInputRow,
+    InputRowComponent,
     SpellingsComponent,
     RuleManagementComponent,
     RulesListComponent,

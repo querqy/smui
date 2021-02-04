@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'smui-card',
+  selector: 'app-smui-card',
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.css']
 })

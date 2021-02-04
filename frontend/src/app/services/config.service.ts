@@ -7,8 +7,8 @@ import { SmuiVersionInfo } from '../models';
   providedIn: 'root'
 })
 export class ConfigService {
-  private readonly baseUrl = 'api/v1';
   versionInfo?: SmuiVersionInfo;
+  private readonly baseUrl = 'api/v1';
 
   constructor(private http: HttpClient) { }
 
@@ -18,6 +18,6 @@ export class ConfigService {
       .toPromise()
       .then(versionInfo => {
         this.versionInfo = versionInfo;
-      })
+      });
   }
 }

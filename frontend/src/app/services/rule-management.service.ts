@@ -14,12 +14,12 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class RuleManagementService {
+  public readonly upDownDropdownDefinitionMappings = this.featureToggleService
+    .getSyncToggleCustomUpDownDropdownMappings();
 
   private readonly baseUrl = 'api/v1';
   private readonly searchInputApiPath: string = 'search-input';
 
-  public readonly upDownDropdownDefinitionMappings = this.featureToggleService
-    .getSyncToggleCustomUpDownDropdownMappings();
   /*
   TODO consider providing a super-super fallback, if backend delivered values are invalid?
   [
@@ -48,7 +48,7 @@ export class RuleManagementService {
   }
 
   addNewRuleItem(solrIndexId: string, searchInputTerm?: string, tags: string[] = []): Promise<ApiResult> {
-    const body = JSON.stringify( { term: searchInputTerm || "", tags });
+    const body = JSON.stringify( { term: searchInputTerm || '', tags });
 
     return this.http
       .put<ApiResult>(`${this.baseUrl}/${solrIndexId}/${this.searchInputApiPath}`, body, httpOptions)
