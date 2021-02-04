@@ -1,11 +1,14 @@
 # SMUI FRONTEND
 
+It's recommended to install the [Angular Client Tool](https://angular.io/cli) and [YARN](https://yarnpkg.com/getting-started/install) package manager.
+
 ## Starting the frontend
 If you run `sbt run` in the root folder it will automatically start the Play-backend and Angular-frontend (both with hot-reloading).
-If you for some reason need to start the frontend independently use `ǹg start`
+If you for some reason need to start the frontend independently, install all dependencies via your package manager (e.g. `yarn install`) and run: `ng start`.
 
 ## Updating the dependencies
-Run `ng update` to update the Angular application and its dependencies.
+Run `ng update` to update the Angular application and its dependencies. (e.g. `ng update @angular/cli @angular/core`)
+To update packages to their latest version use your package manager (e.g. `yarn upgrade`)
 
 ## Fix linting errors
 This application is using [ESLint](https://eslint.org/). Use `ng lint` to show current linting errors. 
