@@ -4,14 +4,12 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open --proxy-config src/proxy.conf.js --host 0.0.0.0",
-    "test": "ng test --watch",
-    "test:ci": "ng test --watch=false --browsers ChromeHeadless",
-    "test:coverage": "ng test --watch=true --code-coverage=true",
-    "test:coverage:ci": "ng test --watch=false --code-coverage=true --browsers ChromeHeadless",
+    "test": "ng test --watch=false",
+    "coverage": "ng test --watch=false --code-coverage=true",
+    "e2e": "ng e2e",
     "build:dev": "ng build --progress --output-path ../public",
     "build:prod": "ng build --progress --prod --output-path ../public",
     "lint": "ng lint",
-    "e2e": "ng e2e",
     "updatePackages": "yarn upgrade"
   },
   "private": true,

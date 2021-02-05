@@ -15,7 +15,8 @@ This application is using [ESLint](https://eslint.org/). Use `ng lint` to show c
 If you automatically fix minor linting errors you can use: `ng lint --fix`
 
 ## Testing
-Run `ng test` to execute the unit tests using [Karma](https://karma-runner.github.io).
+Run `ng test` to execute the unit tests using [Karma](https://karma-runner.github.io) and headless Chrome.
+Run `yarn coverage` to check the code test coverage.
 Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
 ## Code scaffolding
