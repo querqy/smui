@@ -4,6 +4,7 @@
       type="text"
       class="form-control"
       placeholder="Search or Create Item..."
+      data-test="rules-search-input"
       [ngModel]="searchInputTerm"
       (ngModelChange)="searchInputTermChange.emit($event)"
       (keyup.enter)="createItem()"

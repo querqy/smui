@@ -11,16 +11,14 @@ Run `ng update` to update the Angular application and its dependencies. (e.g. `n
 To update packages to their latest version use your package manager (e.g. `yarn upgrade`)
 
 ## Fix linting errors
-This application is using [ESLint](https://eslint.org/). Use `ng lint` to show current linting errors. 
-If you automatically fix minor linting errors you can use: `ng lint --fix`
+This application is using [ESLint](https://eslint.org/). Use `yarn lint` to show current linting errors. 
+If you automatically fix minor linting errors you can use: `yarn lint --fix`
 
 ## Testing
-Run `ng test` to execute the unit tests using [Karma](https://karma-runner.github.io) and headless Chrome.
+Run `yarn test` to execute the unit tests using [Karma](https://karma-runner.github.io) and headless Chrome.
 Run `yarn coverage` to check the code test coverage.
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Code scaffolding
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run `yarn e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
 ## Build
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Run `yarn build:dev` or `yarn build:prod` to trigger the development or production build of the frontend.
+The build artifacts will be stored in the `dist/` directory.
