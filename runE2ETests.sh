@@ -5,7 +5,6 @@ PROJECT_NAME=smui-integration-tests
 READY_WAIT_TIME_SECONDS=30
 
 echo "-> Build docker containers..."
-cd ..
 make docker-build-only
 
 echo "-> Finished building SMUI. Starting SMUI and db..."
@@ -29,8 +28,13 @@ then
 	exit 1
 fi
 
+echo "-> Installing cypress plugins ..."
+cd e2e
+npm install
+
 echo "-> SMUI has started. Running tests..."
-docker run -it -v $PWD/frontend/e2e:/e2e -w /e2e --net=host cypress/included:$CYPRESS_VERSION
+cd ..
+docker run -it -v $PWD/e2e:/e2e -w /e2e --net=host cypress/included:$CYPRESS_VERSION
 
 echo "-> Finished testing. Stopping docker container..."
 docker-compose --project-name $PROJECT_NAME down --volumes

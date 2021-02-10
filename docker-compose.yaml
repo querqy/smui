@@ -16,6 +16,8 @@ services:
 
   database:
     image: postgres:12.5
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_USER: smui
       POSTGRES_PASSWORD: smui
