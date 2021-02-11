@@ -24,6 +24,6 @@ smui2solr-dev.sh
 var/test.db
 node_modules/
 package-lock.json
-public/
+/public
 e2e/cypress/videos
 e2e/cypress/screenshots
