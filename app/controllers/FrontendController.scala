@@ -14,11 +14,9 @@ import play.api.libs.json.Json
 import play.api.mvc._
 
 class FrontendController @Inject()(cc: MessagesControllerComponents,
-                               assets: Assets,
-                               appConfig: Configuration,
-                               errorHandler: HttpErrorHandler,
-                               featureToggleService: FeatureToggleService,
-                               authActionFactory: AuthActionFactory)(implicit executionContext: ExecutionContext)
+                                   assets: Assets,
+                                   errorHandler: HttpErrorHandler,
+                                   authActionFactory: AuthActionFactory)(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) with Logging {
 
   def index(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request =>
@@ -26,7 +24,7 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
   }
 
   def assetOrDefault(resource: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request =>
-    if (resource.startsWith("api")){
+    if (resource.startsWith("api")) {
       errorHandler.onClientError(request, NOT_FOUND, "Not found")
     } else {
       if (resource.contains(".")) {
@@ -36,34 +34,4 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
       }
     }
   }
-
-
-
-
-
-//  def index(urlPath: String) = authActionFactory.getAuthenticatedAction(Action).async {
-//    Future {
-//      logger.debug("In HomeController :: index")
-//      Ok(
-//        views.html.home(
-//          featureToggleService.getJsFrontendToggleList
-//        )
-//      )
-//    }(executionContext) // TODO eval withSecurity ... because of play.filters.headers.contentSecurityPolicy (and resolve general setup in application.conf)
-//  }
-
-
-  // TODO eval withSecurity ... because of play.filters.headers.contentSecurityPolicy (and resolve general setup in application.conf)
-  // TODO refactor authorizationTestControllerAction into a proper controller behaviour test
-  /*
-  def authorizationTestControllerAction = Action.async {
-    Future {
-      Unauthorized(
-        "{ \"action\":\"redirect\"," +
-          "\"params\":\"https://www.example.com/loginService/?urlCallback={{CURRENT_SMUI_URL}}\"" +
-          " }")
-    }
-  }
-  */
-
 }
