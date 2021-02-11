@@ -10,14 +10,12 @@
           >
             <td style="width:10%">
               <!-- TODO ng-container wrapping could be solved more elegant, maybe as a separate "empty detailSearchInput view"? -->
-              <label>
-                <input
-                  type="checkbox"
-                  class="mr-2"
-                  [disabled]="!detailSearchInput"
-                  [(ngModel)]="detailSearchInput && detailSearchInput.isActive"
-                />
-              </label>
+              <input
+                type="checkbox"
+                class="mr-2"
+                [disabled]="!detailSearchInput"
+                [(ngModel)]="detailSearchInput && detailSearchInput.isActive"
+              />
               <small style="text-transform: uppercase">Input Term:</small>
             </td>
             <td
@@ -25,8 +23,7 @@
               [style.padding-right]="!showTags && '0.5rem'"
             >
               <ng-container *ngIf="detailSearchInput">
-                <label for="inputSearchInput"></label
-                ><input
+                <input
                   type="text"
                   class="form-control"
                   id="inputSearchInput"
