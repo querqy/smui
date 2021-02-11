@@ -54,7 +54,7 @@ libraryDependencies ++= {
     "com.pauldijou" %% "jwt-play" % "4.1.0",
     "com.h2database" % "h2" % "1.4.197" % Test, // H2 DB for testing
     // Other databases as docker containers for testing with specific databases
-    "com.dimafeng" %% "git status-scala" % "0.39.0" % Test,
+    "com.dimafeng" %% "testcontainers-scala" % "0.39.0" % Test,
     "org.testcontainers" % "postgresql" % "1.15.2" % Test,
     "org.testcontainers" % "mysql" % "1.15.2" % Test,
     "org.xerial" % "sqlite-jdbc" % "3.28.0" % Test
