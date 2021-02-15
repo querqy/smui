@@ -83,7 +83,7 @@ export class SolrService {
     solrIndexId: string,
     targetSystem: string,
     raw: boolean = false
-  ): Promise<DeploymentLogInfo | ArrayBuffer> {
+  ): Promise<DeploymentLogInfo> {
     const options = {
       params: {
         solrIndexId,

@@ -110,9 +110,7 @@ export class HeaderNavComponent implements OnInit {
       this.solrService
         .lastDeploymentLogInfo(this.currentSolrIndexId, targetPlatform)
         .then(retApiResult => {
-          if (retApiResult instanceof DeploymentLogInfo) {
-            this.deploymentLogInfo = retApiResult.msg;
-          }
+          this.deploymentLogInfo = retApiResult.msg;
         })
         .catch(error => this.showErrorMsg(error));
     }
