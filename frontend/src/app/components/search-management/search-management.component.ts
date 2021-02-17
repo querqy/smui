@@ -39,7 +39,7 @@ export class SearchManagementComponent implements OnInit {
   listItems: ListItem[] = [];
   searchInputTerm?: string;
   selectedListItem?: ListItem;
-  suggestedSolrFieldNames: SuggestedSolrField[] = [];
+  suggestedSolrFieldNames: string[] = [];
   showTags = false;
   allTags: InputTag[] = [];
   appliedTagFilter?: InputTag;

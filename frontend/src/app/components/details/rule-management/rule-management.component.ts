@@ -42,7 +42,7 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
   @Input() selectedListItem?: ListItem;
   @Input() currentSolrIndexId?: string;
   @Input() listItems: ListItem[] = [];
-  @Input() suggestedSolrFieldNames: SuggestedSolrField[] = [];
+  @Input() suggestedSolrFieldNames: string[] = [];
   @Input() showTags = false;
   @Input() allTags: InputTag[] = [];
 
@@ -115,12 +115,12 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
         this.suggestedSolrFieldNames === null
           ? []
           : (term === ''
-              ? this.suggestedSolrFieldNames
-              : this.suggestedSolrFieldNames.filter(
-                  (s: SuggestedSolrField) =>
-                    s.name.toLowerCase().indexOf(term.toLowerCase()) > -1
-                )
-            ).slice(0, 10)
+            ? this.suggestedSolrFieldNames
+            : this.suggestedSolrFieldNames.filter(
+              (s: string) =>
+                s.toLowerCase().indexOf(term.toLowerCase()) > -1
+            )
+          ).slice(0, 10)
       )
     );
 

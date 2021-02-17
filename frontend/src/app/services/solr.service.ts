@@ -65,7 +65,7 @@ export class SolrService {
 
   listAllSuggestedSolrFields(
     solrIndexId: string
-  ): Promise<Array<SuggestedSolrField>> {
+  ): Promise<Array<string>> {
     return this.http
       .get<SuggestedSolrField[]>(
         `${this.baseUrl}/${solrIndexId}/${this.solrFieldsApiPath}`
