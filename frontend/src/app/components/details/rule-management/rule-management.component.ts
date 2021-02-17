@@ -90,7 +90,6 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
 
     if (this.selectedListItem) {
       this.showDetailsForSearchInputWithId(this.selectedListItem.id);
-      this.changeDetector.detectChanges();
     }
 
     if (changes.selectedListItem && !this.selectedListItem) {
@@ -212,6 +211,8 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
           this.initDetailSearchInputHashForDirtyState = JSON.stringify(
             this.detailSearchInput
           ); // TODO hash string value
+
+          this.changeDetector.detectChanges();
         })
         .then(() => this.findSpellingsForSearchInput())
         .catch(error => this.handleError(error));
@@ -319,6 +320,7 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     if (this.detailSearchInput) {
       this.detailSearchInput.upDownRules.push(emptyUpDownRule);
     }
+    this.changeDetector.detectChanges();
   }
 
   deleteUpDownRule(index: number) {
