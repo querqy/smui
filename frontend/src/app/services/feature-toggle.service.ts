@@ -85,7 +85,12 @@ export class FeatureToggleService {
   }
 
   getSyncToggleCustomUpDownDropdownMappings(): any {
-    return this.getSync(FEATURE_CUSTOM_UP_DOWN_MAPPINGS);
+    try {
+      return JSON.parse(this.getSync(FEATURE_CUSTOM_UP_DOWN_MAPPINGS));
+    } catch(e) {
+      console.error(e);
+      return {};
+    }
   }
 
 }
