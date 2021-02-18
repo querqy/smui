@@ -29,9 +29,10 @@
           [ngModelOptions]="{ standalone: true }"
         />
       </form>
-      <div class="nav-item dropdown">
+      <div ngbDropdown>
         <div
-          class="nav-link dropdown-toggle smui-report-set-btn"
+          ngbDropdownToggle
+          class="smui-report-set-btn"
           role="button"
           data-toggle="dropdown"
           aria-haspopup="true"
@@ -39,14 +40,16 @@
         >
           Set
         </div>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <div ngbDropdownMenu aria-labelledby="navbarDropdown">
           <a
-            class="dropdown-item smui-report-set-item"
+            ngbDropdownItem
+            class="smui-report-set-item"
             (click)="clickSetFromDate('PRELIVE')"
             >Latest PRELIVE deployment date</a
           >
           <a
-            class="dropdown-item smui-report-set-item"
+            ngbDropdownItem
+            class="smui-report-set-item"
             (click)="clickSetFromDate('LIVE')"
             >Latest LIVE deployment date</a
           >
@@ -63,9 +66,10 @@
           [ngModelOptions]="{ standalone: true }"
         />
       </form>
-      <div class="nav-item dropdown">
+      <div ngbDropdown>
         <div
-          class="nav-link dropdown-toggle smui-report-set-btn"
+          ngbDropdownToggle
+          class="smui-report-set-btn"
           role="button"
           data-toggle="dropdown"
           aria-haspopup="true"
@@ -73,9 +77,9 @@
         >
           Set
         </div>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a
-            class="dropdown-item smui-report-set-item"
+        <div ngbDropdownMenu aria-labelledby="navbarDropdown">
+          <a ngbDropdownItem
+            class="smui-report-set-item"
             (click)="clickSetToDate()"
             >Now</a
           >

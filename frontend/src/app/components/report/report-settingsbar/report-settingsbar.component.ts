@@ -104,13 +104,9 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
           );
           // TODO make date format backend/frontend definitions more robust
           // assume date to be in format, e.g.: 2020-02-16T23:59:12 (within msg field)
-          if (retDeplInfo instanceof DeploymentLogInfo) {
-            this.configDateFrom = this.dateToFrontendString(
-              new Date(Date.parse(retDeplInfo.msg))
-            );
-          } else {
-            this.configDateFrom = undefined;
-          }
+          this.configDateFrom = this.dateToFrontendString(
+            new Date(Date.parse(retDeplInfo.msg))
+          );
         })
         .catch(error => this.showErrorMsg(error));
     }
