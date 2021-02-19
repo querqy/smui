@@ -13,33 +13,33 @@ import models.spellings.{AlternativeSpelling, CanonicalSpellingWithAlternatives}
 import models.SolrIndexId
 
 /**
-  *
-  * @param entity
-  * @param eventType
-  * @param before
-  * @param after
-  *
-  * examples below (for being displayed on the frontend):
-  *
-  * |  entity/eventType    |  before                 |  after              |  user info            |
-  * |  ~~~~~~~~~~~~~~~~    |  ~~~~~~                 |  ~~~~~              |  ~~~~~~~~~            |
-  * |  INPUT (created)     |                         |  laptop (active)    |  Paul Search Manager  |
-  * |  RULE (created)      |                         |  netbook            |  Paul Search Manager  |
-  * |  RULE (updated)      |  -notebück (inactive)-  |  notebook (active)  |  Paul Search Manager  |
-  * |  RULE (deleted)      |  -lapptopp-             |                     |  Paul Search Manager  |
-  * |  SPELLLING (created) |                         |  lapptopp (active)  |  Paul Search Manager  |
-  * |  COMMENT (updated)   |  -Comment before-       |  Comment after      |  Paul Search Manager  |
-  * TODO PRELIVE/LIVE deployment, see:
-  * |  LIVE DEPLOY         |                         |  Status: OK         |  Paul Search Manager  |
-  * |  PRELIVE DEPLOY      |                         |  Status: FAIL       |  Paul Search Manager  |
-  */
+ *
+ * @param entity
+ * @param eventType
+ * @param before
+ * @param after
+ *
+ * examples below (for being displayed on the frontend):
+ *
+ * |  entity/eventType    |  before                 |  after              |  user info            |
+ * |  ~~~~~~~~~~~~~~~~    |  ~~~~~~                 |  ~~~~~              |  ~~~~~~~~~            |
+ * |  INPUT (created)     |                         |  laptop (active)    |  Paul Search Manager  |
+ * |  RULE (created)      |                         |  netbook            |  Paul Search Manager  |
+ * |  RULE (updated)      |  -notebück (inactive)-  |  notebook (active)  |  Paul Search Manager  |
+ * |  RULE (deleted)      |  -lapptopp-             |                     |  Paul Search Manager  |
+ * |  SPELLLING (created) |                         |  lapptopp (active)  |  Paul Search Manager  |
+ * |  COMMENT (updated)   |  -Comment before-       |  Comment after      |  Paul Search Manager  |
+ * TODO PRELIVE/LIVE deployment, see:
+ * |  LIVE DEPLOY         |                         |  Status: OK         |  Paul Search Manager  |
+ * |  PRELIVE DEPLOY      |                         |  Status: FAIL       |  Paul Search Manager  |
+ */
 case class DiffSummary(
-  entity: String,
-  eventType: String,
-  before: Option[String],
-  after: Option[String],
-  inputTerm: Option[String] = None // only necessary for report; not for individual ActivityLog
-)
+                        entity: String,
+                        eventType: String,
+                        before: Option[String],
+                        after: Option[String],
+                        inputTerm: Option[String] = None // only necessary for report; not for individual ActivityLog
+                      )
 
 object DiffSummary {
 
@@ -54,7 +54,7 @@ object DiffSummary {
   def readableEventType(eventType: SmuiEventType.Value): String = {
     eventType match {
       case SmuiEventType.CREATED
-        | SmuiEventType.VIRTUALLY_CREATED => "created"
+           | SmuiEventType.VIRTUALLY_CREATED => "created"
       case SmuiEventType.UPDATED => "updated"
       case SmuiEventType.DELETED => "deleted"
       case _ => "unknown event" // TODO maybe throw an exception?
@@ -64,11 +64,11 @@ object DiffSummary {
 }
 
 case class ActivityLogEntry(
-  // TODO be homogeneous in delivering a date as raw LocalDateTime (see /smui/app/models/reports/RulesReport.scala) from backend - the date should be converted on the frontend
-  formattedDateTime: String,
-  userInfo: Option[String],
-  diffSummary: Seq[DiffSummary]
-)
+                             // TODO be homogeneous in delivering a date as raw LocalDateTime (see /smui/app/models/reports/RulesReport.scala) from backend - the date should be converted on the frontend
+                             formattedDateTime: String,
+                             userInfo: Option[String],
+                             diffSummary: Seq[DiffSummary]
+                           )
 
 case class ActivityLog(items: Seq[ActivityLogEntry])
 
@@ -120,8 +120,8 @@ object ActivityLog extends Logging {
   }
 
   /**
-    * Helper classes to deal with SearchInput and CanonicalSpelling the same way
-    */
+   * Helper classes to deal with SearchInput and CanonicalSpelling the same way
+   */
   // TODO consider defining a common Input/Association interface
 
   private class AssociationWrapper(association: Any) {
@@ -174,27 +174,28 @@ object ActivityLog extends Logging {
     }
 
     def trimmedTerm = input match {
-      case None => ""
       case Some(searchInput: SearchInputWithRules) => searchInput.trimmedTerm
       case Some(spelling: CanonicalSpellingWithAlternatives) => spelling.term.trim
+      case _ => ""
     }
 
     def isActive = input match {
-      case None => false
       case Some(searchInput: SearchInputWithRules) => searchInput.isActive
       case Some(spelling: CanonicalSpellingWithAlternatives) => spelling.isActive
+      case _ => false
     }
 
     val associations = input match {
-      case None => Nil
       case Some(searchInput: SearchInputWithRules) => searchInput.allRules.map(r => new AssociationWrapper(r))
       case Some(spelling: CanonicalSpellingWithAlternatives) => spelling.alternativeSpellings.map(s => new AssociationWrapper(s))
+      case _ => Nil
     }
 
     def trimmedComment = input match {
       case None => ""
       case Some(searchInput: SearchInputWithRules) => searchInput.comment.trim
       case Some(spelling: CanonicalSpellingWithAlternatives) => spelling.comment.trim
+      case _ => ""
     }
 
     def smuiEventType = SmuiEventType.toSmuiEventType(inputEvent.eventType)
@@ -212,9 +213,9 @@ object ActivityLog extends Logging {
       DiffSummary(
         entity = wrappedEvent.headline,
         eventType = DiffSummary.readableEventType(outputEventType),
-        before = if(beforeNotAfter) Some(iSummaryValue) else None,
-        after = if(beforeNotAfter) None else Some(iSummaryValue),
-        inputTerm = if(encodeInputTerm) Some(wrappedEvent.trimmedTerm) else None
+        before = if (beforeNotAfter) Some(iSummaryValue) else None,
+        after = if (beforeNotAfter) None else Some(iSummaryValue),
+        inputTerm = if (encodeInputTerm) Some(wrappedEvent.trimmedTerm) else None
       )
     )
 
@@ -229,9 +230,9 @@ object ActivityLog extends Logging {
         DiffSummary(
           entity = a.headline,
           eventType = DiffSummary.readableEventType(outputEventType),
-          before = if(beforeNotAfter) Some(aSummaryValue) else None,
-          after = if(beforeNotAfter) None else Some(aSummaryValue),
-          inputTerm = if(encodeInputTerm) Some(wrappedEvent.trimmedTerm) else None
+          before = if (beforeNotAfter) Some(aSummaryValue) else None,
+          after = if (beforeNotAfter) None else Some(aSummaryValue),
+          inputTerm = if (encodeInputTerm) Some(wrappedEvent.trimmedTerm) else None
         )
       })
 
@@ -246,18 +247,18 @@ object ActivityLog extends Logging {
           DiffSummary(
             entity = DiffSummary.HEADLINE.COMMENT,
             eventType = DiffSummary.readableEventType(outputEventType),
-            before = if(beforeNotAfter) Some(wrappedEvent.trimmedComment) else None,
-            after = if(beforeNotAfter) None else Some(wrappedEvent.trimmedComment),
-            inputTerm = if(encodeInputTerm) Some(wrappedEvent.trimmedTerm) else None
+            before = if (beforeNotAfter) Some(wrappedEvent.trimmedComment) else None,
+            after = if (beforeNotAfter) None else Some(wrappedEvent.trimmedComment),
+            inputTerm = if (encodeInputTerm) Some(wrappedEvent.trimmedTerm) else None
           )
         )
-    )
+      )
 
     // return concatenated
 
     inputSummary ++
-    assocsSummary ++
-    commSummary
+      assocsSummary ++
+      commSummary
   }
 
   private def outputDiffAssociations(beforeAssociations: Seq[AssociationWrapper], afterAssociations: Seq[AssociationWrapper], inputTerm: String, encodeInputTerm: Boolean) = {
@@ -277,7 +278,7 @@ object ActivityLog extends Logging {
         eventType = DiffSummary.readableEventType(SmuiEventType.CREATED),
         before = None,
         after = Some(readableTermStatus(a.trimmedTerm, a.isActive)),
-        inputTerm = if(encodeInputTerm) Some(inputTerm) else None
+        inputTerm = if (encodeInputTerm) Some(inputTerm) else None
       )
     )
 
@@ -289,7 +290,7 @@ object ActivityLog extends Logging {
         eventType = DiffSummary.readableEventType(SmuiEventType.DELETED),
         before = Some(readableTermStatus(a.trimmedTerm, a.isActive)),
         after = None,
-        inputTerm = if(encodeInputTerm) Some(inputTerm) else None
+        inputTerm = if (encodeInputTerm) Some(inputTerm) else None
       )
     )
 
@@ -307,14 +308,14 @@ object ActivityLog extends Logging {
       .filter(d => d.isDefined)
       .map(o => o.get
         .copy(
-          inputTerm = if(encodeInputTerm) Some(inputTerm) else None
+          inputTerm = if (encodeInputTerm) Some(inputTerm) else None
         )
       )
 
     // as associating changes all happened on the same time index, define an explicit sorting for all change event types
     createdSummaries.sortBy(d => d.after.get.trim.toLowerCase) ++
-    deletedSummaries.sortBy(d => d.before.get.trim.toLowerCase) ++
-    updatedSummaries.sortBy(d => d.before.get.trim.toLowerCase)
+      deletedSummaries.sortBy(d => d.before.get.trim.toLowerCase) ++
+      updatedSummaries.sortBy(d => d.before.get.trim.toLowerCase)
   }
 
   private def outputDiff(wrappedBefore: InputWrapper, wrappedAfter: InputWrapper, encodeInputTerm: Boolean) = {
@@ -329,7 +330,7 @@ object ActivityLog extends Logging {
     ) match {
       case Some(d: DiffSummary) => List(
         d.copy(
-          inputTerm = if(encodeInputTerm) Some(wrappedBefore.trimmedTerm) else None
+          inputTerm = if (encodeInputTerm) Some(wrappedBefore.trimmedTerm) else None
         )
       )
       case None => Nil
@@ -360,25 +361,25 @@ object ActivityLog extends Logging {
             eventType = DiffSummary.readableEventType(SmuiEventType.UPDATED),
             before = Some(wrappedBefore.trimmedComment),
             after = Some(wrappedAfter.trimmedComment),
-            inputTerm = if(encodeInputTerm) Some(wrappedBefore.trimmedTerm) else None
+            inputTerm = if (encodeInputTerm) Some(wrappedBefore.trimmedTerm) else None
           )
         )
-    )
+      )
 
     // return concatenated
 
     inputDiff ++
-    assocsDiff ++
-    commDiff
+      assocsDiff ++
+      commDiff
   }
 
   /**
-    * Generate an ActivityLogEntry for two sequential events.
-    *
-    * @param beforeEvent
-    * @param afterEvent
-    * @return
-    */
+   * Generate an ActivityLogEntry for two sequential events.
+   *
+   * @param beforeEvent
+   * @param afterEvent
+   * @return
+   */
   private def processInputEvents(beforeEvent: Option[InputEvent], afterEvent: InputEvent, encodeInputTerm: Boolean = false): ActivityLogEntry = {
 
     // support the following valid event constellations:
@@ -401,7 +402,7 @@ object ActivityLog extends Logging {
     def virtualUserInfo(eventUserInfo: Option[String], rawEventType: Int) = {
       eventUserInfo match {
         case None => {
-          if(SmuiEventType.toSmuiEventType(rawEventType).equals(SmuiEventType.VIRTUALLY_CREATED))
+          if (SmuiEventType.toSmuiEventType(rawEventType).equals(SmuiEventType.VIRTUALLY_CREATED))
             Some(USER_INFO_MIGRATION)
           else
             None
@@ -415,7 +416,7 @@ object ActivityLog extends Logging {
 
     (beforeEventType, afterEventType) match {
       case (None, SmuiEventType.CREATED)
-        | (None, SmuiEventType.VIRTUALLY_CREATED) => {
+           | (None, SmuiEventType.VIRTUALLY_CREATED) => {
 
         ActivityLogEntry(
           formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
@@ -425,8 +426,8 @@ object ActivityLog extends Logging {
 
       }
       case (Some(SmuiEventType.CREATED), SmuiEventType.DELETED)
-        | (Some(SmuiEventType.VIRTUALLY_CREATED), SmuiEventType.DELETED)
-        | (Some(SmuiEventType.UPDATED), SmuiEventType.DELETED) => {
+           | (Some(SmuiEventType.VIRTUALLY_CREATED), SmuiEventType.DELETED)
+           | (Some(SmuiEventType.UPDATED), SmuiEventType.DELETED) => {
 
         val wrappedBefore = new InputWrapper(beforeEvent.get)
 
@@ -438,8 +439,8 @@ object ActivityLog extends Logging {
 
       }
       case (Some(SmuiEventType.CREATED), SmuiEventType.UPDATED)
-        | (Some(SmuiEventType.VIRTUALLY_CREATED), SmuiEventType.UPDATED)
-        | (Some(SmuiEventType.UPDATED), SmuiEventType.UPDATED) => {
+           | (Some(SmuiEventType.VIRTUALLY_CREATED), SmuiEventType.UPDATED)
+           | (Some(SmuiEventType.UPDATED), SmuiEventType.UPDATED) => {
 
         val wrappedBefore = new InputWrapper(beforeEvent.get)
 
@@ -465,8 +466,8 @@ object ActivityLog extends Logging {
   }
 
   /**
-    * Interface
-    */
+   * Interface
+   */
 
   def loadForId(id: String)(implicit connection: Connection): ActivityLog = {
 
@@ -485,13 +486,13 @@ object ActivityLog extends Logging {
       val allEvents = (List(None) ++ events.map(e => Some(e)))
       val pairwiseEvents =
         (allEvents zip allEvents.tail)
-        .map(eventPair =>
-          (eventPair._1, eventPair._2)
-        )
+          .map(eventPair =>
+            (eventPair._1, eventPair._2)
+          )
 
       // pairwise compare and map diffs to ActivityLog entries
 
-      val activityLogItems = pairwiseEvents.map( eventPair => {
+      val activityLogItems = pairwiseEvents.map(eventPair => {
         processInputEvents(eventPair._1, eventPair._2.get)
       })
 

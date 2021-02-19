@@ -1,0 +1,8 @@
+docs
+frontend/node_modules
+public
+target
+test
+testData.sql
+*.md
+.git

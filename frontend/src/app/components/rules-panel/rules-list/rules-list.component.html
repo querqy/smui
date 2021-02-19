@@ -1,0 +1,118 @@
+<div *ngIf="getFilteredListItems(); let filteredListItems">
+  <div class="smui-number-of-results">
+    {{ filteredListItems.length }}
+    <span *ngIf="filteredListItems.length !== listItems.length"
+      >of {{ listItems.length }}</span
+    >
+    items
+  </div>
+
+  <ul class="list-group smui-search-input-list">
+    <ng-container
+      *ngFor="let listItem of filteredListItems; let idxListItem = index"
+    >
+      <li
+        *ngIf="
+          isShowingAllItems || (limitItemsTo > 0 && idxListItem < limitItemsTo)
+        "
+        [ngClass]="{
+          active: selectedListItem && selectedListItem.id === listItem.id,
+          'list-group-item': true,
+          'smui-list-group-item': true,
+          'smui-strikethrough': !listItem.isActive,
+          'smui-spelling-item':
+            listItem.itemType.toString() === 'Spelling' &&
+            (!selectedListItem ||
+              (selectedListItem && selectedListItem.id !== listItem.id))
+        }"
+        (click)="selectListItemWithCheck(listItem)"
+      >
+        <span class="smui-right-gap smui-align-middle">
+          <i
+            *ngIf="listItem.itemType.toString() === 'RuleManagement'"
+            class="fa fa-list smui-align-middle"
+            aria-hidden="true"
+          ></i>
+          <i
+            *ngIf="listItem.itemType.toString() === 'Spelling'"
+            class="fa fa-book smui-align-middle"
+            aria-hidden="true"
+          ></i>
+        </span>
+
+        <span class="smui-align-middle list-item-term">{{ listItem.term }}</span>
+
+        <ng-container *ngFor="let listItemSynonym of listItem.synonyms">
+          <!-- TODO evaluate whether to show or hide undirected synonyms, that are not active -->
+          <small class="text-muted smui-input-list-divide-synonym">
+            {{ listItemSynonym }}
+          </small>
+        </ng-container>
+
+        <span class="smui-tags-container">
+          <span
+            *ngFor="let tag of listItem.tags"
+            class="badge badge-pill badge-info smui-tag"
+          >
+            {{ tag.displayValue }}
+          </span>
+        </span>
+
+        <button
+          *ngIf="listItem.itemType.toString() === 'RuleManagement'"
+          type="button"
+          class="btn btn-danger btn-sm float-right"
+          (click)="deleteRuleItem(listItem.id, $event)"
+        >
+          <i class="fa fa-minus" aria-hidden="true"></i>
+        </button>
+        <button
+          *ngIf="listItem.itemType.toString() === 'Spelling'"
+          type="button"
+          class="btn btn-danger btn-sm float-right"
+          (click)="deleteSpellingItem(listItem.id, $event)"
+        >
+          <i class="fa fa-minus" aria-hidden="true"></i>
+        </button>
+
+        <span
+          class="badge badge-pill badge-info"
+          *ngIf="listItem.comment.trim().length > 0"
+        >
+          <i
+            class="far fa-comment-dots"
+            aria-hidden="true"
+            data-toggle="tooltip"
+            data-placement="top"
+            [title]="listItem.comment.trim()"
+          ></i>
+        </span>
+      </li>
+    </ng-container>
+  </ul>
+
+  <button
+    type="button"
+    *ngIf="
+      !isShowingAllItems &&
+      limitItemsTo > 0 &&
+      filteredListItems.length > limitItemsTo
+    "
+    class="btn btn-link float-right"
+    (click)="toggleShowMore()"
+  >
+    <i class="fa fa-plus smui-icon"></i>Show all items
+  </button>
+  <button
+    type="button"
+    *ngIf="
+      isShowingAllItems &&
+      limitItemsTo > 0 &&
+      filteredListItems.length > limitItemsTo
+    "
+    class="btn btn-link float-right"
+    (click)="toggleShowMore()"
+  >
+    <i class="fa fa-plus smui-icon"></i>Show less items
+  </button>
+</div>

@@ -1,7 +1,0 @@
-{
-  /* For test code these settings override the tsconfig.json
-  */
-  "compilerOptions": {
-    "module": "commonjs"
-  }
-}

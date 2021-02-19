@@ -1,0 +1,11 @@
+{
+  "baseUrl": "http://localhost:9000",
+  "fixturesFolder": false,
+  "db": {
+    "user": "smui",
+    "host": "localhost",
+    "database": "smui",
+    "password": "smui",
+    "port": 5432
+  }
+}

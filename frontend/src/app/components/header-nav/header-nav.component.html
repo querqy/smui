@@ -1,0 +1,416 @@
+<nav class="navbar navbar-expand-sm navbar-light bg-light smui-nav-bar">
+  <span class="navbar-brand" style="margin-right:0.5rem">{{
+    featureToggleService.getSync('toggle.headline')
+  }}</span>
+  <span class="smui-version">
+    (v{{ featureToggleService.getSync('smui.version') }})
+    <ng-container *ngIf="versionInfo">
+      <ng-container *ngIf="versionInfo.infoType === 'INFO'">
+        <i class="fa fa-check-circle" [title]="versionInfo.msgHtml"></i>
+      </ng-container>
+      <ng-container *ngIf="versionInfo.infoType !== 'INFO'">
+        <button
+          class="btn btn-sm btn-smui-version-info"
+          [ngClass]="{
+            'btn-warning': versionInfo.infoType === 'WARN',
+            'btn-danger': versionInfo.infoType === 'ERROR'
+          }"
+          data-toggle="modal"
+          data-target="#versionInfoModalModal"
+        >
+          <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+        </button>
+      </ng-container>
+    </ng-container>
+  </span>
+
+  <button
+    class="navbar-toggler"
+    type="button"
+    data-toggle="collapse"
+    data-target="#navbarSupportedContent"
+    aria-controls="navbarSupportedContent"
+    aria-expanded="false"
+    aria-label="Toggle navigation"
+  >
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div id="navbarSupportedContent" class="collapse navbar-collapse leftSpace">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [ngClass]="{ active: router.url === '/rules' }"
+          routerLink="/rules"
+          >Rules</a
+        >
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [ngClass]="{ active: router.url === '/report' }"
+          routerLink="/report"
+          >Report</a
+        >
+      </li>
+      <li>
+        <button class="btn btn-outline-secondary" (click)="openHelpModal()">
+          <i class="fa fa-info-circle" aria-hidden="true"></i> Help
+        </button>
+      </li>
+    </ul>
+
+    <div *ngIf="!currentSolrIndexId || currentSolrIndexId === '-1'">
+      In order to push the rules, please create a Solr collection first.
+    </div>
+    <div
+      *ngIf="currentSolrIndexId && currentSolrIndexId !== '-1'"
+      class="solrPanel"
+    >
+      <span
+        *ngIf="!hideDeploymentLogInfo"
+        style="font-size:x-small;margin-right:10px;width:8.5rem;"
+      >
+        {{ deploymentLogInfo }}
+      </span>
+      <div class="selectpicker">
+        <select
+          class="custom-select"
+          (change)="changeSolrIndexId($event)"
+          [ngModel]="currentSolrIndexId"
+          [disabled]="!currentSolrIndexId"
+        >
+          <option *ngFor="let solrIndex of solrIndices" [value]="solrIndex.id">
+            {{ solrIndex.description }}
+          </option>
+        </select>
+      </div>
+      <div class="btn-group">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          (click)="publishSolrConfig()"
+          (mouseenter)="loadAndShowDeploymentLogInfo('PRELIVE')"
+          (mouseleave)="hideDeploymentLogInfo = true"
+          [attr.disabled]="
+            !currentSolrIndexId || deploymentRunningForStage == 'PRELIVE'
+              ? ''
+              : null
+          "
+        >
+          {{ publishToPreliveButtonText() }}
+        </button>
+        <button
+          *ngIf="
+            featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()
+          "
+          type="button"
+          class="btn btn-outline-danger"
+          (click)="modalService.open('confirm-publish-live')"
+          (mouseenter)="loadAndShowDeploymentLogInfo('LIVE')"
+          (mouseleave)="hideDeploymentLogInfo = true"
+          [attr.disabled]="
+            !currentSolrIndexId || deploymentRunningForStage == 'LIVE'
+              ? ''
+              : null
+          "
+        >
+          {{ publishToLiveButtonText() }}
+        </button>
+        <button
+          *ngIf="
+            featureToggleService.getSimpleLogoutButtonTargetUrl().trim()
+              .length > 0
+          "
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="callSimpleLogoutUrl()"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<ng-container *ngIf="versionInfo">
+  <div
+    class="modal fade"
+    id="versionInfoModalModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="versionInfoModalTitle"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="versionInfoModalLongTitle">
+            Version Info for this SMUI instance ({{ versionInfo.infoType }})
+          </h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h5
+            *ngIf="
+              versionInfo.hasOwnProperty('latestMarketStandard') ||
+              versionInfo.hasOwnProperty('current')
+            "
+          >
+            Version
+          </h5>
+          <div *ngIf="versionInfo.hasOwnProperty('latestMarketStandard')">
+            The current market standard for SMUI is:
+            <strong>{{ versionInfo.latestMarketStandard }}</strong> (see
+            <a
+              href="https://hub.docker.com/repository/docker/querqy/smui/"
+              target="_new"
+              >https://hub.docker.com/repository/docker/querqy/smui/</a
+            >)
+          </div>
+          <div *ngIf="versionInfo.hasOwnProperty('current')">
+            Local instance SMUI version is:
+            <strong>{{ versionInfo.current }}</strong>
+          </div>
+          <hr />
+          <div
+            class="smui-safe-querqydocs-html"
+            [innerHTML]="versionInfo.msgHtml"
+          ></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<app-smui-modal id="confirm-publish-live" title="Confirm publish to LIVE">
+  <div content>
+    <p>Are you sure to publish current Search Rules to LIVE?</p>
+  </div>
+  <div footer class="btn-toolbar">
+    <button
+      class="btn btn-danger mr-2"
+      type="button"
+      (click)="requestPublishRulesTxtToSolr('LIVE')"
+    >
+      Yes, publish to LIVE
+    </button>
+    <button
+      class="btn btn-success"
+      type="button"
+      (click)="modalService.close('confirm-publish-live')"
+    >
+      No, cancel publish
+    </button>
+  </div>
+</app-smui-modal>
+
+<app-smui-confirm-modal
+  id="confirm-tab-change"
+  title="Confirm to discard unsaved input"
+  okLabel="Yes, Cancel Editing"
+  cancelLabel="No, Continue Editing"
+>
+  <p>
+    You have unsaved input! Do you really want to Cancel Editing of Search Input
+    or Continue with it?
+  </p>
+</app-smui-confirm-modal>
+
+<app-smui-modal id="help-modal" title="Help on Search Management Rules">
+  <div content>
+    <h6>SYNONYM RULE</h6>
+    <table>
+      <tr>
+        <td style="width:20%;vertical-align:top;">
+          <code>= (undirected)</code>
+        </td>
+        <td>
+          Default configuration. Makes input term match synonym term and vice
+          versa.
+        </td>
+      </tr>
+      <tr>
+        <td style="width:20%;vertical-align:top;">
+          <code>-> (directed)</code>
+        </td>
+        <td>Makes only synonym term match for input term.</td>
+      </tr>
+      <tr>
+        <td style="width:20%;vertical-align:top;">
+          <code>$1</code> placeholder
+        </td>
+        <td>
+          Can be used with a directed synonym in combination with
+          <code>*</code> Wildcard. See <em>Input Matching</em>.
+        </td>
+      </tr>
+    </table>
+
+    <h6>UP/DOWN RULE</h6>
+    <p>
+      Increases or decreases document ranking matching a specific term, e.g.:<br />
+      <code>UP(10): Altersteilzeit</code>, or
+      <code>DOWN(500): englische Übersetzung</code>.<br />
+      Can be combined with native Solr field syntax. See <em>FILTER RULE</em>.
+    </p>
+
+    <h6>FILTER RULE</h6>
+    <p>
+      Filter exclusively documents matching a specific term or totally remove
+      them completely.<br />
+      When term is prefixed with <code>*</code>, native Solr field syntax can be
+      used, e.g.:<br />
+      <code>* price:[350 TO 450]</code>, <code>* microline1:Vertrag</code>, or
+      <code>-vertrag</code>.<br />
+    </p>
+
+    <h6>DELETE RULE</h6>
+    <p>
+      Delete rules allow you to remove keywords from a query.
+    </p>
+
+    <h6>Input Matching</h6>
+    <table>
+      <tr>
+        <td style="width:20%;vertical-align:top;">
+          <code>"personal computer"</code>
+        </td>
+        <td>Only match the exact query 'personal computer'.</td>
+      </tr>
+      <tr>
+        <td style="width:20%;vertical-align:top;">
+          <code>"personal computer</code>
+        </td>
+        <td>Only match queries starting with 'personal computer'</td>
+      </tr>
+      <tr>
+        <td style="width:20%;vertical-align:top;">
+          <code>personal computer"</code>
+        </td>
+        <td>Only match queries ending with 'personal computer'</td>
+      </tr>
+      <tr>
+        <td style="width:20%;vertical-align:top;"><code>urlaubs*</code></td>
+        <td>
+          Wildcard matching of queries starting with 'urlaubs' (e.g.
+          'urlaubsgeld' or 'urlaubszeit').<br />
+          Can be combined with <code>$1</code> placeholder in a directed synonym
+          (e.g. <code>urlaub $1</code>).<br />
+          WARNING: Only works in combination with a directed (not undirected)
+          synonym!
+        </td>
+      </tr>
+    </table>
+
+    <br />
+
+    <p>
+      For more information refer to detailed
+      <a
+        href="https://docs.querqy.org/querqy/rewriters/common-rules.html"
+        target="_new"
+      >
+        documentation of querqy (common rules rewriter) </a
+      >.
+    </p>
+
+    <h6>SPELLING RULES</h6>
+    <p>
+      Spelling rules are using the querqy replace rewriter to overwrite the
+      input term. <br />
+      Following rules can be used to replace the input term:
+    </p>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col" class="help-table-col-1"></th>
+          <th scope="col" class="help-table-col-2">Spelling</th>
+          <th scope="col" class="help-table-col-3">Alternative</th>
+          <th scope="col" class="help-table-col-4">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">simple rule</th>
+          <td>mobile</td>
+          <td>ombile</td>
+          <td>
+            <code>ombile => mobile</code><br />
+            Simple replacement of the alternative with the spelling
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">prefix rule</th>
+          <td>cheap</td>
+          <td>cheap*</td>
+          <td>
+            <code>cheap* => cheap</code><br />
+            Can be used to generalize spellings (e.g. cheapest pants => cheap
+            pants).
+            <span class="font-weight-bold"
+              >Just one suffix rule is allowed per spelling.</span
+            >
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">suffix rule</th>
+          <td>phone</td>
+          <td>*phones</td>
+          <td>
+            <code>*sale => sale</code><br />
+            Can be used to generalize spellings (e.g. smartphone => phone).
+            <span class="font-weight-bold"
+              >Just one suffix rule is allowed per spelling.</span
+            >
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">wildcards</th>
+          <td>computer $1</td>
+          <td>computer*</td>
+          <td>
+            <code>computer* => computer $1</code><br />
+            Can be used to generalize and split spellings (e.g. computertable =>
+            computer table).
+            <span class="font-weight-bold"
+              >Just one suffix rule is allowed per spelling.</span
+            >
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <p>
+      For more information refer to detailed
+      <a
+        href="https://docs.querqy.org/querqy/rewriters/replace.html"
+        target="_new"
+      >
+        documentation of querqy (replace rewriter) </a
+      >.
+    </p>
+  </div>
+  <div footer>
+    <button
+      class="btn btn-success"
+      type="button"
+      (click)="modalService.close('help-modal')"
+    >
+      Close
+    </button>
+  </div>
+</app-smui-modal>
