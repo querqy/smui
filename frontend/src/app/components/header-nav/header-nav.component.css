@@ -35,9 +35,6 @@
   cursor: pointer;
 }
 
-.smui-safe-querqydocs-html {
-}
-
 .solrPanel {
   display: grid;
   grid-template-columns: auto auto auto;

@@ -1,9 +1,11 @@
 <nav class="navbar navbar-expand-sm navbar-light bg-light smui-nav-bar">
   <span class="navbar-brand" style="margin-right:0.5rem">{{
     featureToggleService.getSync('toggle.headline')
-  }}</span>
+    }}</span>
   <span class="smui-version">
-    (v{{ featureToggleService.getSync('smui.version') }})
+    <span class="mr-1">
+      (v{{ featureToggleService.getSync('smui.version') }})
+    </span>
     <ng-container *ngIf="versionInfo">
       <ng-container *ngIf="versionInfo.infoType === 'INFO'">
         <i class="fa fa-check-circle" [title]="versionInfo.msgHtml"></i>
@@ -15,8 +17,7 @@
             'btn-warning': versionInfo.infoType === 'WARN',
             'btn-danger': versionInfo.infoType === 'ERROR'
           }"
-          data-toggle="modal"
-          data-target="#versionInfoModalModal"
+          (click)="modalService.open('versionInfoModalModal')"
         >
           <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
         </button>
@@ -43,7 +44,7 @@
           class="nav-link"
           [ngClass]="{ active: router.url === '/rules' }"
           routerLink="/rules"
-          >Rules</a
+        >Rules</a
         >
       </li>
       <li class="nav-item">
@@ -51,7 +52,7 @@
           class="nav-link"
           [ngClass]="{ active: router.url === '/report' }"
           routerLink="/report"
-          >Report</a
+        >Report</a
         >
       </li>
       <li>
@@ -134,67 +135,30 @@
   </div>
 </nav>
 
-<ng-container *ngIf="versionInfo">
-  <div
-    class="modal fade"
-    id="versionInfoModalModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="versionInfoModalTitle"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="versionInfoModalLongTitle">
-            Version Info for this SMUI instance ({{ versionInfo.infoType }})
-          </h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <h5
-            *ngIf="
-              versionInfo.hasOwnProperty('latestMarketStandard') ||
-              versionInfo.hasOwnProperty('current')
-            "
-          >
-            Version
-          </h5>
-          <div *ngIf="versionInfo.hasOwnProperty('latestMarketStandard')">
-            The current market standard for SMUI is:
-            <strong>{{ versionInfo.latestMarketStandard }}</strong> (see
-            <a
-              href="https://hub.docker.com/repository/docker/querqy/smui/"
-              target="_new"
-              >https://hub.docker.com/repository/docker/querqy/smui/</a
-            >)
-          </div>
-          <div *ngIf="versionInfo.hasOwnProperty('current')">
-            Local instance SMUI version is:
-            <strong>{{ versionInfo.current }}</strong>
-          </div>
-          <hr />
-          <div
-            class="smui-safe-querqydocs-html"
-            [innerHTML]="versionInfo.msgHtml"
-          ></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-dismiss="modal">
-            Close
-          </button>
-        </div>
-      </div>
+<app-smui-modal id="versionInfoModalModal" title="Version Info">
+  <div content>
+    <h5
+      *ngIf="'latestMarketStandard' in versionInfo || 'current' in versionInfo"
+    >
+      Version Info for this SMUI instance ({{ versionInfo?.infoType }})
+    </h5>
+    <div *ngIf="'latestMarketStandard' in versionInfo">
+      The current market standard for SMUI is:
+      <strong>{{ versionInfo?.latestMarketStandard }}</strong> (see
+      <a
+        href="https://hub.docker.com/repository/docker/querqy/smui/"
+        target="_new"
+      >https://hub.docker.com/repository/docker/querqy/smui/
+      </a>)
     </div>
+    <div *ngIf="'current' in versionInfo">
+      Local instance SMUI version is:
+      <strong>{{ versionInfo?.current }}</strong>
+    </div>
+    <hr/>
+    <div [innerHTML]="versionInfo?.msgHtml"></div>
   </div>
-</ng-container>
+</app-smui-modal>
 
 <app-smui-modal id="confirm-publish-live" title="Confirm publish to LIVE">
   <div content>
@@ -262,20 +226,20 @@
 
     <h6>UP/DOWN RULE</h6>
     <p>
-      Increases or decreases document ranking matching a specific term, e.g.:<br />
+      Increases or decreases document ranking matching a specific term, e.g.:<br/>
       <code>UP(10): Altersteilzeit</code>, or
-      <code>DOWN(500): englische Übersetzung</code>.<br />
+      <code>DOWN(500): englische Übersetzung</code>.<br/>
       Can be combined with native Solr field syntax. See <em>FILTER RULE</em>.
     </p>
 
     <h6>FILTER RULE</h6>
     <p>
       Filter exclusively documents matching a specific term or totally remove
-      them completely.<br />
+      them completely.<br/>
       When term is prefixed with <code>*</code>, native Solr field syntax can be
-      used, e.g.:<br />
+      used, e.g.:<br/>
       <code>* price:[350 TO 450]</code>, <code>* microline1:Vertrag</code>, or
-      <code>-vertrag</code>.<br />
+      <code>-vertrag</code>.<br/>
     </p>
 
     <h6>DELETE RULE</h6>
@@ -307,16 +271,16 @@
         <td style="width:20%;vertical-align:top;"><code>urlaubs*</code></td>
         <td>
           Wildcard matching of queries starting with 'urlaubs' (e.g.
-          'urlaubsgeld' or 'urlaubszeit').<br />
+          'urlaubsgeld' or 'urlaubszeit').<br/>
           Can be combined with <code>$1</code> placeholder in a directed synonym
-          (e.g. <code>urlaub $1</code>).<br />
+          (e.g. <code>urlaub $1</code>).<br/>
           WARNING: Only works in combination with a directed (not undirected)
           synonym!
         </td>
       </tr>
     </table>
 
-    <br />
+    <br/>
 
     <p>
       For more information refer to detailed
@@ -331,69 +295,69 @@
     <h6>SPELLING RULES</h6>
     <p>
       Spelling rules are using the querqy replace rewriter to overwrite the
-      input term. <br />
+      input term. <br/>
       Following rules can be used to replace the input term:
     </p>
     <table class="table table-striped">
       <thead>
-        <tr>
-          <th scope="col" class="help-table-col-1"></th>
-          <th scope="col" class="help-table-col-2">Spelling</th>
-          <th scope="col" class="help-table-col-3">Alternative</th>
-          <th scope="col" class="help-table-col-4">Description</th>
-        </tr>
+      <tr>
+        <th scope="col" class="help-table-col-1"></th>
+        <th scope="col" class="help-table-col-2">Spelling</th>
+        <th scope="col" class="help-table-col-3">Alternative</th>
+        <th scope="col" class="help-table-col-4">Description</th>
+      </tr>
       </thead>
       <tbody>
-        <tr>
-          <th scope="row">simple rule</th>
-          <td>mobile</td>
-          <td>ombile</td>
-          <td>
-            <code>ombile => mobile</code><br />
-            Simple replacement of the alternative with the spelling
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">prefix rule</th>
-          <td>cheap</td>
-          <td>cheap*</td>
-          <td>
-            <code>cheap* => cheap</code><br />
-            Can be used to generalize spellings (e.g. cheapest pants => cheap
-            pants).
-            <span class="font-weight-bold"
-              >Just one suffix rule is allowed per spelling.</span
-            >
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">suffix rule</th>
-          <td>phone</td>
-          <td>*phones</td>
-          <td>
-            <code>*sale => sale</code><br />
-            Can be used to generalize spellings (e.g. smartphone => phone).
-            <span class="font-weight-bold"
-              >Just one suffix rule is allowed per spelling.</span
-            >
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">wildcards</th>
-          <td>computer $1</td>
-          <td>computer*</td>
-          <td>
-            <code>computer* => computer $1</code><br />
-            Can be used to generalize and split spellings (e.g. computertable =>
-            computer table).
-            <span class="font-weight-bold"
-              >Just one suffix rule is allowed per spelling.</span
-            >
-          </td>
-        </tr>
+      <tr>
+        <th scope="row">simple rule</th>
+        <td>mobile</td>
+        <td>ombile</td>
+        <td>
+          <code>ombile => mobile</code><br/>
+          Simple replacement of the alternative with the spelling
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">prefix rule</th>
+        <td>cheap</td>
+        <td>cheap*</td>
+        <td>
+          <code>cheap* => cheap</code><br/>
+          Can be used to generalize spellings (e.g. cheapest pants => cheap
+          pants).
+          <span class="font-weight-bold"
+          >Just one suffix rule is allowed per spelling.</span
+          >
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">suffix rule</th>
+        <td>phone</td>
+        <td>*phones</td>
+        <td>
+          <code>*sale => sale</code><br/>
+          Can be used to generalize spellings (e.g. smartphone => phone).
+          <span class="font-weight-bold"
+          >Just one suffix rule is allowed per spelling.</span
+          >
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">wildcards</th>
+        <td>computer $1</td>
+        <td>computer*</td>
+        <td>
+          <code>computer* => computer $1</code><br/>
+          Can be used to generalize and split spellings (e.g. computertable =>
+          computer table).
+          <span class="font-weight-bold"
+          >Just one suffix rule is allowed per spelling.</span
+          >
+        </td>
+      </tr>
       </tbody>
     </table>
-    <br />
+    <br/>
     <p>
       For more information refer to detailed
       <a
