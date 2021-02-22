@@ -35,19 +35,12 @@ case class SmuiVersion(
 object SmuiVersion extends Logging {
 
   def parse(rawVersionString: String): Option[SmuiVersion] = {
-    val regExPattern = "([\\d]+).([\\d]+).([\\d]+)".r
-    Try({
-      val regExPattern(majorStr, minorStr, buildStr) = rawVersionString
-      // convert strings to Ints
-      SmuiVersion(
-        majorStr.toInt, minorStr.toInt, buildStr.toInt
-      )
-    }).toOption match {
-      case None => {
-        logger.error(s":: parse :: failed to parse rawVersionString = $rawVersionString")
-        None
-      }
-      case Some(version) => Some(version)
+    val Pattern = """^(\d+)(.\d+)?(.\d+)?$""".r
+    rawVersionString match {
+      case Pattern(major, null, null) => Some(SmuiVersion(major.toInt, 0, 0))
+      case Pattern(major, minor, null) => Some(SmuiVersion(major.toInt, minor.tail.toInt, 0))
+      case Pattern(major, minor, build) => Some(SmuiVersion(major.toInt, minor.tail.toInt, build.tail.toInt))
+      case _ => None
     }
   }
 
@@ -85,6 +78,7 @@ object SmuiVersion extends Logging {
         } else {
           rawVer1.get
         })
+
         parse(rawVer) match {
           case None => {
             logger.error(s":: unable to parse latest DockerHub version string for SMUI (rawVer = $rawVer)")
