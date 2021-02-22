@@ -140,11 +140,11 @@
     <h5
       *ngIf="'latestMarketStandard' in versionInfo || 'current' in versionInfo"
     >
-      Version Info for this SMUI instance ({{ versionInfo.infoType }})
+      Version Info for this SMUI instance ({{ versionInfo?.infoType }})
     </h5>
     <div *ngIf="'latestMarketStandard' in versionInfo">
       The current market standard for SMUI is:
-      <strong>{{ versionInfo.latestMarketStandard }}</strong> (see
+      <strong>{{ versionInfo?.latestMarketStandard }}</strong> (see
       <a
         href="https://hub.docker.com/repository/docker/querqy/smui/"
         target="_new"
@@ -153,10 +153,10 @@
     </div>
     <div *ngIf="'current' in versionInfo">
       Local instance SMUI version is:
-      <strong>{{ versionInfo.current }}</strong>
+      <strong>{{ versionInfo?.current }}</strong>
     </div>
     <hr/>
-    <div [innerHTML]="versionInfo.msgHtml"></div>
+    <div [innerHTML]="versionInfo?.msgHtml"></div>
   </div>
 </app-smui-modal>
 
