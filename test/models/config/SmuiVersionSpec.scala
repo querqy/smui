@@ -23,10 +23,13 @@ class SmuiVersionSpec extends FlatSpec with Matchers {
 
   "SmuiVersion version parsing" should "return None for invalid strings" in {
     SmuiVersion.parse("invalid") shouldEqual None
-    SmuiVersion.parse("1.0") shouldEqual None
     SmuiVersion.parse("1.0.") shouldEqual None
-    SmuiVersion.parse("1") shouldEqual None
     SmuiVersion.parse("1.") shouldEqual None
+  }
+
+  "SmuiVersion version parsing" should "fill missing values for minor or build versions" in {
+    SmuiVersion.parse("1") shouldEqual Some(SmuiVersion(1, 0, 0))
+    SmuiVersion.parse("1.0") shouldEqual Some(SmuiVersion(1, 0, 0))
   }
 
   "SmuiVersion for next deployment" should "be greater than latest version provided on DockerHub" in {
