@@ -5,6 +5,7 @@ version := "3.12.1"
 
 scalaVersion := "2.12.11"
 
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .enablePlugins(BuildInfoPlugin)
@@ -49,6 +50,7 @@ libraryDependencies ++= {
     "org.playframework.anorm" %% "anorm" % "2.6.4",
     "com.typesafe.play" %% "play-json" % "2.6.12",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
+    "org.scalaj" %% "scalaj-http" % "2.3.0",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
     "org.mockito" % "mockito-all" % "1.10.19" % Test,
     "com.pauldijou" %% "jwt-play" % "4.1.0",
