@@ -1,18 +1,15 @@
 package controllers.auth
 
+import com.auth0.jwk.UrlJwkProvider
 import com.jayway.jsonpath.JsonPath
 import net.minidev.json.JSONArray
-import pdi.jwt.{Jwt, JwtOptions, JwtAlgorithm, JwtClaim, JwtJson}
-import play.api.mvc._
 import pdi.jwt._
+import play.api.mvc._
 import play.api.{Configuration, Logging}
-import scalaj.http.{Http, HttpOptions}
-import play.api.libs.json.Json
-import java.util.Base64
-import scala.util.Success
 
+import java.net.URL
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.util.{Success, Try}
 
 class JWTOpenIdAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) with Logging {
@@ -22,6 +19,9 @@ class JWTOpenIdAuthenticatedAction(parser: BodyParsers.Default, appConfig: Confi
   private val JWT_LOGIN_URL = getValueFromConfigWithFallback("smui.JWTOpenIdAuthenticatedAction.login.url", "")
   private val JWT_COOKIE = getValueFromConfigWithFallback("smui.JWTOpenIdAuthenticatedAction.cookie.name", "jwt")
   private val JWT_AUTHORIZED_ROLES = getValueFromConfigWithFallback("smui.JWTOpenIdAuthenticatedAction.authorization.roles", "admin")
+
+  private val JWKS_URL = new URL("http://localhost:9080/auth/realms/smui/protocol/openid-connect/certs")
+  private val JWT_ROLES_JSON_PATH = "resource_access.smui.roles"
 
   private lazy val authorizedRoles = JWT_AUTHORIZED_ROLES.replaceAll("\\s", "").split(",").toSeq
 
@@ -34,8 +34,6 @@ class JWTOpenIdAuthenticatedAction(parser: BodyParsers.Default, appConfig: Confi
     }
   }
 
-
-
   def decodeRawAll(jwt: String): Try[(String, String, String)] = {
     Jwt
     .decodeRawAll(
@@ -44,30 +42,37 @@ class JWTOpenIdAuthenticatedAction(parser: BodyParsers.Default, appConfig: Confi
     )
   }
 
-  //private def isAuthenticated(jwt: String): Option[JwtClaim] = {
-  private def isAuthenticated(jwt: String): Option[Boolean] = {
-    logger.warn(s"\n Trying to deal with $jwt")
+  private def isAuthenticated(jwt: String): Option[JwtClaim] = {
+    logger.info(s"Authenticating using $jwt")
 
+    // get the pub key of the signing key to verify signature
+    val maybeJwk = for {
+      // decode without verifying as we only need the header
+      //(header, _, _) <- JwtJson.decodeRawAll(jwt, JwtOptions(signature = false)).toOption
 
-    logger.warn("We should validate the token")
+      // decode without any verification as the token is most likely already expired
+      (header, _, _) <- JwtJson.decodeRawAll(jwt, JwtOptions(false, false, false)).toOption
 
-    val result = for {
-    (header, claim, signature) <-
-        decodeRawAll(jwt)
-    } yield claim
+      keyId <- JwtJson.parseHeader(header).keyId
+      jwk <- Try(new UrlJwkProvider(JWKS_URL).get(keyId)).toOption
+    } yield jwk
 
+    for {
+      jwk <- maybeJwk
+      // claims <- JwtJson.decode(jwt, jwk.getPublicKey, Seq(JwtAlgorithm.RS256)).toOption
 
-    logger.warn("claim: " + claim)
-
-
-
-    Some(true)
+      // decode without any verification as the token is most likely already expired
+      claims <- JwtJson.decode(jwt, jwk.getPublicKey, Seq(JwtAlgorithm.RS256), JwtOptions(false, false, false)).toOption
+    } yield claims
   }
 
-  private def isAuthorized(token: String): Boolean = {
-    val rolesInToken = token.split(" ").toSeq
-    logger.warn("Here are the rolesinToken:" + rolesInToken)
-    rolesInToken.forall(authorizedRoles.contains)
+  private def isAuthorized(claim: JwtClaim): Boolean = {
+    val rolesInToken = Try(JsonPath.read[JSONArray](claim.content, JWT_ROLES_JSON_PATH).toArray.toSeq)
+
+    rolesInToken match {
+      case Success(roles) => roles.forall(authorizedRoles.contains)
+      case _ => false
+    }
   }
 
   private def redirectToLoginPage(): Future[Result] = {
@@ -86,24 +91,13 @@ class JWTOpenIdAuthenticatedAction(parser: BodyParsers.Default, appConfig: Confi
 
     logger.warn(s":: invokeBlock :: request.path = ${request.path}")
 
-    if (request.path == "/auth/openid/callback"){
-      // https://www.appsdeveloperblog.com/keycloak-authorization-code-grant-example/
-      logger.warn("We got a callback!!!!");
-
-    }
     getJwtCookie(request) match {
       case Some(cookie) =>
         isAuthenticated(cookie.value) match {
-          case Some(token) if isAuthorized("smui:searchandizder") => block(request)
+          case Some(token) if isAuthorized(token) => block(request)
           case _ => redirectToLoginPage()
         }
       case None => redirectToLoginPage()
     }
-
-    //if (isAuthorized("smui:searchandizer")) {
-    //  block(request)
-    //} else {
-    //  redirectToLoginPage
-    //}
   }
 }
