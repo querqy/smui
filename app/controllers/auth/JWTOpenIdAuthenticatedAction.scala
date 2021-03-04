@@ -17,11 +17,11 @@ class JWTOpenIdAuthenticatedAction(parser: BodyParsers.Default, appConfig: Confi
   logger.warn("In JWTOpenIdAuthenticatedAction")
 
   private val JWT_LOGIN_URL = getValueFromConfigWithFallback("smui.JWTOpenIdAuthenticatedAction.login.url", "")
+  private val JWKS_URL = new URL(getValueFromConfigWithFallback("smui.JWTOpenIdAuthenticatedAction.jwks.url", ""))
   private val JWT_COOKIE = getValueFromConfigWithFallback("smui.JWTOpenIdAuthenticatedAction.cookie.name", "jwt")
   private val JWT_AUTHORIZED_ROLES = getValueFromConfigWithFallback("smui.JWTOpenIdAuthenticatedAction.authorization.roles", "admin")
 
-  private val JWKS_URL = new URL("http://localhost:9080/auth/realms/smui/protocol/openid-connect/certs")
-  private val JWT_ROLES_JSON_PATH = "resource_access.smui.roles"
+  private val JWT_ROLES_JSON_PATH = getValueFromConfigWithFallback("smui.JWTOpenIdAuthenticatedAction.roles.json.path", "resource_access.smui.roles")
 
   private lazy val authorizedRoles = JWT_AUTHORIZED_ROLES.replaceAll("\\s", "").split(",").toSeq
 
@@ -67,8 +67,13 @@ class JWTOpenIdAuthenticatedAction(parser: BodyParsers.Default, appConfig: Confi
   }
 
   private def isAuthorized(claim: JwtClaim): Boolean = {
-    val rolesInToken = Try(JsonPath.read[JSONArray](claim.content, JWT_ROLES_JSON_PATH).toArray.toSeq)
-
+    logger.warn("ERIC HERE, claim content is: " + claim.content)
+    logger.warn("ERIC HERE, JWT_ROLES_JSON_PATH is " + JWT_ROLES_JSON_PATH)
+    //val rolesInToken = Try(JsonPath.read[JSONArray](claim.content, JWT_ROLES_JSON_PATH).toArray.toSeq)
+    // I could get a {"scope"="smui:searchandizer"} in my claim, but not a {"resource_access":{"smui":{"roles":["smui-user"]}}}
+    // So changing this code just to get it to work.
+    val rolesInToken = Try(JsonPath.read[String](claim.content, JWT_ROLES_JSON_PATH).split(" ").toArray.toSeq)
+    logger.warn("ERIC HERE " + rolesInToken)
     rolesInToken match {
       case Success(roles) => roles.forall(authorizedRoles.contains)
       case _ => false
