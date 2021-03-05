@@ -8,6 +8,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToasterModule } from 'angular2-toaster';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularMultiSelectModule } from 'angular2-multiselect-dropdown';
+import { httpInterceptorProviders } from './interceptors';
 
 // services
 import {
@@ -91,7 +92,8 @@ import {
     TagsService,
     ActivityLogService,
     ReportService,
-    ConfigService
+    ConfigService,
+    httpInterceptorProviders
   ],
   bootstrap: [AppComponent]
 })
