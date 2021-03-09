@@ -38,6 +38,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
+    ws,
     guice,
     jdbc,
     evolutions,
@@ -51,7 +52,6 @@ libraryDependencies ++= {
     "com.typesafe.play" %% "play-json" % "2.6.12",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
     "com.auth0" % "jwks-rsa" % "0.17.0",
-    "org.scalaj" %% "scalaj-http" % "2.3.0",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
     "org.mockito" % "mockito-all" % "1.10.19" % Test,
     "com.pauldijou" %% "jwt-play" % "4.1.0",
