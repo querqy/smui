@@ -18,6 +18,7 @@
 -- payload is currently limited to approx 5K!
 
 -- 2020-09-13: first encountered JSON payload with 5391B in production ==> double the field size
+-- 2021-03-11: MSSqlServer limits varchar to 8000, so shrink field size.
 create table input_event (
 	id varchar(36) not null primary key,
 	event_source varchar(50) not null,
@@ -25,7 +26,7 @@ create table input_event (
 	event_time timestamp not null,
 	user_info varchar(100),
 	input_id varchar(36) not null,
-	json_payload varchar(10000)
+	json_payload varchar(8000)
 );
 
 # --- !Downs
