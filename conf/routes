@@ -6,7 +6,8 @@
 GET     /         controllers.FrontendController.index()
 GET     /health   controllers.HealthController.health
 
-GET     /auth/openid/callback                                   controllers.auth.OpenidController.callback
+GET     /auth/openid/callback                                   controllers.auth.OpenIdAuthCallbackController.openIdAuthCallback
+GET     /auth/openid/logout                                     controllers.auth.OpenIdAuthCallbackController.logout
 
 # serve the API v1 Specification
 # TODO search-input URL path partially "behind" solrIndexId path component and partially not
