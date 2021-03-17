@@ -10,8 +10,8 @@
 create table input_tag (
 	id varchar(36) not null primary key,
 	solr_index_id varchar(36),
-	property varchar(767),
-	tag_value varchar(767) not null,
+	property varchar(1000),
+	tag_value varchar(1000) not null,
 	exported int not null,
 	predefined int not null,
 	last_update timestamp not null
