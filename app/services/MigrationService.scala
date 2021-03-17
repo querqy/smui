@@ -7,11 +7,13 @@ import models.DatabaseExecutionContext
 import models.FeatureToggleModel.FeatureToggleService
 import models.eventhistory.InputEvent
 import play.api.db.evolutions.ApplicationEvolutions
+import play.api.Configuration
 
 @javax.inject.Singleton
-class MigrationService @Inject()(dbapi: DBApi, toggleService: FeatureToggleService, applicationEvolutions: ApplicationEvolutions)(implicit ec: DatabaseExecutionContext) extends Logging {
+class MigrationService @Inject()(appConfig: Configuration, dbapi: DBApi, toggleService: FeatureToggleService, applicationEvolutions: ApplicationEvolutions)(implicit ec: DatabaseExecutionContext) extends Logging {
 
-  private val db = dbapi.database("default")
+  val DATABASE_CONFIG_TO_USE = appConfig.get[String]("smui.database.config")
+  private val db = dbapi.database(DATABASE_CONFIG_TO_USE)
 
   // inform, if play evolutions are up-to-date BEFORE any custom migrations happen
   // (see https://discuss.lightbend.com/t/startup-timing-issues-w-database-initialization-and-evolutions/2458)
