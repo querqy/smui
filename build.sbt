@@ -85,7 +85,7 @@ assemblyMergeStrategy in assembly := {
     oldStrategy(x)
 }
 
-lazy val dockerNamespace = "querqy"
+lazy val dockerNamespace = "o19s"
 lazy val dockerRepo = "smui"
 
 imageNames in docker := {
