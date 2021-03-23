@@ -27,8 +27,8 @@ object SuggestedSolrField {
   val LAST_UPDATE = "last_update"
 
   val sqlParser: RowParser[SuggestedSolrField] = {
-    get[SuggestedSolrFieldId](s"$TABLE_NAME.$ID") ~
-      get[String](s"$TABLE_NAME.$NAME") map { case id ~ name =>
+    get[SuggestedSolrFieldId](s"$ID") ~
+      get[String](s"$NAME") map { case id ~ name =>
       SuggestedSolrField(id, name)
     }
   }

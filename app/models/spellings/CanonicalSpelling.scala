@@ -46,12 +46,12 @@ object CanonicalSpelling {
   implicit val jsonFormat: OFormat[CanonicalSpelling] = Json.format[CanonicalSpelling]
 
   val sqlParser: RowParser[CanonicalSpelling] = {
-      get[CanonicalSpellingId](s"$TABLE_NAME.$ID") ~
-      get[SolrIndexId](s"$TABLE_NAME.$SOLR_INDEX_ID") ~
-      get[String](s"$TABLE_NAME.$TERM") ~
-      get[Int](s"$TABLE_NAME.$STATUS") ~
-      get[String](s"$TABLE_NAME.$COMMENT") ~
-      get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") map { case id ~ indexId ~ term ~ status ~ comment ~ lastUpdate =>
+      get[CanonicalSpellingId](s"$ID") ~
+      get[SolrIndexId](s"$SOLR_INDEX_ID") ~
+      get[String](s"$TERM") ~
+      get[Int](s"$STATUS") ~
+      get[String](s"$COMMENT") ~
+      get[LocalDateTime](s"$LAST_UPDATE") map { case id ~ indexId ~ term ~ status ~ comment ~ lastUpdate =>
       CanonicalSpelling(id, indexId, term, Status.isActiveFromStatus(status), comment, lastUpdate)
     }
   }

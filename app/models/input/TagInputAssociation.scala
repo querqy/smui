@@ -56,7 +56,7 @@ object TagInputAssociation {
     ids.grouped(100).toSeq.flatMap { idGroup =>
       SQL(s"select * from $TABLE_NAME a, ${InputTag.TABLE_NAME} t where a.$INPUT_ID in ({inputIds}) " +
         s"and a.$TAG_ID = t.${InputTag.ID} order by t.${InputTag.PROPERTY} asc, t.${InputTag.VALUE} asc").
-        on("inputIds" -> idGroup).as((InputTag.sqlParser ~ get[SearchInputId](s"$TABLE_NAME.$INPUT_ID")).*).
+        on("inputIds" -> idGroup).as((InputTag.sqlParser ~ get[SearchInputId](s"$INPUT_ID")).*).
         map { case tag ~ inputId =>
           inputId -> tag
         }
