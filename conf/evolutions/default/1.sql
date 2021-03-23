@@ -6,14 +6,14 @@ create table solr_index (
 	id varchar(36) not null primary key,
 	name varchar(1000) not null,
 	description varchar(1000) not null,
-	last_update timestamp not null
+	last_update datetime not null
 );
 
 create table search_input (
 	id varchar(36) not null primary key,
 	term varchar(1000) not null,
 	solr_index_id varchar(36) not null,
-	last_update timestamp not null
+	last_update datetime not null
 );
 
 -- status (for synonym_rule, up_down_rule, filter_rule, delete_rule)
@@ -31,7 +31,7 @@ create table synonym_rule (
 	synonym_type int not null,
 	term varchar(1000) not null,
 	search_input_id varchar(36) not null,
-	last_update timestamp not null,
+	last_update datetime not null,
 	status int not null
 );
 
@@ -45,7 +45,7 @@ create table up_down_rule (
 	boost_malus_value int not null,
 	term varchar(1000) not null,
 	search_input_id varchar(36) not null,
-	last_update timestamp not null,
+	last_update datetime not null,
 	status int not null
 );
 
@@ -53,7 +53,7 @@ create table filter_rule (
 	id varchar(36) not null primary key,
 	term varchar(1000) not null,
 	search_input_id varchar(36) not null,
-	last_update timestamp not null,
+	last_update datetime not null,
 	status int not null
 );
 
@@ -61,7 +61,7 @@ create table delete_rule (
 	id varchar(36) not null primary key,
 	term varchar(1000) not null,
 	search_input_id varchar(36) not null,
-	last_update timestamp not null,
+	last_update datetime not null,
 	status int not null
 );
 
@@ -69,7 +69,7 @@ create table suggested_solr_field (
 	id varchar(36) not null primary key,
 	name varchar(1000) not null,
 	solr_index_id varchar(36) not null,
-	last_update timestamp not null
+	last_update datetime not null
 );
 
 -- target_platform
@@ -85,7 +85,7 @@ create table deployment_log (
 	id varchar(36) not null primary key,
 	solr_index_id varchar(36) not null,
 	target_platform varchar(10) not null,
-    last_update timestamp not null,
+    last_update datetime not null,
     result int not null
 );
 
@@ -106,4 +106,3 @@ drop table synonym_rule;
 drop table search_input;
 
 drop table solr_index;
-

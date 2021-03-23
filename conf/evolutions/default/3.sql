@@ -14,7 +14,7 @@ create table input_tag (
 	tag_value varchar(767) not null,
 	exported int not null,
 	predefined int not null,
-	last_update timestamp not null
+	last_update datetime not null
 );
 
 create unique index input_tag_property_value_index on input_tag (solr_index_id, property, tag_value);
@@ -23,9 +23,10 @@ create index input_tag_predefined_index on input_tag (predefined);
 -- Add table tag_2_input
 
 create table tag_2_input (
+	
   tag_id varchar(36) not null,
   input_id varchar(36) not null,
-  last_update timestamp not null,
+  last_update datetime not null,
   primary key (tag_id, input_id)
 );
 

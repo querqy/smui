@@ -22,7 +22,7 @@ create table input_event (
 	id varchar(36) not null primary key,
 	event_source varchar(50) not null,
 	event_type int not null,
-	event_time timestamp not null,
+	event_time datetime not null,
 	user_info varchar(100),
 	input_id varchar(36) not null,
 	json_payload varchar(10000)
