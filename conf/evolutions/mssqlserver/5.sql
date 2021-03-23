@@ -8,7 +8,7 @@ create table canonical_spelling (
 	term varchar(1000) not null,
 	status int not null,
 	comment varchar(1000) not null,
-	last_update timestamp not null
+	last_update datetime not null
 );
 
 -- Add table alternative_spelling
@@ -18,7 +18,7 @@ create table alternative_spelling (
 	canonical_spelling_id varchar(36) not null,
 	term varchar(1000) not null,
 	status int not null,
-	last_update timestamp not null
+	last_update datetime not null
 );
 
 create index alternative_canonical_spelling_id_index on alternative_spelling (canonical_spelling_id);

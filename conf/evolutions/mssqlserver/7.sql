@@ -4,7 +4,7 @@
 -- completed - shall be null or 1
 create table smui_migration_lock (
 	migration_key varchar(32) not null primary key,
-	lock_time timestamp not null,
+	lock_time datetime not null,
 	completed int
 );
 
