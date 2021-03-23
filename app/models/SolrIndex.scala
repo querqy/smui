@@ -22,9 +22,9 @@ object SolrIndex {
 
   implicit val jsonFormat: OFormat[SolrIndex] = Json.format[SolrIndex]
 
-  val sqlParser: RowParser[SolrIndex] = get[SolrIndexId](s"$TABLE_NAME.id") ~
-    get[String](s"$TABLE_NAME.name") ~
-    get[String](s"$TABLE_NAME.description") map { case id ~ name ~ description =>
+  val sqlParser: RowParser[SolrIndex] = get[SolrIndexId](s"id") ~
+    get[String](s"name") ~
+    get[String](s"description") map { case id ~ name ~ description =>
     SolrIndex(id, name, description)
   }
 

@@ -48,12 +48,24 @@ object SearchInput {
   val COMMENT = "comment"
 
   val sqlParser: RowParser[SearchInput] = {
-    get[SearchInputId](s"$TABLE_NAME.$ID") ~
-      get[String](s"$TABLE_NAME.$TERM") ~
-      get[SolrIndexId](s"$TABLE_NAME.$SOLR_INDEX_ID") ~
-      get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") ~
-      get[Int](s"$TABLE_NAME.$STATUS") ~
-      get[String](s"$TABLE_NAME.$COMMENT") map { case id ~ term ~ indexId ~ lastUpdate ~ status ~ comment =>
+    Logger.error("in rowparser")
+    get[SearchInputId](s"$ID") ~
+      get[String](s"$TERM") ~
+      get[SolrIndexId](s"$SOLR_INDEX_ID") ~
+      get[LocalDateTime](s"$LAST_UPDATE") ~
+      get[Int](s"$STATUS") ~
+      get[String](s"$COMMENT") map { case id ~ term ~ indexId ~ lastUpdate ~ status ~ comment =>
+        SearchInput(id, indexId, term, lastUpdate, Status.isActiveFromStatus(status), comment)
+    }
+  }
+
+  val sqlParser2: RowParser[SearchInput] = {
+    get[SearchInputId](s"$ID") ~
+      get[String](s"$TERM") ~
+      get[SolrIndexId](s"$SOLR_INDEX_ID") ~
+      get[LocalDateTime](s"$LAST_UPDATE") ~
+      get[Int](s"$STATUS") ~
+      get[String](s"$COMMENT") map { case id ~ term ~ indexId ~ lastUpdate ~ status ~ comment =>
         SearchInput(id, indexId, term, lastUpdate, Status.isActiveFromStatus(status), comment)
     }
   }
@@ -67,6 +79,7 @@ object SearchInput {
 
   def loadAllForIndex(solrIndexId: SolrIndexId)(implicit connection: Connection): List[SearchInput] = {
     SQL"select * from #$TABLE_NAME where #$SOLR_INDEX_ID = $solrIndexId order by #$TERM asc".as(sqlParser.*)
+    //SQL"select id, term , solr_index_id , last_update , status , comment from #$TABLE_NAME where #$SOLR_INDEX_ID = $solrIndexId order by #$TERM asc".as(sqlParser.*)
   }
 
   def loadAllIdsForIndex(solrIndexId: SolrIndexId)(implicit connection: Connection): List[SearchInputId] = {
@@ -74,6 +87,7 @@ object SearchInput {
   }
 
   def loadById(id: SearchInputId)(implicit connection: Connection): Option[SearchInput] = {
+    //SQL"select id as 'search_input.id', term as 'search_input.term', solr_index_id as 'search_input.solr_index_id', last_update as 'search_input.last_update', status as 'search_input.status', comment as 'search_input.comment' from #$TABLE_NAME where #$ID = $id".as(sqlParser.*).headOption
     SQL"select * from #$TABLE_NAME where #$ID = $id".as(sqlParser.*).headOption
   }
 

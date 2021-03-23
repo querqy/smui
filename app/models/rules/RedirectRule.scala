@@ -33,9 +33,9 @@ object RedirectRule extends RuleObject[RedirectRule] {
   override def orderByField: String = TARGET
 
   override val sqlParser: RowParser[RedirectRule] = {
-    get[RedirectRuleId](s"$TABLE_NAME.$ID") ~
-      get[String](s"$TABLE_NAME.$TARGET") ~
-      get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ target ~ status =>
+    get[RedirectRuleId](s"$ID") ~
+      get[String](s"$TARGET") ~
+      get[Int](s"$STATUS") map { case id ~ target ~ status =>
       RedirectRule(id, target, Status.isActiveFromStatus(status))
     }
   }

@@ -22,9 +22,9 @@ object DeleteRule extends RuleObjectWithTerm[DeleteRule] {
   implicit val jsonFormat: OFormat[DeleteRule] = Json.format[DeleteRule]
 
   override val sqlParser: RowParser[DeleteRule] = {
-    get[DeleteRuleId](s"$TABLE_NAME.$ID") ~
-      get[String](s"$TABLE_NAME.$TERM") ~
-      get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ term ~ status =>
+    get[DeleteRuleId](s"$ID") ~
+      get[String](s"$TERM") ~
+      get[Int](s"$STATUS") map { case id ~ term ~ status =>
       DeleteRule(id, term, Status.isActiveFromStatus(status))
     }
   }
