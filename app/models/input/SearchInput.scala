@@ -48,7 +48,6 @@ object SearchInput {
   val COMMENT = "comment"
 
   val sqlParser: RowParser[SearchInput] = {
-    Logger.error("in rowparser")
     get[SearchInputId](s"$ID") ~
       get[String](s"$TERM") ~
       get[SolrIndexId](s"$SOLR_INDEX_ID") ~
