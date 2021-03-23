@@ -46,7 +46,7 @@ libraryDependencies ++= {
     "mysql" % "mysql-connector-java" % "8.0.18", // TODO verify use of mysql-connector over explicit mariaDB connector instead
     "org.postgresql" % "postgresql" % "42.2.5",
     "org.xerial" % "sqlite-jdbc" % "3.25.2",
-    "com.microsoft.sqlserver" % "mssql-jdbc" % "9.2.1.jre11",
+    "com.microsoft.sqlserver" % "mssql-jdbc" % "9.2.1.jre8",
     "org.playframework.anorm" %% "anorm" % "2.6.4",
     "com.typesafe.play" %% "play-json" % "2.6.12",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
