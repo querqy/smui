@@ -1,7 +1,7 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "3.12.3"
+version := "3.12.3jdk8multdb"
 
 scalaVersion := "2.12.11"
 
