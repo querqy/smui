@@ -7,15 +7,14 @@
 --
 -- exported: 1 = is exported to querqy
 --           0 = is not exported to querqy and only used for tagging purposes in SMUI itself
--- 2021-03-11: MySQL 5.6 (versus 5.7) doesn't allow long varchars in an index.
 create table input_tag (
 	id varchar(36) not null primary key,
 	solr_index_id varchar(36),
-	property varchar(767),
-	tag_value varchar(767) not null,
+	property varchar(1000),
+	tag_value varchar(1000) not null,
 	exported int not null,
 	predefined int not null,
-	last_update timestamp not null
+	last_update datetime not null
 );
 
 create unique index input_tag_property_value_index on input_tag (solr_index_id, property, tag_value);
@@ -24,9 +23,10 @@ create index input_tag_predefined_index on input_tag (predefined);
 -- Add table tag_2_input
 
 create table tag_2_input (
+	
   tag_id varchar(36) not null,
   input_id varchar(36) not null,
-  last_update timestamp not null,
+  last_update datetime not null,
   primary key (tag_id, input_id)
 );
 

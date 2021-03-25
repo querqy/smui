@@ -26,7 +26,7 @@ create table input_event (
 	event_time datetime not null,
 	user_info varchar(100),
 	input_id varchar(36) not null,
-	json_payload varchar(10000)
+	json_payload varchar(8000)
 );
 
 # --- !Downs

@@ -12,11 +12,13 @@ import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInp
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
 import models.reports.{ActivityReport, DeploymentLog, RulesReport}
+import play.api.Configuration
 
 @javax.inject.Singleton
-class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
+class SearchManagementRepository @Inject()(appConfig: Configuration, dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
 
-  private val db = dbapi.database("default")
+  val DATABASE_CONFIG_TO_USE = appConfig.get[String]("smui.database.config")
+  private val db = dbapi.database(DATABASE_CONFIG_TO_USE)
 
   // On startup, always sync predefined tags with the DB
   syncPredefinedTagsWithDB()

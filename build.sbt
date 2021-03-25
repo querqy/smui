@@ -46,10 +46,7 @@ libraryDependencies ++= {
     "mysql" % "mysql-connector-java" % "8.0.18", // TODO verify use of mysql-connector over explicit mariaDB connector instead
     "org.postgresql" % "postgresql" % "42.2.5",
     "org.xerial" % "sqlite-jdbc" % "3.25.2",
-<<<<<<< HEAD
-=======
     "com.microsoft.sqlserver" % "mssql-jdbc" % "9.2.1.jre8",
->>>>>>> swap to jdk8
     "org.playframework.anorm" %% "anorm" % "2.6.4",
     "com.typesafe.play" %% "play-json" % "2.6.12",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
@@ -88,7 +85,7 @@ assemblyMergeStrategy in assembly := {
     oldStrategy(x)
 }
 
-lazy val dockerNamespace = "querqy"
+lazy val dockerNamespace = "o19s"
 lazy val dockerRepo = "smui"
 
 imageNames in docker := {
