@@ -14,9 +14,9 @@ case class DeploymentLog(id: String, lastUpdate: LocalDateTime, result: Int)
 object DeploymentLog extends Logging {
 
   val sqlParserDeploymentLogDetail: RowParser[DeploymentLog] = {
-    get[String](s"deployment_log.id") ~
-      get[LocalDateTime](s"deployment_log.last_update") ~
-      get[Int](s"deployment_log.result") map { case id ~ lastUpdate ~ result =>
+    get[String](s"id") ~
+      get[LocalDateTime](s"last_update") ~
+      get[Int](s"result") map { case id ~ lastUpdate ~ result =>
       DeploymentLog(id, lastUpdate, result)
     }
   }
