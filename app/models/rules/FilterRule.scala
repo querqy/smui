@@ -22,9 +22,9 @@ object FilterRule extends RuleObjectWithTerm[FilterRule] {
   implicit val jsonFormat: OFormat[FilterRule] = Json.format[FilterRule]
 
   override val sqlParser: RowParser[FilterRule] = {
-    get[FilterRuleId](s"$TABLE_NAME.$ID") ~
-      get[String](s"$TABLE_NAME.$TERM") ~
-      get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ term ~ status =>
+    get[FilterRuleId](s"$ID") ~
+      get[String](s"$TERM") ~
+      get[Int](s"$STATUS") map { case id ~ term ~ status =>
       FilterRule(id, term, Status.isActiveFromStatus(status))
     }
   }

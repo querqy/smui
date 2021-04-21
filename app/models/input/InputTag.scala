@@ -68,13 +68,13 @@ object InputTag {
     InputTag(InputTagId(), solrIndexId, property, value, exported, predefined, LocalDateTime.now())
   }
 
-  val sqlParser: RowParser[InputTag] = get[InputTagId](s"$TABLE_NAME.$ID") ~
-    get[Option[SolrIndexId]](s"$TABLE_NAME.$SOLR_INDEX_ID") ~
-    get[Option[String]](s"$TABLE_NAME.$PROPERTY") ~
-    get[String](s"$TABLE_NAME.$VALUE") ~
-    get[Int](s"$TABLE_NAME.$EXPORTED") ~
-    get[Int](s"$TABLE_NAME.$PREDEFINED") ~
-    get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") map { case id ~ solrIndexId ~ property ~ value ~ exported ~ predefined ~ lastUpdate =>
+  val sqlParser: RowParser[InputTag] = get[InputTagId](s"$ID") ~
+    get[Option[SolrIndexId]](s"$SOLR_INDEX_ID") ~
+    get[Option[String]](s"$PROPERTY") ~
+    get[String](s"$VALUE") ~
+    get[Int](s"$EXPORTED") ~
+    get[Int](s"$PREDEFINED") ~
+    get[LocalDateTime](s"$LAST_UPDATE") map { case id ~ solrIndexId ~ property ~ value ~ exported ~ predefined ~ lastUpdate =>
       InputTag(id, solrIndexId, property,
         value, exported > 0, predefined > 0, lastUpdate)
   }

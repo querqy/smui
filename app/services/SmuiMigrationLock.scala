@@ -30,9 +30,9 @@ object SmuiMigrationLock extends Logging {
   val COMPLETED = "completed"
 
   val sqlParser: RowParser[SmuiMigrationLock] = {
-    get[String](s"$TABLE_NAME.$MIGRATION_KEY") ~
-      get[LocalDateTime](s"$TABLE_NAME.$LOCK_TIME") ~
-      get[Option[Int]](s"$TABLE_NAME.$COMPLETED") map { case migrationKey ~ lockTime ~ completedRawOpt =>
+    get[String](s"$MIGRATION_KEY") ~
+      get[LocalDateTime](s"$LOCK_TIME") ~
+      get[Option[Int]](s"$COMPLETED") map { case migrationKey ~ lockTime ~ completedRawOpt =>
       SmuiMigrationLock(
         migrationKey,
         lockTime,

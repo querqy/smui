@@ -39,11 +39,11 @@ object UpDownRule extends RuleObjectWithTerm[UpDownRule] {
   implicit val jsonFormat: OFormat[UpDownRule] = Json.format[UpDownRule]
 
   val sqlParser: RowParser[UpDownRule] = {
-    get[UpDownRuleId](s"$TABLE_NAME.$ID") ~
-      get[Int](s"$TABLE_NAME.$UP_DOWN_TYPE") ~
-      get[Int](s"$TABLE_NAME.$BOOST_MALUS_VALUE") ~
-      get[String](s"$TABLE_NAME.$TERM") ~
-      get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ upDownType ~ boostMalusValue ~ term ~ status =>
+    get[UpDownRuleId](s"$ID") ~
+      get[Int](s"$UP_DOWN_TYPE") ~
+      get[Int](s"$BOOST_MALUS_VALUE") ~
+      get[String](s"$TERM") ~
+      get[Int](s"$STATUS") map { case id ~ upDownType ~ boostMalusValue ~ term ~ status =>
       UpDownRule(id, upDownType, boostMalusValue, term, Status.isActiveFromStatus(status))
     }
   }

@@ -75,13 +75,13 @@ object InputEvent extends Logging {
   val JSON_PAYLOAD = "json_payload"
 
   val sqlParser: RowParser[InputEvent] = {
-    get[InputEventId](s"$TABLE_NAME.$ID") ~
-      get[String](s"$TABLE_NAME.$EVENT_SOURCE") ~
-      get[Int](s"$TABLE_NAME.$EVENT_TYPE") ~
-      get[LocalDateTime](s"$TABLE_NAME.$EVENT_TIME") ~
-      get[Option[String]](s"$TABLE_NAME.$USER_INFO") ~
-      get[String](s"$TABLE_NAME.$INPUT_ID") ~
-      get[Option[String]](s"$TABLE_NAME.$JSON_PAYLOAD") map {
+    get[InputEventId](s"$ID") ~
+      get[String](s"$EVENT_SOURCE") ~
+      get[Int](s"$EVENT_TYPE") ~
+      get[LocalDateTime](s"$EVENT_TIME") ~
+      get[Option[String]](s"$USER_INFO") ~
+      get[String](s"$INPUT_ID") ~
+      get[Option[String]](s"$JSON_PAYLOAD") map {
         case id ~ eventSource ~ eventTypeRaw ~ eventTime ~ userInfo ~ inputId ~ jsonPayload =>
           InputEvent(id, eventSource, eventTypeRaw, eventTime, userInfo, inputId, jsonPayload)
     }
@@ -216,7 +216,7 @@ object InputEvent extends Logging {
         }
     }
 
-    val eventPresentIds = SQL"select #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} from #${models.input.SearchInput.TABLE_NAME} join #$TABLE_NAME ON #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} = #$TABLE_NAME.#$INPUT_ID"
+    val eventPresentIds = SQL"select #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} from #${models.input.SearchInput.TABLE_NAME} join #$TABLE_NAME ON #${models.input.SearchInput.TABLE_NAME}.#${models.input.SearchInput.ID} = ##$INPUT_ID"
       .as(sqlIdParser.*)
       .map(sId => SearchInputId(sId))
 
@@ -238,7 +238,7 @@ object InputEvent extends Logging {
         }
     }
 
-    val eventPresentIds = SQL"select #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} from #${models.spellings.CanonicalSpelling.TABLE_NAME} join #$TABLE_NAME on #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} = #$TABLE_NAME.#$INPUT_ID"
+    val eventPresentIds = SQL"select #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} from #${models.spellings.CanonicalSpelling.TABLE_NAME} join #$TABLE_NAME on #${models.spellings.CanonicalSpelling.TABLE_NAME}.#${models.spellings.CanonicalSpelling.ID} = ##$INPUT_ID"
       .as(sqlIdParser.*)
       .map(sId => CanonicalSpellingId(sId))
 
