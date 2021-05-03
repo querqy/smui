@@ -1,14 +1,24 @@
-package controllers
+package services
 
+import java.io.StringReader
 import java.time.LocalDateTime
-
+import javax.inject.Inject
 import util.control.Breaks._
+import play.api.Logging
+import play.api.libs.json._
+
 import scala.collection.mutable.ListBuffer
 import models._
 import models.rules._
 import models.input.{SearchInputId, SearchInputWithRules, InputTag}
+import models.querqy.QuerqyRulesTxtGenerator
 
-object ApiControllerHelperRulesTxt {
+import _root_.querqy.rewrite.commonrules.{SimpleCommonRulesParser, WhiteSpaceQuerqyParserFactory}
+import _root_.querqy.rewrite.commonrules.model._
+
+@javax.inject.Singleton
+class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
+                                       searchManagementRepository: SearchManagementRepository) extends Logging {
 
   trait PreliminaryRule {
     def term: String
@@ -17,17 +27,30 @@ object ApiControllerHelperRulesTxt {
   case class PreliminaryUpDownRule(term: String, upDownType: Int, boostMalusValue: Int) extends PreliminaryRule
   case class PreliminaryFilterRule(term: String) extends PreliminaryRule
   case class PreliminaryDeleteRule(term: String) extends PreliminaryRule
-  case class PreliminarySearchInput(term: String, var rules: List[PreliminaryRule], var allSynonymTermHash: String = null, var remainingRulesHash: String = null)
+  case class PreliminarySearchInput(term: String, var rules: List[PreliminaryRule], var jsonTags: JsObject = null, var allSynonymTermHash: String = null, var remainingRulesHash: String = null)
 
-  def importFromFilePayload(filePayload: String, solrIndexId: SolrIndexId, searchManagementRepository: SearchManagementRepository): (Int, Int, Int, Int, Int) = {
-    println("In importFromFilePayload :: filePayload = >>>" + filePayload)
+  def importFromFilePayload(filePayload: String, solrIndexId: SolrIndexId, searchManagementRepository: SearchManagementRepository): (Int, Int, Int, Int, Int, String) = {
+    println("In RulesTxtImportService.importFromFilePayload :: filePayload = >>>" + filePayload)
     println(":: solrIndexId = " + solrIndexId)
+
+
+    // Parse with Querqy to ensure valid syntax or throw exception
+    // TODO: Reuse class QuerqyRulesTxtGenerator.validateQuerqyRulesTxtToErrMsg
+    //querqyRulesTxtGenerator.validateQuerqyRulesTxtToErrMsg(filePayload) //TODO does not throw exception but return some(e.message) -- check for message and throw it
+    val simpleCommonRulesParser: SimpleCommonRulesParser = new SimpleCommonRulesParser(
+      new StringReader(filePayload),
+      new WhiteSpaceQuerqyParserFactory(),
+      true
+    )
+    val rules: RulesCollection = simpleCommonRulesParser.parse() // throws exception
 
     // PARSE
     // engineer rules data structure from rules.txt file payload
     val rulesTxtModel = ListBuffer.empty[PreliminarySearchInput]
     var currInput: PreliminarySearchInput = null
     var currRules: ListBuffer[PreliminaryRule] = null
+    var currentlyReadingTagLines: Boolean = false
+    var currTags: String = ""
     var retstatCountRulesTxtLinesSkipped = 0
     var retstatCountRulesTxtUnkownConvert = 0
     for(ruleLine: String <- filePayload.split("\n")) {
@@ -80,9 +103,42 @@ object ApiControllerHelperRulesTxt {
                             currRules += PreliminaryDeleteRule(m.group(1))
                           }
                           case None => {
-                            // unknown, if reached that point
-                            println("Cannot convert line >>>" + ruleLine)
-                            retstatCountRulesTxtUnkownConvert += 1
+                            // match pattern for start of @ Properties
+                            "^[\\s]*?(@\\{)".r.findFirstMatchIn(ruleLine.trim()) match {
+                              case Some(m) => {
+                                //start @ for tags
+                                currentlyReadingTagLines = true
+                                currTags = "" // reset
+                                val s = m.group(1)
+                                currTags += s.substring(1,2) //take 2nd char '{'
+                              }
+                              case None => {
+                                if(currentlyReadingTagLines) {
+                                  // match pattern for end of @ Properties
+                                  "^[\\s]*?(\\}@)".r.findFirstMatchIn(ruleLine.trim()) match {
+                                    case Some(m) => {
+                                      // end @ for tags
+                                      val s = m.group(1)
+                                      currTags += s.substring(0,1) //take 1st char '}'
+                                      println(currTags)
+                                      currInput.jsonTags = Json.parse(currTags).as[JsObject]
+                                      currentlyReadingTagLines = false
+                                    }
+                                    case None => {
+                                      //reading tags between @ and @
+                                      currTags += ruleLine.trim()
+                                    }
+                                  }
+
+                                } else{
+                                  // unknown, if reached that point
+                                  println("Cannot convert line >>>" + ruleLine)
+                                  retstatCountRulesTxtUnkownConvert += 1
+                                }
+                              }
+                            }
+
+
                           }
                         }
                       }
@@ -108,7 +164,7 @@ object ApiControllerHelperRulesTxt {
     def synonymFingerprint(input: PreliminarySearchInput): String = {
       val termsOfInput = input.term ::
         input.rules.filter(_.isInstanceOf[PreliminarySynonymRule])
-        .map(_.term)
+          .map(_.term)
       val sortedTermsOfInput = termsOfInput.sorted
       return sortedTermsOfInput.mkString("")
     }
@@ -162,8 +218,14 @@ object ApiControllerHelperRulesTxt {
     println("retstatCountConsolidatedRules = " + retstatCountConsolidatedRules)
 
     // IMPORT INTO DB
+
+    // Fetch all predefined tags so that we can try to convert the input json tags
+    var retstatUnknownTags: String = ""
+    val predefinedInputTags = searchManagementRepository.listAllInputTags()
+
     // convert
     def preliminaryToFinalInput(preliminarySearchInput: PreliminarySearchInput): SearchInputWithRules = {
+
       val now = LocalDateTime.now()
       // define converter
       def preliminaryToFinalSynonymRule(preliminarySynonymRule: PreliminarySynonymRule): SynonymRule = {
@@ -197,6 +259,56 @@ object ApiControllerHelperRulesTxt {
           true
         )
       }
+      def preliminaryTagToFinalInputTags(preliminaryJsonTags: JsObject, predefinedInputTags: Seq[InputTag]): List[InputTag] = {
+
+        if (preliminarySearchInput.jsonTags == null) {
+          return List()
+        }
+
+        //TODO avoid using NULL
+        def findMatchingPredefinedInputTag(key: String, value: String, predefinedInputTags: Seq[InputTag]): InputTag = {
+          //println("Looking for a matching predefined Tag: " + key + " : " + value)
+
+          for (predefinedInputTag <- predefinedInputTags) {
+            val inputTagName = predefinedInputTag.property.getOrElse ("??")
+            val inputTagValue = predefinedInputTag.value
+            if (inputTagName == key && inputTagValue == value) {
+              //println("Found matching predefined Tag: " + predefinedInputTag)
+              return predefinedInputTag
+            }
+          }
+
+          return null;
+        }
+
+        var inputTags = new ListBuffer[InputTag]()
+        //println("Trying to match tags from imported Rule to predefined SMUI tags ...")
+
+        // Try to match every name/value tag from JSON to predefined SMUI InputTag.
+        for (key <- preliminarySearchInput.jsonTags.keys) {
+          val value = (preliminarySearchInput.jsonTags \ key).get
+          if (value.isInstanceOf[JsArray]) {
+            for (item <- value.as[List[JsValue]]) {
+              val matchedInputTag = findMatchingPredefinedInputTag(key, item.as[String], predefinedInputTags)
+              if (matchedInputTag != null)
+                inputTags += matchedInputTag
+              else
+                retstatUnknownTags += "\n" + key + " : " + item.as[String]
+            }
+          } else {
+            val matchedInputTag = findMatchingPredefinedInputTag(key, value.as[String], predefinedInputTags)
+            if (matchedInputTag != null)
+              inputTags += matchedInputTag
+            else
+              retstatUnknownTags += "\n" + key + " : " + value.as[String]
+          }
+
+        }
+
+        return inputTags.toList
+      }
+
+
       // convert rules
       val synonymRules = preliminarySearchInput
         .rules
@@ -214,6 +326,9 @@ object ApiControllerHelperRulesTxt {
         .rules
         .filter(_.isInstanceOf[PreliminaryDeleteRule])
         .map(r => preliminaryToFinalDeleteRule(r.asInstanceOf[PreliminaryDeleteRule]))
+
+      val inputTags = preliminaryTagToFinalInputTags(preliminarySearchInput.jsonTags, predefinedInputTags)
+
       // convert final input (passing its rules)
       return new SearchInputWithRules(
         SearchInputId("--empty--"),
@@ -223,7 +338,7 @@ object ApiControllerHelperRulesTxt {
         filterRules,
         deleteRules,
         Nil,
-        Seq.empty[InputTag],
+        inputTags,
         true,
         "Added by rules.txt import." // TODO add a timestamp to comment.
       )
@@ -242,6 +357,7 @@ object ApiControllerHelperRulesTxt {
         (s, i) => s + __DEBUG_count_all_rules(i)
       }
     )
+
     // write to DB
     finalInputs.map { searchInput =>
       def inputWithDbId(input: SearchInputWithRules, dbId: SearchInputId): SearchInputWithRules = {
@@ -273,7 +389,8 @@ object ApiControllerHelperRulesTxt {
       retstatCountRulesTxtLinesSkipped,
       retstatCountRulesTxtUnkownConvert,
       retstatCountConsolidatedInputs,
-      retstatCountConsolidatedRules
+      retstatCountConsolidatedRules,
+      retstatUnknownTags
     )
     return retStatistics
   }

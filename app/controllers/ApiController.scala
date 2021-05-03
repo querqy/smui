@@ -21,7 +21,8 @@ import models.config.SmuiVersion
 import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
-import services.RulesTxtDeploymentService
+import services.{RulesTxtDeploymentService, RulesTxtImportService}
+
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
 class ApiController @Inject()(authActionFactory: AuthActionFactory,
@@ -29,7 +30,8 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
                               searchManagementRepository: SearchManagementRepository,
                               querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
                               cc: MessagesControllerComponents,
-                              rulesTxtDeploymentService: RulesTxtDeploymentService)(implicit executionContext: ExecutionContext)
+                              rulesTxtDeploymentService: RulesTxtDeploymentService,
+                              rulesTxtImportService: RulesTxtImportService)(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) with Logging {
 
   val API_RESULT_OK = "OK"
@@ -315,14 +317,24 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         rules_txt.ref.copyTo(Paths.get(tmp_file_path), replace = true)
         // process rules.txt file
         val filePayload = scala.io.Source.fromFile(tmp_file_path).getLines.mkString("\n")
-        val importStatistics = ApiControllerHelperRulesTxt.importFromFilePayload(filePayload, SolrIndexId(solrIndexId), searchManagementRepository)
-        val apiResultMsg = "Import from rules.txt file successful with following statistics:\n" +
-          "^-- count rules.txt inputs = " + importStatistics._1 + "\n" +
-          "^-- count rules.txt lines skipped = " + importStatistics._2 + "\n" +
-          "^-- count rules.txt unknown convert = " + importStatistics._3 + "\n" +
-          "^-- count consolidated inputs (after rev engineering undirected synonyms) = " + importStatistics._4 + "\n" +
-          "^-- count total rules after consolidation = " + importStatistics._5
-        Ok(Json.toJson(ApiResult(API_RESULT_OK, apiResultMsg, None)))
+        try {
+          val importStatistics = rulesTxtImportService.importFromFilePayload(filePayload, SolrIndexId(solrIndexId), searchManagementRepository)
+          //          val importStatistics = ApiControllerHelperRulesTxt.importFromFilePayload(filePayload, SolrIndexId(solrIndexId), searchManagementRepository)
+          val apiResultMsg = "Import from rules.txt file successful with following statistics:\n" +
+            "^-- count rules.txt inputs = " + importStatistics._1 + "\n" +
+            "^-- count rules.txt lines skipped = " + importStatistics._2 + "\n" +
+            "^-- count rules.txt unknown convert = " + importStatistics._3 + "\n" +
+            "^-- count consolidated inputs (after rev engineering undirected synonyms) = " + importStatistics._4 + "\n" +
+            "^-- count total rules after consolidation = " + importStatistics._5 + "\n" +
+            "^-- skipped unknown tags = " + importStatistics._6
+
+          Ok(Json.toJson(ApiResult(API_RESULT_OK, apiResultMsg, None)))
+        } catch {
+          case e: Exception => {
+            Ok(Json.toJson(ApiResult(API_RESULT_FAIL, e.getMessage(), None)))
+          }
+        }
+
       }
       .getOrElse {
         Ok(Json.toJson(ApiResult(API_RESULT_FAIL, "File rules_txt missing in request body.", None)))
