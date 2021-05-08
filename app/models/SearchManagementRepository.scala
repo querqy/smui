@@ -52,6 +52,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     InputTag.loadAll()
   }
 
+  def addNewInputTag(inputTag: InputTag) = db.withConnection { implicit connection =>
+    InputTag.insert(inputTag)
+  }
+
   /**
     * Lists all Search Inputs including directed Synonyms belonging to them (for a list overview).
     */

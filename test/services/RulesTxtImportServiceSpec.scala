@@ -55,7 +55,7 @@ class RulesTxtImportServiceSpec extends FlatSpec with Matchers with ApplicationT
       retstatCountRulesTxtUnkownConvert,
       retstatCountConsolidatedInputs,
       retstatCountConsolidatedRules
-      ) = service.importFromFilePayload(rules, core1Id, repo)
+      ) = service.importFromFilePayload(rules, core1Id)
 
     val searchInputWithRules = repo.listAllSearchInputsInclDirectedSynonyms(core1Id)
     searchInputWithRules.size shouldBe 2
@@ -89,21 +89,21 @@ class RulesTxtImportServiceSpec extends FlatSpec with Matchers with ApplicationT
   it should "fail for invalid syntax" in {
     var rules: String = s"""input_1 =
                            |	SYNONYM: synomyn_1""".stripMargin
-    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id, repo)
+    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id)
 
     rules = s"""input_1 => SYNONYM: synomyn_1""".stripMargin
-    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id, repo)
+    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id)
 
     rules = s"""input_1 =>
                |	xzy: synomyn_1""".stripMargin
-    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id, repo)
+    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id)
 
     rules = s"""input_1 =>
                |	SYNONYM: synomyn_1
                |  @{
                |    "missing_@" : "value"
                |  }""".stripMargin
-    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id, repo)
+    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id)
 
     rules = s"""input_1 =>
                |	SYNONYM: synomyn_1
@@ -111,7 +111,7 @@ class RulesTxtImportServiceSpec extends FlatSpec with Matchers with ApplicationT
                |    "name" : "value"
                |    "missing_comma" : "abcd"
                |  }@""".stripMargin
-    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id, repo)
+    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id)
   }
 
   it should "merge searchInputs with matching undirected synonyms and same rules" in {
@@ -129,7 +129,7 @@ class RulesTxtImportServiceSpec extends FlatSpec with Matchers with ApplicationT
       retstatCountRulesTxtUnkownConvert,
       retstatCountConsolidatedInputs,
       retstatCountConsolidatedRules
-      ) = service.importFromFilePayload(rules, core1Id, repo)
+      ) = service.importFromFilePayload(rules, core1Id)
 
     val searchInputWithRules = repo.listAllSearchInputsInclDirectedSynonyms(core1Id)
     searchInputWithRules.size shouldBe 1
@@ -157,7 +157,7 @@ class RulesTxtImportServiceSpec extends FlatSpec with Matchers with ApplicationT
       retstatCountRulesTxtUnkownConvert,
       retstatCountConsolidatedInputs,
       retstatCountConsolidatedRules
-      ) = service.importFromFilePayload(rules, core1Id, repo)
+      ) = service.importFromFilePayload(rules, core1Id)
 
     val searchInputWithRules = repo.listAllSearchInputsInclDirectedSynonyms(core1Id)
     searchInputWithRules.size shouldBe 2
@@ -168,8 +168,6 @@ class RulesTxtImportServiceSpec extends FlatSpec with Matchers with ApplicationT
     val searchInput_2 = loadSearchInputWithRules("input_2", searchInputWithRules)
     searchInput_2.synonymRules.size shouldBe 1
     searchInput_2.upDownRules.size shouldBe 1
-
-    //TODO verify retstatXYZ counts
   }
 
   it should "ignore tags if rule-tagging is not set" in {
@@ -191,7 +189,7 @@ class RulesTxtImportServiceSpec extends FlatSpec with Matchers with ApplicationT
       retstatCountRulesTxtUnkownConvert,
       retstatCountConsolidatedInputs,
       retstatCountConsolidatedRules
-      ) = service.importFromFilePayload(rules, core1Id, repo)
+      ) = service.importFromFilePayload(rules, core1Id)
 
     val searchInputWithRules = repo.listAllSearchInputsInclDirectedSynonyms(core1Id)
     searchInputWithRules.size shouldBe 2

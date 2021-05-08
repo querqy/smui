@@ -316,9 +316,10 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         val tmp_file_path = s"/tmp/$filename"
         rules_txt.ref.copyTo(Paths.get(tmp_file_path), replace = true)
         // process rules.txt file
-        val filePayload = scala.io.Source.fromFile(tmp_file_path).getLines.mkString("\n")
+        val bufferedSource = scala.io.Source.fromFile(tmp_file_path)
+        val filePayload = bufferedSource.getLines.mkString("\n")
         try {
-          val importStatistics = rulesTxtImportService.importFromFilePayload(filePayload, SolrIndexId(solrIndexId), searchManagementRepository)
+          val importStatistics = rulesTxtImportService.importFromFilePayload(filePayload, SolrIndexId(solrIndexId))
           val apiResultMsg = "Import from rules.txt file successful with following statistics:\n" +
             "^-- count rules.txt inputs = " + importStatistics._1 + "\n" +
             "^-- count rules.txt lines skipped = " + importStatistics._2 + "\n" +
@@ -331,6 +332,8 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
           case e: Exception => {
             Ok(Json.toJson(ApiResult(API_RESULT_FAIL, e.getMessage(), None)))
           }
+        } finally {
+          bufferedSource.close()
         }
 
       }

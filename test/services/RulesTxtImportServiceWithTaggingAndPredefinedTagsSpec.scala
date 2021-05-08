@@ -56,7 +56,7 @@ class RulesTxtImportServiceWithTaggingAndPredefinedTagsSpec extends FlatSpec wit
       retstatCountRulesTxtUnkownConvert,
       retstatCountConsolidatedInputs,
       retstatCountConsolidatedRules
-      ) = service.importFromFilePayload(rules, core1Id, repo)
+      ) = service.importFromFilePayload(rules, core1Id)
 
     val searchInputWithRules = repo.listAllSearchInputsInclDirectedSynonyms(core1Id)
     searchInputWithRules.size shouldBe 2
@@ -81,7 +81,7 @@ class RulesTxtImportServiceWithTaggingAndPredefinedTagsSpec extends FlatSpec wit
                            |    "NOT_EXISTING_NAME" : "AA"
                            |  }@""".stripMargin
 
-    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id, repo)
+    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id)
     repo.listAllSearchInputsInclDirectedSynonyms(core1Id).size shouldBe 0
 
      rules = s"""input_1 =>
@@ -91,7 +91,7 @@ class RulesTxtImportServiceWithTaggingAndPredefinedTagsSpec extends FlatSpec wit
                            |    "tenant" : ["AA", "BB"]
                            |    "NOT_EXISTING_NAME" : "de"
                            |  }@""".stripMargin
-    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id, repo)
+    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id)
     repo.listAllSearchInputsInclDirectedSynonyms(core1Id).size shouldBe 0
 
     rules = s"""input_1 =>
@@ -100,7 +100,7 @@ class RulesTxtImportServiceWithTaggingAndPredefinedTagsSpec extends FlatSpec wit
                |  @{
                |    "tenant" : ["AA", "NOT_EXISTING_VALUE"]
                |  }@""".stripMargin
-    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id, repo)
+    an [IllegalArgumentException] should be thrownBy service.importFromFilePayload(rules, core1Id)
     repo.listAllSearchInputsInclDirectedSynonyms(core1Id).size shouldBe 0
   }
 
@@ -139,7 +139,7 @@ class RulesTxtImportServiceWithTaggingAndPredefinedTagsSpec extends FlatSpec wit
       retstatCountRulesTxtUnkownConvert,
       retstatCountConsolidatedInputs,
       retstatCountConsolidatedRules
-      ) = service.importFromFilePayload(rules, core1Id, repo)
+      ) = service.importFromFilePayload(rules, core1Id)
 
     val searchInputWithRules = repo.listAllSearchInputsInclDirectedSynonyms(core1Id)
     searchInputWithRules.size shouldBe 2
@@ -195,7 +195,7 @@ class RulesTxtImportServiceWithTaggingAndPredefinedTagsSpec extends FlatSpec wit
         retstatCountRulesTxtUnkownConvert,
         retstatCountConsolidatedInputs,
         retstatCountConsolidatedRules
-        ) = service.importFromFilePayload(rules, core1Id, repo)
+        ) = service.importFromFilePayload(rules, core1Id)
 
       val searchInputWithRules = repo.listAllSearchInputsInclDirectedSynonyms(core1Id)
       searchInputWithRules.size shouldBe 6
