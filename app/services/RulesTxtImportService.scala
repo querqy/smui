@@ -5,20 +5,19 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 import util.control.Breaks._
 import play.api.Logging
-import play.api.libs.json._
+import play.api.libs.json.{Json, JsArray, JsObject, JsValue}
 
 import scala.collection.mutable.ListBuffer
 import models._
 import models.rules._
-import models.input.{SearchInputId, SearchInputWithRules, InputTag}
+import models.input.{InputTag, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
-
-import _root_.querqy.rewrite.commonrules.{SimpleCommonRulesParser, WhiteSpaceQuerqyParserFactory}
-import _root_.querqy.rewrite.commonrules.model._
+import models.FeatureToggleModel.FeatureToggleService
 
 @javax.inject.Singleton
 class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
-                                       searchManagementRepository: SearchManagementRepository) extends Logging {
+                                       searchManagementRepository: SearchManagementRepository,
+                                       featureToggleService: FeatureToggleService) extends Logging {
 
   trait PreliminaryRule {
     def term: String
@@ -27,22 +26,27 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
   case class PreliminaryUpDownRule(term: String, upDownType: Int, boostMalusValue: Int) extends PreliminaryRule
   case class PreliminaryFilterRule(term: String) extends PreliminaryRule
   case class PreliminaryDeleteRule(term: String) extends PreliminaryRule
-  case class PreliminarySearchInput(term: String, var rules: List[PreliminaryRule], var jsonTags: JsObject = null, var allSynonymTermHash: String = null, var remainingRulesHash: String = null)
+  case class PreliminarySearchInput(term: String, var rules: List[PreliminaryRule], var jsonTags: Option[JsObject] = None, var allSynonymTermHash: String = null, var remainingRulesHash: String = null, var allTagsHash: String = null)
 
-  def importFromFilePayload(filePayload: String, solrIndexId: SolrIndexId, searchManagementRepository: SearchManagementRepository): (Int, Int, Int, Int, Int, String) = {
-    println("In RulesTxtImportService.importFromFilePayload :: filePayload = >>>" + filePayload)
+  // see querqy.rewrite.commonrules.model.Instructions.StandardPropertyNames
+  val IGNORED_TAG_ID = "\"_id\""
+  val IGNORED_TAG_LOG = "\"_log\""
+
+  def importFromFilePayload(filePayload: String, solrIndexId: SolrIndexId, searchManagementRepository: SearchManagementRepository): (Int, Int, Int, Int, Int) = {
+    println("In RulesTxtImportService.importFromFilePayload")
+    println(":: filePayload = " + filePayload.getBytes().length +  " bytes")
     println(":: solrIndexId = " + solrIndexId)
+    var isRuleTaggingActive = featureToggleService.isRuleTaggingActive
+    var allowOnlyPredefinedTags = isRuleTaggingActive && !featureToggleService.predefinedTagsFileName.isEmpty
+    println(":: isRuleTaggingActive = " + isRuleTaggingActive + " (true = Tags are imported)")
+    println(":: allowOnlyPredefinedTags = " + allowOnlyPredefinedTags + " (true = Only predefined tags are allowed)")
 
 
     // Parse with Querqy to ensure valid syntax or throw exception
-    // TODO: Reuse class QuerqyRulesTxtGenerator.validateQuerqyRulesTxtToErrMsg
-    //querqyRulesTxtGenerator.validateQuerqyRulesTxtToErrMsg(filePayload) //TODO does not throw exception but return some(e.message) -- check for message and throw it
-    val simpleCommonRulesParser: SimpleCommonRulesParser = new SimpleCommonRulesParser(
-      new StringReader(filePayload),
-      new WhiteSpaceQuerqyParserFactory(),
-      true
-    )
-    val rules: RulesCollection = simpleCommonRulesParser.parse() // throws exception
+    val validationErrorMessage = querqyRulesTxtGenerator.validateQuerqyRulesTxtToErrMsg(filePayload)
+    if (validationErrorMessage.isDefined) {
+      throw new IllegalArgumentException(validationErrorMessage.get)
+    }
 
     // PARSE
     // engineer rules data structure from rules.txt file payload
@@ -50,15 +54,18 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
     var currInput: PreliminarySearchInput = null
     var currRules: ListBuffer[PreliminaryRule] = null
     var currentlyReadingTagLines: Boolean = false
-    var currTags: String = ""
+    var currTagsJson: String = ""
     var retstatCountRulesTxtLinesSkipped = 0
     var retstatCountRulesTxtUnkownConvert = 0
     for(ruleLine: String <- filePayload.split("\n")) {
+
       // if line is empty or contains a comment, skip
       val b_lineEmptyOrComment = (ruleLine.trim().length() < 1) || (ruleLine.trim().startsWith("#"))
       if(!b_lineEmptyOrComment) {
         // match pattern for search input
         // TODO make robust against input is not first syntax element in line orders
+        // TODO make robust against json properties between @ without line breaks
+
         "(.*?) =>".r.findFirstMatchIn(ruleLine.trim()) match {
           case Some(m) => {
             if(currRules == null) {
@@ -103,41 +110,50 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
                             currRules += PreliminaryDeleteRule(m.group(1))
                           }
                           case None => {
-                            // match pattern for start of @ Properties
-                            "^[\\s]*?(@\\{)".r.findFirstMatchIn(ruleLine.trim()) match {
-                              case Some(m) => {
-                                //start @ for tags
-                                currentlyReadingTagLines = true
-                                currTags = "" // reset
-                                val s = m.group(1)
-                                currTags += s.substring(1,2) //take 2nd char '{'
-                              }
-                              case None => {
-                                if(currentlyReadingTagLines) {
-                                  // match pattern for end of @ Properties
-                                  "^[\\s]*?(\\}@)".r.findFirstMatchIn(ruleLine.trim()) match {
-                                    case Some(m) => {
-                                      // end @ for tags
-                                      val s = m.group(1)
-                                      currTags += s.substring(0,1) //take 1st char '}'
-                                      println(currTags)
-                                      currInput.jsonTags = Json.parse(currTags).as[JsObject]
-                                      currentlyReadingTagLines = false
-                                    }
-                                    case None => {
-                                      //reading tags between @ and @
-                                      currTags += ruleLine.trim()
-                                    }
-                                  }
 
-                                } else{
-                                  // unknown, if reached that point
-                                  println("Cannot convert line >>>" + ruleLine)
-                                  retstatCountRulesTxtUnkownConvert += 1
-                                }
-                              }
+                            def countUnknownConvert = {
+                              // unknown, if reached that point
+                              println("Cannot convert line >>>" + ruleLine)
+                              retstatCountRulesTxtUnkownConvert += 1
                             }
 
+                            if (isRuleTaggingActive) {
+                              // match pattern for start of @ Properties
+                              "^[\\s]*?(@\\{)".r.findFirstMatchIn(ruleLine.trim()) match {
+                                case Some(m) => {
+                                  //start @ for tags
+                                  currentlyReadingTagLines = true
+                                  currTagsJson = "" // reset
+                                  val s = m.group(1)
+                                  currTagsJson += s.substring(1, 2) //take 2nd char '{'
+                                }
+                                case None => {
+                                  if (currentlyReadingTagLines) {
+                                    // match pattern for end of @ Properties
+                                    "^[\\s]*?(\\}@)".r.findFirstMatchIn(ruleLine.trim()) match {
+                                      case Some(m) => {
+                                        // end @ for tags
+                                        val s = m.group(1)
+                                        currTagsJson += s.substring(0, 1) //take 1st char '}'
+                                        currInput.jsonTags = Some(Json.parse(currTagsJson).as[JsObject])
+                                        currentlyReadingTagLines = false
+                                      }
+                                      case None => {
+                                        //reading tags between @ and @ (ignore standard querqy properties)
+                                        if (!ruleLine.trim().startsWith(IGNORED_TAG_ID) && !ruleLine.trim().startsWith(IGNORED_TAG_LOG)) {
+                                          currTagsJson += ruleLine.trim()
+                                        }
+                                      }
+                                    }
+
+                                  } else {
+                                    countUnknownConvert
+                                  }
+                                }
+                              }
+                            } else {
+                              countUnknownConvert
+                            }
 
                           }
                         }
@@ -177,9 +193,30 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
         return remainingRules.hashCode().toString
       }
     }
+    def tagsFingerprint(input: PreliminarySearchInput): String = {
+      //Sorting is necessary because play.api.libs.json considers JsArray with same elements but different ordering as not equal. (behaviour tested up to play version 2.8.8)
+      def sortArrays(json: JsValue): JsValue = json match {
+        case JsObject(obj) => JsObject(obj.toMap.mapValues(sortArrays(_)).toList)
+        case JsArray(arr) => JsArray(arr.map(sortArrays).sortBy(_.toString))
+        case other => other
+      }
+
+      if (input.jsonTags.isDefined) {
+        return sortArrays(input.jsonTags.get).hashCode().toString
+      } else {
+        return "0"
+      }
+
+    }
+
     for(input <- rulesTxtModel) {
       input.allSynonymTermHash = synonymFingerprint(input)
       input.remainingRulesHash = otherRulesFingerprint(input)
+      input.allTagsHash = tagsFingerprint(input)
+      println(input.term)
+      println("  synohash=" + input.allSynonymTermHash)
+      println("  othrhash=" + input.remainingRulesHash)
+      println("  tagshash=" + input.allTagsHash)
     }
     // start collecting retstat (= return statistics)
     val retstatCountRulesTxtInputs = rulesTxtModel.size
@@ -191,12 +228,14 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
       if(!skip_i.toList.contains(i)) {
         for((b_input, j) <- rulesTxtModel.zipWithIndex) {
           if(i != j) {
-            if((a_input.allSynonymTermHash == b_input.allSynonymTermHash) && (a_input.remainingRulesHash == b_input.remainingRulesHash)) {
-              println("Found matching undirected synonym on i = " + i + ", j = " + j)
+            if((a_input.allSynonymTermHash == b_input.allSynonymTermHash) &&
+               (a_input.remainingRulesHash == b_input.remainingRulesHash) &&
+               (a_input.allTagsHash == b_input.allTagsHash)) {
+              println("Found matching undirected synonym on term = " + a_input.term)
               // find matching synonym rule in a_input
               for(a_synonymRule <- a_input.rules.filter(_.isInstanceOf[PreliminarySynonymRule])) breakable {
                 if(a_synonymRule.term == b_input.term) {
-                  println("^-- Found according synonym for" + b_input.term + " in = " + a_synonymRule)
+                  println("^-- Found according synonym on " + b_input.term + " in = " + a_synonymRule)
                   a_synonymRule.asInstanceOf[PreliminarySynonymRule].synonymType = SynonymRule.TYPE_UNDIRECTED
                   break
                 }
@@ -220,7 +259,6 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
     // IMPORT INTO DB
 
     // Fetch all predefined tags so that we can try to convert the input json tags
-    var retstatUnknownTags: String = ""
     val predefinedInputTags = searchManagementRepository.listAllInputTags()
 
     // convert
@@ -261,50 +299,46 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
       }
       def preliminaryTagToFinalInputTags(preliminaryJsonTags: JsObject, predefinedInputTags: Seq[InputTag]): List[InputTag] = {
 
-        if (preliminarySearchInput.jsonTags == null) {
-          return List()
-        }
-
-        //TODO avoid using NULL
-        def findMatchingPredefinedInputTag(key: String, value: String, predefinedInputTags: Seq[InputTag]): InputTag = {
+        def findMatchingPredefinedInputTag(key: String, value: String, predefinedInputTags: Seq[InputTag]): Option[InputTag] = {
           //println("Looking for a matching predefined Tag: " + key + " : " + value)
-
           for (predefinedInputTag <- predefinedInputTags) {
             val inputTagName = predefinedInputTag.property.getOrElse ("??")
             val inputTagValue = predefinedInputTag.value
             if (inputTagName == key && inputTagValue == value) {
               //println("Found matching predefined Tag: " + predefinedInputTag)
-              return predefinedInputTag
+              return Some(predefinedInputTag)
             }
           }
 
-          return null;
+          return None;
         }
 
         var inputTags = new ListBuffer[InputTag]()
         //println("Trying to match tags from imported Rule to predefined SMUI tags ...")
 
         // Try to match every name/value tag from JSON to predefined SMUI InputTag.
-        for (key <- preliminarySearchInput.jsonTags.keys) {
-          val value = (preliminarySearchInput.jsonTags \ key).get
-          if (value.isInstanceOf[JsArray]) {
-            for (item <- value.as[List[JsValue]]) {
-              val matchedInputTag = findMatchingPredefinedInputTag(key, item.as[String], predefinedInputTags)
-              if (matchedInputTag != null)
-                inputTags += matchedInputTag
+        if (preliminarySearchInput.jsonTags.isDefined) {
+          val jsonTags = preliminarySearchInput.jsonTags.get
+          for (key <- jsonTags.keys) {
+            val value = (jsonTags \ key).get
+            if (value.isInstanceOf[JsArray]) {
+              for (item <- value.as[List[JsValue]]) {
+                val matchedInputTag = findMatchingPredefinedInputTag(key, item.as[String], predefinedInputTags)
+                if (matchedInputTag.isDefined)
+                  inputTags += matchedInputTag.get
+                else
+                  throw new IllegalArgumentException("Unknown tag = " + key + " : " + item.as[String])
+              }
+            } else {
+              val matchedInputTag = findMatchingPredefinedInputTag(key, value.as[String], predefinedInputTags)
+              if (matchedInputTag.isDefined)
+                inputTags += matchedInputTag.get
               else
-                retstatUnknownTags += "\n" + key + " : " + item.as[String]
+                throw new IllegalArgumentException("Unknown tag = " + key + " : " + value.as[String])
             }
-          } else {
-            val matchedInputTag = findMatchingPredefinedInputTag(key, value.as[String], predefinedInputTags)
-            if (matchedInputTag != null)
-              inputTags += matchedInputTag
-            else
-              retstatUnknownTags += "\n" + key + " : " + value.as[String]
+
           }
-
         }
-
         return inputTags.toList
       }
 
@@ -326,8 +360,10 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
         .rules
         .filter(_.isInstanceOf[PreliminaryDeleteRule])
         .map(r => preliminaryToFinalDeleteRule(r.asInstanceOf[PreliminaryDeleteRule]))
-
-      val inputTags = preliminaryTagToFinalInputTags(preliminarySearchInput.jsonTags, predefinedInputTags)
+      val inputTags = if (preliminarySearchInput.jsonTags.isDefined)
+        preliminaryTagToFinalInputTags(preliminarySearchInput.jsonTags.get, predefinedInputTags)
+      else
+        List()
 
       // convert final input (passing its rules)
       return new SearchInputWithRules(
@@ -389,8 +425,7 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
       retstatCountRulesTxtLinesSkipped,
       retstatCountRulesTxtUnkownConvert,
       retstatCountConsolidatedInputs,
-      retstatCountConsolidatedRules,
-      retstatUnknownTags
+      retstatCountConsolidatedRules
     )
     return retStatistics
   }
