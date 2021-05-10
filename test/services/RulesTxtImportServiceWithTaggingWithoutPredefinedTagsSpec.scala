@@ -36,7 +36,7 @@ class RulesTxtImportServiceWithTaggingWithoutPredefinedTagsSpec extends FlatSpec
     return null
   }
 
-  it should "import all tags by creating new tags and linking to existing ones" in {
+  "RulesTxtImportService" should "import all tags by creating new tags and linking to existing ones" in {
     var rules: String = s"""input_1 =>
                            |  DOWN(10): down_x
                            |  @{

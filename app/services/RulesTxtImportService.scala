@@ -27,9 +27,9 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
   case class PreliminaryDeleteRule(term: String) extends PreliminaryRule
   case class PreliminarySearchInput(term: String, var rules: List[PreliminaryRule], var jsonTags: Option[JsObject] = None, var allSynonymTermHash: String = null, var remainingRulesHash: String = null, var allTagsHash: String = null)
 
-  // see querqy.rewrite.commonrules.model.Instructions.StandardPropertyNames
-  val IGNORED_TAG_ID = "\"_id\""
-  val IGNORED_TAG_LOG = "\"_log\""
+  // These tags are never imported. See querqy.rewrite.commonrules.model.Instructions.StandardPropertyNames
+  val IGNORED_TAG_ID = "_id"
+  val IGNORED_TAG_LOG = "_log"
 
   def importFromFilePayload(filePayload: String, solrIndexId: SolrIndexId): (Int, Int, Int, Int, Int) = {
     println("In RulesTxtImportService.importFromFilePayload")
@@ -52,28 +52,28 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
     val rulesTxtModel = ListBuffer.empty[PreliminarySearchInput]
     var currInput: PreliminarySearchInput = null
     var currRules: ListBuffer[PreliminaryRule] = null
-    var currentlyReadingTagLines: Boolean = false
-    var currTagsJson: String = ""
+    var currentlyReadingMultilineTagLines: Boolean = false
+    var currSingleLineTagsJson: String = ""
+    var currMultiLineTagsJson: String = ""
     var retstatCountRulesTxtLinesSkipped = 0
     var retstatCountRulesTxtUnkownConvert = 0
     for(ruleLine: String <- filePayload.split("\n")) {
 
       // if line is empty or contains a comment, skip
       val b_lineEmptyOrComment = (ruleLine.trim().length() < 1) || (ruleLine.trim().startsWith("#"))
+
       if(!b_lineEmptyOrComment) {
         // match pattern for search input
         // TODO make robust against input is not first syntax element in line orders
-        // TODO make robust against json properties between @ without line breaks
 
         "(.*?) =>".r.findFirstMatchIn(ruleLine.trim()) match {
           case Some(m) => {
-            if(currRules == null) {
-              currRules = ListBuffer.empty[PreliminaryRule]
-            } else {
-              // commit collected rules to curr_input & empty
-              currInput.rules = currRules.clone().toList
-              currRules = ListBuffer.empty[PreliminaryRule]
-            }
+            commitCollectedRulesAndTags(currRules, currSingleLineTagsJson, currMultiLineTagsJson, currInput)
+
+            // Reset to start fresh
+            currRules = ListBuffer.empty[PreliminaryRule]
+            currSingleLineTagsJson = "" // reset
+            currMultiLineTagsJson = "" // reset
             currInput = new PreliminarySearchInput(m.group(1), List.empty[PreliminaryRule])
             rulesTxtModel += currInput
           }
@@ -117,36 +117,47 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
                             }
 
                             if (isRuleTaggingActive) {
-                              // match pattern for start of @ Properties
-                              "^[\\s]*?(@\\{)".r.findFirstMatchIn(ruleLine.trim()) match {
+                              // match pattern for single line @-Tags "@..."
+                              "^[\\s]*?@[^\\{](.*)".r.findFirstMatchIn(ruleLine.trim()) match {
                                 case Some(m) => {
-                                  //start @ for tags
-                                  currentlyReadingTagLines = true
-                                  currTagsJson = "" // reset
-                                  val s = m.group(1)
-                                  currTagsJson += s.substring(1, 2) //take 2nd char '{'
+                                  val s = ruleLine.trim().substring(1) //remove '@'
+                                  var comma = ""
+                                  if (currSingleLineTagsJson != "") comma = ","
+                                  currSingleLineTagsJson += comma + s
                                 }
                                 case None => {
-                                  if (currentlyReadingTagLines) {
-                                    // match pattern for end of @ Properties
-                                    "^[\\s]*?(\\}@)".r.findFirstMatchIn(ruleLine.trim()) match {
-                                      case Some(m) => {
-                                        // end @ for tags
-                                        val s = m.group(1)
-                                        currTagsJson += s.substring(0, 1) //take 1st char '}'
-                                        currInput.jsonTags = Some(Json.parse(currTagsJson).as[JsObject])
-                                        currentlyReadingTagLines = false
+
+                                  // match pattern for start of multi line @-Tags "@{ ... }@
+                                  "^[\\s]*?(@\\{)".r.findFirstMatchIn(ruleLine.trim()) match {
+                                    case Some(m) => {
+                                      //start @ for tags
+                                      val s = ruleLine.trim()
+                                      if (s.endsWith("}@")) { // start and end on the same line
+                                        currMultiLineTagsJson += s.substring(2, s.length-2) //remove '@{' & '}@'
+                                      } else { // only start on the same line
+                                        currMultiLineTagsJson += s.substring(2) //remove '@{'
+                                        currentlyReadingMultilineTagLines = true
                                       }
-                                      case None => {
-                                        //reading tags between @ and @ (ignore standard querqy properties)
-                                        if (!ruleLine.trim().startsWith(IGNORED_TAG_ID) && !ruleLine.trim().startsWith(IGNORED_TAG_LOG)) {
-                                          currTagsJson += ruleLine.trim()
+
+                                    }
+                                    case None => {
+                                      if (currentlyReadingMultilineTagLines) {
+                                        // match pattern for end of multi line @-Tags "@{ ... }@"
+                                        "^[\\s]*?(\\}@)$".r.findFirstMatchIn(ruleLine.trim()) match {
+                                          case Some(m) => {
+                                            // end @ for tags
+                                            currentlyReadingMultilineTagLines = false
+                                          }
+                                          case None => {
+                                            //reading multi line @-Tags
+                                            currMultiLineTagsJson += ruleLine.trim()
+                                          }
                                         }
+
+                                      } else {
+                                        countUnknownConvert
                                       }
                                     }
-
-                                  } else {
-                                    countUnknownConvert
                                   }
                                 }
                               }
@@ -168,8 +179,22 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
         retstatCountRulesTxtLinesSkipped += 1
       }
     }
-    // commit last rules
-    currInput.rules = currRules.clone().toList
+    // commit last rules & tags
+    commitCollectedRulesAndTags(currRules, currSingleLineTagsJson, currMultiLineTagsJson, currInput)
+
+    def commitCollectedRulesAndTags(currRules: ListBuffer[PreliminaryRule], currSingleLineTagsJson: String, currMultiLineTagsJson: String, currInput: PreliminarySearchInput): Unit = {
+      if (currRules != null) {
+        currInput.rules = currRules.clone().toList
+      }
+      if (currSingleLineTagsJson != "" || currMultiLineTagsJson != "") {
+        // commit collected tags to curr_input & empty
+        var comma = ","
+        if (currSingleLineTagsJson == "" || currMultiLineTagsJson == "") comma = ""
+        val allJsonTags = "{" + currSingleLineTagsJson + comma + currMultiLineTagsJson + "}"
+        currInput.jsonTags = Some(Json.parse(allJsonTags).as[JsObject] - IGNORED_TAG_ID - IGNORED_TAG_LOG)
+      }
+    }
+
     // print some stats
     println("retstatCountRulesTxtLinesSkipped = " + retstatCountRulesTxtLinesSkipped)
     println("retstatCountRulesTxtUnkownConvert = " + retstatCountRulesTxtUnkownConvert)

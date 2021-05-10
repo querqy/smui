@@ -35,6 +35,71 @@ class RulesTxtImportServiceWithTaggingAndPredefinedTagsSpec extends FlatSpec wit
     return null
   }
 
+  "RulesTxtImportService" should "support json formats regardless of line breaks or whitespaces" in {
+    var rules: String = s"""valid_1 =>
+                           |  DOWN(10): down_x
+                           |  @{ "tenant":["AA","BB"]}@
+                           |
+                           |valid_2 =>
+                           |  DOWN(10): down_x
+                           |  @{ "tenant" : [ "AA" , "BB" ] }@
+                           |
+                           |valid_3 =>
+                           |  DOWN(10): down_x
+                           |  @{ "tenant" :
+                           |  [
+                           |  "AA"
+                           |  ,
+                           |  "BB"
+                           |  ]
+                           |  }@""".stripMargin
+
+    val (
+      retstatCountRulesTxtInputs,
+      retstatCountRulesTxtLinesSkipped,
+      retstatCountRulesTxtUnkownConvert,
+      retstatCountConsolidatedInputs,
+      retstatCountConsolidatedRules
+      ) = service.importFromFilePayload(rules, core1Id)
+
+    val searchInputWithRules = repo.listAllSearchInputsInclDirectedSynonyms(core1Id)
+    searchInputWithRules.size shouldBe 3
+
+    loadSearchInputWithRules("valid_1", searchInputWithRules).tags.size shouldBe 2
+    loadSearchInputWithRules("valid_2", searchInputWithRules).tags.size shouldBe 2
+    loadSearchInputWithRules("valid_3", searchInputWithRules).tags.size shouldBe 2
+  }
+
+  it should "support single-line and multi-line tag-syntax (incl. mixed)" in {
+    var rules: String = s"""valid_1 =>
+                           |  DOWN(10): down_x
+                           |  @"_log" : "ignored"
+                           |  @"_id" : "ignored"
+                           |  @"lang" : "de"
+                           |  @"tenant" : ["AA","BB"]
+                           |
+                           |valid_2 =>
+                           |  DOWN(10): down_x
+                           |  @{
+                           |    "lang" : "de"
+                           |  }@
+                           |  @"tenant" : [ "AA" , "BB" ]""".stripMargin
+
+    val (
+      retstatCountRulesTxtInputs,
+      retstatCountRulesTxtLinesSkipped,
+      retstatCountRulesTxtUnkownConvert,
+      retstatCountConsolidatedInputs,
+      retstatCountConsolidatedRules
+      ) = service.importFromFilePayload(rules, core1Id)
+
+    val searchInputWithRules = repo.listAllSearchInputsInclDirectedSynonyms(core1Id)
+    searchInputWithRules.size shouldBe 2
+
+    loadSearchInputWithRules("valid_1", searchInputWithRules).tags.size shouldBe 3
+    loadSearchInputWithRules("valid_2", searchInputWithRules).tags.size shouldBe 3
+  }
+
   it should "import tags having existing matching tag in the db" in {
     var rules: String = s"""input_1 =>
                            |  DOWN(10): down_x
@@ -61,11 +126,8 @@ class RulesTxtImportServiceWithTaggingAndPredefinedTagsSpec extends FlatSpec wit
     val searchInputWithRules = repo.listAllSearchInputsInclDirectedSynonyms(core1Id)
     searchInputWithRules.size shouldBe 2
 
-    val searchInput_1 = loadSearchInputWithRules("input_1", searchInputWithRules)
-    searchInput_1.tags.size shouldBe 1
-
-    val searchInput_2 = loadSearchInputWithRules("input_2", searchInputWithRules)
-    searchInput_2.tags.size shouldBe 2
+    loadSearchInputWithRules("input_1", searchInputWithRules).tags.size shouldBe 1
+    loadSearchInputWithRules("input_2", searchInputWithRules).tags.size shouldBe 2
   }
 
   it should "fail for unknown (not predefined) tags" in {
@@ -153,7 +215,7 @@ class RulesTxtImportServiceWithTaggingAndPredefinedTagsSpec extends FlatSpec wit
     searchInput_2.synonymRules.head.term shouldBe "merged_2_1"
   }
 
-    it should "NOT merge searchInputs with matching undirected synonyms and different tags" in {
+  it should "NOT merge searchInputs with matching undirected synonyms and different tags" in {
       var rules: String = s"""not_merged_1_0 =>
                              |  SYNONYM: not_merged_1_1
                              |  @{
