@@ -277,6 +277,8 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
     println("retstatCountConsolidatedRules = " + retstatCountConsolidatedRules)
 
     // IMPORT INTO DB
+    var predefinedInputTags: Seq[InputTag] = searchManagementRepository.listAllInputTags()
+    var newlyCreatedInputTags = new ListBuffer[InputTag]() // to be imported into the DB
 
     // convert
     def preliminaryToFinalInput(preliminarySearchInput: PreliminarySearchInput): SearchInputWithRules = {
@@ -316,14 +318,14 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
       }
       def preliminaryTagToFinalInputTags(preliminaryJsonTags: JsObject, predefinedInputTags: Seq[InputTag]): List[InputTag] = {
 
-        def findMatchingPredefinedInputTag(key: String, value: String, predefinedInputTags: Seq[InputTag]): Option[InputTag] = {
+        def findMatchingPredefinedInputTag(key: String, value: String, availableInputTags: Seq[InputTag]): Option[InputTag] = {
           //println("Looking for a matching predefined Tag: " + key + " : " + value)
-          for (predefinedInputTag <- predefinedInputTags) {
-            val inputTagName = predefinedInputTag.property.getOrElse ("??")
-            val inputTagValue = predefinedInputTag.value
+          for (availableInputTag <- availableInputTags) {
+            val inputTagName = availableInputTag.property.getOrElse ("??")
+            val inputTagValue = availableInputTag.value
             if (inputTagName == key && inputTagValue == value) {
               //println("Found matching predefined Tag: " + predefinedInputTag)
-              return Some(predefinedInputTag)
+              return Some(availableInputTag)
             }
           }
 
@@ -334,19 +336,16 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
         //println("Trying to match tags from imported Rule to predefined SMUI tags ...")
 
         // Try to match every name/value tag from JSON to predefined SMUI InputTag.
-        if (preliminarySearchInput.jsonTags.isDefined) {
-          val jsonTags = preliminarySearchInput.jsonTags.get
-          for (key <- jsonTags.keys) {
-            val value = (jsonTags \ key).get
-            if (value.isInstanceOf[JsArray]) {
-              for (item <- value.as[List[JsValue]]) {
-                linkToExistingOrCreateNewTag(key, item, item.as[String], allowOnlyPredefinedTags)
-              }
-            } else {
-              linkToExistingOrCreateNewTag(key, value, value.as[String], allowOnlyPredefinedTags)
+        for (key <- preliminaryJsonTags.keys) {
+          val value = (preliminaryJsonTags \ key).get
+          if (value.isInstanceOf[JsArray]) {
+            for (item <- value.as[List[JsValue]]) {
+              linkToExistingOrCreateNewTag(key, item, item.as[String], allowOnlyPredefinedTags)
             }
-
+          } else {
+            linkToExistingOrCreateNewTag(key, value, value.as[String], allowOnlyPredefinedTags)
           }
+
         }
 
         def linkToExistingOrCreateNewTag(key: String, item: JsValue, tagValue: String, doNotCreateNewTags: Boolean) = {
@@ -360,9 +359,9 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
               throw new IllegalArgumentException("Unknown tag = " + key + " : " + tagValue)
             } else {
               val inputTag = InputTag.create(Some(solrIndexId), Some(key), tagValue, true, false)
-              searchManagementRepository.addNewInputTag(inputTag)
-              inputTags += inputTag
-              println("New InputTag inserted: " + key + ":" + tagValue)
+              newlyCreatedInputTags += inputTag // to be added to the database before linking it with a newly added rule
+              inputTags += inputTag // is used to be linked with the newly added rule later
+              println("New InputTag created: " + key + ":" + tagValue)
             }
           }
         }
@@ -389,7 +388,7 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
         .filter(_.isInstanceOf[PreliminaryDeleteRule])
         .map(r => preliminaryToFinalDeleteRule(r.asInstanceOf[PreliminaryDeleteRule]))
       val inputTags = if (preliminarySearchInput.jsonTags.isDefined)
-        preliminaryTagToFinalInputTags(preliminarySearchInput.jsonTags.get, searchManagementRepository.listAllInputTags()) // Possible performance hit for very large files: better not listAllInputTags every time. it was just simpler for now.
+        preliminaryTagToFinalInputTags(preliminarySearchInput.jsonTags.get, predefinedInputTags ++ newlyCreatedInputTags)
       else
         List()
 
@@ -423,6 +422,12 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
     )
 
     // write to DB
+
+    // start with inserting new tags so the SearchInputWithRules can link to them (because SearchInputWithRules.update() does not yet support creating new tags if desired)
+    newlyCreatedInputTags.foreach { newInputTag =>
+      searchManagementRepository.addNewInputTag(newInputTag)
+    }
+
     finalInputs.foreach { searchInput =>
       def inputWithDbId(input: SearchInputWithRules, dbId: SearchInputId): SearchInputWithRules = {
         return new SearchInputWithRules(
