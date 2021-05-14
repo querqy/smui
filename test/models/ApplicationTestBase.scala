@@ -85,10 +85,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     repo.updateSearchInput(searchInput)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
-    val tag = InputTag(InputTagId(), Some(core1Id), Some("testProperty"), "testValue", exported = true, predefined = false, LocalDateTime.now())
-    db.withConnection { implicit connection =>
-      InputTag.insert(Seq(tag): _*)
-    }
+    val tag = createTestTag("testProperty", "testValue", core1Id)
 
     val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq(tag.id))
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
@@ -117,6 +114,14 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     Seq(aerosmithId, shippingId)
+  }
+
+  protected def createTestTag(name: String, value: String, coreId: SolrIndexId): InputTag = {
+    val tag = InputTag(InputTagId(), Some(core1Id), Some(name), value, exported = true, predefined = false, LocalDateTime.now())
+    db.withConnection { implicit connection =>
+      InputTag.insert(Seq(tag): _*)
+    }
+    return tag
   }
 
   var freezer: CanonicalSpelling = _
@@ -175,6 +180,15 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     db.withConnection { implicit connection =>
       CanonicalSpelling.loadAllForIndex(solrIndexId).foreach { canonicalSpelling =>
         CanonicalSpellingWithAlternatives.delete(canonicalSpelling.id)
+        Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
+      }
+    }
+  }
+
+  def deleteAllSearchInputsFromDb(solrIndexId: SolrIndexId): Unit = {
+    db.withConnection { implicit connection =>
+      SearchInputWithRules.loadWithUndirectedSynonymsAndTagsForSolrIndexId(solrIndexId).foreach { searchInput =>
+        SearchInputWithRules.delete(searchInput.id)
         Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
       }
     }
