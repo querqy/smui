@@ -34,6 +34,9 @@ import {
   ReportSettingsBarComponent
 } from './components/report';
 import {
+  AdminComponent
+} from './components/admin';
+import {
   ButtonRowComponent,
   CardComponent,
   CommentComponent,
@@ -80,7 +83,8 @@ import {
     ActivityLogComponent,
     SearchManagementComponent,
     ReportSettingsBarComponent,
-    ReportComponent
+    ReportComponent,
+    AdminComponent
   ],
   providers: [
     CommonsService,
