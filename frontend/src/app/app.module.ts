@@ -34,7 +34,8 @@ import {
   ReportSettingsBarComponent
 } from './components/report';
 import {
-  AdminComponent
+  AdminComponent,
+  RulesCollectionListComponent
 } from './components/admin';
 import {
   ButtonRowComponent,
@@ -84,7 +85,8 @@ import {
     SearchManagementComponent,
     ReportSettingsBarComponent,
     ReportComponent,
-    AdminComponent
+    AdminComponent,
+    RulesCollectionListComponent
   ],
   providers: [
     CommonsService,
