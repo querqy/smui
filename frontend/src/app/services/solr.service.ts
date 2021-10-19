@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import {
   DeploymentLogInfo,
@@ -8,6 +8,12 @@ import {
   ApiResult
 } from '../models';
 import { Subject } from 'rxjs';
+
+const httpOptions = {
+  headers: new HttpHeaders({
+    'Content-Type':  'application/json'
+  })
+};
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +30,7 @@ export class SolrService {
   private readonly jsonHeader = new Headers({
     'Content-Type': 'application/json'
   });
+
 
   constructor(private http: HttpClient) {
     this.currentSolrIndexIdSubject.subscribe(
@@ -100,6 +107,14 @@ export class SolrService {
   deleteSolrIndex(solrIndexId: string): Promise<ApiResult> {
     return this.http
       .delete<ApiResult>(`${this.baseUrl}/${this.solrIndexApiPath}/${solrIndexId}`)
+      .toPromise();
+  }
+
+  createSolrIndex(name: string, description: string): Promise<ApiResult> {
+    const headers = { headers: this.jsonHeader };
+    const body = JSON.stringify( { name: name, description: description});
+    return this.http
+      .put<ApiResult>(`${this.baseUrl}/${this.solrIndexApiPath}`, body, httpOptions)
       .toPromise();
   }
 }

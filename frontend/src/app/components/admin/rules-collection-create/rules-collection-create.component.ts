@@ -15,15 +15,16 @@ import {
 } from '../../../services';
 
 @Component({
-  selector: 'app-smui-admin-rules-collection-list',
-  templateUrl: './rules-collection-list.component.html'
+  selector: 'app-smui-admin-rules-collection-create',
+  templateUrl: './rules-collection-create.component.html'
 })
-export class RulesCollectionListComponent implements OnInit, OnChanges {
+export class RulesCollectionCreateComponent implements OnInit, OnChanges {
 
-  @Output() openDeleteConfirmModal: EventEmitter<any> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
 
   solrIndices: SolrIndex[];
+  name: string;
+  description: string;
 
   constructor(
     private solrService: SolrService,
@@ -31,12 +32,12 @@ export class RulesCollectionListComponent implements OnInit, OnChanges {
 
   }
   ngOnInit() {
-    console.log('In RulesCollectionListComponent :: ngOnInit');
+    console.log('In RulesCollectionCreateComponent :: ngOnInit');
     this.solrIndices = this.solrService.solrIndices;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('In RulesCollectionListComponent :: ngOnChanges');
+    console.log('In RulesCollectionCreateComponent :: ngOnChanges');
     //if (this.commonService.hasChanged(changes, 'currentSolrIndexId')) {
       //this.refreshItemsInList().catch(error => this.showErrorMsg.emit(error));
     //}
@@ -47,20 +48,17 @@ export class RulesCollectionListComponent implements OnInit, OnChanges {
     //  : Promise.reject('No selected Solr index');
   }
 
+  createRulesCollection( event: Event){
 
-  deleteRulesCollection(id: string, event: Event) {
-    console.log("I am in deleteRulesCollection");
-    event.stopPropagation();
-    const deleteCallback = () =>
+    console.log('In RulesCollectionCreateComponent :: createRulesCollection');
+    console.log("Here is name:" + this.name);
+    console.log("Here is name:" + this.description);
+    if (this.name && this.description) {
       this.solrService
-        .deleteSolrIndex(id)
+        .createSolrIndex(this.name, this.description)
         .then(() => this.refreshSolrIndicies())
         .catch(error => this.showErrorMsg.emit(error));
-
-        //.then(() => this.refreshItemsInList())
-        ////.then(() => this.selectListItem(undefined))
-
-    this.openDeleteConfirmModal.emit({ deleteCallback });
+    }
   }
 
 

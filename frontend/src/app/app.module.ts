@@ -35,7 +35,8 @@ import {
 } from './components/report';
 import {
   AdminComponent,
-  RulesCollectionListComponent
+  RulesCollectionListComponent,
+  RulesCollectionCreateComponent
 } from './components/admin';
 import {
   ButtonRowComponent,
@@ -86,7 +87,8 @@ import {
     ReportSettingsBarComponent,
     ReportComponent,
     AdminComponent,
-    RulesCollectionListComponent
+    RulesCollectionListComponent,
+    RulesCollectionCreateComponent
   ],
   providers: [
     CommonsService,
