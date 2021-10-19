@@ -96,4 +96,10 @@ export class SolrService {
       .get<DeploymentLogInfo>(`${this.baseUrl}/log/deployment-info`, options)
       .toPromise();
   }
+
+  deleteSolrIndex(solrIndexId: string): Promise<ApiResult> {
+    return this.http
+      .delete<ApiResult>(`${this.baseUrl}/${this.solrIndexApiPath}/${solrIndexId}`)
+      .toPromise();
+  }
 }

@@ -2,11 +2,20 @@
 <div class="card">
   <div class="card-body">
     <h5 class="card-title">Rules Collections</h5>
-    <h6 class="card-subtitle mb-2 text-muted">Manage Rules Collections in SMUI</h6>
+    <h6 class="card-subtitle mb-2 text-muted">Available Rules Collections in SMUI</h6>
 
-    <ul class="list-group smui-search-input-list">
-        <li class="list-group-item">Ecommerce Demo - Key: <code>91579056-d606-4a1e-b9b8-6351efb059b9</code></li>
-        <li class="list-group-item">French Store - Key: <code>99979056-d606-211e-b9b8-6351efb059b9</code></li>
+    <ul *ngFor="let solrIndex of solrIndices" class="list-group smui-search-input-list">
+        <li class="list-group-item">
+          {{ solrIndex.description }} ({{ solrIndex.name }})- Key: <code>{{ solrIndex.id }}</code>
+
+          <button
+            type="button"
+            class="btn btn-danger btn-sm float-right"
+            (click)="deleteRulesCollection(solrIndex.id, $event)"
+          >
+            <i class="fa fa-minus" aria-hidden="true"></i>
+          </button>
+        </li>
     </ul>
   </div>
 </div>

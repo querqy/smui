@@ -48,6 +48,12 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     SolrIndex.insert(newSolrIndex)
   }
 
+  def deleteSolrIndex(solrIndexId: String): Int = db.withTransaction { implicit connection =>
+    val id = SolrIndex.delete(solrIndexId)
+
+    id
+  }
+
   def listAllInputTags(): Seq[InputTag] = db.withConnection { implicit connection =>
     InputTag.loadAll()
   }
