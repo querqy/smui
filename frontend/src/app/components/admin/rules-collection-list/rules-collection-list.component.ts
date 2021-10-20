@@ -46,6 +46,7 @@ export class RulesCollectionListComponent implements OnInit, OnChanges {
         .deleteSolrIndex(id)
         .then(() => this.solrService.refreshSolrIndices())
         .then(() => this.solrIndicesChange.emit(id))
+        .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
         .catch(error => this.showErrorMsg.emit(error));
 
 

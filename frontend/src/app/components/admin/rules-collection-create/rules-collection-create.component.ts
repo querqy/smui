@@ -65,6 +65,7 @@ export class RulesCollectionCreateComponent implements OnInit, OnChanges {
         .then(() => this.solrService.refreshSolrIndices())
         .then(() => this.solrIndicesChange.emit())
         .then(() => this.showSuccessMsg.emit("Created new Rules Collection " + this.description))
+        .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
         .then(() => this.clearForm())
         .catch(error => this.showErrorMsg.emit(error));
     }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 
 import {
   DeploymentLogInfo,
@@ -31,6 +32,16 @@ export class SolrService {
     'Content-Type': 'application/json'
   });
 
+  private rulesCollectionChangeEvent = new BehaviorSubject<string>('');
+
+  emitRulesCollectionChangeEvent(msg: string){
+    this.rulesCollectionChangeEvent.next(msg);
+  }
+
+  rulesCollectionChangeEventListener(){
+    return this.rulesCollectionChangeEvent.asObservable();
+  }
+
 
   constructor(private http: HttpClient) {
     this.currentSolrIndexIdSubject.subscribe(
@@ -55,7 +66,7 @@ export class SolrService {
       .get<SolrIndex[]>(`${this.baseUrl}/${this.solrIndexApiPath}`)
       .toPromise()
       .then(solrIndices => {
-        this.solrIndices = solrIndices;        
+        this.solrIndices = solrIndices;
       });
   }
 
