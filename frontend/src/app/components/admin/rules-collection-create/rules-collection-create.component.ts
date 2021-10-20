@@ -24,6 +24,7 @@ export class RulesCollectionCreateComponent implements OnInit, OnChanges {
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
   @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
   @Output() refreshRulesCollectionList: EventEmitter<string> = new EventEmitter();
+  @Output() solrIndicesChange: EventEmitter<string> = new EventEmitter();
 
   solrIndices: SolrIndex[];
   name: string;
@@ -51,15 +52,20 @@ export class RulesCollectionCreateComponent implements OnInit, OnChanges {
     //  : Promise.reject('No selected Solr index');
   }
 
+  clearForm() {
+    this.name = '';
+    this.description = '';
+  }
+
   createRulesCollection( event: Event){
     console.log('In RulesCollectionCreateComponent :: createRulesCollection');
     if (this.name && this.description) {
       this.solrService
         .createSolrIndex(this.name, this.description)
+        .then(() => this.solrService.refreshSolrIndices())
+        .then(() => this.solrIndicesChange.emit())
         .then(() => this.showSuccessMsg.emit("Created new Rules Collection " + this.description))
-        .then(spellingId =>
-          this.refreshRulesCollectionList.emit(this.name)
-        )
+        .then(() => this.clearForm())
         .catch(error => this.showErrorMsg.emit(error));
     }
   }

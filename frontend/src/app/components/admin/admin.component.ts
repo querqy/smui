@@ -49,6 +49,7 @@ export class AdminComponent implements OnInit {
   }
 
   public solrIndicesChange( id: string){
+    console.log("AdminComponent::solrIndicesChange")
     this.solrIndices = this.solrService.solrIndices;
   }
 
