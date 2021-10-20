@@ -1,6 +1,11 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+
+import { ToasterService } from 'angular2-toaster';
+
+import { SolrIndex } from '../../models';
 
 import {
+  SolrService,
   ModalService
 } from '../../services';
 
@@ -11,14 +16,28 @@ import {
 export class AdminComponent implements OnInit {
 
   constructor(
-    private modalService: ModalService
+    private modalService: ModalService,
+    private toasterService: ToasterService,
+    private solrService: SolrService
   ) {
 
   }
 
+  solrIndices: SolrIndex[];
+
   ngOnInit() {
     console.log('In AdminComponent :: ngOnInit');
+    this.solrIndices = this.solrService.solrIndices;
   }
+
+  public showSuccessMsg(msgText: string) {
+    this.toasterService.pop('success', '', msgText);
+  }
+
+  public showErrorMsg(msgText: string) {
+    this.toasterService.pop('error', '', msgText);
+  }
+
 
   // @ts-ignore
   public openDeleteConfirmModal({ deleteCallback }) {
@@ -27,6 +46,10 @@ export class AdminComponent implements OnInit {
       if (isOk) { deleteCallback(); }
       this.modalService.close('confirm-delete');
     });
+  }
+
+  public solrIndicesChange( id: string){
+    this.solrIndices = this.solrService.solrIndices;
   }
 
 }

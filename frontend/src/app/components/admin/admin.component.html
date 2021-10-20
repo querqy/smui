@@ -1,9 +1,13 @@
 <app-smui-admin-rules-collection-create
+  (showSuccessMsg)="showSuccessMsg($event)"
+  (showErrorMsg)="showErrorMsg($event)"
 >
 </app-smui-admin-rules-collection-create>
 
 <app-smui-admin-rules-collection-list
   (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
+  (solrIndicesChange)="solrIndicesChange($event)"
+  [solrIndices]="solrIndices"
 >
 </app-smui-admin-rules-collection-list>
 

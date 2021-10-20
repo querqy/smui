@@ -50,6 +50,17 @@ export class SolrService {
       });
   }
 
+  refreshSolrIndices(): Promise<void> {
+    return this.http
+      .get<SolrIndex[]>(`${this.baseUrl}/${this.solrIndexApiPath}`)
+      .toPromise()
+      .then(solrIndices => {
+        this.solrIndices = solrIndices;        
+      });
+  }
+
+
+
   changeCurrentSolrIndexId(solrIndexId: string) {
     this.currentSolrIndexIdSubject.next(solrIndexId);
   }

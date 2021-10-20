@@ -20,7 +20,10 @@ import {
 })
 export class RulesCollectionCreateComponent implements OnInit, OnChanges {
 
+  //@Output() updateRulesCollectionList: EventEmitter<> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
+  @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
+  @Output() refreshRulesCollectionList: EventEmitter<string> = new EventEmitter();
 
   solrIndices: SolrIndex[];
   name: string;
@@ -49,14 +52,14 @@ export class RulesCollectionCreateComponent implements OnInit, OnChanges {
   }
 
   createRulesCollection( event: Event){
-
     console.log('In RulesCollectionCreateComponent :: createRulesCollection');
-    console.log("Here is name:" + this.name);
-    console.log("Here is name:" + this.description);
     if (this.name && this.description) {
       this.solrService
         .createSolrIndex(this.name, this.description)
-        .then(() => this.refreshSolrIndicies())
+        .then(() => this.showSuccessMsg.emit("Created new Rules Collection " + this.description))
+        .then(spellingId =>
+          this.refreshRulesCollectionList.emit(this.name)
+        )
         .catch(error => this.showErrorMsg.emit(error));
     }
   }
