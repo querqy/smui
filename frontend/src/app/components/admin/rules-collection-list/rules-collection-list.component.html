@@ -8,6 +8,12 @@
         <li class="list-group-item">
           {{ solrIndex.description }} ({{ solrIndex.name }})- Key: <code>{{ solrIndex.id }}</code>
 
+
+          <a
+            class="btn btn-primary btn-sm float-right"
+            [routerLink]="['/admin/suggested-fields/', solrIndex.id]"
+          >Configure</a>
+
           <button
             type="button"
             class="btn btn-danger btn-sm float-right"

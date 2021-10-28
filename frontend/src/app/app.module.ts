@@ -39,6 +39,9 @@ import {
   RulesCollectionCreateComponent
 } from './components/admin';
 import {
+  SuggestedFieldsComponent,
+} from './components/admin/suggested-fields';
+import {
   ButtonRowComponent,
   CardComponent,
   CommentComponent,
@@ -88,7 +91,8 @@ import {
     ReportComponent,
     AdminComponent,
     RulesCollectionListComponent,
-    RulesCollectionCreateComponent
+    RulesCollectionCreateComponent,
+    SuggestedFieldsComponent
   ],
   providers: [
     CommonsService,

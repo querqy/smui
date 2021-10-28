@@ -46,6 +46,12 @@ object SolrIndex {
     allMatchingIndeces.head.name
   }
 
+  def loadById(solrIndexId: SolrIndexId)(implicit connection: Connection): SolrIndex = {
+    val allMatchingIndeces = SQL"select * from #$TABLE_NAME where id = $solrIndexId".as(sqlParser.*)
+
+    allMatchingIndeces.head
+  }
+
   def insert(newSolrIndex: SolrIndex)(implicit connection: Connection): SolrIndexId = {
     SQL"insert into #$TABLE_NAME (id, name, description, last_update) values (${newSolrIndex.id}, ${newSolrIndex.name}, ${newSolrIndex.description}, ${new Date()})".execute()
     newSolrIndex.id

@@ -44,6 +44,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     SolrIndex.loadNameById(solrIndexId)
   }
 
+  def getSolrIndex(solrIndexId: SolrIndexId): SolrIndex = db.withConnection { implicit connection =>
+    SolrIndex.loadById(solrIndexId)
+  }
+
   def addNewSolrIndex(newSolrIndex: SolrIndex): SolrIndexId = db.withConnection { implicit connection =>
     SolrIndex.insert(newSolrIndex)
   }

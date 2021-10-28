@@ -67,6 +67,12 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
+  def getSolrIndex(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      Ok(Json.toJson(searchManagementRepository.getSolrIndex(SolrIndexId(solrIndexId))))
+    }
+  }
+
   def deleteSolrIndex(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       searchManagementRepository.deleteSolrIndex(solrIndexId)
