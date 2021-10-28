@@ -11,7 +11,7 @@ const routes: Routes = [
   { path: 'rules', component: SearchManagementComponent },
   { path: 'report', component: ReportComponent },
   { path: 'admin', component: AdminComponent },
-  { path: 'admin/suggested-fields/:id', component: SuggestedFieldsComponent }
+  { path: 'admin/suggested-fields/:solrIndexId', component: SuggestedFieldsComponent }
 ];
 
 @NgModule({

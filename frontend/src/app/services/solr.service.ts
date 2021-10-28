@@ -126,6 +126,12 @@ export class SolrService {
       .toPromise();
   }
 
+  getSolrIndex(solrIndexId: string): Promise<SolrIndex> {
+    return this.http
+      .get<SolrIndex>(`${this.baseUrl}/${this.solrIndexApiPath}/${solrIndexId}`)
+      .toPromise();
+  }
+
   deleteSolrIndex(solrIndexId: string): Promise<ApiResult> {
     return this.http
       .delete<ApiResult>(`${this.baseUrl}/${this.solrIndexApiPath}/${solrIndexId}`)
