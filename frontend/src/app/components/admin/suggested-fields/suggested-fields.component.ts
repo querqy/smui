@@ -20,10 +20,11 @@ import {
 export class SuggestedFieldsComponent implements OnInit {
 
   //@Input() solrIndex: SolrIndex;
-  @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
+  //@Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
 
   constructor(
     private route: ActivatedRoute,
+    private modalService: ModalService,
     private solrService: SolrService,
     private toasterService: ToasterService,
   ) {
@@ -45,11 +46,33 @@ export class SuggestedFieldsComponent implements OnInit {
       .then(solrIndex =>
         this.solrIndex = solrIndex
       )
-      .catch(error => this.showErrorMsg.emit(error));
+      //.catch(error => this.showErrorMsg.emit(error));
+      .catch(error => this.showErrorMsg(error));
     })
 
   }
 
+  public showSuccessMsg(msgText: string) {
+    this.toasterService.pop('success', '', msgText);
+  }
+
+  public showErrorMsg(msgText: string) {
+    this.toasterService.pop('error', '', msgText);
+  }
+
+  public suggestedFieldsChange( id: string){
+    console.log("SuggestedFieldsComponent::suggestedFieldsChange")
+    //this.solrIndices = this.solrService.solrIndices;
+  }
+
+  // @ts-ignore
+  public openDeleteConfirmModal({ deleteCallback }) {
+    const deferred = this.modalService.open('confirm-delete');
+    deferred.promise.then((isOk: boolean) => {
+      if (isOk) { deleteCallback(); }
+      this.modalService.close('confirm-delete');
+    });
+  }
 
 
 

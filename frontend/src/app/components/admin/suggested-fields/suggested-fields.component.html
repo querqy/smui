@@ -1,8 +1,20 @@
 
-This Page will List all the Suggested Fields for the Rules Collection:
+<h3 *ngIf="solrIndex">Suggested Fields for {{solrIndex.description}}</h3>
 
-<span *ngIf="solrIndex">
-{{solrIndex.description}}
-</span>
+<app-smui-admin-suggested-fields-create
+  (showSuccessMsg)="showSuccessMsg($event)"
+  (showErrorMsg)="showErrorMsg($event)"
+  (suggestedFieldsChange)="suggestedFieldsChange($event)"
+  [solrIndex]="solrIndex"
+>
+</app-smui-admin-suggested-fields-create>
+
+<app-smui-admin-suggested-fields-list
+  (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
+  (suggestedFieldsChange)="suggestedFieldsChange($event)"
+  [solrIndex]="solrIndex"
+>
+</app-smui-admin-suggested-fields-list>
+
 
 <router-outlet></router-outlet>

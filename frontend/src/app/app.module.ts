@@ -40,6 +40,8 @@ import {
 } from './components/admin';
 import {
   SuggestedFieldsComponent,
+  SuggestedFieldsCreateComponent,
+  SuggestedFieldsListComponent
 } from './components/admin/suggested-fields';
 import {
   ButtonRowComponent,
@@ -92,7 +94,9 @@ import {
     AdminComponent,
     RulesCollectionListComponent,
     RulesCollectionCreateComponent,
-    SuggestedFieldsComponent
+    SuggestedFieldsComponent,
+    SuggestedFieldsCreateComponent,
+    SuggestedFieldsListComponent
   ],
   providers: [
     CommonsService,

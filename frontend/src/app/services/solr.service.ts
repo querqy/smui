@@ -108,6 +108,14 @@ export class SolrService {
       );
   }
 
+  getSuggestedFields(solrIndexId: string): Promise<Array<SuggestedSolrField>> {
+    return this.http
+      .get<SuggestedSolrField[]>(
+        `${this.baseUrl}/${solrIndexId}/${this.solrFieldsApiPath}`
+      )
+      .toPromise();    
+  }
+
   lastDeploymentLogInfo(
     solrIndexId: string,
     targetSystem: string,
