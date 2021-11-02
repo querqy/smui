@@ -22,6 +22,7 @@ DELETE  /api/v1/search-input/:searchInputId                     controllers.ApiC
 POST    /api/v1/:solrIndexId/rules-txt/:targetPlatform          controllers.ApiController.updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: String, targetPlatform: String)
 GET     /api/v1/:solrIndexId/suggested-solr-field               controllers.ApiController.listAllSuggestedSolrFields(solrIndexId: String)
 PUT     /api/v1/:solrIndexId/suggested-solr-field               controllers.ApiController.addNewSuggestedSolrField(solrIndexId: String)
+DELETE  /api/v1/:solrIndexId/suggested-solr-field/:suggestedFieldId controllers.ApiController.deleteSuggestedSolrField(solrIndexId: String, suggestedFieldId: String)
 GET     /api/v1/allRulesTxtFiles                                controllers.ApiController.downloadAllRulesTxtFiles
 POST    /api/v1/:solrIndexId/import-from-rules-txt              controllers.ApiController.importFromRulesTxt(solrIndexId: String)
 GET     /api/v1/log/deployment-info                             controllers.ApiController.getLatestDeploymentResult(solrIndexId: String, targetSystem: String)

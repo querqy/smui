@@ -113,7 +113,13 @@ export class SolrService {
       .get<SuggestedSolrField[]>(
         `${this.baseUrl}/${solrIndexId}/${this.solrFieldsApiPath}`
       )
-      .toPromise();    
+      .toPromise();
+  }
+
+  deleteSuggestedField(solrIndexId: string, suggestedFieldId: string): Promise<ApiResult> {
+    return this.http
+      .delete<ApiResult>(`${this.baseUrl}/${solrIndexId}/${this.solrFieldsApiPath}/${suggestedFieldId}`)
+      .toPromise();
   }
 
   lastDeploymentLogInfo(

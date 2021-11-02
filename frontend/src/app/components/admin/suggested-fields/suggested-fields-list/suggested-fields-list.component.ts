@@ -64,14 +64,15 @@ export class SuggestedFieldsListComponent implements OnInit, OnChanges {
     //  .catch(error => this.showErrorMsg(error));
   }
 
-  deleteSuggestedField(id: string, event: Event) {
+  deleteSuggestedField(suggestedFieldId: string, event: Event) {
     event.stopPropagation();
     const deleteCallback = () =>
       this.solrService
-        .deleteSolrIndex(id)
-        .then(() => this.solrService.refreshSolrIndices())
-        .then(() => this.solrIndicesChange.emit(id))
-        .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
+        .deleteSuggestedField(this.solrIndex.id, suggestedFieldId)
+        .then(() => this.lookupSuggestedFields())
+//        .then(() => this.solrService.refreshSolrIndices())
+//        .then(() => this.solrIndicesChange.emit(id))
+//        .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
         .catch(error => this.showErrorMsg.emit(error));
 
 

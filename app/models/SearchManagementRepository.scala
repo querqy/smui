@@ -16,6 +16,7 @@ import models.reports.{ActivityReport, DeploymentLog, RulesReport}
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
 
+
   private val db = dbapi.database("default")
 
   // On startup, always sync predefined tags with the DB
@@ -213,6 +214,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
   def addNewSuggestedSolrField(solrIndexId: SolrIndexId, suggestedSolrFieldName: String): SuggestedSolrField = db.withConnection { implicit connection =>
     SuggestedSolrField.insert(solrIndexId, suggestedSolrFieldName)
+  }
+  def deleteSuggestedSolrField(suggestedSolrFieldId: SuggestedSolrFieldId): Int = db.withTransaction { implicit connection =>
+    val id = SuggestedSolrField.delete(suggestedSolrFieldId);
+
+    id
   }
 
   def addNewDeploymentLogOk(solrIndexId: String, targetPlatform: String): Boolean = db.withConnection { implicit connection =>

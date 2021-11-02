@@ -315,6 +315,15 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
+  // I am requiring the solrIndexId because it is more RESTful, but it turns out we don't need it.
+  // Maybe validation some day?
+  def deleteSuggestedSolrField(solrIndexId: String, suggestedFieldId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+    Future {
+      searchManagementRepository.deleteSuggestedSolrField(SuggestedSolrFieldId(suggestedFieldId))
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Suggested Field successful", None)))
+    }
+  }
+
   // TODO consider making method .asynch
   def importFromRulesTxt(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action)(parse.multipartFormData) { request =>
     request.body
