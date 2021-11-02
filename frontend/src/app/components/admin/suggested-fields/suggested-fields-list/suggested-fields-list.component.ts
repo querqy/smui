@@ -37,12 +37,11 @@ export class SuggestedFieldsListComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     console.log('In SuggestedFieldsListComponent :: ngOnInit');
-    //console.log("Solr id?" + this.solrIndex.id)
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('In SuggestedFieldsListComponent :: ngOnChanges');
-    console.log("Solr id?" + this.solrIndex.id)
     if (this.solrIndex) {
       this.lookupSuggestedFields();
     }
@@ -57,11 +56,7 @@ export class SuggestedFieldsListComponent implements OnInit, OnChanges {
         this.suggestedFields = suggestedFields;
       })
       .catch(error => this.showErrorMsg.emit(error));
-    //  .listAllSuggestedSolrFields(this.solrIndex.id)
-    //  .then(suggestedSolrFieldNames => {
-    //    this.suggestedFieldNames = suggestedSolrFieldNames;
-    //  })
-    //  .catch(error => this.showErrorMsg(error));
+
   }
 
   deleteSuggestedField(suggestedFieldId: string, event: Event) {
@@ -70,9 +65,7 @@ export class SuggestedFieldsListComponent implements OnInit, OnChanges {
       this.solrService
         .deleteSuggestedField(this.solrIndex.id, suggestedFieldId)
         .then(() => this.lookupSuggestedFields())
-//        .then(() => this.solrService.refreshSolrIndices())
-//        .then(() => this.solrIndicesChange.emit(id))
-//        .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
+
         .catch(error => this.showErrorMsg.emit(error));
 
 

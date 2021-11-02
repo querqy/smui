@@ -26,6 +26,7 @@ export class SuggestedFieldsCreateComponent implements OnInit, OnChanges {
   @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
   @Output() suggestedFieldsChange: EventEmitter<string> = new EventEmitter();
 
+
   //solrIndex: SolrIndex;
   name: string;
   suggestedFields: SuggestedSolrField[] = [];
@@ -59,21 +60,6 @@ export class SuggestedFieldsCreateComponent implements OnInit, OnChanges {
     //}
   }
 
-  lookupSuggestedFields() {
-    console.log('In SuggestedFieldsCreateComponent :: lookupSuggestedFields');
-    console.log("Solr id?" + this.solrIndex.id)
-    this.solrService
-      .getSuggestedFields(this.solrIndex.id)
-      .then(suggestedFields => {
-        this.suggestedFields = suggestedFields;
-      })
-      .catch(error => this.showErrorMsg.emit(error));
-  }
-
-  refreshSolrIndicies() {
-    return this.solrService.listAllSolrIndices;
-    //  : Promise.reject('No selected Solr index');
-  }
 
   clearForm() {
     this.name = '';
@@ -82,14 +68,12 @@ export class SuggestedFieldsCreateComponent implements OnInit, OnChanges {
   createSuggestedField( event: Event){
     console.log('In SuggestedFieldsCreateComponent :: createSuggestedField');
     if (this.name) {
-      //this.solrService
-      //  .createSolrIndex(this.name, this.description)
-      //  .then(() => this.solrService.refreshSolrIndices())
-      //  .then(() => this.solrIndicesChange.emit())
-      //  .then(() => this.showSuccessMsg.emit("Created new Rules Collection " + this.description))
-      //  .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
-      //  .then(() => this.clearForm())
-      //  .catch(error => this.showErrorMsg.emit(error));
+      this.solrService
+        .createSuggestedField(this.solrIndex.id, this.name)
+        .then(() => this.showSuccessMsg.emit("Created new Suggested Field " + this.name))
+        .then(() => this.suggestedFieldsChange.emit())
+        .then(() => this.clearForm())
+        .catch(error => this.showErrorMsg.emit(error));
     }
   }
 

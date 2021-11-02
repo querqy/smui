@@ -122,6 +122,15 @@ export class SolrService {
       .toPromise();
   }
 
+
+  createSuggestedField(solrIndexId: string, name: string): Promise<ApiResult> {
+    const headers = { headers: this.jsonHeader };
+    const body = JSON.stringify( { name: name});
+    return this.http
+      .put<ApiResult>(`${this.baseUrl}/${solrIndexId}/${this.solrFieldsApiPath}`, body, httpOptions)
+      .toPromise();
+  }
+
   lastDeploymentLogInfo(
     solrIndexId: string,
     targetSystem: string,
