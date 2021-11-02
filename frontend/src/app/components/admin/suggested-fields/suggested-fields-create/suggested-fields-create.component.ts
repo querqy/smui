@@ -20,14 +20,11 @@ import {
 })
 export class SuggestedFieldsCreateComponent implements OnInit, OnChanges {
 
-  //@Output() updateRulesCollectionList: EventEmitter<> = new EventEmitter();
   @Input() solrIndex: SolrIndex;
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
   @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
   @Output() suggestedFieldsChange: EventEmitter<string> = new EventEmitter();
 
-
-  //solrIndex: SolrIndex;
   name: string;
   suggestedFields: SuggestedSolrField[] = [];
 
@@ -38,26 +35,10 @@ export class SuggestedFieldsCreateComponent implements OnInit, OnChanges {
   }
   ngOnInit() {
     console.log('In SuggestedFieldsCreateComponent :: ngOnInit');
-
-    //this.route.paramMap.subscribe((params: ParamMap) => {
-    //  console.log(params);
-    //  console.log(params.get("solrIndexId")!.toLowerCase());
-      //console.log(this.solrService.getSolrIndex(params.get("id")))
-    //  this.solrService.getSolrIndex(params.get("solrIndexId")!.toLowerCase())
-    //  .then(solrIndex =>
-    //    this.solrIndex = solrIndex
-    //  )
-    //  .catch(error => this.showErrorMsg.emit(error));
-    //})
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('In SuggestedFieldsCreateComponent :: ngOnChanges');
-    console.log("DO we have a solrIndex");
-    //console.log("solrIndex:" + this.solrIndex.id)
-    //if (this.commonService.hasChanged(changes, 'currentSolrIndexId')) {
-      //this.refreshItemsInList().catch(error => this.showErrorMsg.emit(error));
-    //}
   }
 
 

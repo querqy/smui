@@ -42,9 +42,6 @@ export class RulesCollectionCreateComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('In RulesCollectionCreateComponent :: ngOnChanges');
-    //if (this.commonService.hasChanged(changes, 'currentSolrIndexId')) {
-      //this.refreshItemsInList().catch(error => this.showErrorMsg.emit(error));
-    //}
   }
 
   refreshSolrIndicies() {

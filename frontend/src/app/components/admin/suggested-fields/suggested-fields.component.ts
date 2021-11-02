@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output,   EventEmitter } from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import { ActivatedRoute, Params, ParamMap }   from '@angular/router';
 //import 'rxjs/add/operator/switchMap';
 
@@ -6,7 +6,7 @@ import { switchMap } from 'rxjs/operators';
 
 import { ToasterService } from 'angular2-toaster';
 
-import { SolrIndex } from '../../../models';
+import {SolrIndex, SuggestedSolrField} from '../../../models';
 import {
   SolrService,
   ModalService
@@ -21,6 +21,7 @@ export class SuggestedFieldsComponent implements OnInit {
 
   //@Input() solrIndex: SolrIndex;
   //@Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
+  private suggestedFields: Array<SuggestedSolrField>;
 
   constructor(
     private route: ActivatedRoute,
@@ -46,9 +47,28 @@ export class SuggestedFieldsComponent implements OnInit {
       .then(solrIndex =>
         this.solrIndex = solrIndex
       )
-      //.catch(error => this.showErrorMsg.emit(error));
+          .then(() => this.lookupSuggestedFields())
       .catch(error => this.showErrorMsg(error));
+
+
     })
+
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('In SuggestedFieldsComponent :: ngOnChanges');
+    this.lookupSuggestedFields();
+  }
+
+
+  lookupSuggestedFields() {
+    console.log('In SuggestedFieldsListComponent :: lookupSuggestedFields');
+    console.log("Solr id?" + this.solrIndex.id)
+    this.solrService.getSuggestedFields(this.solrIndex.id)
+        .then(suggestedFields => {
+          this.suggestedFields = suggestedFields;
+        })
+        .catch(error => this.showErrorMsg(error));
 
   }
 
@@ -62,7 +82,8 @@ export class SuggestedFieldsComponent implements OnInit {
 
   public suggestedFieldsChange( id: string){
     console.log("SuggestedFieldsComponent::suggestedFieldsChange")
-    //this.solrIndices = this.solrService.solrIndices;
+    this.lookupSuggestedFields();
+
   }
 
   // @ts-ignore

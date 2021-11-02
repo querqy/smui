@@ -10,8 +10,7 @@ import {
 
 import { SolrIndex, SuggestedSolrField } from '../../../../models';
 import {
-  SolrService,
-  ModalService
+  SolrService
 } from '../../../../services';
 
 @Component({
@@ -21,6 +20,7 @@ import {
 export class SuggestedFieldsListComponent implements OnInit, OnChanges {
 
   @Input() solrIndex: SolrIndex;
+  @Input() suggestedFields: Array<SuggestedSolrField>;
 
   @Output() openDeleteConfirmModal: EventEmitter<any> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
@@ -33,8 +33,6 @@ export class SuggestedFieldsListComponent implements OnInit, OnChanges {
 
   }
 
-  suggestedFields: Array<SuggestedSolrField>;
-
   ngOnInit() {
     console.log('In SuggestedFieldsListComponent :: ngOnInit');
 
@@ -42,15 +40,11 @@ export class SuggestedFieldsListComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('In SuggestedFieldsListComponent :: ngOnChanges');
-    if (this.solrIndex) {
-      this.lookupSuggestedFields();
-    }
   }
 
 
   lookupSuggestedFields() {
     console.log('In SuggestedFieldsListComponent :: lookupSuggestedFields');
-    console.log("Solr id?" + this.solrIndex.id)
     this.solrService.getSuggestedFields(this.solrIndex.id)
       .then(suggestedFields => {
         this.suggestedFields = suggestedFields;
