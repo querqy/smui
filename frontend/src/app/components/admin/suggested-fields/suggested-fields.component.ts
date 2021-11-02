@@ -21,7 +21,7 @@ export class SuggestedFieldsComponent implements OnInit {
 
   //@Input() solrIndex: SolrIndex;
   //@Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
-  private suggestedFields: Array<SuggestedSolrField>;
+  suggestedFields: Array<SuggestedSolrField>;
 
   constructor(
     private route: ActivatedRoute,
