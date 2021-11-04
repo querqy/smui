@@ -76,7 +76,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     * Canonical spellings and alternative spellings
     */
 
-  def addNewCanonicalSpelling(solrIndexId: SolrIndexId, term: String): CanonicalSpelling =
+  def addNewCanonicalSpelling(solrIndexId: SolrIndexId, term: String, userInfo: Option[String]): CanonicalSpelling =
     db.withConnection { implicit connection =>
       val spelling = CanonicalSpelling.insert(solrIndexId, term)
 
@@ -84,7 +84,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       if (toggleService.getToggleActivateEventHistory) {
         InputEvent.createForSpelling(
           spelling.id,
-          None, // TODO userInfo not being logged so far
+          userInfo,
           false
         )
       }
@@ -97,7 +97,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       CanonicalSpellingWithAlternatives.loadById(CanonicalSpellingId(canonicalSpellingId))
     }
 
-  def updateSpelling(spelling: CanonicalSpellingWithAlternatives): Unit =
+  def updateSpelling(spelling: CanonicalSpellingWithAlternatives, userInfo: Option[String]): Unit =
     db.withTransaction { implicit connection =>
       CanonicalSpellingWithAlternatives.update(spelling)
 
@@ -105,7 +105,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       if (toggleService.getToggleActivateEventHistory) {
         InputEvent.updateForSpelling(
           spelling.id,
-          None // TODO userInfo not being logged so far
+          userInfo
         )
       }
     }
@@ -120,7 +120,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       CanonicalSpellingWithAlternatives.loadAllForIndex(solrIndexId)
     }
 
-  def deleteSpelling(canonicalSpellingId: String): Int =
+  def deleteSpelling(canonicalSpellingId: String, userInfo: Option[String]): Int =
     db.withTransaction { implicit connection =>
       val id = CanonicalSpellingId(canonicalSpellingId)
       val count = CanonicalSpellingWithAlternatives.delete(id)
@@ -129,7 +129,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       if (toggleService.getToggleActivateEventHistory) {
         InputEvent.deleteForSpelling(
           id,
-          None // TODO userInfo not being logged so far
+          userInfo
         )
       }
 
@@ -167,26 +167,26 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     SearchInputWithRules.loadById(searchInputId)
   }
 
-  def updateSearchInput(searchInput: SearchInputWithRules): Unit = db.withTransaction { implicit connection =>
+  def updateSearchInput(searchInput: SearchInputWithRules, userInfo: Option[String]): Unit = db.withTransaction { implicit connection =>
     SearchInputWithRules.update(searchInput)
 
     // add UPDATED event for search input and rules
     if (toggleService.getToggleActivateEventHistory) {
       InputEvent.updateForSearchInput(
         searchInput.id,
-        None // TODO userInfo not being logged so far
+        userInfo
       )
     }
   }
 
-  def deleteSearchInput(searchInputId: String): Int = db.withTransaction { implicit connection =>
+  def deleteSearchInput(searchInputId: String, userInfo: Option[String]): Int = db.withTransaction { implicit connection =>
     val id = SearchInputWithRules.delete(SearchInputId(searchInputId))
 
     // add DELETED event for search input and rules
     if (toggleService.getToggleActivateEventHistory) {
       InputEvent.deleteForSearchInput(
         SearchInputId(searchInputId),
-        None // TODO userInfo not being logged so far
+        userInfo
       )
     }
 

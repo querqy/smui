@@ -48,7 +48,7 @@ trait CommonRulesTxtDeploymentServiceConfigVariantsSpecBase extends ApplicationT
       isActive = true,
       comment = "German prefix to match all different kind women's wear as decompound prefix."
     )
-    repo.updateSearchInput(damenInput)
+    repo.updateSearchInput(damenInput, None)
   }
 
 }

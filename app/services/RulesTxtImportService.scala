@@ -450,7 +450,7 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
       )
       // then update (incl rules)
       searchManagementRepository.updateSearchInput(
-        inputWithDbId(searchInput, searchInputId)
+        inputWithDbId(searchInput, searchInputId), None
       )
     }
     // return stats
