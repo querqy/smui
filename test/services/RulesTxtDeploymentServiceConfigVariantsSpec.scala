@@ -28,7 +28,7 @@ trait CommonRulesTxtDeploymentServiceConfigVariantsSpecBase extends ApplicationT
 
   protected def createDecompoundRule() = {
 
-    val damenInputId = repo.addNewSearchInput(core1Id, "damen*", Seq())
+    val damenInputId = repo.addNewSearchInput(core1Id, "damen*", Seq(), None)
     val damenInput = SearchInputWithRules(
       id = damenInputId,
       term = "damen*",

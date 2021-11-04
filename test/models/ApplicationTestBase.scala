@@ -71,7 +71,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     val deleteRules = List(DeleteRule(DeleteRuleId(), "freddy", isActive = true))
     val filterRules = List(FilterRule(FilterRuleId(), "zz top", isActive = true))
 
-    val aerosmithId = repo.addNewSearchInput(core1Id, "aerosmith", Seq.empty)
+    val aerosmithId = repo.addNewSearchInput(core1Id, "aerosmith", Seq.empty, None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     val searchInput = SearchInputWithRules(
       aerosmithId,
@@ -87,7 +87,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
 
     val tag = createTestTag("testProperty", "testValue", core1Id)
 
-    val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq(tag.id))
+    val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq(tag.id), None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     val redirectRule = RedirectRule(RedirectRuleId(), "http://xyz.com/shipping", isActive = true)
     val searchInputForRedirect = SearchInputWithRules(
@@ -101,7 +101,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     repo.updateSearchInput(searchInputForRedirect)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
-    val inactiveId = repo.addNewSearchInput(core1Id, "inactive", Seq.empty)
+    val inactiveId = repo.addNewSearchInput(core1Id, "inactive", Seq.empty, None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     val inactiveSearchInput = SearchInputWithRules(
       inactiveId,

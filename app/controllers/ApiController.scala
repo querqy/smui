@@ -1,26 +1,27 @@
 package controllers
 
 import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
-
 import akka.stream.scaladsl.{Source, StreamConverters}
 import akka.util.ByteString
+
 import javax.inject.Inject
 import play.api.Logging
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.json.Reads._
+
 import java.nio.file.Paths
 import java.time.format.DateTimeFormatter
 import java.time.LocalDateTime
-
 import scala.concurrent.{ExecutionContext, Future}
-import controllers.auth.AuthActionFactory
+import controllers.auth.{AuthActionFactory, UserRequest}
 import models.FeatureToggleModel.FeatureToggleService
 import models._
 import models.config.SmuiVersion
 import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
+import org.checkerframework.checker.units.qual.A
 import services.{RulesTxtDeploymentService, RulesTxtImportService}
 
 
@@ -95,8 +96,14 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     Ok(Json.toJson(searchManagementRepository.getDetailedSearchInput(SearchInputId(searchInputId))))
   }
 
+
   def addNewSearchInput(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
+      val userInfo: Option[String]  = request match {
+        case _: UserRequest[A] => Option(request.asInstanceOf[UserRequest[A]].username)
+        case _ => None
+      }
+
       val body: AnyContent = request.body
       val jsonBody: Option[JsValue] = body.asJson
 
@@ -107,7 +114,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
         InputValidator.validateInputTerm(searchInputTerm) match {
           case Nil => {
-            val searchInputId = searchManagementRepository.addNewSearchInput(SolrIndexId(solrIndexId), searchInputTerm, tags)
+            val searchInputId = searchManagementRepository.addNewSearchInput(SolrIndexId(solrIndexId), searchInputTerm, tags, userInfo)
             Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", Some(searchInputId))))
           }
           case errors => {

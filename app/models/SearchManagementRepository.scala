@@ -143,7 +143,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   /**
     * Adds new Search Input (term) to the database table. This method only focuses the term, and does not care about any synonyms.
     */
-  def addNewSearchInput(solrIndexId: SolrIndexId, searchInputTerm: String, tags: Seq[InputTagId]): SearchInputId = db.withConnection { implicit connection =>
+  def addNewSearchInput(solrIndexId: SolrIndexId, searchInputTerm: String, tags: Seq[InputTagId], userInfo: Option[String]): SearchInputId = db.withConnection { implicit connection =>
 
     // add search input
     val id = SearchInput.insert(solrIndexId, searchInputTerm).id
@@ -155,7 +155,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     if (toggleService.getToggleActivateEventHistory) {
       InputEvent.createForSearchInput(
         id,
-        None, // TODO userInfo not being logged so far
+        userInfo,
         false
       )
     }
