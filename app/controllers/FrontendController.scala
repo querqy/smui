@@ -7,11 +7,15 @@ import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 import models.FeatureToggleModel._
+import models.{SessionDAO, User, UserDAO}
+
 import javax.inject._
 import play.api.Configuration
 import play.api.http.HttpErrorHandler
 import play.api.libs.json.Json
 import play.api.mvc._
+
+import java.time.{LocalDateTime, ZoneOffset}
 
 class FrontendController @Inject()(cc: MessagesControllerComponents,
                                    assets: Assets,
@@ -23,6 +27,30 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
     assets.at("index.html")(request)
   }
 
+
+  def public() = Action { implicit request: Request[AnyContent] =>
+  Ok(views.html.public())
+}
+
+
+  // private page controller method
+  //def priv() = Action { implicit request: Request[AnyContent] =>
+   // withUser(user => Ok(views.html.priv(user)))
+  //}
+  def priv() = Action { implicit request: Request[AnyContent] =>
+
+    val userOpt = extractUser(request)
+
+    userOpt
+      .map(user => Ok(views.html.priv(user)))
+      .getOrElse(Unauthorized(views.html.defaultpages.unauthorized()))
+  }
+
+
+
+
+
+
   def assetOrDefault(resource: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request =>
     if (resource.startsWith("api")) {
       errorHandler.onClientError(request, NOT_FOUND, "Not found")
@@ -33,5 +61,65 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
         assets.at("index.html")(request)
       }
     }
+  }
+
+  def register(username: String, password: String) = Action { implicit request: Request[AnyContent] =>
+    UserDAO.addUser(username, password)
+      .map(_ => Ok(views.html.index()))
+      .getOrElse(Conflict(views.html.defaultpages.unauthorized()))
+  }
+
+  def login(username: String, pass: String) = Action { implicit request: Request[AnyContent] =>
+    if (isValidLogin(username, pass)) {
+      val token = SessionDAO.generateToken(username)
+
+      Redirect(routes.FrontendController.index()).withSession(request.session + ("sessionToken" -> token))
+    } else {
+      // we should redirect to login page
+      Unauthorized(views.html.defaultpages.unauthorized()).withNewSession
+    }
+  }
+
+  def logout() = Action { implicit request: Request[AnyContent] =>
+    Redirect(routes.FrontendController.index()).withNewSession
+  }
+
+  //def priv() = Action { implicit request: Request[AnyContent] =>
+  //  withUser(user => Ok(views.html.priv(user)))
+ // }
+
+  def privPlay() = withPlayUser { user =>
+    Ok(views.html.priv(user))
+  }
+
+  //def privAction() = userAction { user: UserRequest[AnyContent] =>
+  //  Ok(views.html.priv(user.user.get))
+  //}
+
+  private def isValidLogin(username: String, password: String): Boolean = {
+    UserDAO.getUser(username).exists(_.password == password)
+  }
+
+  private def withPlayUser[T](block: User => Result): EssentialAction = {
+    Security.WithAuthentication(extractUser)(user => Action(block(user)))
+  }
+
+  private def withUser[T](block: User => Result)(implicit request: Request[AnyContent]): Result = {
+    val user = extractUser(request)
+
+    user
+      .map(block)
+      .getOrElse(Unauthorized(views.html.defaultpages.unauthorized())) // 401, but 404 could be better from a security point of view
+  }
+
+  private def extractUser(req: RequestHeader): Option[User] = {
+
+    val sessionTokenOpt = req.session.get("sessionToken")
+
+    sessionTokenOpt
+      .flatMap(token => SessionDAO.getSession(token))
+      .filter(_.expiration.isAfter(LocalDateTime.now(ZoneOffset.UTC)))
+      .map(_.username)
+      .flatMap(UserDAO.getUser)
   }
 }
