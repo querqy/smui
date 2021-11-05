@@ -27,3 +27,4 @@ package-lock.json
 /public
 e2e/cypress/videos
 e2e/cypress/screenshots
+yarn.lock
