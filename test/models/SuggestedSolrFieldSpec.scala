@@ -1,12 +1,10 @@
 package models
 
-import java.sql.Connection
 
+import org.h2.jdbc.JdbcSQLException
 import org.scalatest.{FlatSpec, Matchers}
 import utils.WithInMemoryDB
 
-import models.input.{SearchInput, SearchInputWithRules, InputTag, TagInputAssociation}
-import models.rules.{SynonymRule, SynonymRuleId}
 
 
 class SuggestedSolrFieldSpec extends FlatSpec with Matchers with WithInMemoryDB with TestData {
@@ -23,8 +21,9 @@ class SuggestedSolrFieldSpec extends FlatSpec with Matchers with WithInMemoryDB 
     }
   }
 
-  "SuggestedField" should "fail on duplicate" in {
-    db.withConnection { implicit conn =>
+  //"SuggestedField" should "fail on duplicate" in {
+  it should "not allow inserting the same suggested field more than once" in {
+    db.withConnection { implicit connection =>
       SolrIndex.insert(indexEn)
 
       SuggestedSolrField.insert(indexEn.id,"product_type");
@@ -33,10 +32,17 @@ class SuggestedSolrFieldSpec extends FlatSpec with Matchers with WithInMemoryDB 
       suggestedFields.size shouldBe 1
 
       // now try and do a duplicate!
-      SuggestedSolrField.insert(indexEn.id,"product_type");
-      suggestedFields = SuggestedSolrField.listAll(indexEn.id);
-      // I can't figure out how to prevent duplicates from being inserted without doing a LOT of work
-      //suggestedFields.size shouldBe 1
+      db.withConnection { implicit connection =>
+        intercept[JdbcSQLException] {
+          SuggestedSolrField.insert(indexEn.id,"product_type")
+        }
+      }
+
+      // Same field name, different solr index
+      SolrIndex.insert(indexDe)
+      SuggestedSolrField.insert(indexDe.id,"product_type");
+      suggestedFields = SuggestedSolrField.listAll(indexDe.id);
+      suggestedFields.size shouldBe 1
     }
   }
 
