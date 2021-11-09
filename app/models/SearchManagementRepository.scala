@@ -53,7 +53,28 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     SolrIndex.insert(newSolrIndex)
   }
 
+  /**
+    * We check for any InputTags, CanonicalSpellings, and SearchInputs.  We don't
+    * check for the existence of any SuggestedSolrFields.
+    */
   def deleteSolrIndex(solrIndexId: String): Int = db.withTransaction { implicit connection =>
+
+    val solrIndexIdId = SolrIndexId(solrIndexId)
+    val inputTags = InputTag.loadAll.filter(_.solrIndexId== Option(solrIndexIdId))
+    if (inputTags.size > 0) {
+      throw new Exception("Can't delete Solr Index that has " + inputTags.size + "tags existing");
+    }
+
+    val canonicalSpellings = CanonicalSpelling.loadAllForIndex(solrIndexIdId)
+    if (canonicalSpellings.size > 0) {
+      throw new Exception("Can't delete Solr Index that has " + canonicalSpellings.size + " canonical spellings existing");
+    }
+
+    val searchInputs = SearchInput.loadAllForIndex(solrIndexIdId)
+    if (searchInputs.size > 0) {
+      throw new Exception("Can't delete Solr Index that has " + searchInputs.size + " inputs existing");
+    }
+
     val id = SolrIndex.delete(solrIndexId)
 
     id
