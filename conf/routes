@@ -2,14 +2,19 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Handle Requests to the Server's root, and supply the Angular SPA
-GET     /         controllers.FrontendController.index()
 GET     /health   controllers.HealthController.health
+
 GET     /public                     controllers.FrontendController.public
 GET     /priv                       controllers.FrontendController.priv
+GET     /priv2                      controllers.FrontendController.priv2
 GET     /priv-play                  controllers.FrontendController.privPlay
 GET     /login                      controllers.FrontendController.login(username, password)
 GET     /logout                     controllers.FrontendController.logout
+GET     /login_or_register          controllers.FrontendController.login_or_register
+
+# Handle Requests to the Server's root, and supply the Angular SPA
+GET     /         controllers.FrontendController.index()
+
 
 # serve the API v1 Specification
 # TODO search-input URL path partially "behind" solrIndexId path component and partially not

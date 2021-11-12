@@ -1,21 +1,14 @@
 package controllers
 
-import javax.inject.Inject
 import controllers.auth.AuthActionFactory
-import play.api.{Configuration, Logging}
-import play.api.mvc._
-
-import scala.concurrent.{ExecutionContext, Future}
-import models.FeatureToggleModel._
 import models.{SessionDAO, User, UserDAO}
-
-import javax.inject._
-import play.api.Configuration
+import play.api.Logging
 import play.api.http.HttpErrorHandler
-import play.api.libs.json.Json
 import play.api.mvc._
 
 import java.time.{LocalDateTime, ZoneOffset}
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class FrontendController @Inject()(cc: MessagesControllerComponents,
                                    assets: Assets,
@@ -29,8 +22,12 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
 
 
   def public() = Action { implicit request: Request[AnyContent] =>
-  Ok(views.html.public())
-}
+    Ok(views.html.public())
+  }
+
+  def login_or_register() = Action { implicit request: Request[AnyContent] =>
+    Ok(views.html.login_or_register())
+  }
 
 
   // private page controller method
@@ -44,6 +41,11 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
     userOpt
       .map(user => Ok(views.html.priv(user)))
       .getOrElse(Unauthorized(views.html.defaultpages.unauthorized()))
+  }
+
+  def priv2(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request =>
+    Future(Ok(views.html.priv2()))
+    //assets.at("index.html")(request)
   }
 
 
