@@ -8,9 +8,9 @@
     <ul>
         <li><a href=@routes.FrontendController.index()>Home</a></li>
         <li><a href=@routes.FrontendController.public()>Public page</a></li>
-        <li><a href=@routes.FrontendController.login("user001", "pass001")>Login</a></li>
-        <li><a href=@routes.FrontendController.login("user001", "pass002")>Login with incorrect pass</a></li>
-        <li><a href=@routes.FrontendController.login("random_user", "random_pass")>Login with unexisting user</a></li>
+        <li><a href=routes.FrontendController.loginoff("user001", "pass001")>Login</a></li>
+        <li><a href=routes.FrontendController.loginoff("user001", "pass002")>Login with incorrect pass</a></li>
+        <li><a href=routes.FrontendController.loginoff("random_user", "random_pass")>Login with unexisting user</a></li>
         <li><a href=@routes.FrontendController.priv()>Private page (manual auth)</a></li>
         <li><a href=@routes.FrontendController.privPlay()>Private page (play auth)</a></li>
         <li><a href=@routes.FrontendController.logout()>Logout</a></li>

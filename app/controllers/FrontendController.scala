@@ -1,9 +1,13 @@
 package controllers
 
+import controllers.LoginForm.UserData
 import controllers.auth.AuthActionFactory
-import models.{SessionDAO, User, UserDAO}
+import models.FeatureToggleModel.FeatureToggleService
+import models.{FeatureToggleModel, SessionDAO, User, UserDAO}
 import play.api.Logging
+import play.api.data.Form
 import play.api.http.HttpErrorHandler
+import play.api.libs.json.{Format, Json}
 import play.api.mvc._
 
 import java.time.{LocalDateTime, ZoneOffset}
@@ -12,9 +16,19 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class FrontendController @Inject()(cc: MessagesControllerComponents,
                                    assets: Assets,
+                                   featureToggleService: FeatureToggleService,
                                    errorHandler: HttpErrorHandler,
                                    authActionFactory: AuthActionFactory)(implicit executionContext: ExecutionContext)
-  extends MessagesAbstractController(cc) with Logging {
+  extends MessagesAbstractController(cc) with Logging with play.api.i18n.I18nSupport {
+
+  object UserInfo {
+    // Use a JSON format to automatically convert between case class and JsObject
+    implicit val format: Format[User] = Json.format[User]
+  }
+
+
+
+
 
   def index(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request =>
     assets.at("index.html")(request)
@@ -26,8 +40,9 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
   }
 
   def login_or_register() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.login_or_register())
+    Ok(views.html.login_or_register(LoginForm.form, featureToggleService.getSmuiHeadline))
   }
+
 
 
   // private page controller method
@@ -53,6 +68,7 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
 
 
 
+
   def assetOrDefault(resource: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request =>
     if (resource.startsWith("api")) {
       errorHandler.onClientError(request, NOT_FOUND, "Not found")
@@ -71,7 +87,8 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
       .getOrElse(Conflict(views.html.defaultpages.unauthorized()))
   }
 
-  def login(username: String, pass: String) = Action { implicit request: Request[AnyContent] =>
+
+  def loginoff(username: String, pass: String) = Action { implicit request: Request[AnyContent] =>
     if (isValidLogin(username, pass)) {
       val token = SessionDAO.generateToken(username)
 
@@ -81,6 +98,37 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
       Unauthorized(views.html.defaultpages.unauthorized()).withNewSession
     }
   }
+
+  def login = Action { implicit request: MessagesRequest[AnyContent] =>
+    val errorFunction = { formWithErrors: Form[LoginForm.UserData] =>
+      logger.debug("CAME INTO errorFunction")
+      // this is the bad case, where the form had validation errors.
+      // show the user the form again, with the errors highlighted.
+      BadRequest(views.html.login_or_register(LoginForm.form, featureToggleService.getSmuiHeadline))
+    }
+
+    val successFunction = { userData: UserData =>
+      logger.debug("CAME INTO successFunction")
+      // this is the SUCCESS case, where the form was successfully parsed as a BlogPost
+
+      //Redirect(routes.FrontendController.index()).flashing("info" -> "Blog post added (trust me)")
+      if (isValidLogin(userData.email, userData.password)) {
+        val token = SessionDAO.generateToken(userData.email)
+
+        Redirect(routes.FrontendController.index()).withSession(request.session + ("sessionToken" -> token))
+      } else {
+        // we should redirect to login page
+        Unauthorized(views.html.defaultpages.unauthorized()).withNewSession
+      }
+    }
+
+    val formValidationResult: Form[LoginForm.UserData] = LoginForm.form.bindFromRequest
+    formValidationResult.fold(
+      errorFunction,   // sad case
+      successFunction  // happy case
+    )
+  }
+
 
   def logout() = Action { implicit request: Request[AnyContent] =>
     Redirect(routes.FrontendController.index()).withNewSession
@@ -125,3 +173,4 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
       .flatMap(UserDAO.getUser)
   }
 }
+

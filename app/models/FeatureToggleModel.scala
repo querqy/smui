@@ -136,7 +136,7 @@ package object FeatureToggleModel extends Logging {
         jsBoolFeatureToggle(FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT, false),
         jsBoolFeatureToggle(ACTIVATE_RULE_TAGGING, false),
         JsFeatureToggle(FEATURE_TOGGLE_HEADLINE, new JsStringFeatureToggleValue(
-          appConfig.getOptional[String](FEATURE_TOGGLE_HEADLINE).getOrElse("Search Management UI"))),
+          getSmuiHeadline)),
         JsFeatureToggle(SMUI_AUTH_SIMPLE_LOGOUT, new JsStringFeatureToggleValue(
           appConfig.getOptional[String](SMUI_AUTH_SIMPLE_LOGOUT).getOrElse(""))),
         JsFeatureToggle(SMUI_VERSION, new JsStringFeatureToggleValue(models.buildInfo.BuildInfo.version)),
@@ -214,6 +214,12 @@ package object FeatureToggleModel extends Logging {
     def getSmuiDeploymentGitFilenameCommonRulesTxt: String = {
       appConfig.getOptional[String](SMUI_DEPLOYMENT_GIT_FN_COMMON_RULES_TXT).getOrElse("rules.txt")
     }
+
+    def getSmuiHeadline: String = {
+      appConfig.getOptional[String](FEATURE_TOGGLE_HEADLINE).getOrElse("Search Management UI")
+    }
+
+
 
   }
 
