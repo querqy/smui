@@ -18,7 +18,7 @@ class UsernamePasswordAuthenticatedAction(parser: BodyParsers.Default, appConfig
 
   private def redirectToLoginOrRegisterPage(): Future[Result] = {
     Future {
-      Results.Redirect("/login_or_register")
+      Results.Redirect("/login_or_register").flashing(("failure" -> "Unknown email/password combo. Double check you have the correct email address and password, or sign up for a new account."))
     }
   }
 

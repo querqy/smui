@@ -99,33 +99,77 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
     }
   }
 
-  def login = Action { implicit request: MessagesRequest[AnyContent] =>
-    val errorFunction = { formWithErrors: Form[LoginForm.UserData] =>
-      logger.debug("CAME INTO errorFunction")
-      // this is the bad case, where the form had validation errors.
-      // show the user the form again, with the errors highlighted.
-      BadRequest(views.html.login_or_register(LoginForm.form, featureToggleService.getSmuiHeadline))
-    }
+  //def loginsss = Action { implicit request: MessagesRequest[AnyContent] =>
 
-    val successFunction = { userData: UserData =>
-      logger.debug("CAME INTO successFunction")
-      // this is the SUCCESS case, where the form was successfully parsed as a BlogPost
+    //logger.info("We are in login()")
+//
+//    val errorFunction = { formWithErrors: Form[LoginForm.UserData] =>
+//      logger.info("CAME INTO errorFunction")
+//      // this is the bad case, where the form had validation errors.
+//      // show the user the form again, with the errors highlighted.
+//      BadRequest(views.html.login_or_register(formValidationResult, featureToggleService.getSmuiHeadline)).withNewSession.flashing("failure"->"Please try again")
+//    }
+//
+//    val successFunction = { userData: UserData =>
+//      logger.info("CAME INTO successFunction")
+//      // this is the SUCCESS case, where the form was successfully parsed as a BlogPost
+//
+//      //Redirect(routes.FrontendController.index()).flashing("info" -> "Blog post added (trust me)")
+//      if (isValidLogin(userData.email, userData.password)) {
+//        val token = SessionDAO.generateToken(userData.email)
+//
+//        Redirect(routes.FrontendController.index()).withSession(request.session + ("sessionToken" -> token))
+//      } else {
+//        logger.info("not Valid Login, so now what")
+//        Console.println(LoginForm.form)
+//        //LoginForm.form.s
+//        // we should redirect to login page
+//        //Unauthorized(views.html.defaultpages.unauthorized()).withNewSession
+//        //BadRequest(views.html.login_or_register(LoginForm.form, featureToggleService.getSmuiHeadline))
+//        //Redirect(routes.FrontendController.login_or_register(LoginForm.form, featureToggleService.getSmuiHeadline)).flashing("hi")
+//        Results.Redirect("/login_or_register")
+//      }
+//    }
+//
+//    val formValidationResult: Form[LoginForm.UserData] = LoginForm.form.bindFromRequest
+//    formValidationResult.fold(
+//      errorFunction,   // sad case
+//      successFunction  // happy case
+//    )
+//
+//    val formValidationResult: Form[LoginForm.UserData] = LoginForm.form.bindFromRequest.fold(
+//      formWithErrors => {
+//        // binding failure, you retrieve the form containing errors:
+//        BadRequest(views.html.user(formWithErrors))
+//      },
+//      userData => {
+//        /* binding success, you get the actual value. */
+//        val newUser = models.User(userData.name, userData.age)
+//        val id      = models.User.create(newUser)
+//        Redirect(routes.Application.home(id))
+//      }
+//    )
+//  }
 
-      //Redirect(routes.FrontendController.index()).flashing("info" -> "Blog post added (trust me)")
-      if (isValidLogin(userData.email, userData.password)) {
-        val token = SessionDAO.generateToken(userData.email)
+  def login = Action { implicit request =>
+    LoginForm.form.bindFromRequest.fold(
+      formWithErrors => {
+        logger.info("CAME INTO error")
+        BadRequest(views.html.login_or_register(formWithErrors,featureToggleService.getSmuiHeadline))
+      },
+      userData => {
+        logger.info("CAME INTO successFunction")
+        if (isValidLogin(userData.email, userData.password)) {
+          val token = SessionDAO.generateToken(userData.email)
 
-        Redirect(routes.FrontendController.index()).withSession(request.session + ("sessionToken" -> token))
-      } else {
-        // we should redirect to login page
-        Unauthorized(views.html.defaultpages.unauthorized()).withNewSession
+          Redirect(routes.FrontendController.index()).withSession(request.session + ("sessionToken" -> token))
+        }
+        else {
+         //Redirect(routes.FrontendController.login_or_register(LoginForm.form, featureToggleService.getSmuiHeadline))
+          BadRequest(views.html.login_or_register(LoginForm.form,featureToggleService.getSmuiHeadline))
+        }
+        //Redirect(routes.Application.showContact(contactId)).flashing("success" -> "Contact saved!")
       }
-    }
-
-    val formValidationResult: Form[LoginForm.UserData] = LoginForm.form.bindFromRequest
-    formValidationResult.fold(
-      errorFunction,   // sad case
-      successFunction  // happy case
     )
   }
 

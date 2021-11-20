@@ -1,4 +1,4 @@
-@(form: Form[LoginForm.UserData], headline: String)(implicit messages: Messages)
+@(form: Form[LoginForm.UserData], headline: String)(implicit messages: Messages,  flash: Flash)
 
 <!doctype html>
 <html lang="en">
@@ -30,6 +30,7 @@
             <h4>Sign in via email:</h4>
 
             <form action="@routes.FrontendController.login" method="post">
+
               <!--
               <% if controller.class.to_s.include?("SessionsController") && #user.errors.any? %>
                 <div id="error_explanation">
@@ -40,14 +41,9 @@
               <% end %>
                 -->
 
-              <div class="form-group">
-                <input class="form-control email" placeholder="Email Address" type="text" name="email" id="email" value="">
-              </div>
+              @helper.inputText(form("email"))
 
-              <div class="form-group">
-                <input class="form-control password" placeholder="Password" type="password" name="password" id="password" value="">
-              </div>
-
+              @helper.inputPassword(form("password"))
 
               <br/>
                 <input type="submit" value="Sign In" class="btn btn-primary login"/>

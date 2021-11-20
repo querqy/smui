@@ -9,7 +9,7 @@ object UserDAO {
   // Map username -> User
   //private val users: mutable.Map[String, User] = mutable.Map()
   private val users = mutable.Map(
-    "user001" -> User("user001", "pass001")
+    "user@example.com" -> User("user@example.com", "password")
   )
 
   def getUser(username: String): Option[User] = {

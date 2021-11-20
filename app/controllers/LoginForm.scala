@@ -19,8 +19,8 @@ object LoginForm {
     */
   val form = Form(
     mapping(
-      "email" -> text,
-      "password"  -> text
+      "email" -> email,
+      "password"  -> nonEmptyText
     )(UserData.apply)(UserData.unapply)
   )
 }
