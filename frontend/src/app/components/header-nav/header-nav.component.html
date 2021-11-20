@@ -119,18 +119,22 @@
         >
           {{ publishToLiveButtonText() }}
         </button>
-        <button
-          *ngIf="
-            featureToggleService.getSimpleLogoutButtonTargetUrl().trim()
-              .length > 0
-          "
-          type="button"
-          class="btn btn-outline-secondary"
-          (click)="callSimpleLogoutUrl()"
-        >
-          Logout
-        </button>
+
       </div>
+    </div>
+
+    <div *ngIf="
+      featureToggleService.getSimpleLogoutButtonTargetUrl().trim()
+        .length > 0
+    "
+    >
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="callSimpleLogoutUrl()"
+      >
+        Logout
+      </button>
     </div>
   </div>
 </nav>
