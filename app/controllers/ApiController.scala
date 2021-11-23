@@ -241,7 +241,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     logger.debug("In ApiController :: updateRulesTxtForSolrIndexAndTargetPlatform")
 
     // generate rules.txt(s)
-    val rulesFilesList = rulesTxtDeploymentService.generateRulesTxtContentWithFilenames(SolrIndexId(solrIndexId), targetSystem)
+    val rulesFilesList = rulesTxtDeploymentService.generateRulesTxtContentWithFilenamesList(SolrIndexId(solrIndexId), targetSystem)
 
     var apiResult: ApiResult = null
     for (rulesFiles <- rulesFilesList) {

@@ -36,7 +36,11 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
                                    sourceFileName: String,
                                    destinationFileName: String)
 
-  def generateRulesTxtContentWithFilenames(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true): List[RulesTxtsForSolrIndex] = {
+  def generateRulesTxtContentWithFilenames(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true): RulesTxtsForSolrIndex = {
+    generateRulesTxtContentWithFilenamesList(solrIndexId, targetSystem, logDebug).head
+  }
+
+  def generateRulesTxtContentWithFilenamesList(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true): List[RulesTxtsForSolrIndex] = {
     val filterTagName = appConfig.get[String]("smui2solr.deployment.tag.property")
     val inputTagValues: List[InputTag] =
       if (!filterTagName.isEmpty)
@@ -347,7 +351,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     try {
       for (index <- searchManagementRepository.listAllSolrIndexes) {
         // TODO make targetSystem configurable from ApiController.downloadAllRulesTxtFiles ... go with "LIVE" from now (as there exist no different revisions of the search management content)!
-        val rulesList = generateRulesTxtContentWithFilenames(index.id, "LIVE", logDebug = false)
+        val rulesList = generateRulesTxtContentWithFilenamesList(index.id, "LIVE", logDebug = false)
         for (rules <- rulesList) {
           zipStream.putNextEntry(new ZipEntry(s"rules_${index.name}.txt"))
           zipStream.write(rules.regularRules.content.getBytes("UTF-8"))
