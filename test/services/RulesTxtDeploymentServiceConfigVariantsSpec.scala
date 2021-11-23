@@ -13,6 +13,7 @@ trait CommonRulesTxtDeploymentServiceConfigVariantsSpecBase extends ApplicationT
   // TODO maybe share those definitions / instructions with RulesTxtDeploymentServiceSpec as well?
 
   protected lazy val service = injector.instanceOf[RulesTxtDeploymentService]
+  protected lazy val rulesTxtImportService = injector.instanceOf[RulesTxtImportService]
 
   override protected lazy val activateSpelling = false
 
@@ -388,5 +389,92 @@ class RulesTxtDeploymentGitTargetSpec extends FlatSpec with Matchers with Common
 
   }
 
+}
+
+class RulesTxtOnlyDeploymentInputTagBasedSpec extends FlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
+
+  override protected lazy val additionalAppConfig = Seq(
+    "smui2solr.SRC_TMP_FILE" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp",
+    "smui2solr.DST_CP_FILE_TO" -> "common_rules",
+    "toggle.rule-deployment.pre-live.present" -> true,
+    "smui2solr.deploy-prelive-fn-rules-txt" -> "common_rules",
+    "toggle.rule-tagging" -> true,
+    "toggle.predefined-tags-file" -> "./test/resources/TestRulesTxtImportTenantTags.json",
+    "smui2solr.deployment.tag.property" -> "tenant"
+  )
+
+  override protected def beforeAll(): Unit = {
+    super.beforeAll()
+    createTenantTaggedRules()
+  }
+
+  protected def createTenantTaggedRules(): Unit = {
+    var rules: String = s"""tenantAA =>
+                           |  DOWN(10): down_x
+                           |  @{ "tenant":["AA"]}@
+                           |
+                           |tenantBB =>
+                           |  DOWN(10): down_x
+                           |  @{ "tenant" : [ "BB" ] }@
+                           |
+                           |tenantNoTag =>
+                           |  DOWN(10): down_x
+                           |
+                           |tenantNone =>
+                           |  DOWN(10): down_x
+                           |  @{ "tenant" : [ ] }@
+                           |
+                           |tenantAB =>
+                           |  DOWN(10): down_x
+                           |  @{ "tenant" : [ "AA", "BB" ] }@
+                           |
+                           |""".stripMargin
+    val (
+      retstatCountRulesTxtInputs,
+      retstatCountRulesTxtLinesSkipped,
+      retstatCountRulesTxtUnkownConvert,
+      retstatCountConsolidatedInputs,
+      retstatCountConsolidatedRules
+      ) = rulesTxtImportService.importFromFilePayload(rules, core1Id)
+  }
+
+  protected def getExpectedResultsList: List[Map[String, Object]] = {
+    List(
+      Map("inputTerms" -> List("tenantNoTag", "tenantNone", "aerosmith"), "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp", "destinationFileName" -> "common_rules"),
+      Map("inputTerms" -> List("tenantAA", "tenantAB"), "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt_AA.tmp", "destinationFileName" -> "common_rules_AA"),
+      Map("inputTerms" -> List("tenantAB", "tenantBB"), "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt_BB.tmp", "destinationFileName" -> "common_rules_BB"),
+      Map("inputTerms" -> List(), "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt_CC.tmp", "destinationFileName" -> "common_rules_CC")
+    )
+  }
+
+  def validateDeploymentDescriptor(deploymentDescriptor: service.RulesTxtsForSolrIndex, expectedResults: Map[String, Object]) = {
+    deploymentDescriptor.solrIndexId shouldBe core1Id
+    val inputTerms : List[String] = expectedResults("inputTerms").asInstanceOf[List[String]]
+    for (inputTerm <- inputTerms) {
+      deploymentDescriptor.regularRules.content should include (inputTerm)
+    }
+    deploymentDescriptor.regularRules.sourceFileName shouldBe expectedResults("sourceFileName")
+    deploymentDescriptor.regularRules.destinationFileName shouldBe expectedResults("destinationFileName")
+    deploymentDescriptor.replaceRules shouldBe None
+    deploymentDescriptor.decompoundRules shouldBe None
+  }
+
+  "RulesTxtDeploymentService" should "provide only the (common) rules.txt for PRELIVE" in {
+    val deploymentDescriptorList = service.generateRulesTxtContentWithFilenamesList(core1Id, "PRELIVE", logDebug = false)
+    var i = 0
+    for (deploymentDescriptor <- deploymentDescriptorList) {
+      validateDeploymentDescriptor(deploymentDescriptor, getExpectedResultsList(i))
+      i += 1
+    }
+  }
+
+  "RulesTxtDeploymentService" should "provide only the (common) rules.txt for LIVE" in {
+    val deploymentDescriptorList = service.generateRulesTxtContentWithFilenamesList(core1Id, "LIVE", logDebug = false)
+    var i = 0
+    for (deploymentDescriptor <- deploymentDescriptorList) {
+      validateDeploymentDescriptor(deploymentDescriptor, getExpectedResultsList(i))
+      i += 1
+    }
+  }
 
 }
