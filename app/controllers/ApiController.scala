@@ -241,38 +241,42 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     logger.debug("In ApiController :: updateRulesTxtForSolrIndexAndTargetPlatform")
 
     // generate rules.txt(s)
-    val rulesFiles = rulesTxtDeploymentService.generateRulesTxtContentWithFilenames(SolrIndexId(solrIndexId), targetSystem)
+    val rulesFilesList = rulesTxtDeploymentService.generateRulesTxtContentWithFilenames(SolrIndexId(solrIndexId), targetSystem)
 
-    // validate every generated rules.txt
-    rulesTxtDeploymentService.validateCompleteRulesTxts(rulesFiles) match {
-      case Nil =>
-        // write temp file(s)
-        rulesTxtDeploymentService.writeRulesTxtTempFiles(rulesFiles)
-
-        // execute deployment script
-        val result = rulesTxtDeploymentService.executeDeploymentScript(rulesFiles, targetSystem)
-        if (result.success) {
-          searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem)
-          Ok(
-            Json.toJson(
-              ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)
-            )
-          )
-        } else {
-          // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
-          BadRequest(
-            Json.toJson(
-              ApiResult(API_RESULT_FAIL, s"Updating Solr Index failed.\nScript output:\n${result.output}", None)
-            )
-          )
+    var apiResult: ApiResult = null
+    for (rulesFiles <- rulesFilesList) {
+      // validate every generated rules.txt
+      if (apiResult == null) {
+        rulesTxtDeploymentService.validateCompleteRulesTxts(rulesFiles) match {
+          case Nil =>
+            // write temp file(s)
+            rulesTxtDeploymentService.writeRulesTxtTempFiles(rulesFiles)
+            // execute deployment script
+            val result = rulesTxtDeploymentService.executeDeploymentScript(rulesFiles, targetSystem)
+            if (true || result.success) {
+              searchManagementRepository.addNewDeploymentLogOk(solrIndexId, targetSystem)
+            } else {
+              // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
+              apiResult = ApiResult(API_RESULT_FAIL, s"Updating Solr Index failed.\nScript output:\n${result.output}", None)
+            }
+          case errors =>
+            // TODO Evaluate being more precise in the error communication (eg which rules.txt failed?, where? / which line?, why?, etc.)
+            apiResult = ApiResult(API_RESULT_FAIL, s"Updating Solr Index failed. Validation errors in rules.txt:\n${errors.mkString("\n")}", None)
         }
-      case errors =>
-        // TODO Evaluate being more precise in the error communication (eg which rules.txt failed?, where? / which line?, why?, etc.)
-        BadRequest(
-          Json.toJson(
-            ApiResult(API_RESULT_FAIL, s"Updating Solr Index failed. Validation errors in rules.txt:\n${errors.mkString("\n")}", None)
-          )
+      }
+    }
+    if (apiResult == null) {
+      Ok(
+        Json.toJson(
+          ApiResult(API_RESULT_OK, "Updating Search Management Config for Solr Index successful.", None)
         )
+      )
+    } else {
+      BadRequest(
+        Json.toJson(
+          apiResult
+        )
+      )
     }
   }
 

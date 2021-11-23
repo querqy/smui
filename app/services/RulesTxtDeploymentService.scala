@@ -2,22 +2,24 @@ package services
 
 import java.io.OutputStream
 import java.util.zip.{ZipEntry, ZipOutputStream}
-
 import javax.inject.Inject
 import models.FeatureToggleModel.FeatureToggleService
+import models.input.InputTag
 import models.querqy.{QuerqyReplaceRulesGenerator, QuerqyRulesTxtGenerator}
 import models.{DeploymentScriptResult, SearchManagementRepository, SolrIndexId}
 import play.api.{Configuration, Environment, Logging}
 
+import scala.collection.immutable.HashSet
+import scala.collection.mutable.ListBuffer
 import scala.sys.process._
 
 // TODO consider moving this to a service (instead of models) package
 @javax.inject.Singleton
 class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
-                                           appConfig: Configuration,
-                                           featureToggleService: FeatureToggleService,
-                                           searchManagementRepository: SearchManagementRepository,
-                                           environment: Environment) extends Logging {
+                                          appConfig: Configuration,
+                                          featureToggleService: FeatureToggleService,
+                                          searchManagementRepository: SearchManagementRepository,
+                                          environment: Environment) extends Logging {
 
   case class RulesTxtsForSolrIndex(solrIndexId: SolrIndexId,
                                    regularRules: RulesTxtWithFileNames,
@@ -34,22 +36,42 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
                                    sourceFileName: String,
                                    destinationFileName: String)
 
+  def generateRulesTxtContentWithFilenames(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true): List[RulesTxtsForSolrIndex] = {
+    val filterTagName = appConfig.get[String]("smui2solr.deployment.tag.property")
+    val inputTagValues: List[InputTag] =
+      if (!filterTagName.isEmpty)
+        searchManagementRepository.listInputTagValuesForSolrIndexAndInputTagProperty(null, filterTagName) ++ searchManagementRepository.listInputTagValuesForSolrIndexAndInputTagProperty(solrIndexId, filterTagName)
+      else
+        List.empty
+    val rulesTxtsForSolrIndexes: ListBuffer[RulesTxtsForSolrIndex] = new ListBuffer[RulesTxtsForSolrIndex]
+    // first rules without the inputTag assigned
+    rulesTxtsForSolrIndexes += generateRulesTxtContentWithFilenamesWithTags(solrIndexId, targetSystem, true, filterTagName, null)
+    for (i <- inputTagValues) {
+      rulesTxtsForSolrIndexes += generateRulesTxtContentWithFilenamesWithTags(solrIndexId, targetSystem, true, filterTagName, i)
+    }
+    rulesTxtsForSolrIndexes.toList
+  }
+
   /**
     * Generates a list of source to destination filenames containing the rules.txt(s) according to current application settings.
     *
     * @param solrIndexId Solr Index Id to generate the output for.
     */
   // TODO evaluate, if logDebug should be used to prevent verbose logging of the whole generated rules.txt (for zip download especially)
-  def generateRulesTxtContentWithFilenames(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true): RulesTxtsForSolrIndex = {
+  def generateRulesTxtContentWithFilenamesWithTags(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true, filterTagName: String, inputTag: InputTag): RulesTxtsForSolrIndex = {
 
+    val inputTagValue:String = if (inputTag != null)
+      inputTag.value
+    else
+      ""
     // SMUI config for (regular) LIVE deployment
-    val SRC_TMP_FILE = appConfig.get[String]("smui2solr.SRC_TMP_FILE")
-    val DST_CP_FILE_TO = appConfig.get[String]("smui2solr.DST_CP_FILE_TO")
+    val SRC_TMP_FILE = appendTagToFileName(appConfig.get[String]("smui2solr.SRC_TMP_FILE"), inputTagValue)
+    val DST_CP_FILE_TO = appendTagToFileName(appConfig.get[String]("smui2solr.DST_CP_FILE_TO"), inputTagValue)
     val DO_SPLIT_DECOMPOUND_RULES_TXT = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxt
     val DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = featureToggleService.getToggleRuleDeploymentSplitDecompoundRulesTxtDstCpFileTo
     // (additional) SMUI config for PRELIVE deployment
-    val SMUI_DEPLOY_PRELIVE_FN_RULES_TXT = appConfig.get[String]("smui2solr.deploy-prelive-fn-rules-txt")
-    val SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT = appConfig.get[String]("smui2solr.deploy-prelive-fn-decompound-txt")
+    val SMUI_DEPLOY_PRELIVE_FN_RULES_TXT = appendTagToFileName(appConfig.get[String]("smui2solr.deploy-prelive-fn-rules-txt"), inputTagValue)
+    val SMUI_DEPLOY_PRELIVE_FN_DECOMPOUND_TXT = appendTagToFileName(appConfig.get[String]("smui2solr.deploy-prelive-fn-decompound-txt"),inputTagValue)
 
     // Replace rules (spelling)
     val EXPORT_REPLACE_RULES = featureToggleService.getToggleActivateSpelling
@@ -85,8 +107,10 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
       if (targetSystem == "PRELIVE") SMUI_DEPLOY_PRELIVE_FN_REPLACE_TXT
       else REPLACE_RULES_DST_CP_FILE_TO
 
+    val sourceTempFile = SRC_TMP_FILE
+
     val replaceRules =
-      if (EXPORT_REPLACE_RULES) {
+      if (EXPORT_REPLACE_RULES && inputTag == null) {
         val allCanonicalSpellings = searchManagementRepository.listAllSpellingsWithAlternatives(solrIndexId)
         Some(RulesTxtWithFileNames(
           QuerqyReplaceRulesGenerator.renderAllCanonicalSpellingsToReplaceRules(allCanonicalSpellings),
@@ -97,7 +121,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
 
     if (!DO_SPLIT_DECOMPOUND_RULES_TXT) {
       RulesTxtsForSolrIndex(solrIndexId,
-        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId), SRC_TMP_FILE, dstCpFileTo),
+        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId, filterTagName, inputTag), sourceTempFile, dstCpFileTo),
         None,
         replaceRules
       )
@@ -107,9 +131,9 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
       else // targetSystem == "LIVE"
         DECOMPOUND_RULES_TXT_DST_CP_FILE_TO
       RulesTxtsForSolrIndex(solrIndexId,
-        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = false), SRC_TMP_FILE, dstCpFileTo),
-        Some(RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = true),
-          SRC_TMP_FILE + "-2", decompoundDstCpFileTo)
+        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = false, filterTagName, inputTag), sourceTempFile, dstCpFileTo),
+        Some(RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = true, filterTagName, inputTag),
+          sourceTempFile + "-2", decompoundDstCpFileTo)
         ),
         replaceRules
       )
@@ -177,24 +201,24 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
       """.stripMargin)
 
       val scriptCall =
-        // define call for regular smui2solr (default or custom script) and add parameters to the script (in expected order, see smui2solr.sh)
+      // define call for regular smui2solr (default or custom script) and add parameters to the script (in expected order, see smui2solr.sh)
         scriptPath + " " +
-        // SRC_TMP_FILE=$1
-        srcTmpFile + " " +
-        // DST_CP_FILE_TO=$2
-        dstCpFileTo + " " +
-        // SOLR_HOST=$3
-        solrHost + " " +
-        // SOLR_CORE_NAME=$4
-        solrCoreName + " " +
-        // DECOMPOUND_DST_CP_FILE_TO=$5
-        decompoundDstCpFileTo + " " +
-        // TARGET_SYSTEM=$6
-        targetSystem + " " +
-        // REPLACE_RULES_SRC_TMP_FILE=$7
-        replaceRulesSrcTmpFile + " " +
-        // REPLACE_RULES_DST_CP_FILE_TO=$8
-        replaceRulesDstCpFileTo
+          // SRC_TMP_FILE=$1
+          srcTmpFile + " " +
+          // DST_CP_FILE_TO=$2
+          dstCpFileTo + " " +
+          // SOLR_HOST=$3
+          solrHost + " " +
+          // SOLR_CORE_NAME=$4
+          solrCoreName + " " +
+          // DECOMPOUND_DST_CP_FILE_TO=$5
+          decompoundDstCpFileTo + " " +
+          // TARGET_SYSTEM=$6
+          targetSystem + " " +
+          // REPLACE_RULES_SRC_TMP_FILE=$7
+          replaceRulesSrcTmpFile + " " +
+          // REPLACE_RULES_DST_CP_FILE_TO=$8
+          replaceRulesDstCpFileTo
 
       interfaceDeploymentScript(scriptCall)
     }
@@ -203,19 +227,19 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
                             repoUrl: String, fnCommonRulesTxt: String
                            ): DeploymentScriptResult = {
       val scriptCall =
-        // define call for default smui2git.sh script
+      // define call for default smui2git.sh script
         scriptPath + " " +
-        // SRC_TMP_FILE=$1
-        srcTmpFile + " " +
-        // SMUI_GIT_REPOSITORY=$2
-        repoUrl + " " +
-        // SMUI_GIT_FN_COMMON_RULES_TXT=$3
-        fnCommonRulesTxt
+          // SRC_TMP_FILE=$1
+          srcTmpFile + " " +
+          // SMUI_GIT_REPOSITORY=$2
+          repoUrl + " " +
+          // SMUI_GIT_FN_COMMON_RULES_TXT=$3
+          fnCommonRulesTxt
 
       val firstResult = interfaceDeploymentScript(scriptCall)
-      if(!firstResult.success) {
+      if (!firstResult.success) {
         // still accept, if no change happened
-        if(firstResult.output.trim.endsWith("nothing to commit, working tree clean")) {
+        if (firstResult.output.trim.endsWith("nothing to commit, working tree clean")) {
           DeploymentScriptResult(0, firstResult.output)
         } else {
           firstResult
@@ -262,7 +286,7 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     // execute script
     // TODO currently only git deployment for LIVE instance available
     val deployToGit = targetSystem.equals("LIVE") && appConfig.get[String]("smui2solr.DST_CP_FILE_TO").equals("GIT")
-    val result = (if(!deployToGit) {
+    val result = (if (!deployToGit) {
       logger.info(s":: executeDeploymentScript :: regular script configured calling interfaceSmui2SolrSh(scriptPath = '$scriptPath')")
       interfaceSmui2SolrSh(
         scriptPath,
@@ -323,21 +347,23 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     try {
       for (index <- searchManagementRepository.listAllSolrIndexes) {
         // TODO make targetSystem configurable from ApiController.downloadAllRulesTxtFiles ... go with "LIVE" from now (as there exist no different revisions of the search management content)!
-        val rules = generateRulesTxtContentWithFilenames(index.id, "LIVE", logDebug = false)
-        zipStream.putNextEntry(new ZipEntry(s"rules_${index.name}.txt"))
-        zipStream.write(rules.regularRules.content.getBytes("UTF-8"))
-        zipStream.closeEntry()
-
-        for (decompoundRules <- rules.decompoundRules) {
-          zipStream.putNextEntry(new ZipEntry(s"rules-decompounding_${index.name}.txt"))
-          zipStream.write(decompoundRules.content.getBytes("UTF-8"))
+        val rulesList = generateRulesTxtContentWithFilenames(index.id, "LIVE", logDebug = false)
+        for (rules <- rulesList) {
+          zipStream.putNextEntry(new ZipEntry(s"rules_${index.name}.txt"))
+          zipStream.write(rules.regularRules.content.getBytes("UTF-8"))
           zipStream.closeEntry()
-        }
 
-        for (replaceRules <- rules.replaceRules) {
-          zipStream.putNextEntry(new ZipEntry(s"replace-rules_${index.name}.txt"))
-          zipStream.write(replaceRules.content.getBytes("UTF-8"))
-          zipStream.closeEntry()
+          for (decompoundRules <- rules.decompoundRules) {
+            zipStream.putNextEntry(new ZipEntry(s"rules-decompounding_${index.name}.txt"))
+            zipStream.write(decompoundRules.content.getBytes("UTF-8"))
+            zipStream.closeEntry()
+          }
+
+          for (replaceRules <- rules.replaceRules) {
+            zipStream.putNextEntry(new ZipEntry(s"replace-rules_${index.name}.txt"))
+            zipStream.write(replaceRules.content.getBytes("UTF-8"))
+            zipStream.closeEntry()
+          }
         }
       }
     } finally {
@@ -345,6 +371,23 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
       zipStream.close()
       out.close()
     }
+  }
+
+  /**
+    * Returns the file name with an optional tag inserted
+    * When the file name has a 3 or 4 char extension,
+    * the tag is inserted before the extension.
+    */
+  def appendTagToFileName(fileName: String, tag: String) : String = {
+    if (tag.isEmpty)
+      return fileName
+    val regex = "^(.*)(\\.([A-Za-z0-9]{3,4}))$".r
+    val tagLabel = "_".+(tag)
+    val firstMatch =  regex.findFirstMatchIn(fileName)
+    if (firstMatch.isDefined)
+      firstMatch.get.group(1).+(tagLabel).+(firstMatch.get.group(2))
+    else
+      fileName.+(tagLabel)
   }
 
 }

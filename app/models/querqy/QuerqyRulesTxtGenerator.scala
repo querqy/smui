@@ -2,12 +2,11 @@ package models.querqy
 
 import java.io.StringReader
 import java.net.{URI, URISyntaxException}
-
 import javax.inject.Inject
 import models.FeatureToggleModel._
 import models.rules._
 import models.{SearchManagementRepository, SolrIndexId}
-import models.input.SearchInputWithRules
+import models.input.{InputTag, SearchInputWithRules}
 import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json.{JsString, Json}
 import querqy.rewrite.commonrules.{SimpleCommonRulesParser, WhiteSpaceQuerqyParserFactory}
@@ -131,6 +130,20 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     retQuerqyRulesTxt.toString()
   }
 
+  def hasValidInputTagValue(i: SearchInputWithRules, filterTagName: String, inputTag: InputTag): Boolean = {
+    // no filter on tags defined
+    if (filterTagName == null || filterTagName.isEmpty) {
+      return true
+    }
+    val ruleTags = i.tags.filter(_.property.get.equals(filterTagName))
+    // common rules (without the input tag
+    if (inputTag == null) {
+      ruleTags.isEmpty
+    } else {
+      ruleTags.map(t => t.id).contains(inputTag.id)
+    }
+  }
+
   /**
     * TODO
     *
@@ -140,7 +153,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     * @return
     */
   // TODO resolve & test logic of render method (change interface to separate decompound from normal rules)
-  private def render(solrIndexId: SolrIndexId, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean): String = {
+  private def render(solrIndexId: SolrIndexId, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean, filterTagName: String, inputTag: InputTag): String = {
 
     val retQuerqyRulesTxt = new StringBuilder()
 
@@ -151,6 +164,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       .filter(i => i.trimmedTerm.nonEmpty)
       // TODO it needs to be ensured, that a rule not only exists in the list, are active, BUT also has a filled term (after trim)
       .filter(_.hasAnyActiveRules)
+      .filter(i => hasValidInputTagValue(i, filterTagName, inputTag))
 
     // TODO merge decompound identification login with ApiController :: validateSearchInputToErrMsg
 
@@ -170,12 +184,12 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     renderListSearchInputRules(separateRules(listSearchInput))
   }
 
-  def renderSingleRulesTxt(solrIndexId: SolrIndexId): String = {
-    render(solrIndexId, false, false)
+  def renderSingleRulesTxt(solrIndexId: SolrIndexId, filterTagName: String, inputTag: InputTag): String = {
+    render(solrIndexId, false, false, filterTagName, inputTag)
   }
 
-  def renderSeparatedRulesTxts(solrIndexId: SolrIndexId, renderCompoundsRulesTxt: Boolean): String = {
-    render(solrIndexId, true, renderCompoundsRulesTxt)
+  def renderSeparatedRulesTxts(solrIndexId: SolrIndexId, renderCompoundsRulesTxt: Boolean, filterTagName: String, inputTag: InputTag): String = {
+    render(solrIndexId, true, renderCompoundsRulesTxt, filterTagName, inputTag)
   }
 
   /**

@@ -52,6 +52,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     InputTag.loadAll()
   }
 
+  def listInputTagValuesForSolrIndexAndInputTagProperty(solrIndexId: SolrIndexId, inputTagProperty: String): List[InputTag] = db.withConnection { implicit connection =>
+    InputTag.loadAll().filter(_.solrIndexId== Option(solrIndexId)).filter(_.property == Option(inputTagProperty)).toList
+  }
+
   def addNewInputTag(inputTag: InputTag) = db.withConnection { implicit connection =>
     InputTag.insert(inputTag)
   }
