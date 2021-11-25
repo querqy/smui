@@ -1,15 +1,14 @@
 package services
 
-import java.io.OutputStream
-import java.util.zip.{ZipEntry, ZipOutputStream}
-import javax.inject.Inject
 import models.FeatureToggleModel.FeatureToggleService
 import models.input.InputTag
 import models.querqy.{QuerqyReplaceRulesGenerator, QuerqyRulesTxtGenerator}
 import models.{DeploymentScriptResult, SearchManagementRepository, SolrIndexId}
 import play.api.{Configuration, Environment, Logging}
 
-import scala.collection.immutable.HashSet
+import java.io.OutputStream
+import java.util.zip.{ZipEntry, ZipOutputStream}
+import javax.inject.Inject
 import scala.collection.mutable.ListBuffer
 import scala.sys.process._
 
@@ -36,22 +35,23 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
                                    sourceFileName: String,
                                    destinationFileName: String)
 
+  // for backward compatibility: returns first element from generateRulesTxtContentWithFilenamesList(...)
   def generateRulesTxtContentWithFilenames(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true): RulesTxtsForSolrIndex = {
     generateRulesTxtContentWithFilenamesList(solrIndexId, targetSystem, logDebug).head
   }
 
+  // generate list of files per intputTag value (including the common set without the tag property)
   def generateRulesTxtContentWithFilenamesList(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true): List[RulesTxtsForSolrIndex] = {
-    val filterTagName = appConfig.get[String]("smui2solr.deployment.tag.property")
-    val inputTagValues: List[InputTag] =
-      if (!filterTagName.isEmpty)
-        searchManagementRepository.listInputTagValuesForSolrIndexAndInputTagProperty(null, filterTagName) ++ searchManagementRepository.listInputTagValuesForSolrIndexAndInputTagProperty(solrIndexId, filterTagName)
-      else
-        List.empty
+    val filterInputTagProperty = appConfig.get[String]("smui2solr.deployment.per.inputtag.property")
+    // build rules list based on the filter
     val rulesTxtsForSolrIndexes: ListBuffer[RulesTxtsForSolrIndex] = new ListBuffer[RulesTxtsForSolrIndex]
-    // first rules without the inputTag assigned
-    rulesTxtsForSolrIndexes += generateRulesTxtContentWithFilenamesWithTags(solrIndexId, targetSystem, true, filterTagName, null)
-    for (i <- inputTagValues) {
-      rulesTxtsForSolrIndexes += generateRulesTxtContentWithFilenamesWithTags(solrIndexId, targetSystem, true, filterTagName, i)
+    // 1st: common rules without the inputTag assigned
+    rulesTxtsForSolrIndexes += generateRulesTxtContentWithFilenamesPerInputTag(solrIndexId, targetSystem, true, filterInputTagProperty, null)
+    // 2nd: rules per inputTag values
+    if (!filterInputTagProperty.isEmpty) {
+      for (currentInputTag <- searchManagementRepository.listAllInputTagValuesForInputTagProperty(solrIndexId, filterInputTagProperty)) {
+        rulesTxtsForSolrIndexes += generateRulesTxtContentWithFilenamesPerInputTag(solrIndexId, targetSystem, true, filterInputTagProperty, currentInputTag)
+      }
     }
     rulesTxtsForSolrIndexes.toList
   }
@@ -62,10 +62,9 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
     * @param solrIndexId Solr Index Id to generate the output for.
     */
   // TODO evaluate, if logDebug should be used to prevent verbose logging of the whole generated rules.txt (for zip download especially)
-  def generateRulesTxtContentWithFilenamesWithTags(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true, filterTagName: String, inputTag: InputTag): RulesTxtsForSolrIndex = {
-
-    val inputTagValue:String = if (inputTag != null)
-      inputTag.value
+  def generateRulesTxtContentWithFilenamesPerInputTag(solrIndexId: SolrIndexId, targetSystem: String, logDebug: Boolean = true, filterInputTagProperty: String, currentInputTag: InputTag): RulesTxtsForSolrIndex = {
+    val inputTagValue:String = if (currentInputTag != null)
+      currentInputTag.value
     else
       ""
     // SMUI config for (regular) LIVE deployment
@@ -113,8 +112,9 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
 
     val sourceTempFile = SRC_TMP_FILE
 
-    val replaceRules =
-      if (EXPORT_REPLACE_RULES && inputTag == null) {
+    val replaceRules = {
+      // exclude iterations for inputtag value != null as replace rules have no inputtags
+      if (EXPORT_REPLACE_RULES && currentInputTag == null) {
         val allCanonicalSpellings = searchManagementRepository.listAllSpellingsWithAlternatives(solrIndexId)
         Some(RulesTxtWithFileNames(
           QuerqyReplaceRulesGenerator.renderAllCanonicalSpellingsToReplaceRules(allCanonicalSpellings),
@@ -122,10 +122,11 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
           replaceRulesDstCpFileTo
         ))
       } else None
+    }
 
     if (!DO_SPLIT_DECOMPOUND_RULES_TXT) {
       RulesTxtsForSolrIndex(solrIndexId,
-        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId, filterTagName, inputTag), sourceTempFile, dstCpFileTo),
+        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSingleRulesTxt(solrIndexId, filterInputTagProperty, currentInputTag), sourceTempFile, dstCpFileTo),
         None,
         replaceRules
       )
@@ -135,8 +136,8 @@ class RulesTxtDeploymentService @Inject() (querqyRulesTxtGenerator: QuerqyRulesT
       else // targetSystem == "LIVE"
         DECOMPOUND_RULES_TXT_DST_CP_FILE_TO
       RulesTxtsForSolrIndex(solrIndexId,
-        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = false, filterTagName, inputTag), sourceTempFile, dstCpFileTo),
-        Some(RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = true, filterTagName, inputTag),
+        RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = false, filterInputTagProperty, currentInputTag), sourceTempFile, dstCpFileTo),
+        Some(RulesTxtWithFileNames(querqyRulesTxtGenerator.renderSeparatedRulesTxts(solrIndexId, renderCompoundsRulesTxt = true, filterInputTagProperty, currentInputTag),
           sourceTempFile + "-2", decompoundDstCpFileTo)
         ),
         replaceRules

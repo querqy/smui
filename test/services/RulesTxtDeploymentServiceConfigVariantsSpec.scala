@@ -400,7 +400,7 @@ class RulesTxtOnlyDeploymentInputTagBasedSpec extends FlatSpec with Matchers wit
     "smui2solr.deploy-prelive-fn-rules-txt" -> "common_rules",
     "toggle.rule-tagging" -> true,
     "toggle.predefined-tags-file" -> "./test/resources/TestRulesTxtImportTenantTags.json",
-    "smui2solr.deployment.tag.property" -> "tenant"
+    "smui2solr.deployment.per.inputtag.property" -> "tenant"
   )
 
   override protected def beforeAll(): Unit = {
@@ -440,18 +440,36 @@ class RulesTxtOnlyDeploymentInputTagBasedSpec extends FlatSpec with Matchers wit
 
   protected def getExpectedResultsList: List[Map[String, Object]] = {
     List(
-      Map("inputTerms" -> List("tenantNoTag", "tenantNone", "aerosmith"), "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp", "destinationFileName" -> "common_rules"),
-      Map("inputTerms" -> List("tenantAA", "tenantAB"), "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt_AA.tmp", "destinationFileName" -> "common_rules_AA"),
-      Map("inputTerms" -> List("tenantAB", "tenantBB"), "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt_BB.tmp", "destinationFileName" -> "common_rules_BB"),
-      Map("inputTerms" -> List(), "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt_CC.tmp", "destinationFileName" -> "common_rules_CC")
+      // common - without tenant inputTag value
+      Map("inputTermsIncl" -> List("tenantNoTag", "tenantNone", "aerosmith"),
+        "inputTermsExcl" -> List("tenantAA", "tenantAB", "tenantBB"),
+        "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp",
+        "destinationFileName" -> "common_rules"),
+      // tenant AA
+      Map("inputTermsIncl" -> List("tenantAA", "tenantAB"),
+        "inputTermsExcl" -> List("tenantNoTag", "tenantNone", "aerosmith", "tenantBB"),
+        "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt_AA.tmp",
+        "destinationFileName" -> "common_rules_AA"),
+      // tenant BB
+      Map("inputTermsIncl" -> List("tenantAB", "tenantBB"),
+        "inputTermsExcl" -> List("tenantNoTag", "tenantNone", "aerosmith", "tenantAA"),
+        "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt_BB.tmp",
+        "destinationFileName" -> "common_rules_BB"),
+      // tenant CC
+      Map("inputTermsIncl" -> List(),
+        "inputTermsExcl" -> List("tenantNoTag", "tenantNone", "aerosmith", "tenantAA", "tenantAB", "tenantBB"),
+        "sourceFileName" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt_CC.tmp",
+        "destinationFileName" -> "common_rules_CC")
     )
   }
 
   def validateDeploymentDescriptor(deploymentDescriptor: service.RulesTxtsForSolrIndex, expectedResults: Map[String, Object]) = {
     deploymentDescriptor.solrIndexId shouldBe core1Id
-    val inputTerms : List[String] = expectedResults("inputTerms").asInstanceOf[List[String]]
-    for (inputTerm <- inputTerms) {
+    for (inputTerm <- expectedResults("inputTermsIncl").asInstanceOf[List[String]]) {
       deploymentDescriptor.regularRules.content should include (inputTerm)
+    }
+    for (inputTerm <- expectedResults("inputTermsExcl").asInstanceOf[List[String]]) {
+      deploymentDescriptor.regularRules.content should not include (inputTerm)
     }
     deploymentDescriptor.regularRules.sourceFileName shouldBe expectedResults("sourceFileName")
     deploymentDescriptor.regularRules.destinationFileName shouldBe expectedResults("destinationFileName")

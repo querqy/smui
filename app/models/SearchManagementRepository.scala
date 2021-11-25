@@ -3,7 +3,6 @@ package models
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.util.{Date, UUID}
-
 import javax.inject.Inject
 import play.api.db.DBApi
 import anorm._
@@ -12,6 +11,8 @@ import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInp
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
 import models.reports.{ActivityReport, DeploymentLog, RulesReport}
+
+import scala.collection.mutable.ListBuffer
 
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
@@ -55,6 +56,21 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def listInputTagValuesForSolrIndexAndInputTagProperty(solrIndexId: SolrIndexId, inputTagProperty: String): List[InputTag] = db.withConnection { implicit connection =>
     InputTag.loadAll().filter(_.solrIndexId== Option(solrIndexId)).filter(_.property == Option(inputTagProperty)).toList
   }
+
+  def listAllInputTagValuesForInputTagProperty(solrIndexId: SolrIndexId, filterInputTagProperty: String): List[InputTag] = {
+    val inputTagValuesListBuffer: ListBuffer[InputTag] = ListBuffer()
+    // retrieve inputTags common to all solr indices
+    for (inputTagValue <- listInputTagValuesForSolrIndexAndInputTagProperty(null, filterInputTagProperty)) {
+      inputTagValuesListBuffer += inputTagValue
+    }
+    // retrieve inputTags dedicated for current solr index
+    for (inputTagValue <- listInputTagValuesForSolrIndexAndInputTagProperty(solrIndexId, filterInputTagProperty)) {
+      inputTagValuesListBuffer += inputTagValue
+    }
+    inputTagValuesListBuffer.toList
+  }
+
+
 
   def addNewInputTag(inputTag: InputTag) = db.withConnection { implicit connection =>
     InputTag.insert(inputTag)

@@ -130,17 +130,18 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     retQuerqyRulesTxt.toString()
   }
 
-  def hasValidInputTagValue(i: SearchInputWithRules, filterTagName: String, inputTag: InputTag): Boolean = {
-    // no filter on tags defined
-    if (filterTagName == null || filterTagName.isEmpty) {
+  def hasValidInputTagValue(searchInputWithRules: SearchInputWithRules, filterInputTagProperty: String, currentInputTag: InputTag): Boolean = {
+    // no filtering on tags
+    if (filterInputTagProperty.isEmpty) {
       return true
     }
-    val ruleTags = i.tags.filter(_.property.get.equals(filterTagName))
-    // common rules (without the input tag
-    if (inputTag == null) {
-      ruleTags.isEmpty
+    val filteredInputTagsOfCurrentRule = searchInputWithRules.tags.filter(_.property.get.equals(filterInputTagProperty))
+    if (currentInputTag == null) {
+      // common set of rules (inputTag == null): check whether the filterInputTagProperty as property is absent
+      filteredInputTagsOfCurrentRule.isEmpty
     } else {
-      ruleTags.map(t => t.id).contains(inputTag.id)
+      // other rules sets per input tag value: check whether the current tag has been set on the rule
+      filteredInputTagsOfCurrentRule.map(t => t.id).contains(currentInputTag.id)
     }
   }
 
@@ -153,7 +154,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     * @return
     */
   // TODO resolve & test logic of render method (change interface to separate decompound from normal rules)
-  private def render(solrIndexId: SolrIndexId, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean, filterTagName: String, inputTag: InputTag): String = {
+  private def render(solrIndexId: SolrIndexId, separateRulesTxts: Boolean, renderCompoundsRulesTxt: Boolean, filterInputTagProperty: String, currentInputTag: InputTag): String = {
 
     val retQuerqyRulesTxt = new StringBuilder()
 
@@ -164,7 +165,7 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
       .filter(i => i.trimmedTerm.nonEmpty)
       // TODO it needs to be ensured, that a rule not only exists in the list, are active, BUT also has a filled term (after trim)
       .filter(_.hasAnyActiveRules)
-      .filter(i => hasValidInputTagValue(i, filterTagName, inputTag))
+      .filter(searchInputWithRules => hasValidInputTagValue(searchInputWithRules, filterInputTagProperty, currentInputTag))
 
     // TODO merge decompound identification login with ApiController :: validateSearchInputToErrMsg
 
@@ -184,12 +185,12 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     renderListSearchInputRules(separateRules(listSearchInput))
   }
 
-  def renderSingleRulesTxt(solrIndexId: SolrIndexId, filterTagName: String, inputTag: InputTag): String = {
-    render(solrIndexId, false, false, filterTagName, inputTag)
+  def renderSingleRulesTxt(solrIndexId: SolrIndexId, filterInputTagProperty: String, currentInputTag: InputTag): String = {
+    render(solrIndexId, false, false, filterInputTagProperty, currentInputTag)
   }
 
-  def renderSeparatedRulesTxts(solrIndexId: SolrIndexId, renderCompoundsRulesTxt: Boolean, filterTagName: String, inputTag: InputTag): String = {
-    render(solrIndexId, true, renderCompoundsRulesTxt, filterTagName, inputTag)
+  def renderSeparatedRulesTxts(solrIndexId: SolrIndexId, renderCompoundsRulesTxt: Boolean, filterInputTagProperty: String, currentInputTag: InputTag): String = {
+    render(solrIndexId, true, renderCompoundsRulesTxt, filterInputTagProperty, currentInputTag)
   }
 
   /**
