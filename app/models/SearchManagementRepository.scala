@@ -3,7 +3,6 @@ package models
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.util.{Date, UUID}
-
 import javax.inject.Inject
 import play.api.db.DBApi
 import anorm._
@@ -12,22 +11,19 @@ import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInp
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
 import models.reports.{ActivityReport, DeploymentLog, RulesReport}
+import play.api.Logging
 
 @javax.inject.Singleton
-class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
+class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) extends Logging {
 
   private val db = dbapi.database("default")
 
-  // On startup, always sync predefined tags with the DB
-  syncPredefinedTagsWithDB()
 
-  private def syncPredefinedTagsWithDB(): Unit = {
+  def syncPredefinedTagsWithDB(predefinedTagsFileName: Option[String]): Unit = {
     db.withTransaction { implicit connection =>
-      if (toggleService.isRuleTaggingActive) {
-        for (fileName <- toggleService.predefinedTagsFileName) {
-          val tags = PredefinedTag.fromStream(new FileInputStream(fileName))
-          PredefinedTag.updateInDB(tags)
-        }
+      for (fileName <- predefinedTagsFileName) {
+        val tags = PredefinedTag.fromStream(new FileInputStream(fileName))
+        PredefinedTag.updateInDB(tags)
       }
     }
   }
