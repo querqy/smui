@@ -175,7 +175,7 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
 
 
   def logout() = Action { implicit request: Request[AnyContent] =>
-    Redirect(routes.FrontendController.index()).withNewSession
+    Redirect(routes.FrontendController.login_or_register()).withNewSession
   }
 
   //def priv() = Action { implicit request: Request[AnyContent] =>

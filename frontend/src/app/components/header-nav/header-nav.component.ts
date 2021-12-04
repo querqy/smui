@@ -95,9 +95,15 @@ export class HeaderNavComponent implements OnInit {
 
   public callSimpleLogoutUrl() {
     console.log('In AppComponent :: callSimpleLogoutUrl');
-
-    // TODO redirect in a more "Angular-way" to target URL
-    window.location.href = this.featureToggleService.getSimpleLogoutButtonTargetUrl();
+    console.log("Logout target:" + this.featureToggleService.getSimpleLogoutButtonTargetUrl());
+    var logoutTargetUrl = this.featureToggleService.getSimpleLogoutButtonTargetUrl();
+    if (logoutTargetUrl.toLowerCase().startsWith("http")){
+      // TODO redirect in a more "Angular-way" to target URL
+      window.location.href = logoutTargetUrl;
+    }
+    else {
+      window.location.pathname = logoutTargetUrl;
+    }
   }
 
   public loadAndShowDeploymentLogInfo(targetPlatform: string) {

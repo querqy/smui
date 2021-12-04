@@ -14,9 +14,14 @@ export class HttpAuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(catchError((err: any) => {
+      if (err.status === 200 && err.name === "HttpErrorResponse" && err.url != null) {
+        console.log('200 Response :: err = ' + JSON.stringify(err));
+        //window.location.href = err.url
+
+      }
       if (err.status === 401) {
         try {
-          console.log(':: err = ' + JSON.stringify(err.error));
+          console.log('401 Response :: err = ' + JSON.stringify(err.error));
           const smuiAuthViolation = err.error as SmuiAuthViolation;
           console.log(':: smuiAuthViolation = ' + JSON.stringify(smuiAuthViolation));
           if (smuiAuthViolation.action === 'redirect') {
