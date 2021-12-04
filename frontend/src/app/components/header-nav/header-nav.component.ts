@@ -69,6 +69,7 @@ export class HeaderNavComponent implements OnInit {
           this.deploymentRunningForStage = undefined;
           this.showSuccessMsg(apiResult.message);
         })
+        .then(this.modalService.close('confirm-publish-live'))
         .catch(error => {
           this.deploymentRunningForStage = undefined;
           this.showErrorMsg(error.error.message);
