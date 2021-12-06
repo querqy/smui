@@ -69,6 +69,7 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
     }
   }
 
+
   def signup() = Action { implicit request: Request[AnyContent] =>
 
     SignupForm.form.bindFromRequest.fold(
@@ -77,17 +78,11 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
         BadRequest(views.html.login_or_signup(LoginForm.form, formWithErrors,featureToggleService.getSmuiHeadline))
       },
       userData => {
-        logger.info("CAME INTO successFunction")
-        if (isValidLogin(userData.email, userData.password)) {
-          val token = SessionDAO.generateToken(userData.email)
-
-          Redirect(routes.FrontendController.index()).withSession(request.session + ("sessionToken" -> token))
-        }
-        else {
-          //Redirect(routes.FrontendController.login_or_register(LoginForm.form, featureToggleService.getSmuiHeadline))
-          BadRequest(views.html.login_or_signup(LoginForm.form,SignupForm.form,featureToggleService.getSmuiHeadline))
-        }
-        //Redirect(routes.Application.showContact(contactId)).flashing("success" -> "Contact saved!")
+        logger.info("CAME INTO successFunction for signup")
+        UserDAO.addUser(userData.name, userData.email, userData.password)
+          .map(_ => Redirect(routes.FrontendController.index()).withSession(request.session + ("sessionToken" -> SessionDAO.generateToken(userData.email))))
+          .getOrElse(BadRequest(views.html.login_or_signup(LoginForm.form,SignupForm.form,featureToggleService.getSmuiHeadline))
+          )
       }
     )
   }
@@ -95,11 +90,11 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
   def login = Action { implicit request =>
     LoginForm.form.bindFromRequest.fold(
       formWithErrors => {
-        logger.info("CAME INTO error")
+        logger.info("CAME INTO error for login")
         BadRequest(views.html.login_or_signup(formWithErrors,SignupForm.form, featureToggleService.getSmuiHeadline))
       },
       userData => {
-        logger.info("CAME INTO successFunction")
+        logger.info("CAME INTO successFunction for login")
         if (isValidLogin(userData.email, userData.password)) {
           val token = SessionDAO.generateToken(userData.email)
 
@@ -157,5 +152,7 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
       .map(_.username)
       .flatMap(UserDAO.getUser)
   }
+
+
 }
 
