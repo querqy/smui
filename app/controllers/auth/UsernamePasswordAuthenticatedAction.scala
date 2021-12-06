@@ -21,7 +21,7 @@ class UsernamePasswordAuthenticatedAction(parser: BodyParsers.Default, appConfig
       // Having some challenges overriding the behavior of the main Angular app with the redirect, as the init that
       // looks up the features and solrs etc runs, preventing the redirect at times.  The 401 DOES work for that
       //Results.Redirect("/login_or_register").flashing(("failure" -> "Unknown email/password combo. Double check you have the correct email address and password, or sign up for a new account."))
-      Results.Unauthorized("401 Unauthorized you must login first: <a href=\"/login_or_register\">/login_or_register</a>")
+      Results.Unauthorized("401 Unauthorized you must either login or signup by visiting /login_or_signup")
     }
   }
 

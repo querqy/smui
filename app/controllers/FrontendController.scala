@@ -71,10 +71,10 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
 
   def signup() = Action { implicit request: Request[AnyContent] =>
 
-    LoginForm.form.bindFromRequest.fold(
+    SignupForm.form.bindFromRequest.fold(
       formWithErrors => {
-        logger.info("CAME INTO error")
-        BadRequest(views.html.login_or_signup(formWithErrors, SignupForm.form,featureToggleService.getSmuiHeadline))
+        logger.info("CAME INTO error while signing up")
+        BadRequest(views.html.login_or_signup(LoginForm.form, formWithErrors,featureToggleService.getSmuiHeadline))
       },
       userData => {
         logger.info("CAME INTO successFunction")
@@ -131,8 +131,8 @@ class FrontendController @Inject()(cc: MessagesControllerComponents,
   //  Ok(views.html.priv(user.user.get))
   //}
 
-  private def isValidLogin(username: String, password: String): Boolean = {
-    UserDAO.getUser(username).exists(_.password == password)
+  private def isValidLogin(email: String, password: String): Boolean = {
+    UserDAO.getUser(email).exists(_.password == password)
   }
 
   private def withPlayUser[T](block: User => Result): EssentialAction = {
