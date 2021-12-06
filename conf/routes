@@ -11,7 +11,8 @@ GET     /priv-play                  controllers.FrontendController.privPlay
 POST    /login                      controllers.FrontendController.login
 #GET     /login                      controllers.FrontendController.login(username, password)
 GET     /logout                     controllers.FrontendController.logout
-GET     /login_or_register          controllers.FrontendController.login_or_register
+GET     /login_or_signup            controllers.FrontendController.login_or_signup
+POST    /signup                     controllers.FrontendController.signup
 
 # Handle Requests to the Server's root, and supply the Angular SPA
 GET     /         controllers.FrontendController.index()

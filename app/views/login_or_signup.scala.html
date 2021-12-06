@@ -1,4 +1,4 @@
-@(form: Form[LoginForm.UserData], headline: String)(implicit messages: Messages,  flash: Flash)
+@(loginForm: Form[LoginForm.UserData],signupForm: Form[SignupForm.UserData], headline: String)(implicit messages: Messages,  flash: Flash)
 
 <!doctype html>
 <html lang="en">
@@ -41,12 +41,12 @@
               <% end %>
                 -->
 
-              @helper.inputText(form("email"))
+              @helper.inputText(loginForm("email"))
 
-              @helper.inputPassword(form("password"))
+              @helper.inputPassword(loginForm("password"))
 
               <br/>
-                <input type="submit" value="Sign In" class="btn btn-primary login"/>
+              <input type="submit" value="Sign In" class="btn btn-primary login"/>
             </form>
           </div>
         </div>
@@ -57,9 +57,10 @@
 
         <div class="col-md-3 col-sm-4">
           <div>
-            <%= form_for(#user, url: users_signup_path, id: 'signup', html: { method: :post }) do |f| %>
+            <form action="@routes.FrontendController.signup" method="post">
 
               <h2>Sign up to get started!</h2>
+              <!--
               <% if controller.class.to_s.include?("SignupsController") && #user.errors.any? %>
                 <div id="error_explanation">
                   <% #user.errors.full_messages.each do |message| %>
@@ -69,24 +70,36 @@
                   <% end %>
                 </div>
               <% end %>
+              -->
+
+              @helper.inputText(signupForm("email"))
+              <!--
               <div class="form-group">
                  <%= f.text_field :name, class: 'form-control name', placeholder: 'Full Name' %>
               </div>
-
+              -->
+              @helper.inputText(signupForm("name"))
+              <!--
               <div class="form-group">
                 <%= f.text_field :email, class: 'form-control email', placeholder: 'Email Address' %>
               </div>
-
+              -->
+              @helper.inputPassword(loginForm("password"))
+              <!--
               <div class="form-group">
                  <%= f.password_field :password, class: 'form-control password', placeholder: 'Password' %>
               </div>
-
+              -->
+              @helper.inputPassword(loginForm("password_confirmation"))
+              <!--
               <div class="form-group">
                   <%= f.password_field :password_confirmation, class: 'form-control password-confirm', placeholder: 'Confirm Password' %>
               </div>
+              -->
+              <input type="submit" value="Sign Up" class="btn btn-primary signup"/>
+            </form>
           </div>
         </div>
-        <% end %>
       </div>
 
       <div class="row m-t-20">

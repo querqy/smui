@@ -42,9 +42,9 @@ export class AppComponent implements OnInit {
   // when we get to here it's listed as a 200.
   // error.ok = false, error.name=HttpErrorResponse, error.url=http://localhost:4200/login_or_register.
 
-  function checkIfLoginRequired(error: any) {
-
-  }
+  //function checkIfLoginRequired(error: any) {
+//
+  //}
 
   private initFeatureToggles(): Promise<void> {
 
@@ -52,7 +52,6 @@ export class AppComponent implements OnInit {
     return this.featureToggleService.getFeatureToggles().catch(error => {
       console.log("Error:" + error);
       this.errors.push('Could not fetch app configuration from back-end');
-      checkIfLoginRequired(error);
 
     });
   }
