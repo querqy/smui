@@ -44,6 +44,10 @@ GET     /api/v1/log/rule-activity-log                           controllers.ApiC
 GET     /api/v1/report/rules-report/:solrIndexId                controllers.ApiController.getRulesReport(solrIndexId: String)
 GET     /api/v1/report/activity-report/:solrIndexId             controllers.ApiController.getActivityReport(solrIndexId: String)
 GET     /api/v1/version/latest-info                             controllers.ApiController.getLatestVersionInfo()
+PUT     /api/v1/user                                            controllers.ApiController.addNewUser
+GET     /api/v1/user/:userId                                    controllers.ApiController.getUser(userId: String)
+GET     /api/v1/users                                           controllers.ApiController.listAllUsers
+GET     /api/v1/users/lookup                                    controllers.ApiController.lookup(by: String, value: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /*file   controllers.FrontendController.assetOrDefault(file)

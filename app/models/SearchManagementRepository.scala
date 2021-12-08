@@ -1,17 +1,17 @@
 package models
 
+import anorm._
+import models.FeatureToggleModel.FeatureToggleService
+import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
+import models.input._
+import models.reports.{ActivityReport, DeploymentLog, RulesReport}
+import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import play.api.db.DBApi
+
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.util.{Date, UUID}
-
 import javax.inject.Inject
-import play.api.db.DBApi
-import anorm._
-import models.FeatureToggleModel.FeatureToggleService
-import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
-import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
-import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
-import models.reports.{ActivityReport, DeploymentLog, RulesReport}
 
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) {
@@ -54,6 +54,26 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
   def addNewInputTag(inputTag: InputTag) = db.withConnection { implicit connection =>
     InputTag.insert(inputTag)
+  }
+
+  def listAllUsers(): Seq[User] = db.withConnection { implicit connection =>
+    User.loadAll()
+  }
+
+  def addNewUser(user: User): UserId = db.withConnection { implicit connection =>
+    User.insert(user)
+  }
+
+  def getUserById(userId: String): User = db.withConnection { implicit connection =>
+    User.getUserById(userId)
+  }
+
+  def lookupByEmail(email: String): User = db.withConnection { implicit connection =>
+    User.getUserByEmail(email)
+  }
+
+  def lookupByUsername(username: String): User = db.withConnection { implicit connection =>
+    User.getUserByUsername(username)
   }
 
   /**
