@@ -1,8 +1,8 @@
 package models
 
+import anorm.Column.columnToString
 import anorm.SqlParser.get
 import anorm._
-import play.api.libs.Files.logger
 import play.api.libs.json._
 
 import java.sql.Connection
@@ -13,7 +13,7 @@ class UserId(id: String) extends Id(id)
 object UserId extends IdObject[UserId](new UserId(_))
 
 /**
-  * Defines a tag that can be assigned to a search input
+  * Defines a user
   */
 case class User(id: UserId = UserId(),
                     username: String,
@@ -40,6 +40,7 @@ case class User(id: UserId = UserId(),
 object User {
 
   val TABLE_NAME = "user"
+  val TABLE_NAME_USER_2_TEAM = "user_2_team"
 
   val ID = "id"
   val USERNAME = "username"
@@ -47,6 +48,9 @@ object User {
   val PASSWORD = "password"
   val ADMIN = "admin"
   val LAST_UPDATE = "last_update"
+
+  val USER_ID = "user_id"
+  val TEAM_ID = "team_id"
 
   implicit val jsonReads: Reads[User] = Json.reads[User]
 
@@ -71,37 +75,55 @@ object User {
     User(id, username, email, password, admin > 0, lastUpdate)
   }
 
-  def insert(newUser: User)(implicit connection: Connection): UserId = {
-    SQL"insert into #$TABLE_NAME (id, username, email, password, admin, last_update) values (${newUser.id}, ${newUser.username}, ${newUser.email}, ${newUser.password}, ${newUser.admin}, ${LocalDateTime.now()})".execute()
-    newUser.id
+  def insert(newUsers: User*)(implicit connection: Connection): Unit = {
+    if (newUsers.nonEmpty) {
+      BatchSql(s"insert into $TABLE_NAME ($ID, $USERNAME, $EMAIL, $PASSWORD, $ADMIN, $LAST_UPDATE) " +
+        s"values ({$ID}, {$USERNAME}, {$EMAIL}, {$PASSWORD}, {$ADMIN}, {$LAST_UPDATE})",
+        newUsers.head.toNamedParameters,
+        newUsers.tail.map(_.toNamedParameters): _*
+      ).execute()
+    }
   }
 
-  def loadAll()(implicit connection: Connection): Seq[User] = {
-    SQL"select * from #$TABLE_NAME order by username asc, email asc"
-      .as(sqlParser.*)
-  }
-
-  def getUserById(userId: String)(implicit connection: Connection): User = {
-    SQL"select * from #$TABLE_NAME where id = $userId order by username asc, email asc"
+  def getUser(userId: String)(implicit connection: Connection): User = {
+    SQL"select * from #$TABLE_NAME where id = $userId order by #$USERNAME asc, #$EMAIL asc"
       .as(sqlParser.*).head
   }
 
+  def update(id: UserId, username: String, email: String, password: String, admin: Boolean)(implicit connection: Connection): Int = {
+    val adminInt = if (admin) 1 else 0
+    SQL"update #$TABLE_NAME set #$USERNAME = $username, #$EMAIL = $email, #$PASSWORD = $password, #$ADMIN = $adminInt, #$LAST_UPDATE = ${LocalDateTime.now()} where #$ID = $id".executeUpdate()
+  }
+
+  def deleteByIds(ids: Seq[UserId])(implicit connection: Connection): Int = {
+    var count = 0
+    for (idGroup <- ids.grouped(100)) {
+      count += SQL"delete from #$TABLE_NAME where #$ID in ($idGroup)".executeUpdate()
+    }
+    count
+  }
+
+  def loadAll()(implicit connection: Connection): Seq[User] = {
+    SQL"select * from #$TABLE_NAME order by #$USERNAME asc, #$EMAIL asc"
+      .as(sqlParser.*)
+  }
+
   def getUserByEmail(email: String)(implicit connection: Connection): User = {
-    SQL"select * from #$TABLE_NAME where email = $email order by username asc, email asc"
+    SQL"select * from #$TABLE_NAME where #$EMAIL = $email order by #$USERNAME asc, #$EMAIL asc"
       .as(sqlParser.*).head
   }
 
   def getUserByUsername(username: String)(implicit connection: Connection): User = {
-    SQL"select * from #$TABLE_NAME where username = $username order by username asc, email asc"
+    SQL"select * from #$TABLE_NAME where #$USERNAME = $username order by #$USERNAME asc, #$EMAIL asc"
       .as(sqlParser.*).head
   }
 
-  def deleteByIds(ids: Seq[UserId])(implicit connection: Connection): Unit = {
-    for (idGroup <- ids.grouped(100)) {
-      SQL"delete from #$TABLE_NAME where #$ID in ($idGroup)".executeUpdate()
-    }
+  def getUser2Team(selectId: String, isLeftToRight: Boolean)(implicit connection: Connection): List[String] = {
+    val selectFieldName = if (isLeftToRight) USER_ID else TEAM_ID
+    val returnFieldName = if (isLeftToRight) TEAM_ID else USER_ID
+    SQL"select #$returnFieldName from #$TABLE_NAME_USER_2_TEAM where #$selectFieldName=$selectId order by #$returnFieldName asc"
+      .as(SqlParser.str(0).*)
   }
-
 
 }
 
