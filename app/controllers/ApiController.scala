@@ -1,26 +1,27 @@
 package controllers
 
+import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
+
 import akka.stream.scaladsl.{Source, StreamConverters}
 import akka.util.ByteString
+import javax.inject.Inject
+import play.api.Logging
+import play.api.mvc._
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+import java.nio.file.Paths
+import java.time.format.DateTimeFormatter
+import java.time.LocalDateTime
+
+import scala.concurrent.{ExecutionContext, Future}
 import controllers.auth.AuthActionFactory
 import models.FeatureToggleModel.FeatureToggleService
 import models._
 import models.config.SmuiVersion
-import models.input._
+import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
-import play.api.Logging
-import play.api.libs.json.Reads._
-import play.api.libs.json._
-import play.api.mvc._
 import services.{RulesTxtDeploymentService, RulesTxtImportService}
-
-import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
-import java.nio.file.Paths
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
@@ -87,41 +88,6 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
   def listAllInputTags(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
     Ok(Json.toJson(searchManagementRepository.listAllInputTags()))
-  }
-
-  def listAllUsers(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
-    Ok(Json.toJson(searchManagementRepository.listAllUsers()))
-  }
-
-  def getUser(userId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
-    Ok(Json.toJson(searchManagementRepository.getUserById(userId)))
-  }
-
-  def lookup(by: String, value: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
-    if (by.equalsIgnoreCase("email")) {
-      Ok(Json.toJson(searchManagementRepository.lookupByEmail(value)))
-    } else if (by.equalsIgnoreCase("name")) {
-      Ok(Json.toJson(searchManagementRepository.lookupByUsername(value)))
-    } else {
-      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Request parameter 'by' should contain 'name' or 'email'.", None)))
-    }
-  }
-
-  def addNewUser(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
-    val body: AnyContent = request.body
-    val jsonBody: Option[JsValue] = body.asJson
-    // Expecting json body
-    jsonBody.map { json =>
-      val username = (json \ "username").as[String]
-      val email = (json \ "email").as[String]
-      val password = (json \ "password").as[String]
-      val userId = searchManagementRepository.addNewUser(
-        User(username = username, email = email, password = password)
-      )
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding user '" + username + "' successful.", Some(userId))))
-    }.getOrElse {
-      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new user failed. Unexpected body data.", None)))
-    }
   }
 
   def getDetailedSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action) {
@@ -334,6 +300,133 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Suggested Field Name failed. Unexpected body data.", None)))
       }
     }
+  }
+
+  def getUser(userId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+    Ok(Json.toJson(searchManagementRepository.getUser(userId)))
+  }
+
+  def addUser(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
+    val body: AnyContent = request.body
+    val jsonBody: Option[JsValue] = body.asJson
+    // Expecting json body
+    jsonBody.map { json =>
+      val username = (json \ "username").as[String]
+      val email = (json \ "email").as[String]
+      val password = (json \ "password").as[String]
+      val admin =  (json \ "admin").as[Boolean]
+      val user = searchManagementRepository.addUser(
+        User.create(username = username, email = email, password = password, admin = admin)
+      )
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding user '" + username + "' successful.", Some(user.id))))
+    }.getOrElse {
+      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new user failed. Unexpected body data.", None)))
+    }
+  }
+
+  def updateUser(userId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
+    val body: AnyContent = request.body
+    val jsonBody: Option[JsValue] = body.asJson
+
+    // Expecting json body
+    jsonBody.map { json =>
+      val user = json.as[User]
+      if (searchManagementRepository.updateUser(user) > 0) {
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating user successful.", Some(UserId(userId)))))
+      } else {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating user failed. User not found.", None)))
+      }
+    }.getOrElse {
+      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating user failed. Unexpected body data.", None)))
+    }
+  }
+
+  def deleteUser(userId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      if (searchManagementRepository.deleteUser(userId) > 0) {
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting user successful", None)))
+      } else {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Deleting user failed. User not found.", None)))
+      }
+    }
+  }
+
+  def listAllUsers(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+    Ok(Json.toJson(searchManagementRepository.listAllUsers()))
+  }
+
+  def lookupUserByUsername(username: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+      Ok(Json.toJson(searchManagementRepository.lookupUserByUsername(username)))
+  }
+
+  def lookupUserByEmail(email: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+      Ok(Json.toJson(searchManagementRepository.lookupUserByEmail(email)))
+  }
+
+  def lookupUserIdsByTeamId(teamId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+      Ok(Json.toJson(searchManagementRepository.lookupUserIdsByTeamId(teamId)))
+  }
+
+  def getTeam(teamId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+    Ok(Json.toJson(searchManagementRepository.getTeam(teamId)))
+  }
+
+  def addTeam(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
+    val body: AnyContent = request.body
+    val jsonBody: Option[JsValue] = body.asJson
+    // Expecting json body
+    jsonBody.map { json =>
+      val name = (json \ "name").as[String]
+      val team = searchManagementRepository.addTeam(
+        Team.create(name)
+      )
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding team '" + name + "' successful.", Some(team.id))))
+    }.getOrElse {
+      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new team failed. Unexpected body data.", None)))
+    }
+  }
+
+  def updateTeam(teamId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
+    val body: AnyContent = request.body
+    val jsonBody: Option[JsValue] = body.asJson
+
+    // Expecting json body
+    jsonBody.map { json =>
+      val team = json.as[Team]
+      if (searchManagementRepository.updateTeam(team) > 0) {
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating team successful.", Some(TeamId(teamId)))))
+      } else {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating team failed. Team not found.", None)))
+      }
+    }.getOrElse {
+      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating team failed. Unexpected body data.", None)))
+    }
+  }
+
+  def deleteTeam(teamId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      if (searchManagementRepository.deleteTeam(teamId) > 0) {
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting team successful", None)))
+      } else {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Deleting team failed. Team not found.", None)))
+      }
+    }
+  }
+
+  def listAllTeams(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+    Ok(Json.toJson(searchManagementRepository.listAllTeams()))
+  }
+
+  def lookupTeamIdsByUserId(userId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+    Ok(Json.toJson(searchManagementRepository.lookupTeamIdsByUserId(userId)))
+  }
+
+  def lookupTeamIdsBySolrIndexId(solrIndexId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+    Ok(Json.toJson(searchManagementRepository.lookupTeamIdsBySolrIndexId(solrIndexId)))
+  }
+
+  def lookupSolrIndexIdsByTeamId(teamId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+    Ok(Json.toJson(searchManagementRepository.lookupSolrIndexIdsByTeamId(teamId)))
   }
 
   // TODO consider making method .asynch

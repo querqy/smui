@@ -12,11 +12,15 @@ create table user (
     admin int not null,
     last_update timestamp not null
 );
+create unique index user_username_index on user (username);
+create unique index user_email_index on user (email);
 
 create table team (
 	id varchar(36) not null primary key,
-	name varchar(50) not null
+	name varchar(50) not null,
+    last_update timestamp not null
 );
+create unique index team_name_index on team (name);
 
 create table user_2_team (
   user_id varchar(36) not null,
