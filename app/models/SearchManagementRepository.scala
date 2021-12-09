@@ -311,6 +311,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     User.getUser2Team(teamId, false)
   }
 
+  def addUser2Team(userId: String, teamId: String): Int = db.withConnection { implicit connection =>
+    User.addUser2Team(userId, teamId)
+  }
+
+  def deleteUser2Team(userId: String, teamId: String): Int = db.withConnection { implicit connection =>
+    User.deleteUser2Team(userId, teamId)
+  }
+
   def getTeam(teamId: String): Team = db.withConnection { implicit connection =>
     Team.getTeam(teamId)
   }
@@ -330,6 +338,14 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
   def listAllTeams(): Seq[Team] = db.withConnection { implicit connection =>
     Team.loadAll()
+  }
+
+  def addTeam2SolrIndex(teamId: String, solrIndexId: String): Int = db.withConnection { implicit connection =>
+    Team.addTeam2SolrIndex(teamId, solrIndexId)
+  }
+
+  def deleteTeam2SolrIndex(teamId: String, solrIndexId: String): Int = db.withConnection { implicit connection =>
+    Team.deleteTeam2SolrIndex(teamId, solrIndexId)
   }
 
   def lookupTeamIdsByUserId(userId: String): List[String] = db.withConnection { implicit connection =>

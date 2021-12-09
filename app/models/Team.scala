@@ -94,8 +94,15 @@ object Team {
     val selectFieldName = if (isLeftToRight) TEAM_ID else SOLR_INDEX_ID
     val returnFieldName = if (isLeftToRight) SOLR_INDEX_ID else TEAM_ID
     SQL"select #$returnFieldName from #$TABLE_NAME_TEAM_2_SOLR_INDEX where #$selectFieldName=$selectId order by #$returnFieldName asc"
-      .as(SqlParser.str(0).*)
+      .asTry(SqlParser.str(1).*).getOrElse(List.empty[String])
   }
 
+  def addTeam2SolrIndex(teamId: String, solrIndexId: String)(implicit connection: Connection): Int = {
+    SQL"insert into #$TABLE_NAME_TEAM_2_SOLR_INDEX (#$TEAM_ID, #$SOLR_INDEX_ID, #$LAST_UPDATE) values ($teamId, $solrIndexId, ${LocalDateTime.now()})".executeUpdate()
+  }
+
+  def deleteTeam2SolrIndex(teamId: String, solrIndexId: String)(implicit connection: Connection): Int = {
+    SQL"delete from #$TABLE_NAME_TEAM_2_SOLR_INDEX where #$TEAM_ID = $teamId and #$SOLR_INDEX_ID = $solrIndexId".executeUpdate()
+  }
 
 }

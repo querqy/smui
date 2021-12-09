@@ -25,6 +25,7 @@ GET     /api/v1/solr-index                                      controllers.ApiC
 PUT     /api/v1/solr-index                                      controllers.ApiController.addNewSolrIndex
 GET     /api/v1/inputTags                                       controllers.ApiController.listAllInputTags
 GET     /api/v1/:solrIndexId/search-input                       controllers.ApiController.listAllSearchInputs(solrIndexId: String)
+GET     /api/v1/solr-index/:solrIndexId/team                    controllers.ApiController.lookupTeamIdsBySolrIndexId(solrIndexId: String)
 GET     /api/v1/search-input/:searchInputId                     controllers.ApiController.getDetailedSearchInput(searchInputId: String)
 PUT     /api/v1/:solrIndexId/search-input                       controllers.ApiController.addNewSearchInput(solrIndexId: String)
 POST    /api/v1/search-input/:searchInputId                     controllers.ApiController.updateSearchInput(searchInputId: String)
@@ -51,15 +52,18 @@ DELETE  /api/v1/user/:userId                                    controllers.ApiC
 GET     /api/v1/user                                            controllers.ApiController.listAllUsers
 GET     /api/v1/user/lookup/username/:username                  controllers.ApiController.lookupUserByUsername(username: String)
 GET     /api/v1/user/lookup/email/:email                        controllers.ApiController.lookupUserByEmail(email: String)
-GET     /api/v1/user/:userId/team-ids                           controllers.ApiController.lookupTeamIdsByUserId(userId: String)
+GET     /api/v1/user/:userId/team                               controllers.ApiController.lookupTeamIdsByUserId(userId: String)
+PUT     /api/v1/user/:userId/team/:teamId                       controllers.ApiController.addUser2Team(userId: String, teamId: String)
+DELETE  /api/v1/user/:userId/team/:teamId                       controllers.ApiController.deleteUser2Team(userId: String, teamId: String)
 PUT     /api/v1/team                                            controllers.ApiController.addTeam
 GET     /api/v1/team/:teamId                                    controllers.ApiController.getTeam(teamId: String)
 POST    /api/v1/team/:teamId                                    controllers.ApiController.updateTeam(teamId: String)
 DELETE  /api/v1/team/:teamId                                    controllers.ApiController.deleteTeam(teamId: String)
 GET     /api/v1/team                                            controllers.ApiController.listAllTeams
-GET     /api/v1/team/:teamId/solr-index-ids                     controllers.ApiController.lookupSolrIndexIdsByTeamId(teamId: String)
-GET     /api/v1/team/:teamId/user-ids                           controllers.ApiController.lookupUserIdsByTeamId(teamId: String)
-GET     /api/v1/solr-index/:solrIndexId/team-ids                controllers.ApiController.lookupTeamIdsBySolrIndexId(solrIndexId: String)
+GET     /api/v1/team/:teamId/user                               controllers.ApiController.lookupUserIdsByTeamId(teamId: String)
+GET     /api/v1/team/:teamId/solr-index                         controllers.ApiController.lookupSolrIndexIdsByTeamId(teamId: String)
+PUT     /api/v1/team/:teamId/solr-index/:solrIndexId            controllers.ApiController.addTeam2SolrIndex(teamId: String, solrIndexId: String)
+DELETE  /api/v1/team/:teamId/solr-index/:solrIndexId            controllers.ApiController.deleteTeam2SolrIndex(teamId: String, solrIndexId: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /*file   controllers.FrontendController.assetOrDefault(file)
