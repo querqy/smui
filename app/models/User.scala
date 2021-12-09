@@ -38,7 +38,6 @@ case class User(id: UserId = UserId(),
 }
 
 object User {
-
   val TABLE_NAME = "user"
   val TABLE_NAME_USER_2_TEAM = "user_2_team"
 
@@ -122,7 +121,15 @@ object User {
     val selectFieldName = if (isLeftToRight) USER_ID else TEAM_ID
     val returnFieldName = if (isLeftToRight) TEAM_ID else USER_ID
     SQL"select #$returnFieldName from #$TABLE_NAME_USER_2_TEAM where #$selectFieldName=$selectId order by #$returnFieldName asc"
-      .as(SqlParser.str(0).*)
+      .asTry(SqlParser.str(1).*).getOrElse(List.empty[String])
+  }
+
+  def addUser2Team(userId: String, teamId: String)(implicit connection: Connection): Int = {
+    SQL"insert into #$TABLE_NAME_USER_2_TEAM (#$USER_ID, #$TEAM_ID, #$LAST_UPDATE) values ($userId, $teamId, ${LocalDateTime.now()})".executeUpdate()
+  }
+
+  def deleteUser2Team(userId: String, teamId: String)(implicit connection: Connection): Int = {
+    SQL"delete from #$TABLE_NAME_USER_2_TEAM where #$USER_ID = $userId and #$TEAM_ID = $teamId".executeUpdate()
   }
 
 }

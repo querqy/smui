@@ -421,6 +421,46 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     Ok(Json.toJson(searchManagementRepository.lookupTeamIdsByUserId(userId)))
   }
 
+  def addUser2Team(userId: String, teamId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      if (searchManagementRepository.addUser2Team(userId, teamId) > 0) {
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "User successfully added to team", None)))
+      } else {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "User not added to team", None)))
+      }
+    }
+  }
+
+  def deleteUser2Team(userId: String, teamId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      if (searchManagementRepository.deleteUser2Team(userId, teamId) > 0) {
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "User successfully removed from team", None)))
+      } else {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "User not removed from team", None)))
+      }
+    }
+  }
+
+  def addTeam2SolrIndex(teamId: String, solrIndexId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      if (searchManagementRepository.addTeam2SolrIndex(teamId, solrIndexId) > 0) {
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Team successfully added to solr index", None)))
+      } else {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Team not added to solr index", None)))
+      }
+    }
+  }
+
+  def deleteTeam2SolrIndex(teamId: String, solrIndexId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      if (searchManagementRepository.deleteTeam2SolrIndex(teamId, solrIndexId) > 0) {
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Team successfully removed from solr-index", None)))
+      } else {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Team not removed from solr-index", None)))
+      }
+    }
+  }
+
   def lookupTeamIdsBySolrIndexId(solrIndexId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
     Ok(Json.toJson(searchManagementRepository.lookupTeamIdsBySolrIndexId(solrIndexId)))
   }
