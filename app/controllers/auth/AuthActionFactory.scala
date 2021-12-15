@@ -1,29 +1,33 @@
 package controllers.auth
 
+import models.SearchManagementRepository
+
 import javax.inject.Inject
 import play.api.{Configuration, Logging}
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext
 
-class AuthActionFactory @Inject()(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext) extends Logging {
+class AuthActionFactory @Inject()(parser: BodyParsers.Default, searchManagementRepository: SearchManagementRepository, appConfig: Configuration)(implicit ec: ExecutionContext) extends Logging {
 
   private def instantiateAuthAction(strClazz: String, defaultAction: ActionBuilder[Request, AnyContent]): ActionBuilder[Request, AnyContent] = {
     try {
-
       // TODO if possible instanciate authenticatedAction only once, not with every controller call
-
       def instantiate(clazz: java.lang.Class[_])(args: AnyRef*): AnyRef = {
         val constructor = clazz.getConstructors()(0)
         constructor.newInstance(args: _*).asInstanceOf[AnyRef]
       }
-
-      val authenticatedAction = instantiate(
-        java.lang.Class.forName(strClazz)
-      )(parser, appConfig, ec)
-
+      var authenticatedAction: AnyRef = None
+      if (strClazz.equals("controllers.auth.UsernamePasswordAuthenticatedAction")) {
+        authenticatedAction = instantiate(
+          java.lang.Class.forName(strClazz)
+        )(searchManagementRepository, parser, appConfig, ec)
+      } else {
+        authenticatedAction = instantiate(
+          java.lang.Class.forName(strClazz)
+        )(parser, appConfig, ec)
+      }
       logger.debug(":: having instanciated " + authenticatedAction.toString)
-
       authenticatedAction.asInstanceOf[ActionBuilder[Request, AnyContent]]
 
     } catch {

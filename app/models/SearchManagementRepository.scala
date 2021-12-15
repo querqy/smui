@@ -278,11 +278,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     }
   }
 
-  def getUser(userId: String): User = db.withConnection { implicit connection =>
+  def getUser(userId: String): Option[User] = db.withConnection { implicit connection =>
     User.getUser(userId)
   }
 
-  def addUser(user: User): User = db.withConnection { implicit connection =>
+  def addUser(user: User): User =  db.withConnection { implicit connection =>
     User.insert(user)
     user
   }
@@ -299,11 +299,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     User.loadAll()
   }
 
-  def lookupUserByEmail(email: String): User = db.withConnection { implicit connection =>
+  def lookupUserByEmail(email: String): Option[User] = db.withConnection { implicit connection =>
     User.getUserByEmail(email)
   }
 
-  def lookupUserByUsername(username: String): User = db.withConnection { implicit connection =>
+  def lookupUserByUsername(username: String): Option[User] = db.withConnection { implicit connection =>
     User.getUserByUsername(username)
   }
 

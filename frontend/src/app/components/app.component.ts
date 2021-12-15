@@ -40,7 +40,7 @@ export class AppComponent implements OnInit {
 
   // I am not sure why, with User auth which properly responds with a 303 and a redirect that
   // when we get to here it's listed as a 200.
-  // error.ok = false, error.name=HttpErrorResponse, error.url=http://localhost:4200/login_or_register.
+  // error.ok = false, error.name=HttpErrorResponse, error.url=http://localhost:4200/login_or_signup.
 
   //function checkIfLoginRequired(error: any) {
 //

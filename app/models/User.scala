@@ -7,7 +7,6 @@ import play.api.libs.json._
 
 import java.sql.Connection
 import java.time.LocalDateTime
-import scala.collection.mutable
 
 class UserId(id: String) extends Id(id)
 object UserId extends IdObject[UserId](new UserId(_))
@@ -74,19 +73,21 @@ object User {
     User(id, username, email, password, admin > 0, lastUpdate)
   }
 
-  def insert(newUsers: User*)(implicit connection: Connection): Unit = {
+  def insert(newUsers: User*)(implicit connection: Connection): Option[Int] = {
+    var result: Array[Int]  = Array[Int]();
     if (newUsers.nonEmpty) {
-      BatchSql(s"insert into $TABLE_NAME ($ID, $USERNAME, $EMAIL, $PASSWORD, $ADMIN, $LAST_UPDATE) " +
+      result = BatchSql(s"insert into $TABLE_NAME ($ID, $USERNAME, $EMAIL, $PASSWORD, $ADMIN, $LAST_UPDATE) " +
         s"values ({$ID}, {$USERNAME}, {$EMAIL}, {$PASSWORD}, {$ADMIN}, {$LAST_UPDATE})",
         newUsers.head.toNamedParameters,
         newUsers.tail.map(_.toNamedParameters): _*
       ).execute()
     }
+    result.headOption
   }
 
-  def getUser(userId: String)(implicit connection: Connection): User = {
+  def getUser(userId: String)(implicit connection: Connection): Option[User] = {
     SQL"select * from #$TABLE_NAME where id = $userId order by #$USERNAME asc, #$EMAIL asc"
-      .as(sqlParser.*).head
+      .as(sqlParser.*).headOption
   }
 
   def update(id: UserId, username: String, email: String, password: String, admin: Boolean)(implicit connection: Connection): Int = {
@@ -107,14 +108,14 @@ object User {
       .as(sqlParser.*)
   }
 
-  def getUserByEmail(email: String)(implicit connection: Connection): User = {
+  def getUserByEmail(email: String)(implicit connection: Connection): Option[User] = {
     SQL"select * from #$TABLE_NAME where #$EMAIL = $email order by #$USERNAME asc, #$EMAIL asc"
-      .as(sqlParser.*).head
+      .as(sqlParser.*).headOption
   }
 
-  def getUserByUsername(username: String)(implicit connection: Connection): User = {
+  def getUserByUsername(username: String)(implicit connection: Connection): Option[User] = {
     SQL"select * from #$TABLE_NAME where #$USERNAME = $username order by #$USERNAME asc, #$EMAIL asc"
-      .as(sqlParser.*).head
+      .as(sqlParser.*).headOption
   }
 
   def getUser2Team(selectId: String, isLeftToRight: Boolean)(implicit connection: Connection): List[String] = {
@@ -134,29 +135,3 @@ object User {
 
 }
 
-object UserDAO {
-
-  // Map username -> User
-  //private val users: mutable.Map[String, User] = mutable.Map()
-  private val users = mutable.Map(
-    "user@example.com" -> User(username = "Example User", email = "user@example.com", password = "password")
-  )
-
-  def getUser(email: String): Option[User] = {
-    users.get(email)
-  }
-
-  // this method should be thread safe
-  def addUser(name: String, email: String, password: String): Option[User] = {
-
-    // check if user already exists and return error if it does
-    if(users.contains(email)) {
-      Option.empty
-    } else {
-      val user = User(username = name, email = email, password = password)
-      users.put(email, user)
-      Option(user)
-    }
-  }
-
-}

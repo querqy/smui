@@ -5,7 +5,7 @@ import java.util.UUID
 
 import scala.collection.mutable
 
-case class Session(token: String, username: String, expiration: LocalDateTime)
+case class Session(token: String, tokenData: String, expiration: LocalDateTime)
 
 object SessionDAO {
 
@@ -15,9 +15,9 @@ object SessionDAO {
     sessions.get(token)
   }
 
-  def generateToken(username: String): String = {
-    val token = s"$username-token-${UUID.randomUUID().toString}"
-    sessions.put(token, Session(token, username, LocalDateTime.now(ZoneOffset.UTC).plusSeconds(30)))
+  def generateToken(tokenData: String): String = {
+    val token = s"$tokenData-token-${UUID.randomUUID().toString}"
+    sessions.put(token, Session(token, tokenData, LocalDateTime.now(ZoneOffset.UTC).plusSeconds(30)))
 
     token
   }

@@ -8,8 +8,8 @@ GET     /public                     controllers.FrontendController.public
 GET     /priv                       controllers.FrontendController.priv
 GET     /priv2                      controllers.FrontendController.priv2
 GET     /priv-play                  controllers.FrontendController.privPlay
+GET     /priv-action                controllers.FrontendController.privAction
 POST    /login                      controllers.FrontendController.login
-#GET     /login                      controllers.FrontendController.login(username, password)
 GET     /logout                     controllers.FrontendController.logout
 GET     /login_or_signup            controllers.FrontendController.login_or_signup
 POST    /signup                     controllers.FrontendController.signup
