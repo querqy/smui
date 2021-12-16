@@ -67,10 +67,13 @@ export class HeaderNavComponent implements OnInit {
         .updateRulesTxtForSolrIndex(this.currentSolrIndexId, targetPlatform)
         .then(apiResult => {
           this.deploymentRunningForStage = undefined;
+          this.modalService.close('confirm-publish-live')
           this.showSuccessMsg(apiResult.message);
+
         })
         .catch(error => {
           this.deploymentRunningForStage = undefined;
+          this.modalService.close('confirm-publish-live')
           this.showErrorMsg(error.error.message);
         });
     } // TODO handle else-case, if no currentSolrIndexId selected
