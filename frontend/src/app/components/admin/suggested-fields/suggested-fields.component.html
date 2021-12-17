@@ -1,5 +1,11 @@
+<button
+  class="btn btn-outline-secondary"
+  routerLink="/admin"
+  style="margin-right:20px;margin-bottom:10px;"
+><i class="fa fa-hand-point-left" aria-hidden="true"></i> Back to Admin
+</button>
 
-<h3 *ngIf="solrIndex">Suggested Fields for {{solrIndex.description}}</h3>
+<h3 *ngIf="solrIndex" style="display:inline-block;">Suggested Fields for {{solrIndex.description}}</h3>
 
 <app-smui-admin-suggested-fields-create
   (showSuccessMsg)="showSuccessMsg($event)"
