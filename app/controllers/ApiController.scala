@@ -419,6 +419,8 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       val latestFromDockerHub = SmuiVersion.latestVersionFromDockerHub()
       val current = SmuiVersion.parse(models.buildInfo.BuildInfo.version)
 
+      logger.info(s":: SMUI version of this instance: ($current)")
+
       val versionInfo = (if (latestFromDockerHub.isEmpty || current.isEmpty) {
         logger.error(s":: cannot determine version diff between latestFromDockerHub and current ($latestFromDockerHub, $current)")
 
