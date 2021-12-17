@@ -67,6 +67,19 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
+  def getSolrIndex(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      Ok(Json.toJson(searchManagementRepository.getSolrIndex(SolrIndexId(solrIndexId))))
+    }
+  }
+
+  def deleteSolrIndex(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      searchManagementRepository.deleteSolrIndex(solrIndexId)
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Solr Index successful", None)))
+    }
+  }
+
   def downloadAllRulesTxtFiles = authActionFactory.getAuthenticatedAction(Action) { req =>
     Ok.chunked(
       createStreamResultInBackground(
@@ -299,6 +312,15 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       }.getOrElse {
         BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Suggested Field Name failed. Unexpected body data.", None)))
       }
+    }
+  }
+
+  // I am requiring the solrIndexId because it is more RESTful, but it turns out we don't need it.
+  // Maybe validation some day?
+  def deleteSuggestedSolrField(solrIndexId: String, suggestedFieldId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+    Future {
+      searchManagementRepository.deleteSuggestedSolrField(SuggestedSolrFieldId(suggestedFieldId))
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Suggested Field successful", None)))
     }
   }
 

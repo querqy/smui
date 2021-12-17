@@ -1,0 +1,20 @@
+<div class="card" *ngIf="solrIndex">
+  <div class="card-body">
+    <h5 class="card-title">Suggested Fields</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Available suggested fields in SMUI</h6>
+
+    <ul *ngFor="let suggestedField of suggestedFields" class="list-group smui-search-input-list">
+        <li class="list-group-item">
+          {{ suggestedField.name }} - Key: <code>{{ suggestedField.id }}</code>
+
+          <button
+            type="button"
+            class="btn btn-danger btn-sm float-right"
+            (click)="deleteSuggestedField(suggestedField.id, $event)"
+          >
+            <i class="fa fa-minus" aria-hidden="true"></i>
+          </button>
+        </li>
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+
+<h3 *ngIf="solrIndex">Suggested Fields for {{solrIndex.description}}</h3>
+
+<app-smui-admin-suggested-fields-create
+  (showSuccessMsg)="showSuccessMsg($event)"
+  (showErrorMsg)="showErrorMsg($event)"
+  (suggestedFieldsChange)="suggestedFieldsChange($event)"
+  [solrIndex]="solrIndex"
+>
+</app-smui-admin-suggested-fields-create>
+
+<app-smui-admin-suggested-fields-list
+  (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
+  (suggestedFieldsChange)="suggestedFieldsChange($event)"
+  [solrIndex]="solrIndex"
+  [suggestedFields]="suggestedFields"
+>
+</app-smui-admin-suggested-fields-list>
+
+<app-smui-confirm-modal
+  id="confirm-delete"
+  title="Confirm deletion"
+  okLabel="Yes"
+  cancelLabel="No"
+>
+  <p>Are you sure you want to delete the item?</p>
+</app-smui-confirm-modal>
+
+<router-outlet></router-outlet>

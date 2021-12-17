@@ -34,6 +34,16 @@ import {
   ReportSettingsBarComponent
 } from './components/report';
 import {
+  AdminComponent,
+  RulesCollectionListComponent,
+  RulesCollectionCreateComponent
+} from './components/admin';
+import {
+  SuggestedFieldsComponent,
+  SuggestedFieldsCreateComponent,
+  SuggestedFieldsListComponent
+} from './components/admin/suggested-fields';
+import {
   ButtonRowComponent,
   CardComponent,
   CommentComponent,
@@ -80,7 +90,13 @@ import {
     ActivityLogComponent,
     SearchManagementComponent,
     ReportSettingsBarComponent,
-    ReportComponent
+    ReportComponent,
+    AdminComponent,
+    RulesCollectionListComponent,
+    RulesCollectionCreateComponent,
+    SuggestedFieldsComponent,
+    SuggestedFieldsCreateComponent,
+    SuggestedFieldsListComponent
   ],
   providers: [
     CommonsService,

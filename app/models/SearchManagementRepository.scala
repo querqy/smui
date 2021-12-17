@@ -15,6 +15,7 @@ import play.api.Logging
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) extends Logging {
 
+
   private val db = dbapi.database("default")
 
   /**
@@ -29,8 +30,39 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     SolrIndex.loadNameById(solrIndexId)
   }
 
+  def getSolrIndex(solrIndexId: SolrIndexId): SolrIndex = db.withConnection { implicit connection =>
+    SolrIndex.loadById(solrIndexId)
+  }
+
   def addNewSolrIndex(newSolrIndex: SolrIndex): SolrIndexId = db.withConnection { implicit connection =>
     SolrIndex.insert(newSolrIndex)
+  }
+
+  /**
+    * We check for any InputTags, CanonicalSpellings, and SearchInputs.  We don't
+    * check for the existence of any SuggestedSolrFields.
+    */
+  def deleteSolrIndex(solrIndexId: String): Int = db.withTransaction { implicit connection =>
+
+    val solrIndexIdId = SolrIndexId(solrIndexId)
+    val inputTags = InputTag.loadAll.filter(_.solrIndexId== Option(solrIndexIdId))
+    if (inputTags.size > 0) {
+      throw new Exception("Can't delete Solr Index that has " + inputTags.size + "tags existing");
+    }
+
+    val canonicalSpellings = CanonicalSpelling.loadAllForIndex(solrIndexIdId)
+    if (canonicalSpellings.size > 0) {
+      throw new Exception("Can't delete Solr Index that has " + canonicalSpellings.size + " canonical spellings existing");
+    }
+
+    val searchInputs = SearchInput.loadAllForIndex(solrIndexIdId)
+    if (searchInputs.size > 0) {
+      throw new Exception("Can't delete Solr Index that has " + searchInputs.size + " inputs existing");
+    }
+
+    val id = SolrIndex.delete(solrIndexId)
+
+    id
   }
 
   def listAllInputTags(): Seq[InputTag] = db.withConnection { implicit connection =>
@@ -188,6 +220,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
   def addNewSuggestedSolrField(solrIndexId: SolrIndexId, suggestedSolrFieldName: String): SuggestedSolrField = db.withConnection { implicit connection =>
     SuggestedSolrField.insert(solrIndexId, suggestedSolrFieldName)
+  }
+  def deleteSuggestedSolrField(suggestedSolrFieldId: SuggestedSolrFieldId): Int = db.withTransaction { implicit connection =>
+    val id = SuggestedSolrField.delete(suggestedSolrFieldId);
+
+    id
   }
 
   def addNewDeploymentLogOk(solrIndexId: String, targetPlatform: String): Boolean = db.withConnection { implicit connection =>
