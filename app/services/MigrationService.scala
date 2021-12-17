@@ -3,13 +3,13 @@ package services
 import javax.inject.Inject
 import play.api.Logging
 import play.api.db.DBApi
-import models.DatabaseExecutionContext
+import models.{DatabaseExecutionContext, SearchManagementRepository}
 import models.FeatureToggleModel.FeatureToggleService
 import models.eventhistory.InputEvent
 import play.api.db.evolutions.ApplicationEvolutions
 
 @javax.inject.Singleton
-class MigrationService @Inject()(dbapi: DBApi, toggleService: FeatureToggleService, applicationEvolutions: ApplicationEvolutions)(implicit ec: DatabaseExecutionContext) extends Logging {
+class MigrationService @Inject()(dbapi: DBApi, toggleService: FeatureToggleService, searchManagementRepository: SearchManagementRepository, applicationEvolutions: ApplicationEvolutions)(implicit ec: DatabaseExecutionContext) extends Logging {
 
   private val db = dbapi.database("default")
 
@@ -73,4 +73,16 @@ class MigrationService @Inject()(dbapi: DBApi, toggleService: FeatureToggleServi
     }
   }
 
+
+  if (toggleService.isRuleTaggingActive) {
+    // We can only sync rules if we are up to date on our evolutions.
+    if (evolutionsUpToDate) {
+      // On startup, always sync predefined tags with the DB
+      logger.info(("Database evolutions are up to date, now syncing any predefined tags"))
+      searchManagementRepository.syncPredefinedTagsWithDB(toggleService.predefinedTagsFileName)
+    }
+    else {
+      logger.error("Database evolutions are not up to date, so not syncing any predefined tags with database")
+    }
+  }
 }
