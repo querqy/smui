@@ -111,3 +111,7 @@ dockerBuildArguments in docker := Map(
 buildOptions in docker := BuildOptions(
   pullBaseImage = BuildOptions.Pull.Always
 )
+
+// Fix build on Mac M1 ("Apple Silicon") chipsets (see https://discuss.lightbend.com/t/apple-silicon-m1-playframework-broken-on-apple-silicon/7924/16)
+// TODO using jdk8 instead (to avoid `java.lang.IllegalStateException: Unable to load cache item`)
+PlayKeys.fileWatchService := play.dev.filewatch.FileWatchService.jdk7(play.sbt.run.toLoggerProxy(sLog.value))
