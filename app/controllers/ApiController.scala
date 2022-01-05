@@ -61,9 +61,9 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         SolrIndex(name = searchIndexName, description = searchIndexDescription)
       )
 
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchIndexName + "' successful.", Some(solrIndexId))))
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully added Deployment Channel '" + searchIndexName + "'.", Some(solrIndexId))))
     }.getOrElse {
-      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
+      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Deployment Channel failed. Unexpected body data.", None)))
     }
   }
 
@@ -138,7 +138,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
             Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", Some(searchInputId))))
           }
           case errors => {
-            val msgs = s"Failed to add new input ${searchInputTerm}: " + errors.mkString("\n")
+            val msgs = s"Failed to add new Search Input ${searchInputTerm}: " + errors.mkString("\n")
             logger.error(msgs)
             BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
           }
@@ -173,7 +173,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
           }
         }
         case errors => {
-          val msgs = s"Failed to update input with new term ${searchInput.term}: " + errors.mkString("\n")
+          val msgs = s"Failed to update Search Input with new term ${searchInput.term}: " + errors.mkString("\n")
           logger.error(msgs)
           BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
         }
@@ -207,14 +207,14 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         CanonicalSpellingValidator.validateNoEmptySpelling(term) match {
           case None => {
             val canonicalSpelling = searchManagementRepository.addNewCanonicalSpelling(SolrIndexId(solrIndexId), term)
-            Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding new canonical spelling '" + term + "' successful.", Some(canonicalSpelling.id))))
+            Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully added Canonical Spelling '" + term + "'.", Some(canonicalSpelling.id))))
           }
           case Some(error) => {
             BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, error, None)))
           }
         }
       }.getOrElse {
-        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new canonical spelling failed. Unexpected body data.", None)))
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Canonical Spelling failed. Unexpected body data.", None)))
       }
     }
   }
@@ -238,21 +238,21 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       CanonicalSpellingValidator.validateCanonicalSpellingsAndAlternatives(spellingWithAlternatives, otherSpellings) match {
         case Nil =>
           searchManagementRepository.updateSpelling(spellingWithAlternatives)
-          Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating canonical spelling successful.", Some(CanonicalSpellingId(canonicalSpellingId)))))
+          Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully updated Canonical Spelling.", Some(CanonicalSpellingId(canonicalSpellingId)))))
         case errors =>
-          val msgs = s"Failed to update spelling ${spellingWithAlternatives.term}: " + errors.mkString("\n")
+          val msgs = s"Failed to update Canonical Spelling ${spellingWithAlternatives.term}: " + errors.mkString("\n")
           logger.error(msgs)
           BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
       }
     }.getOrElse {
-      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating canonical spelling failed. Unexpected body data.", None)))
+      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating Canonical Spelling failed. Unexpected body data.", None)))
     }
   }
 
   def deleteSpelling(canonicalSpellingId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       searchManagementRepository.deleteSpelling(canonicalSpellingId)
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting canonical spelling with alternatives successful.", None)))
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Canonical Spelling with alternatives successful.", None)))
     }
   }
 
@@ -289,7 +289,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
           // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
           BadRequest(
             Json.toJson(
-              ApiResult(API_RESULT_FAIL, s"Updating Solr Index failed.\nScript output:\n${result.output}", None)
+              ApiResult(API_RESULT_FAIL, s"Updating Search Management Config for Solr Index failed.\nScript output:\n${result.output}", None)
             )
           )
         }
@@ -297,7 +297,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         // TODO Evaluate being more precise in the error communication (eg which rules.txt failed?, where? / which line?, why?, etc.)
         BadRequest(
           Json.toJson(
-            ApiResult(API_RESULT_FAIL, s"Updating Solr Index failed. Validation errors in rules.txt:\n${errors.mkString("\n")}", None)
+            ApiResult(API_RESULT_FAIL, s"Updating Search Management Config for Solr Index failed. Validation errors in rules.txt:\n${errors.mkString("\n")}", None)
           )
         )
     }
