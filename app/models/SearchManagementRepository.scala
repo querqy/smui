@@ -60,6 +60,8 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
       throw new Exception("Can't delete Solr Index that has " + searchInputs.size + " inputs existing");
     }
 
+    // TODO consider reconfirmation and deletion of history entries (if some exist) (see https://github.com/querqy/smui/issues/97)
+
     val id = SolrIndex.delete(solrIndexId)
 
     id

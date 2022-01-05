@@ -75,8 +75,22 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
   def deleteSolrIndex(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
-      searchManagementRepository.deleteSolrIndex(solrIndexId)
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Solr Index successful", None)))
+      // TODO handle exception, give API_RESULT_FAIL
+      try {
+        searchManagementRepository.deleteSolrIndex(solrIndexId)
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Solr Index successful", None)))
+      } catch {
+        case e: Exception => BadRequest(
+            Json.toJson(
+              ApiResult(API_RESULT_FAIL, s"Deleting Solr Index failed: ${e.getMessage}", None)
+            )
+          )
+        case _ => BadRequest(
+          Json.toJson(
+            ApiResult(API_RESULT_FAIL, s"Deleting Solr Index failed due to an unknown error", None)
+          )
+        )
+      }
     }
   }
 

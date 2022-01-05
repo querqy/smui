@@ -24,6 +24,7 @@ export class RulesCollectionListComponent implements OnInit, OnChanges {
 
   @Output() openDeleteConfirmModal: EventEmitter<any> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
+  @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
   @Output() solrIndicesChange: EventEmitter<string> = new EventEmitter();
 
   constructor(
@@ -47,8 +48,9 @@ export class RulesCollectionListComponent implements OnInit, OnChanges {
         .then(() => this.solrService.refreshSolrIndices())
         .then(() => this.solrIndicesChange.emit(id))
         .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
-        .catch(error => this.showErrorMsg.emit(error));
-
+        .then(() => this.showSuccessMsg.emit("Rule collection successfully deleted."))
+        // unpack and emit error message
+        .catch(error => this.showErrorMsg.emit(error.error.message) );
 
     this.openDeleteConfirmModal.emit({ deleteCallback });
   }
