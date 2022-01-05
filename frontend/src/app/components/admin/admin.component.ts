@@ -48,8 +48,8 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  public solrIndicesChange( id: string){
-    console.log("AdminComponent::solrIndicesChange")
+  public solrIndicesChange(id: string){
+    console.log("AdminComponent :: solrIndicesChange :: id = " + id)
     this.solrIndices = this.solrService.solrIndices;
   }
 

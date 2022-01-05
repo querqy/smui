@@ -70,8 +70,8 @@
       </li>
     </ul>
 
-    <div *ngIf="!currentSolrIndexId || currentSolrIndexId === '-1'">
-      In order to push the rules, please create a Solr collection first.
+    <div *ngIf="hideSolrIndexSelector()">
+      In order to push the rules, <a routerLink="/admin">please create a Solr collection first</a>.
     </div>
     <div
       *ngIf="currentSolrIndexId && currentSolrIndexId !== '-1'"

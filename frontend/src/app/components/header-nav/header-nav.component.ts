@@ -46,6 +46,10 @@ export class HeaderNavComponent implements OnInit {
     });
   }
 
+  hideSolrIndexSelector() {
+    return (!this.currentSolrIndexId) || (this.currentSolrIndexId === '-1') || (this.solrService.solrIndices.length < 1)
+  }
+
   // TODO showSuccess/ErrorMsg repetitive implementation
   showSuccessMsg(msgText: string) {
     this.toasterService.pop('success', '', msgText);

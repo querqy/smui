@@ -42,7 +42,6 @@ export class SolrService {
     return this.rulesCollectionChangeEvent.asObservable();
   }
 
-
   constructor(private http: HttpClient) {
     this.currentSolrIndexIdSubject.subscribe(
       value => (this.currentSolrIndexId = value)
@@ -54,23 +53,14 @@ export class SolrService {
       .get<SolrIndex[]>(`${this.baseUrl}/${this.solrIndexApiPath}`)
       .toPromise()
       .then(solrIndices => {
+        this.solrIndices = solrIndices;
         if (solrIndices.length > 0) {
-          this.solrIndices = solrIndices;
           this.currentSolrIndexIdSubject.next(solrIndices[0].id);
+        } else {
+          this.currentSolrIndexIdSubject.next("-1");
         }
       });
   }
-
-  refreshSolrIndices(): Promise<void> {
-    return this.http
-      .get<SolrIndex[]>(`${this.baseUrl}/${this.solrIndexApiPath}`)
-      .toPromise()
-      .then(solrIndices => {
-        this.solrIndices = solrIndices;
-      });
-  }
-
-
 
   changeCurrentSolrIndexId(solrIndexId: string) {
     this.currentSolrIndexIdSubject.next(solrIndexId);
@@ -168,4 +158,5 @@ export class SolrService {
       .put<ApiResult>(`${this.baseUrl}/${this.solrIndexApiPath}`, body, httpOptions)
       .toPromise();
   }
+
 }
