@@ -50,5 +50,9 @@ object SuggestedSolrField {
     field
   }
 
+  def delete(id: SuggestedSolrFieldId)(implicit connection: Connection): Int = {
+    SQL"delete from #$TABLE_NAME where #$ID = $id".executeUpdate()
+  }
+
 
 }

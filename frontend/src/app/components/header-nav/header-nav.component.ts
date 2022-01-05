@@ -40,6 +40,14 @@ export class HeaderNavComponent implements OnInit {
     this.solrIndices = this.solrService.solrIndices;
     this.versionInfo = this.configService.versionInfo;
     this.currentSolrIndexId = this.solrService.currentSolrIndexId;
+    this.solrService.rulesCollectionChangeEventListener().subscribe(info =>{
+      console.log("HeaderNav: rulesCollectionChangeEventListener fired");
+      this.solrIndices = this.solrService.solrIndices;
+    });
+  }
+
+  hideSolrIndexSelector() {
+    return (!this.currentSolrIndexId) || (this.currentSolrIndexId === '-1') || (this.solrService.solrIndices.length < 1)
   }
 
   // TODO showSuccess/ErrorMsg repetitive implementation

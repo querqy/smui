@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 
 import {
   DeploymentLogInfo,
@@ -8,6 +9,12 @@ import {
   ApiResult
 } from '../models';
 import { Subject } from 'rxjs';
+
+const httpOptions = {
+  headers: new HttpHeaders({
+    'Content-Type':  'application/json'
+  })
+};
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +32,16 @@ export class SolrService {
     'Content-Type': 'application/json'
   });
 
+  private rulesCollectionChangeEvent = new BehaviorSubject<string>('');
+
+  emitRulesCollectionChangeEvent(msg: string){
+    this.rulesCollectionChangeEvent.next(msg);
+  }
+
+  rulesCollectionChangeEventListener(){
+    return this.rulesCollectionChangeEvent.asObservable();
+  }
+
   constructor(private http: HttpClient) {
     this.currentSolrIndexIdSubject.subscribe(
       value => (this.currentSolrIndexId = value)
@@ -36,9 +53,11 @@ export class SolrService {
       .get<SolrIndex[]>(`${this.baseUrl}/${this.solrIndexApiPath}`)
       .toPromise()
       .then(solrIndices => {
+        this.solrIndices = solrIndices;
         if (solrIndices.length > 0) {
-          this.solrIndices = solrIndices;
           this.currentSolrIndexIdSubject.next(solrIndices[0].id);
+        } else {
+          this.currentSolrIndexIdSubject.next("-1");
         }
       });
   }
@@ -79,6 +98,29 @@ export class SolrService {
       );
   }
 
+  getSuggestedFields(solrIndexId: string): Promise<Array<SuggestedSolrField>> {
+    return this.http
+      .get<SuggestedSolrField[]>(
+        `${this.baseUrl}/${solrIndexId}/${this.solrFieldsApiPath}`
+      )
+      .toPromise();
+  }
+
+  deleteSuggestedField(solrIndexId: string, suggestedFieldId: string): Promise<ApiResult> {
+    return this.http
+      .delete<ApiResult>(`${this.baseUrl}/${solrIndexId}/${this.solrFieldsApiPath}/${suggestedFieldId}`)
+      .toPromise();
+  }
+
+
+  createSuggestedField(solrIndexId: string, name: string): Promise<ApiResult> {
+    const headers = { headers: this.jsonHeader };
+    const body = JSON.stringify( { name: name});
+    return this.http
+      .put<ApiResult>(`${this.baseUrl}/${solrIndexId}/${this.solrFieldsApiPath}`, body, httpOptions)
+      .toPromise();
+  }
+
   lastDeploymentLogInfo(
     solrIndexId: string,
     targetSystem: string,
@@ -96,4 +138,25 @@ export class SolrService {
       .get<DeploymentLogInfo>(`${this.baseUrl}/log/deployment-info`, options)
       .toPromise();
   }
+
+  getSolrIndex(solrIndexId: string): Promise<SolrIndex> {
+    return this.http
+      .get<SolrIndex>(`${this.baseUrl}/${this.solrIndexApiPath}/${solrIndexId}`)
+      .toPromise();
+  }
+
+  deleteSolrIndex(solrIndexId: string): Promise<ApiResult> {
+    return this.http
+      .delete<ApiResult>(`${this.baseUrl}/${this.solrIndexApiPath}/${solrIndexId}`)
+      .toPromise();
+  }
+
+  createSolrIndex(name: string, description: string): Promise<ApiResult> {
+    const headers = { headers: this.jsonHeader };
+    const body = JSON.stringify( { name: name, description: description});
+    return this.http
+      .put<ApiResult>(`${this.baseUrl}/${this.solrIndexApiPath}`, body, httpOptions)
+      .toPromise();
+  }
+
 }
