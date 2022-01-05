@@ -62,9 +62,36 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         SolrIndex(name = searchIndexName, description = searchIndexDescription)
       )
 
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchIndexName + "' successful.", Some(solrIndexId))))
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully added Deployment Channel '" + searchIndexName + "'.", Some(solrIndexId))))
     }.getOrElse {
-      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
+      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Deployment Channel failed. Unexpected body data.", None)))
+    }
+  }
+
+  def getSolrIndex(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      Ok(Json.toJson(searchManagementRepository.getSolrIndex(SolrIndexId(solrIndexId))))
+    }
+  }
+
+  def deleteSolrIndex(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      // TODO handle exception, give API_RESULT_FAIL
+      try {
+        searchManagementRepository.deleteSolrIndex(solrIndexId)
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Solr Index successful", None)))
+      } catch {
+        case e: Exception => BadRequest(
+            Json.toJson(
+              ApiResult(API_RESULT_FAIL, s"Deleting Solr Index failed: ${e.getMessage}", None)
+            )
+          )
+        case _ => BadRequest(
+          Json.toJson(
+            ApiResult(API_RESULT_FAIL, s"Deleting Solr Index failed due to an unknown error", None)
+          )
+        )
+      }
     }
   }
 
@@ -115,7 +142,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
             Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding Search Input '" + searchInputTerm + "' successful.", Some(searchInputId))))
           }
           case errors => {
-            val msgs = s"Failed to add new input ${searchInputTerm}: " + errors.mkString("\n")
+            val msgs = s"Failed to add new Search Input ${searchInputTerm}: " + errors.mkString("\n")
             logger.error(msgs)
             BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
           }
@@ -153,7 +180,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
           }
         }
         case errors => {
-          val msgs = s"Failed to update input with new term ${searchInput.term}: " + errors.mkString("\n")
+          val msgs = s"Failed to update Search Input with new term ${searchInput.term}: " + errors.mkString("\n")
           logger.error(msgs)
           BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
         }
@@ -188,15 +215,15 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       optTerm.map { term =>
         CanonicalSpellingValidator.validateNoEmptySpelling(term) match {
           case None => {
-            val canonicalSpelling = searchManagementRepository.addNewCanonicalSpelling(SolrIndexId(solrIndexId), term, userInfo)
-            Ok(Json.toJson(ApiResult(API_RESULT_OK, "Adding new canonical spelling '" + term + "' successful.", Some(canonicalSpelling.id))))
+            val canonicalSpelling = searchManagementRepository.addNewCanonicalSpelling(SolrIndexId(solrIndexId), term)
+            Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully added Canonical Spelling '" + term + "'.", Some(canonicalSpelling.id))))
           }
           case Some(error) => {
             BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, error, None)))
           }
         }
       }.getOrElse {
-        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new canonical spelling failed. Unexpected body data.", None)))
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Canonical Spelling failed. Unexpected body data.", None)))
       }
     }
   }
@@ -220,22 +247,22 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       val otherSpellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId)).filter(_.id != spellingWithAlternatives.id)
       CanonicalSpellingValidator.validateCanonicalSpellingsAndAlternatives(spellingWithAlternatives, otherSpellings) match {
         case Nil =>
-          searchManagementRepository.updateSpelling(spellingWithAlternatives, userInfo)
-          Ok(Json.toJson(ApiResult(API_RESULT_OK, "Updating canonical spelling successful.", Some(CanonicalSpellingId(canonicalSpellingId)))))
+          searchManagementRepository.updateSpelling(spellingWithAlternatives)
+          Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully updated Canonical Spelling.", Some(CanonicalSpellingId(canonicalSpellingId)))))
         case errors =>
-          val msgs = s"Failed to update spelling ${spellingWithAlternatives.term}: " + errors.mkString("\n")
+          val msgs = s"Failed to update Canonical Spelling ${spellingWithAlternatives.term}: " + errors.mkString("\n")
           logger.error(msgs)
           BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
       }
     }.getOrElse {
-      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating canonical spelling failed. Unexpected body data.", None)))
+      BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating Canonical Spelling failed. Unexpected body data.", None)))
     }
   }
   def deleteSpelling(canonicalSpellingId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
       val userInfo: Option[String] = lookupUserInfo(request)
       searchManagementRepository.deleteSpelling(canonicalSpellingId, userInfo)
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting canonical spelling with alternatives successful.", None)))
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Canonical Spelling with alternatives successful.", None)))
     }
   }
 
@@ -272,7 +299,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
           // TODO evaluate pushing a non successful deployment attempt to the (database) log as well
           BadRequest(
             Json.toJson(
-              ApiResult(API_RESULT_FAIL, s"Updating Solr Index failed.\nScript output:\n${result.output}", None)
+              ApiResult(API_RESULT_FAIL, s"Updating Search Management Config for Solr Index failed.\nScript output:\n${result.output}", None)
             )
           )
         }
@@ -280,7 +307,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         // TODO Evaluate being more precise in the error communication (eg which rules.txt failed?, where? / which line?, why?, etc.)
         BadRequest(
           Json.toJson(
-            ApiResult(API_RESULT_FAIL, s"Updating Solr Index failed. Validation errors in rules.txt:\n${errors.mkString("\n")}", None)
+            ApiResult(API_RESULT_FAIL, s"Updating Search Management Config for Solr Index failed. Validation errors in rules.txt:\n${errors.mkString("\n")}", None)
           )
         )
     }
@@ -309,6 +336,15 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       }.getOrElse {
         BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Suggested Field Name failed. Unexpected body data.", None)))
       }
+    }
+  }
+
+  // I am requiring the solrIndexId because it is more RESTful, but it turns out we don't need it.
+  // Maybe validation some day?
+  def deleteSuggestedSolrField(solrIndexId: String, suggestedFieldId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+    Future {
+      searchManagementRepository.deleteSuggestedSolrField(SuggestedSolrFieldId(suggestedFieldId))
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Suggested Field successful", None)))
     }
   }
 
@@ -435,6 +471,8 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       // get latest version from dockerhub
       val latestFromDockerHub = SmuiVersion.latestVersionFromDockerHub()
       val current = SmuiVersion.parse(models.buildInfo.BuildInfo.version)
+
+      logger.info(s":: SMUI version of this instance: ($current)")
 
       val versionInfo = (if (latestFromDockerHub.isEmpty || current.isEmpty) {
         logger.error(s":: cannot determine version diff between latestFromDockerHub and current ($latestFromDockerHub, $current)")

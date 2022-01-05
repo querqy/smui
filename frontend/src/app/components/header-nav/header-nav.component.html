@@ -55,6 +55,14 @@
         >Report</a
         >
       </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [ngClass]="{ active: router.url === '/admin' }"
+          routerLink="/admin"
+        >Admin</a
+        >
+      </li>
       <li>
         <button class="btn btn-outline-secondary" (click)="openHelpModal()">
           <i class="fa fa-info-circle" aria-hidden="true"></i> Help
@@ -62,8 +70,8 @@
       </li>
     </ul>
 
-    <div *ngIf="!currentSolrIndexId || currentSolrIndexId === '-1'">
-      In order to push the rules, please create a Solr collection first.
+    <div *ngIf="hideSolrIndexSelector()">
+      In order to push the rules, <a routerLink="/admin">please create a Solr collection first</a>.
     </div>
     <div
       *ngIf="currentSolrIndexId && currentSolrIndexId !== '-1'"
@@ -166,17 +174,19 @@
   </div>
   <div footer class="btn-toolbar">
     <button
-      class="btn btn-danger mr-2"
+      class="btn btn-success mr-2"
       type="button"
       (click)="requestPublishRulesTxtToSolr('LIVE')"
     >
+      <i class="fa fa-thumbs-up smui-icon"></i>
       Yes, publish to LIVE
     </button>
     <button
-      class="btn btn-success"
+      class="btn btn-danger"
       type="button"
       (click)="modalService.close('confirm-publish-live')"
     >
+      <i class="fa fa-ban smui-icon"></i>
       No, cancel publish
     </button>
   </div>

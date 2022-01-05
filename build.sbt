@@ -1,7 +1,7 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "3.13.0"
+version := "3.13.4"
 
 scalaVersion := "2.12.11"
 
@@ -111,3 +111,7 @@ dockerBuildArguments in docker := Map(
 buildOptions in docker := BuildOptions(
   pullBaseImage = BuildOptions.Pull.Always
 )
+
+// Fix build on Mac M1 ("Apple Silicon") chipsets (see https://discuss.lightbend.com/t/apple-silicon-m1-playframework-broken-on-apple-silicon/7924/16)
+// TODO using jdk8 instead (to avoid `java.lang.IllegalStateException: Unable to load cache item`)
+PlayKeys.fileWatchService := play.dev.filewatch.FileWatchService.jdk7(play.sbt.run.toLoggerProxy(sLog.value))

@@ -6,6 +6,7 @@ import java.util.Date
 import play.api.libs.json.{Json, OFormat}
 import anorm.SqlParser._
 import anorm._
+import play.api.Logging
 
 class SolrIndexId(id: String) extends Id(id)
 object SolrIndexId extends IdObject[SolrIndexId](new SolrIndexId(_))
@@ -45,9 +46,19 @@ object SolrIndex {
     allMatchingIndeces.head.name
   }
 
+  def loadById(solrIndexId: SolrIndexId)(implicit connection: Connection): SolrIndex = {
+    val allMatchingIndeces = SQL"select * from #$TABLE_NAME where id = $solrIndexId".as(sqlParser.*)
+
+    allMatchingIndeces.head
+  }
+
   def insert(newSolrIndex: SolrIndex)(implicit connection: Connection): SolrIndexId = {
     SQL"insert into #$TABLE_NAME (id, name, description, last_update) values (${newSolrIndex.id}, ${newSolrIndex.name}, ${newSolrIndex.description}, ${new Date()})".execute()
     newSolrIndex.id
+  }
+
+  def delete(id: String)(implicit connection: Connection): Int = {
+    SQL"delete from #$TABLE_NAME where id = $id".executeUpdate()
   }
 
 

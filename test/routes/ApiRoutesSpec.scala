@@ -66,7 +66,7 @@ class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
     val result: Future[Result] = route(application, request).get
 
     status(result) shouldBe 200
-    (contentAsJson(result) \ "message").as[String] shouldBe "Adding new canonical spelling 'palm tree' successful."
+    (contentAsJson(result) \ "message").as[String] shouldBe "Successfully added Canonical Spelling 'palm tree'."
 
     db.withConnection { implicit connection =>
       val canonicalSpellings = CanonicalSpelling.loadAllForIndex(core1Id)
@@ -125,7 +125,7 @@ class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
     val result: Future[Result] = route(application, request).get
 
     status(result) shouldBe 200
-    (contentAsJson(result) \ "message").as[String] shouldBe "Updating canonical spelling successful."
+    (contentAsJson(result) \ "message").as[String] shouldBe "Successfully updated Canonical Spelling."
 
     db.withConnection { implicit connection =>
       val canonicalSpellings = CanonicalSpelling.loadAllForIndex(core1Id)
@@ -222,7 +222,7 @@ class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
     val result: Future[Result] = route(application, request).get
 
     status(result) shouldBe 200
-    (contentAsJson(result) \ "message").as[String] shouldBe "Deleting canonical spelling with alternatives successful."
+    (contentAsJson(result) \ "message").as[String] shouldBe "Deleting Canonical Spelling with alternatives successful."
 
     db.withConnection { implicit connection =>
       val canonicalSpellings = CanonicalSpelling.loadAllForIndex(core1Id)
