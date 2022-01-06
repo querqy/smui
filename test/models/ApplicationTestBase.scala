@@ -71,7 +71,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
     val deleteRules = List(DeleteRule(DeleteRuleId(), "freddy", isActive = true))
     val filterRules = List(FilterRule(FilterRuleId(), "zz top", isActive = true))
 
-    val aerosmithId = repo.addNewSearchInput(core1Id, "aerosmith", Seq.empty)
+    val aerosmithId = repo.addNewSearchInput(core1Id, "aerosmith", Seq.empty, None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     val searchInput = SearchInputWithRules(
       aerosmithId,
@@ -82,12 +82,12 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
       isActive = true,
       comment = ""
     )
-    repo.updateSearchInput(searchInput)
+    repo.updateSearchInput(searchInput, None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     val tag = createTestTag("testProperty", "testValue", core1Id)
 
-    val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq(tag.id))
+    val shippingId = repo.addNewSearchInput(core1Id, "shipping", Seq(tag.id), None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     val redirectRule = RedirectRule(RedirectRuleId(), "http://xyz.com/shipping", isActive = true)
     val searchInputForRedirect = SearchInputWithRules(
@@ -98,10 +98,10 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
       comment = "",
       tags = Seq(tag)
     )
-    repo.updateSearchInput(searchInputForRedirect)
+    repo.updateSearchInput(searchInputForRedirect, None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
-    val inactiveId = repo.addNewSearchInput(core1Id, "inactive", Seq.empty)
+    val inactiveId = repo.addNewSearchInput(core1Id, "inactive", Seq.empty, None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
     val inactiveSearchInput = SearchInputWithRules(
       inactiveId,
@@ -110,7 +110,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
       isActive = false,
       comment = "inactive"
     )
-    repo.updateSearchInput(inactiveSearchInput)
+    repo.updateSearchInput(inactiveSearchInput, None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     Seq(aerosmithId, shippingId)
@@ -129,11 +129,11 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
   var pants: CanonicalSpelling = _
 
   protected def createTestSpellings(): Seq[CanonicalSpellingId] = {
-    freezer = repo.addNewCanonicalSpelling(core1Id, "freezer")
+    freezer = repo.addNewCanonicalSpelling(core1Id, "freezer", None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
-    machine = repo.addNewCanonicalSpelling(core1Id, "machine")
+    machine = repo.addNewCanonicalSpelling(core1Id, "machine", None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
-    pants = repo.addNewCanonicalSpelling(core1Id, "pants")
+    pants = repo.addNewCanonicalSpelling(core1Id, "pants", None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
@@ -146,7 +146,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
         AlternativeSpelling(AlternativeSpellingId(), freezer.id, "freazer", true),
         AlternativeSpelling(AlternativeSpellingId(), freezer.id, "frazer", true)
       )
-    ))
+    ), None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
@@ -158,7 +158,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
         AlternativeSpelling(AlternativeSpellingId(), machine.id, "machin", false),
         AlternativeSpelling(AlternativeSpellingId(), machine.id, "mechine", true)
       )
-    ))
+    ), None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     repo.updateSpelling(CanonicalSpellingWithAlternatives(
@@ -170,7 +170,7 @@ trait ApplicationTestBase extends BeforeAndAfterAll with BeforeAndAfterEach {
         AlternativeSpelling(AlternativeSpellingId(), pants.id, "pands", true),
         AlternativeSpelling(AlternativeSpellingId(), pants.id, "pents", true)
       )
-    ))
+    ), None)
     Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
     Seq(freezer.id, machine.id, pants.id)

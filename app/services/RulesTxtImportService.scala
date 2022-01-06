@@ -446,11 +446,11 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
       // first create entity
       val tagIds = searchInput.tags.map(inputTag => inputTag.id)
       val searchInputId = searchManagementRepository.addNewSearchInput(
-        solrIndexId, searchInput.term, tagIds
+        solrIndexId, searchInput.term, tagIds, None
       )
       // then update (incl rules)
       searchManagementRepository.updateSearchInput(
-        inputWithDbId(searchInput, searchInputId)
+        inputWithDbId(searchInput, searchInputId), None
       )
     }
     // return stats

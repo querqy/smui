@@ -269,7 +269,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
       // input#0 (aerosmith)
 
       val searchInput0 = SearchInputWithRules.loadById(inputIds(0)).get
-      repo.updateSearchInput(searchInput0)
+      repo.updateSearchInput(searchInput0, None)
       Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val inputEvents0 = InputEvent.loadForId(inputIds(0).id)
@@ -281,7 +281,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
       // spelling#0 (freezer)
 
       val spelling0 = CanonicalSpellingWithAlternatives.loadById(spellingIds(0)).get
-      repo.updateSpelling(spelling0)
+      repo.updateSpelling(spelling0, None)
       Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val spellingEvents0 = InputEvent.loadForId(spellingIds(0).id)
@@ -313,7 +313,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
             }
           })
       )
-      repo.updateSearchInput(newSearchInput0)
+      repo.updateSearchInput(newSearchInput0, None)
       Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val inputEvents0 = InputEvent.loadForId(inputIds(0).id)
@@ -359,7 +359,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
             }
           })
       )
-      repo.updateSpelling(newSpelling0)
+      repo.updateSpelling(newSpelling0, None)
       Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val spellingEvents0 = InputEvent.loadForId(spellingIds(0).id)
@@ -396,7 +396,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
       val newSearchInput0 = searchInput0.copy(
         comment = NEW_INPUT0_COMMENT
       )
-      repo.updateSearchInput(newSearchInput0)
+      repo.updateSearchInput(newSearchInput0, None)
       Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val inputEvents0 = InputEvent.loadForId(inputIds(0).id)
@@ -429,7 +429,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
       val newSpelling0 = spelling0.copy(
         comment = NEW_SPELLING0_COMMENT
       )
-      repo.updateSpelling(newSpelling0)
+      repo.updateSpelling(newSpelling0, None)
       Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val spellingEvents0 = InputEvent.loadForId(spellingIds(0).id)
@@ -454,7 +454,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
   "deletion of search input" should "result in a DELETED event" in {
     db.withConnection { implicit conn =>
 
-      repo.deleteSearchInput(inputIds(0).id)
+      repo.deleteSearchInput(inputIds(0).id, None)
       Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val inputEvents0 = InputEvent.loadForId(inputIds(0).id)
@@ -472,7 +472,7 @@ class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with
   "deletion of spelling" should "result in a DELETED event" in {
     db.withConnection { implicit conn =>
 
-      repo.deleteSpelling(spellingIds(0).id)
+      repo.deleteSpelling(spellingIds(0).id, None)
       Thread.sleep(MILLIS_BETWEEN_CHANGE_EVENTS)
 
       val spellingEvents0 = InputEvent.loadForId(spellingIds(0).id)
