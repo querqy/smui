@@ -85,7 +85,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
               ApiResult(API_RESULT_FAIL, s"Deleting Solr Index failed: ${e.getMessage}", None)
             )
           )
-        case _ => BadRequest(
+        case _: Throwable => BadRequest(
           Json.toJson(
             ApiResult(API_RESULT_FAIL, s"Deleting Solr Index failed due to an unknown error", None)
           )
