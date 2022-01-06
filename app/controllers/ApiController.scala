@@ -215,7 +215,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       optTerm.map { term =>
         CanonicalSpellingValidator.validateNoEmptySpelling(term) match {
           case None => {
-            val canonicalSpelling = searchManagementRepository.addNewCanonicalSpelling(SolrIndexId(solrIndexId), term)
+            val canonicalSpelling = searchManagementRepository.addNewCanonicalSpelling(SolrIndexId(solrIndexId), term, userInfo)
             Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully added Canonical Spelling '" + term + "'.", Some(canonicalSpelling.id))))
           }
           case Some(error) => {
@@ -247,7 +247,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       val otherSpellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId)).filter(_.id != spellingWithAlternatives.id)
       CanonicalSpellingValidator.validateCanonicalSpellingsAndAlternatives(spellingWithAlternatives, otherSpellings) match {
         case Nil =>
-          searchManagementRepository.updateSpelling(spellingWithAlternatives)
+          searchManagementRepository.updateSpelling(spellingWithAlternatives, userInfo)
           Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully updated Canonical Spelling.", Some(CanonicalSpellingId(canonicalSpellingId)))))
         case errors =>
           val msgs = s"Failed to update Canonical Spelling ${spellingWithAlternatives.term}: " + errors.mkString("\n")
