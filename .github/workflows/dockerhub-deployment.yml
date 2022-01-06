@@ -47,6 +47,6 @@ jobs:
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build & deploy SMUI
         run: |
-#          make docker-build-only > build.log 2>&1
           make docker-build-only 2>&1
+#          make docker-build-only > build.log 2>&1
           make docker-push
