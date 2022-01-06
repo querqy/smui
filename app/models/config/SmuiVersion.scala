@@ -94,32 +94,6 @@ object SmuiVersion extends Logging {
             None
           }
         }
-
-
-
-
-//        val jsonReadLatestVersionFromDockerHubResp1 = ((JsPath \ "results") (1) \ "name").read[String]
-//        val rawVer1 = parseJsonResponse(jsonReadLatestVersionFromDockerHubResp1)
-//        // TODO assume parsing works, might produce an exception
-//        val rawVer = (if(rawVer1.get.equals("latest")) {
-//          // hub.docker.com API does not seem to provide a stable interface to the latest version in 2nd JSON entry
-//          val jsonReadLatestVersionFromDockerHubResp0 = ((JsPath \ "results") (0) \ "name").read[String]
-//          val rawVer0 = parseJsonResponse(jsonReadLatestVersionFromDockerHubResp0)
-//          rawVer0.get
-//        } else {
-//          rawVer1.get
-//        })
-//
-//        parse(rawVer) match {
-//          case None => {
-//            logger.error(s":: unable to parse latest DockerHub version string for SMUI (rawVer = $rawVer)")
-//            None
-//          }
-//          case Some(version) => Some(version)
-//        }
-
-
-
       }
     }
   }
