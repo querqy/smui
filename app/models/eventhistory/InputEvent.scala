@@ -13,7 +13,7 @@ import models.input.{SearchInputId, FullSearchInputWithRules}
 import models.spellings.{CanonicalSpellingId, FullCanonicalSpellingWithAlternatives}
 
 /**
-  * @see evolutions/default/6.sql
+  * @see conf/evolutions/default/6.sql
   */
 object SmuiEventType extends Enumeration {
   val CREATED = Value(0)
@@ -45,6 +45,7 @@ case class InputEvent(
   eventSource: String,
   eventType: Int,
   eventTime: LocalDateTime,
+  // TODO Make userInfo a mandatory information, once unauthenticated SMUI usage is not possible any more >v3.14 (see https://github.com/querqy/smui/pull/83#issuecomment-1023284550). Also adjust persistence: `user_info varchar(100) not null` (see conf/evolutions/default/6.sql).
   userInfo: Option[String],
   inputId: String,
   jsonPayload: Option[String]) {
@@ -371,6 +372,23 @@ object InputEvent extends Logging {
     } else {
       (Some(allChangeEvents.head), Some(allChangeEvents.last))
     }
+  }
+
+  def countEventsWithoutProperUserInfo(implicit connection: Connection): Long = {
+
+//    val sqlIntParser: RowParser[Int] = {
+//      get[Int](s"") map {
+//        case i => i
+//      }
+//    }
+
+    val countEvents = SQL(
+      s"select count(*) from $TABLE_NAME " +
+        s"where $USER_INFO is null"
+    )
+      .as(anorm.SqlParser.scalar[Long].single)
+
+    countEvents
   }
 
 }

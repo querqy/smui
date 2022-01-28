@@ -12,6 +12,7 @@ import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
 import models.reports.{ActivityReport, DeploymentLog, RulesReport}
 import play.api.Logging
 
+// TODO Make `userInfo` mandatory (for all input/spelling and deploymentLog CRUD operations), when removing unauthorized access.
 @javax.inject.Singleton
 class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) extends Logging {
 
@@ -92,8 +93,9 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   }
 
   /**
-    * Canonical spellings and alternative spellings
-    */
+   * Canonical spellings and alternative spellings
+   *
+   */
 
   def addNewCanonicalSpelling(solrIndexId: SolrIndexId, term: String, userInfo: Option[String]): CanonicalSpelling =
     db.withConnection { implicit connection =>

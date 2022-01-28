@@ -11,6 +11,7 @@ import scala.util.control.Exception.allCatch
 // Wrap a standard request with the extracted username of the person making the request
 case class UserRequest[A](username: String, request: Request[A]) extends WrappedRequest[A](request)
 
+@deprecated("As of v3.14. See https://github.com/querqy/smui/pull/83#issuecomment-1023284550", "27-01-2022")
 class BasicAuthAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) with Logging {
 
