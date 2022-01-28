@@ -4,7 +4,7 @@ import play.api.Logging
 
 import scala.io.Source
 import scala.util.Try
-import play.api.libs.json.{JsError, JsPath, JsSuccess, Json, Reads}
+import play.api.libs.json.{JsError, JsPath, JsArray, JsSuccess, Json, Reads}
 
 case class SmuiVersion(
   major: Int,
@@ -48,43 +48,51 @@ object SmuiVersion extends Logging {
     Try({
       // request latest and previous version from hub.docker.com
       // TODO confirm we're dealing with a stable DockerHub API here!
-      val LATEST_DOCKER_HUB_URL = "https://hub.docker.com/v2/repositories/querqy/smui/tags/?page_size=2&page=1"
+      val LATEST_DOCKER_HUB_URL = "https://hub.docker.com/v2/repositories/querqy/smui/tags/?page_size=4&page=1&ordering=last_updated"
       Source.fromURL(LATEST_DOCKER_HUB_URL).mkString
     }).toOption match {
       case None => None
       case Some(rawDockerHubResp) => {
-        // TODO make any plausibility checks (maybe, that "results"(0) contains "latest")?
-        def parseJsonResponse(jsonRead: Reads[String]): Option[String] = {
-          Json.parse(rawDockerHubResp).validate[String](jsonRead) match {
-            case JsSuccess(rawVer, _) => {
-              val _: String = rawVer
-              logger.info(s":: match :: rawVer = $rawVer")
-              Some(rawVer)
-            }
-            case e: JsError => {
-              logger.error(s":: error parsing latest DockerHub version JSON for SMUI (e = $e)")
-              None
-            }
-          }
-        }
-        val jsonReadLatestVersionFromDockerHubResp1 = ((JsPath \ "results") (1) \ "name").read[String]
-        val rawVer1 = parseJsonResponse(jsonReadLatestVersionFromDockerHubResp1)
-        // TODO assume parsing works, might produce an exception
-        val rawVer = (if(rawVer1.get.equals("latest")) {
-          // hub.docker.com API does not seem to provide a stable interface to the latest version in 2nd JSON entry
-          val jsonReadLatestVersionFromDockerHubResp0 = ((JsPath \ "results") (0) \ "name").read[String]
-          val rawVer0 = parseJsonResponse(jsonReadLatestVersionFromDockerHubResp0)
-          rawVer0.get
-        } else {
-          rawVer1.get
-        })
 
-        parse(rawVer) match {
-          case None => {
-            logger.error(s":: unable to parse latest DockerHub version string for SMUI (rawVer = $rawVer)")
+        // Convert results to JSON array
+        val jsonReadDockerHubVersionResults = (JsPath \ "results").read[JsArray]
+        Json.parse(rawDockerHubResp).validate[JsArray](jsonReadDockerHubVersionResults) match {
+          case JsSuccess(versionResults, _) => {
+            logger.info(s":: Successfully parsed version number")
+
+            // Extract version numbers
+            val allLatestVersions = versionResults.value.map(versionEntry => {
+              (versionEntry \ "name").validate[String] match {
+                case JsSuccess(versionName, _) => Some(versionName)
+                case e: JsError => {
+                  logger.error(s":: error parsing latest DockerHub version JSON for SMUI (e = $e)")
+                  None
+                }
+              }
+            }).flatten
+
+            // Plausibility check
+            if (!allLatestVersions.contains("latest")) {
+              logger.error(s":: allLatestVersions does not contain a 'latest' version. This is unexpected. Please contact the author.")
+            }
+
+            val specificVersions = allLatestVersions.filter(version => {
+              val patternFullVersion: scala.util.matching.Regex = """\d+.\d+.\d+""".r
+              patternFullVersion.findFirstMatchIn(version).isDefined
+            })
+
+            // Next plausibility check
+            if (specificVersions.size != 1) {
+              logger.error(s":: more or less than 1 specificVersions found (specificVersions = >>>${specificVersions}<<<) This is unexpected. Please contact the author.")
+            }
+
+            SmuiVersion.parse(specificVersions.head)
+
+          }
+          case e: JsError => {
+            logger.error(s":: error parsing latest DockerHub version JSON for SMUI (e = $e)")
             None
           }
-          case Some(version) => Some(version)
         }
       }
     }

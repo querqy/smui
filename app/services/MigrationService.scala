@@ -82,12 +82,24 @@ class MigrationService @Inject()(dbapi: DBApi, toggleService: FeatureToggleServi
     }
   }
 
+  private def logCountEventsWithoutProperUserInfoPreVersion314() = {
+    db.withTransaction { implicit connection =>
+
+      val countEvents = InputEvent.countEventsWithoutProperUserInfo
+      if (countEvents > 0) {
+        logger.warn(s"You have ${countEvents} history events without userInfo in your database. Support for empty userInfo entries have been removed as of v3.14 of SMUI (see https://github.com/querqy/smui/pull/83#issuecomment-1023284550). Please migrate existing event data.")
+      }
+
+    }
+  }
+
   // protect all migrations within a try-catch. In case, migrations fail, try to bootstrap SMUI anyway!!
   // TODO Compile Time Dependency Injection & Play evolutions seem to be entangled unfavorably. Therefore, during development (DEV environment), it might be necessary to reload / restart the application (happened, when testing the migration towards v3.11.9).
   try {
 
     virtuallyCreateEventsPreVersion38()
     syncPredefinedTagsWithDB()
+    logCountEventsWithoutProperUserInfoPreVersion314()
 
   } catch {
     case e: Throwable => {

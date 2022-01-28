@@ -28,7 +28,7 @@ trait CommonRulesTxtDeploymentServiceConfigVariantsSpecBase extends ApplicationT
 
   protected def createDecompoundRule() = {
 
-    val damenInputId = repo.addNewSearchInput(core1Id, "damen*", Seq())
+    val damenInputId = repo.addNewSearchInput(core1Id, "damen*", Seq(), None)
     val damenInput = SearchInputWithRules(
       id = damenInputId,
       term = "damen*",
@@ -48,7 +48,7 @@ trait CommonRulesTxtDeploymentServiceConfigVariantsSpecBase extends ApplicationT
       isActive = true,
       comment = "German prefix to match all different kind women's wear as decompound prefix."
     )
-    repo.updateSearchInput(damenInput)
+    repo.updateSearchInput(damenInput, None)
   }
 
 }

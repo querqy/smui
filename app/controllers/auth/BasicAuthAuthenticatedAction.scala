@@ -8,6 +8,10 @@ import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.Exception.allCatch
 
+// Wrap a standard request with the extracted username of the person making the request
+case class UserRequest[A](username: String, request: Request[A]) extends WrappedRequest[A](request)
+
+@deprecated("As of v3.14. See https://github.com/querqy/smui/pull/83#issuecomment-1023284550", "27-01-2022")
 class BasicAuthAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) with Logging {
 
@@ -39,22 +43,25 @@ class BasicAuthAuthenticatedAction(parser: BodyParsers.Default, appConfig: Confi
   override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
     logger.debug(s":: invokeBlock :: request.path = ${request.path}")
 
+    var extractedUsername = "" // Pulled out of the Basic Auth logic
     def requestAuthenticated(request: Request[A]): Boolean = {
       request.headers.get("Authorization") match {
         case Some(authorization: String) =>
-          authorization.split(" ").drop(1).headOption.filter { encoded =>
+          authorization.split(" ").drop(1).headOption.exists { encoded =>
             val authInfo = new String(Base64.getDecoder().decode(encoded.getBytes)).split(":").toList
             allCatch.opt {
               val (username, password) = (authInfo.head, authInfo(1))
+              extractedUsername = username
               username.equals(BASIC_AUTH_USER) && password.equals(BASIC_AUTH_PASS)
+
             } getOrElse false
-          }.exists(_ => true)
+          }
         case None => false
       }
     }
 
     if (requestAuthenticated(request)) {
-      block(request)
+      block(UserRequest(extractedUsername,request))
     } else {
       Future {
         // TODO return error JSON with authorization violation details, redirect target eventually (instead of empty 401 body)

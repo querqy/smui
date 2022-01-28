@@ -6,6 +6,7 @@ import scala.util.{Try, Failure}
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import play.api.db.Database
 import models.input.{InputTag, InputTagId, SearchInput, SearchInputWithRules}
+import models.eventhistory.InputEvent
 import models.reports.RulesReport
 import models.rules._
 import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
@@ -126,6 +127,15 @@ abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData 
       // thread#0: make sure transaction is completed
       val completedMigration = SmuiMigrationLock.select(MIGRATION_KEY).get
       completedMigration.completed shouldBe Some(true)
+    }
+  }
+
+  "Querying NULL values" should "work" in {
+    db.withConnection { implicit conn =>
+
+      // TODO create an input & an corresponding event (without proper userInfo), and assert 1 event count
+      InputEvent.countEventsWithoutProperUserInfo
+
     }
   }
 
