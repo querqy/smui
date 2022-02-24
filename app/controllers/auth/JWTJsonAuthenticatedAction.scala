@@ -23,7 +23,7 @@ class JWTJsonAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configu
   private val JWT_ROLES_JSON_PATH = getValueFromConfigWithFallback("smui.JWTJsonAuthenticatedAction.authorization.json.path", "$.roles")
   private val JWT_AUTHORIZED_ROLES = getValueFromConfigWithFallback("smui.JWTJsonAuthenticatedAction.authorization.roles", "admin")
 
-  private lazy val authorizedRoles = JWT_AUTHORIZED_ROLES.replaceAll("\\s", "").split(",").toSeq
+  private val authorizedRoles = JWT_AUTHORIZED_ROLES.split(",").map(_.trim())
 
   private def getValueFromConfigWithFallback(key: String, default: String): String = {
     appConfig.getOptional[String](key) match {
