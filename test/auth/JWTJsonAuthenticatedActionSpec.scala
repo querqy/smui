@@ -92,6 +92,17 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
       }
     }
 
+    "let users pass to SMUI if they have the right role even if they also have other roles" in {
+      val request = FakeRequest(GET, "/")
+        .withCookies(buildJWTCookie("test_user", Seq("search-manager", "barkeeper")))
+
+      val home: Future[Result] = route(app, request).get
+
+      whenReady(home) { result =>
+        result.header.status mustBe 200
+      }
+    }
+
     "should secure API routes" in {
       var request = FakeRequest(GET, "/api/v1/inputTags")
         .withCookies(buildJWTCookie("test_user", Seq("search-manager")))
