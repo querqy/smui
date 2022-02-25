@@ -39,7 +39,7 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
         "smui.JWTJsonAuthenticatedAction.algorithm" -> "rsa",
         "smui.JWTJsonAuthenticatedAction.authorization.active" -> "true",
         "smui.JWTJsonAuthenticatedAction.authorization.json.path" -> "$.roles",
-        "smui.JWTJsonAuthenticatedAction.authorization.roles" -> "admin, search-manager"
+        "smui.JWTJsonAuthenticatedAction.authorization.roles" -> "admin, search-manager, smui rules analyst"
       ))
       .build()
   }
@@ -95,6 +95,17 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
     "let users pass to SMUI if they have the right role even if they also have other roles" in {
       val request = FakeRequest(GET, "/")
         .withCookies(buildJWTCookie("test_user", Seq("search-manager", "barkeeper")))
+
+      val home: Future[Result] = route(app, request).get
+
+      whenReady(home) { result =>
+        result.header.status mustBe 200
+      }
+    }
+
+    "let users pass to SMUI if they have role containing a whitespace character" in {
+      val request = FakeRequest(GET, "/")
+        .withCookies(buildJWTCookie("test_user", Seq("smui rules analyst")))
 
       val home: Future[Result] = route(app, request).get
 
