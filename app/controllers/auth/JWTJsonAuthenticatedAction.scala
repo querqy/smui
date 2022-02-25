@@ -57,10 +57,10 @@ class JWTJsonAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configu
 
   private def isAuthorized(token: String): Boolean = {
     if (JWT_AUTHORIZATION_ACTIVE) {
-      val rolesInToken = Try(JsonPath.read[JSONArray](token, JWT_ROLES_JSON_PATH).toArray.toSeq)
+      val rolesReadFromToken = Try(JsonPath.read[JSONArray](token, JWT_ROLES_JSON_PATH).toArray.toSeq)
 
-      rolesInToken match {
-        case Success(roles) => roles.forall(authorizedRoles.contains)
+      rolesReadFromToken match {
+        case Success(rolesInToken) => rolesInToken.exists(authorizedRoles.contains)
         case _ => false
       }
     } else true
