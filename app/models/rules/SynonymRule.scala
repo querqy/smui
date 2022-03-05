@@ -36,10 +36,10 @@ object SynonymRule extends RuleObjectWithTerm[SynonymRule] {
   override def fieldNames: Seq[String] = super.fieldNames :+ TYPE
 
   val sqlParser: RowParser[SynonymRule] = {
-    get[SynonymRuleId](s"$TABLE_NAME.$ID") ~
-      get[Int](s"$TABLE_NAME.$TYPE") ~
-      get[String](s"$TABLE_NAME.$TERM") ~
-      get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ synonymType ~ term ~ status =>
+    get[SynonymRuleId](s"$ID") ~
+      get[Int](s"$TYPE") ~
+      get[String](s"$TERM") ~
+      get[Int](s"$STATUS") map { case id ~ synonymType ~ term ~ status =>
         SynonymRule(id, synonymType, term, Status.isActiveFromStatus(status))
     }
   }

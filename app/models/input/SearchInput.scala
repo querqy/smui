@@ -48,12 +48,12 @@ object SearchInput {
   val COMMENT = "comment"
 
   val sqlParser: RowParser[SearchInput] = {
-    get[SearchInputId](s"$TABLE_NAME.$ID") ~
-      get[String](s"$TABLE_NAME.$TERM") ~
-      get[SolrIndexId](s"$TABLE_NAME.$SOLR_INDEX_ID") ~
-      get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") ~
-      get[Int](s"$TABLE_NAME.$STATUS") ~
-      get[String](s"$TABLE_NAME.$COMMENT") map { case id ~ term ~ indexId ~ lastUpdate ~ status ~ comment =>
+    get[SearchInputId](s"$ID") ~
+      get[String](s"$TERM") ~
+      get[SolrIndexId](s"$SOLR_INDEX_ID") ~
+      get[LocalDateTime](s"$LAST_UPDATE") ~
+      get[Int](s"$STATUS") ~
+      get[String](s"$COMMENT") map { case id ~ term ~ indexId ~ lastUpdate ~ status ~ comment =>
         SearchInput(id, indexId, term, lastUpdate, Status.isActiveFromStatus(status), comment)
     }
   }

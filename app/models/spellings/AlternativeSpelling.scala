@@ -42,10 +42,10 @@ object AlternativeSpelling {
   implicit val jsonFormat: OFormat[AlternativeSpelling] = Json.format[AlternativeSpelling]
 
   val sqlParser: RowParser[AlternativeSpelling] = {
-      get[AlternativeSpellingId](s"$TABLE_NAME.$ID") ~
-      get[CanonicalSpellingId](s"$TABLE_NAME.$CANONICAL_SPELLING_ID") ~
-      get[String](s"$TABLE_NAME.$TERM") ~
-      get[Int](s"$TABLE_NAME.$STATUS") map { case id ~ canonicalSpellingId ~ term ~ status =>
+      get[AlternativeSpellingId](s"$ID") ~
+      get[CanonicalSpellingId](s"$CANONICAL_SPELLING_ID") ~
+      get[String](s"$TERM") ~
+      get[Int](s"$STATUS") map { case id ~ canonicalSpellingId ~ term ~ status =>
       AlternativeSpelling(id, canonicalSpellingId, term, Status.isActiveFromStatus(status))
     }
   }
