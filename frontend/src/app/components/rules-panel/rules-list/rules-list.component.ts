@@ -141,6 +141,10 @@ export class RulesListComponent implements OnChanges {
       return true;
     }
 
+    if (searchTermLower == item.id) {
+      return true;
+    }
+
     // otherwise, we have a chance in the synonyms ...
     // TODO evaluate to check for undirected synonyms (synonymType) only
     for (const s of item.synonyms) {
