@@ -64,9 +64,26 @@ export class RulesCollectionCreateComponent implements OnInit, OnChanges {
         .then(() => this.showSuccessMsg.emit("Created new Rules Collection " + this.description))
         .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
         .then(() => this.clearForm())
-        .catch(error => this.showErrorMsg.emit(error));
+        .catch(error => {
+          console.log(error);
+          var showAlreadyExists = false;
+          var errorMsg = 'Unknown Error'
+          if ('status' in error) {
+            errorMsg += ": " + error.status;
+            if (error.status == 500) {
+              showAlreadyExists = true;
+            }
+          }
+          if ('statusText' in error) {
+            errorMsg += " " + error.statusText;
+          }
+          if (showAlreadyExists) {
+            errorMsg += " (Rules collection for that search engine collection already exists?)"
+          }
+          this.showErrorMsg.emit(errorMsg);
+        });
+    } else {
+      this.showErrorMsg.emit("Fill in both name fields.");
     }
   }
-
-
 }
