@@ -59,16 +59,16 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       val searchIndexName = (json \ "name").as[String]
       val searchIndexDescription = (json \ "description").as[String]
 
-      var solrIndexId: SolrIndexId = new SolrIndexId("");
       try {
-        solrIndexId = searchManagementRepository.addNewSolrIndex(
+        var solrIndexId = searchManagementRepository.addNewSolrIndex(
           SolrIndex(name = searchIndexName, description = searchIndexDescription)
         );
         logger.debug("solrIndexId:" + solrIndexId);
         Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully added Deployment Channel '" + searchIndexName + "'.", Some(solrIndexId))))
       } catch {
         case e: Exception => {
-          BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Could not add new Solr index. Duplicate?", None)))
+          logger.debug("The searchIndexDescription (Search Engine Collection Name) given was likely a duplicate.");
+          BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Could not add Rules Collection. Only one Rules Collection per Search Engine Collection is allowed.", None)))
         };
       }
 
