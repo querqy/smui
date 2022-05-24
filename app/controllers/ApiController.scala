@@ -58,11 +58,20 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     jsonBody.map { json =>
       val searchIndexName = (json \ "name").as[String]
       val searchIndexDescription = (json \ "description").as[String]
-      val solrIndexId = searchManagementRepository.addNewSolrIndex(
-        SolrIndex(name = searchIndexName, description = searchIndexDescription)
-      )
 
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully added Deployment Channel '" + searchIndexName + "'.", Some(solrIndexId))))
+      var solrIndexId: SolrIndexId = new SolrIndexId("");
+      try {
+        solrIndexId = searchManagementRepository.addNewSolrIndex(
+          SolrIndex(name = searchIndexName, description = searchIndexDescription)
+        );
+        logger.debug("solrIndexId:" + solrIndexId);
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully added Deployment Channel '" + searchIndexName + "'.", Some(solrIndexId))))
+      } catch {
+        case e: Exception => {
+          BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Could not add new Solr index. Duplicate?", None)))
+        };
+      }
+
     }.getOrElse {
       BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Deployment Channel failed. Unexpected body data.", None)))
     }

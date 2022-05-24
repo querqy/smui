@@ -66,19 +66,9 @@ export class RulesCollectionCreateComponent implements OnInit, OnChanges {
         .then(() => this.clearForm())
         .catch(error => {
           console.log(error);
-          var showAlreadyExists = false;
           var errorMsg = 'Unknown Error'
-          if ('status' in error) {
-            errorMsg += ": " + error.status;
-            if (error.status == 500) {
-              showAlreadyExists = true;
-            }
-          }
-          if ('statusText' in error) {
-            errorMsg += " " + error.statusText;
-          }
-          if (showAlreadyExists) {
-            errorMsg += " (Rules collection for that search engine collection already exists?)"
+          if ('message' in error.error) {
+            errorMsg = error.error.message;
           }
           this.showErrorMsg.emit(errorMsg);
         });
