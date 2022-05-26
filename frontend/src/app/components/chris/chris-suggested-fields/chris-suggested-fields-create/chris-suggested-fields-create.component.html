@@ -1,0 +1,25 @@
+<div class="card" *ngIf="solrIndex">
+  <div class="card-body">
+    <h5 class="card-title">Add Suggested Chris Field</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Add a new Suggested Chris Field to the rules collection {{solrIndex.description}}</h6>
+
+    <div class="form-group row">
+      <label for="collectionName" class="col-sm-2 col-form-label">Chris Field Name</label>
+      <div class="col-sm-10">
+        <input type="email" class="form-control" id="collectionName" placeholder="Name of Chris Field" [(ngModel)]="name">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <div class="col-sm-10">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="createChrisSuggestedField( $event)"
+        >
+          Create New Suggested Chris Field
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

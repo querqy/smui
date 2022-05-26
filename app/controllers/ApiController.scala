@@ -1,3 +1,4 @@
+//CJM 10
 package controllers
 
 import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
@@ -23,6 +24,7 @@ import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
 import org.checkerframework.checker.units.qual.A
 import services.{RulesTxtDeploymentService, RulesTxtImportService}
+import scala.collection.JavaConverters._
 
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
@@ -104,6 +106,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
+  //CJM 8
   def downloadAllRulesTxtFiles = authActionFactory.getAuthenticatedAction(Action) { req =>
     Ok.chunked(
       createStreamResultInBackground(
@@ -213,6 +216,19 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     val spellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId))
     Ok(Json.toJson(ListItem.create(searchInputs, spellings)))
   }
+
+//  def listAll2(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action) {
+//    //val searchInputs = searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))
+//    //val searchInputs = searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))
+//    //val spellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId))
+//    Future {
+//      this.getSolrIndex(solrIndexId)
+//      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Solr Index successful", None)))
+//
+//    }
+//    //Ok(s);
+//    //Ok(Json.toJson(x))
+//  }
 
   def addNewSpelling(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
@@ -581,6 +597,15 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       Ok(Json.toJson(report))
     }
   }
+  }
+
+
+  def getSomething(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      val something = searchManagementRepository.getSomething(solrIndexId)
+      Ok(Json.toJson(something.writer.writes("writesMsg1")))
+      //Ok(Json.toJson(
+    }
   }
 
 }

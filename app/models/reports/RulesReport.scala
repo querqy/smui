@@ -94,6 +94,7 @@ object RulesReport extends Logging {
     unsortedRules.sortWith((a,b) => (compareRulesReportItem(a,b) < 0))
   }
 
+  //CJM 7
   // TODO write test
   def loadForSolrIndexId(solrIndexId: SolrIndexId)(implicit connection: Connection): RulesReport = {
 

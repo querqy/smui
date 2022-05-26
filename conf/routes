@@ -1,3 +1,5 @@
+# CJM
+
 # Routes
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
@@ -35,6 +37,7 @@ GET     /api/v1/log/rule-activity-log                           controllers.ApiC
 GET     /api/v1/report/rules-report/:solrIndexId                controllers.ApiController.getRulesReport(solrIndexId: String)
 GET     /api/v1/report/activity-report/:solrIndexId             controllers.ApiController.getActivityReport(solrIndexId: String)
 GET     /api/v1/version/latest-info                             controllers.ApiController.getLatestVersionInfo()
+GET     /api/v1/solr-index/:solrIndexId/something               controllers.ApiController.getSomething(solrIndexId: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /*file   controllers.FrontendController.assetOrDefault(file)

@@ -43,6 +43,28 @@ import {
   SuggestedFieldsCreateComponent,
   SuggestedFieldsListComponent
 } from './components/admin/suggested-fields';
+
+import {
+  ChrisComponent,
+  //ChrisRulesCollectionListComponent,
+  //ChrisRulesCollectionCreateComponent
+} from './components/chris';
+
+import {
+  ChrisRulesCollectionCreateComponent
+} from './components/chris/chris-rules-collection-create';
+
+import {
+  ChrisRulesCollectionListComponent
+} from './components/chris/chris-rules-collection-list';
+
+// import {
+//   ChrisSuggestedFieldsComponent,
+//   ChrisSuggestedFieldsCreateComponent,
+//   ChrisSuggestedFieldsListComponent
+// } from './components/chris/chris-suggested-fields';
+
+
 import {
   ButtonRowComponent,
   CardComponent,
@@ -96,7 +118,13 @@ import {
     RulesCollectionCreateComponent,
     SuggestedFieldsComponent,
     SuggestedFieldsCreateComponent,
-    SuggestedFieldsListComponent
+    SuggestedFieldsListComponent,
+    ChrisComponent,
+    // ChrisRulesCollectionListComponent,
+    ChrisRulesCollectionCreateComponent,
+    // ChrisSuggestedFieldsComponent,
+    // ChrisSuggestedFieldsCreateComponent,
+    // ChrisSuggestedFieldsListComponent
   ],
   providers: [
     CommonsService,

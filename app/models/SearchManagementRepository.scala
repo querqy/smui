@@ -1,3 +1,4 @@
+//CJM 9
 package models
 
 import java.time.LocalDateTime
@@ -6,6 +7,7 @@ import javax.inject.Inject
 import play.api.db.DBApi
 import anorm._
 import models.FeatureToggleModel.FeatureToggleService
+import models.export.{Something}
 import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
@@ -34,6 +36,10 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def getSolrIndex(solrIndexId: SolrIndexId): SolrIndex = db.withConnection { implicit connection =>
     SolrIndex.loadById(solrIndexId)
   }
+
+//  def getSolrIndex(solrIndexId: String): SolrIndex = db.withConnection { implicit connection =>
+//    SolrIndex.loadById(solrIndexId)
+//  }
 
   def addNewSolrIndex(newSolrIndex: SolrIndex): SolrIndexId = db.withConnection { implicit connection =>
     SolrIndex.insert(newSolrIndex)
@@ -301,6 +307,13 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
             user = (if (item.user.isEmpty) defaultUsername else item.user),
           ))
       )
+    }
+  }
+
+  def getSomething(solrIndexId: String): Something = db.withConnection {
+    implicit connection => {
+      val something = new Something(solrIndexId)
+      something
     }
   }
 

@@ -1,0 +1,26 @@
+
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Chris Rules Collections</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Available Chris Rules Collections in SMUI</h6>
+
+    <ul *ngFor="let solrIndex of getSolrIndices()" class="list-group smui-search-input-list">
+        <li class="list-group-item">
+          {{ solrIndex.description }} ({{ solrIndex.name }})- Key: <code>{{ solrIndex.id }}</code>
+
+          <a
+            class="btn btn-primary btn-sm float-right">
+<!--            [routerLink]="['/chris/chris-suggested-fields/', solrIndex.id.toUpperCase()]"-->
+          Configure</a>
+
+          <button
+            type="button"
+            class="btn btn-danger btn-sm float-right"
+            (click)="deleteChrisRulesCollection(solrIndex.id, $event)"
+          >
+            <i class="fa fa-minus" aria-hidden="true"></i>
+          </button>
+        </li>
+    </ul>
+  </div>
+</div>

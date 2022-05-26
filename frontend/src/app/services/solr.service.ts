@@ -112,7 +112,6 @@ export class SolrService {
       .toPromise();
   }
 
-
   createSuggestedField(solrIndexId: string, name: string): Promise<ApiResult> {
     const headers = { headers: this.jsonHeader };
     const body = JSON.stringify( { name: name});

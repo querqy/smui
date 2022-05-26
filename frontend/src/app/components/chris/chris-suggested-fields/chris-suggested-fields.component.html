@@ -1,0 +1,35 @@
+<button
+  class="btn btn-outline-secondary"
+  routerLink="/admin"
+  style="margin-right:20px;margin-bottom:10px;"
+><i class="fa fa-hand-point-left" aria-hidden="true"></i> Back to Admin
+</button>
+
+<h3 *ngIf="solrIndex" style="display:inline-block;">Suggested Fields for {{solrIndex.description}}</h3>
+
+<app-smui-chris-suggested-fields-create
+  (showSuccessMsg)="showSuccessMsg($event)"
+  (showErrorMsg)="showErrorMsg($event)"
+  (chrisSuggestedFieldsChange)="chrisSuggestedFieldsChange($event)"
+  [solrIndex]="solrIndex"
+>
+</app-smui-chris-suggested-fields-create>
+
+<app-smui-chris-suggested-fields-list
+  (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
+  (chrisSuggestedFieldsChange)="chrisSuggestedFieldsChange($event)"
+  [solrIndex]="solrIndex"
+  [chrisSuggestedFields]="chrisSuggestedFields"
+>
+</app-smui-chris-suggested-fields-list>
+
+<app-smui-confirm-modal
+  id="confirm-delete"
+  title="Confirm deletion"
+  okLabel="Yes"
+  cancelLabel="No"
+>
+  <p>Are you sure you want to delete the item?</p>
+</app-smui-confirm-modal>
+
+<router-outlet></router-outlet>
