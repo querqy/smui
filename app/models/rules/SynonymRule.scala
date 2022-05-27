@@ -1,9 +1,9 @@
 package models.rules
 
 import java.sql.Connection
-
 import anorm.SqlParser.get
 import anorm._
+import models.`export`.{Something, SomethingId}
 import models.input.SearchInputId
 import models.{Id, IdObject, Status}
 import play.api.libs.json.{Json, OFormat}

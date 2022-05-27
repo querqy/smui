@@ -1,19 +1,24 @@
 //CJM 9
 package models
 
+import anorm.SqlParser.get
+
 import java.time.LocalDateTime
 import java.util.{Date, UUID}
 import javax.inject.Inject
 import play.api.db.DBApi
 import anorm._
 import models.FeatureToggleModel.FeatureToggleService
-import models.`export`.Exporter
-import models.export.Something
+import models.SolrIndex.TABLE_NAME
+import models.`export`.SomethingRow
+import models.export.{Exporter, Something, SomethingId}
 import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
 import models.reports.{ActivityReport, DeploymentLog, RulesReport}
+import models.rules.SynonymRuleId
 import play.api.Logging
+import play.api.libs.json.JsValue
 
 // TODO Make `userInfo` mandatory (for all input/spelling and deploymentLog CRUD operations), when removing unauthorized access.
 @javax.inject.Singleton
@@ -311,32 +316,45 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     }
   }
 
-  def getSomething(solrIndexId: String): Something = db.withConnection {
+  def getSomething(id: String): Something = db.withConnection {
     implicit connection => {
-      val something = new Something(solrIndexId)
+      val something = new Something(SomethingId(), "", LocalDateTime.now())
       something
     }
   }
 
   def putSomething(thingName: String): Boolean = db.withConnection { implicit connection => {
     logger.debug("smr putSomething:0 " + thingName)
-    val uuid : String = UUID.randomUUID().toString
-    logger.debug("uuid: " + uuid)
     SQL("insert into something (id, value0, last_update) values ({id}, {value0}, {last_update})")
       .on(
-        'id -> uuid,
+        'id -> SomethingId(),
         'value0 -> thingName,
-        'last_update -> new Date()
+        'last_update -> LocalDateTime.now()
       )
       .execute()
   }
   }
 
-  def getAllSomethings(): Seq[Something] = db.withConnection {
+  def getSomethingsFromDatabase(): IndexedSeq[Something] = db.withConnection {
     implicit connection => {
+      logger.debug("In SearchManagementRepository:getSomethingsFromDatabase():1")
+      val x : List[Something] = SQL(s"select id, value0, last_update from something")
+        .as(SomethingRow.sqlParser.*)
+      logger.debug("In SearchManagementRepository:getSomethingsFromDatabase():2")
+      x.toIndexedSeq
+    }
+  }
+
+  def getAllSomethingsForJs(): JsValue = db.withConnection {
+    implicit connection => {
+      logger.debug("In SearchManagementRepository:getAllSomethingsForJs():1")
       val exporter : Exporter = new Exporter()
-      val somethings = exporter.getAllSomethings()
-      somethings
+      logger.debug("In SearchManagementRepository:getAllSomethingsForJs():2")
+      val somethings1 : IndexedSeq[Something] = getSomethingsFromDatabase()
+      logger.debug("In SearchManagementRepository:getAllSomethingsForJs():3... length:" + somethings1.size)
+      val somethings2 = exporter.getAllSomethingsForJs(somethings1)
+      logger.debug("In SearchManagementRepository:getAllSomethingsForJs():4")
+      somethings2
     }
   }
 

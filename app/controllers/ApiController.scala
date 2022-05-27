@@ -630,5 +630,13 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       }
     }
 
+  def getSomethings() = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      logger.debug("In ApiController:getSomethings")
+      Ok(Json.toJson(searchManagementRepository.getAllSomethingsForJs()))
+      //Ok(Json.toJson(
+    }
+  }
+
 
 }
