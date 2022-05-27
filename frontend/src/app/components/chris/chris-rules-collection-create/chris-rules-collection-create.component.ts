@@ -28,7 +28,6 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
 
   solrIndices: SolrIndex[];
   valueName: string;
-  resultString: string;
 
   constructor(
     private solrService: SolrService,
@@ -37,7 +36,7 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
   }
   ngOnInit() {
     console.log('In ChrisRulesCollectionCreateComponent :: ngOnInit');
-    //this.solrIndices = this.solrService.solrIndices;
+    this.solrIndices = this.solrService.solrIndices;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -54,27 +53,32 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
   }
 
   addOneValue( event: Event){
-    console.log("addOneValue() , thingName: " + this.valueName);
-    //console.log('In ChrisRulesCollectidonCreateComponent :: createChrisRulesCollection');
-    this.solrService.putSomething2(this.valueName).then(() => console.log("done"));
-    //
-    // if (this.name && this.description) {
-    //   this.solrService
-    //     .createSolrIndex(this.name, this.description)
-    //     .then(() => this.solrService.listAllSolrIndices())
-    //     .then(() => this.solrIndicesChange.emit())
-    //     .then(() => this.showSuccessMsg.emit("Created new Chris Rules Collection " + this.description))
-    //     .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
-    //     .then(() => this.clearForm())
-    //     .catch(error => this.showErrorMsg.emit(error));
-    // }
+    if (this.valueName) {
+      console.log("addOneValue() , thingName: " + this.valueName);
+      //console.log('In ChrisRulesCollectidonCreateComponent :: createChrisRulesCollection');
+      this.solrService.putSomething2(this.valueName)
+        .then(() => this.showSuccessMsg.emit("Add Value: OK"));
+      //
+      // if (this.name && this.description) {
+      //   this.solrService
+      //     .createSolrIndex(this.name, this.description)
+      //     .then(() => this.solrService.listAllSolrIndices())
+      //     .then(() => this.solrIndicesChange.emit())
+      //     .then(() => this.showSuccessMsg.emit("Created new Chris Rules Collection " + this.description))
+      //     .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
+      //     .then(() => this.clearForm())
+      //     .catch(error => this.showErrorMsg.emit(error));
+      // }
+    } else {
+      this.showErrorMsg.emit("Add Value: oops");
+    }
   }
 
   putRows(event: Event) {
     this.solrService.putSomething2("test row 1").then(() => console.log("added test row 1"));
     this.solrService.putSomething2("test row 2").then(() => console.log("added test row 2"));
     this.solrService.putSomething2("test row 3").then(() => console.log("added test row 3"));
-    console.log("putRows()");
+    this.showSuccessMsg.emit("Put Rows: OK")
   }
 
   getRows(event: Event) {
@@ -84,6 +88,7 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
     this.solrService.getSomethings().then(
       result => {
         console.log(result)
+        this.showSuccessMsg.emit("Get Rows: OK, see console log")
       }
     )
   }
@@ -96,6 +101,7 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
         this.downloadStringAsFile(
           "file.json.txt",
           str);
+        this.showSuccessMsg.emit("Download: OK")
       }
     );
   }
