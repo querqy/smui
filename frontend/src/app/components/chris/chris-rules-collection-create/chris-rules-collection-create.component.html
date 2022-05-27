@@ -1,30 +1,24 @@
 <div class="card">
   <div class="card-body">
-    <h5 class="card-title">Add Chris Rules Collection</h5>
-    <h6 class="card-subtitle mb-2 text-muted">Add a new Chris Rules Collection to organize rules together, and control access to them.</h6>
+    <h5 class="card-title">Add a Thing</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Add a new thing.</h6>
 
     <div class="form-group row">
-      <label for="collectionName" class="col-sm-2 col-form-label">Chris Collection Name</label>
+      <label for="thingName" class="col-sm-2 col-form-label">Thing:</label>
       <div class="col-sm-10">
-        <input type="email" class="form-control" id="collectionName" placeholder="Name of Chris Collection" [(ngModel)]="description">
-      </div>
-    </div>
-    <div class="form-group row">
-      <label for="collectionSearchEngineName" class="col-sm-2 col-form-label">Search Engine Collection Name</label>
-      <div class="col-sm-10">
-        <input type="text" class="form-control" id="collectionSearchEngineName" placeholder="Name of Chris Rules Collection in Search Engine" [(ngModel)]="name">
+        <input type="text" class="form-control" id="thingName" placeholder="Thing" [(ngModel)]="thingName">
       </div>
     </div>
 
     <div class="form-group row">
       <div class="col-sm-10">
         <button
-          id="createRulesCollectionBtn"
+          id="doTheThingBtn"
           type="button"
           class="btn btn-primary"
-          (click)="createChrisRulesCollection($event)"
+          (click)="doTheThing($event)"
         >
-          Create New Chris Rules Collection
+          Do The Thing
         </button>
       </div>
     </div>

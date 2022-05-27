@@ -27,8 +27,7 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
   @Output() solrIndicesChange: EventEmitter<string> = new EventEmitter();
 
   solrIndices: SolrIndex[];
-  name: string;
-  description: string;
+  thingName: string;
 
   constructor(
     private solrService: SolrService,
@@ -50,22 +49,24 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
   }
 
   clearForm() {
-    this.name = '';
-    this.description = '';
+    this.thingName = '';
   }
 
-  createChrisRulesCollection( event: Event){
-    console.log('In ChrisRulesCollectionCreateComponent :: createChrisRulesCollection');
-    if (this.name && this.description) {
-      this.solrService
-        .createSolrIndex(this.name, this.description)
-        .then(() => this.solrService.listAllSolrIndices())
-        .then(() => this.solrIndicesChange.emit())
-        .then(() => this.showSuccessMsg.emit("Created new Chris Rules Collection " + this.description))
-        .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
-        .then(() => this.clearForm())
-        .catch(error => this.showErrorMsg.emit(error));
-    }
+  doTheThing( event: Event){
+    console.log("doTheThing() , thingName: " + this.thingName);
+    //console.log('In ChrisRulesCollectidonCreateComponent :: createChrisRulesCollection');
+    this.solrService.putSomething2(this.thingName).then(() => console.log("done"));
+    //
+    // if (this.name && this.description) {
+    //   this.solrService
+    //     .createSolrIndex(this.name, this.description)
+    //     .then(() => this.solrService.listAllSolrIndices())
+    //     .then(() => this.solrIndicesChange.emit())
+    //     .then(() => this.showSuccessMsg.emit("Created new Chris Rules Collection " + this.description))
+    //     .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
+    //     .then(() => this.clearForm())
+    //     .catch(error => this.showErrorMsg.emit(error));
+    // }
   }
 
 

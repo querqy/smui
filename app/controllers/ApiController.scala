@@ -608,4 +608,27 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
+  def putSomething() = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
+    //Future {
+      logger.debug("putSomething:0");
+      val body: AnyContent = request.body
+      val jsonBody: Option[JsValue] = body.asJson
+      logger.debug("putSomething:1");
+      // Expecting json body
+      jsonBody.map { json =>
+        val thingName = (json \ "thingName").as[String]
+        logger.debug("putSomething:2 we got " + thingName);
+        searchManagementRepository.putSomething(thingName)
+//        val field = searchManagementRepository.addNewSuggestedSolrField(
+//          SolrIndexId(solrIndexId), searchSuggestedSolrFieldName
+//        )
+
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "That worked.", None)))
+        //    Ok(Json.toJson("ok"))
+      }.getOrElse {
+        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "That failed.", None)))
+      }
+    }
+
+
 }

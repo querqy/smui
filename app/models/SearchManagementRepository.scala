@@ -317,4 +317,16 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     }
   }
 
+  def putSomething(thingName: String): Boolean = db.withConnection { implicit connection => {
+    logger.debug("smr putSomething:0 " + thingName)
+    SQL("insert into something (id, value0, last_update) values (id, {value0}, {last_update})")
+      .on(
+        'id -> UUID.randomUUID().toString,
+        'value0 -> thingName,
+        'last_update -> new Date()
+      )
+      .execute()
+  }
+  }
+
 }

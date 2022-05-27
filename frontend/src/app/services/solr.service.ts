@@ -158,4 +158,12 @@ export class SolrService {
       .toPromise();
   }
 
+  putSomething2(thingName: string) {
+    const headers = { headers: this.jsonHeader };
+    const body = JSON.stringify( { thingName: thingName });
+    return this.http
+      .put<ApiResult>(`${this.baseUrl}/put-something`, body, httpOptions)
+      .toPromise();
+  }
+
 }
