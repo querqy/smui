@@ -27,7 +27,8 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
   @Output() solrIndicesChange: EventEmitter<string> = new EventEmitter();
 
   solrIndices: SolrIndex[];
-  thingName: string;
+  valueName: string;
+  resultString: string;
 
   constructor(
     private solrService: SolrService,
@@ -49,13 +50,13 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
   }
 
   clearForm() {
-    this.thingName = '';
+    this.valueName = '';
   }
 
-  doTheThing( event: Event){
-    console.log("doTheThing() , thingName: " + this.thingName);
+  addOneValue( event: Event){
+    console.log("addOneValue() , thingName: " + this.valueName);
     //console.log('In ChrisRulesCollectidonCreateComponent :: createChrisRulesCollection');
-    this.solrService.putSomething2(this.thingName).then(() => console.log("done"));
+    this.solrService.putSomething2(this.valueName).then(() => console.log("done"));
     //
     // if (this.name && this.description) {
     //   this.solrService
@@ -70,8 +71,9 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
   }
 
   putRows(event: Event) {
-    this.solrService.putSomething2("something3").then(() => console.log("done"));
-    this.solrService.putSomething2("something4").then(() => console.log("done"));
+    this.solrService.putSomething2("test row 1").then(() => console.log("added test row 1"));
+    this.solrService.putSomething2("test row 2").then(() => console.log("added test row 2"));
+    this.solrService.putSomething2("test row 3").then(() => console.log("added test row 3"));
     console.log("putRows()");
   }
 
@@ -80,10 +82,32 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
     //this.solrService.putSomething2("something3").then(() => console.log("done"));
     //this.solrService.putSomething2("something4").then(() => console.log("done"));
     this.solrService.getSomethings().then(
-      result => console.log(result)
+      result => {
+        console.log(result)
+      }
     )
+  }
 
+  download(event: Event) {
+    console.log("download()");
+    this.solrService.getSomethings().then(
+      result => {
+        var str = JSON.stringify(result);
+        this.downloadStringAsFile(
+          "file.json.txt",
+          str);
+      }
+    );
+  }
 
+  downloadStringAsFile(filename: string, text: string) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   }
 
 }

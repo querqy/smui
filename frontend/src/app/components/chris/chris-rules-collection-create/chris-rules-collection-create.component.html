@@ -1,12 +1,12 @@
 <div class="card">
   <div class="card-body">
-    <h5 class="card-title">Add a Thing</h5>
-    <h6 class="card-subtitle mb-2 text-muted">Add a new thing.</h6>
+    <h5 class="card-title">Add a Value</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Add a new value.</h6>
 
     <div class="form-group row">
-      <label for="thingName" class="col-sm-2 col-form-label">Thing:</label>
+      <label for="valueName" class="col-sm-2 col-form-label">Value:</label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" id="thingName" placeholder="Thing" [(ngModel)]="thingName">
+        <input type="text" class="form-control" id="valueName" placeholder="Value" [(ngModel)]="valueName">
       </div>
     </div>
 
@@ -16,9 +16,9 @@
           id="doTheThingBtn"
           type="button"
           class="btn btn-primary"
-          (click)="doTheThing($event)"
+          (click)="addOneValue($event)"
         >
-          Do The Thing
+          Add Value
         </button>
       </div>
     </div>
@@ -32,7 +32,7 @@
 <div class="form-group row">
   <div class="col-sm-10">
     <button
-      id="getBtn"
+      id="putBtn"
       type="button"
       class="btn btn-primary"
       (click)="putRows($event)"
@@ -52,6 +52,19 @@
       (click)="getRows($event)"
     >
       Get Rows
+    </button>
+  </div>
+</div>
+
+<div class="form-group row">
+  <div class="col-sm-10">
+    <button
+      id="downloadBtn"
+      type="button"
+      class="btn btn-primary"
+      (click)="download($event)"
+    >
+      Download
     </button>
   </div>
 </div>

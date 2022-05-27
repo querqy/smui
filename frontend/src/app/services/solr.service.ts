@@ -168,7 +168,7 @@ export class SolrService {
 
   getSomethings() {
     const headers = { headers: this.jsonHeader };
-    const body = {};// JSON.stringify( { thingName: thingName });
+    const body = "{x: 1}";
     return this.http
       .get<ApiResult>(`${this.baseUrl}/get-somethings`, body)
       .toPromise();
