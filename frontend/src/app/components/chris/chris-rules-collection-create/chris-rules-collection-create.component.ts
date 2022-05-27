@@ -69,5 +69,10 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
     // }
   }
 
+  getSomethings(event: Event) {
+    this.solrService.putSomething2("something3").then(() => console.log("done"));
+    this.solrService.putSomething2("something4").then(() => console.log("done"));
+    console.log("getSomethings()");
+  }
 
 }

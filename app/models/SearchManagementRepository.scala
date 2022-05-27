@@ -7,7 +7,8 @@ import javax.inject.Inject
 import play.api.db.DBApi
 import anorm._
 import models.FeatureToggleModel.FeatureToggleService
-import models.export.{Something}
+import models.`export`.Exporter
+import models.export.Something
 import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
@@ -319,14 +320,24 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
   def putSomething(thingName: String): Boolean = db.withConnection { implicit connection => {
     logger.debug("smr putSomething:0 " + thingName)
-    SQL("insert into something (id, value0, last_update) values (id, {value0}, {last_update})")
+    val uuid : String = UUID.randomUUID().toString
+    logger.debug("uuid: " + uuid)
+    SQL("insert into something (id, value0, last_update) values ({id}, {value0}, {last_update})")
       .on(
-        'id -> UUID.randomUUID().toString,
+        'id -> uuid,
         'value0 -> thingName,
         'last_update -> new Date()
       )
       .execute()
   }
+  }
+
+  def getAllSomethings(): Seq[Something] = db.withConnection {
+    implicit connection => {
+      val exporter : Exporter = new Exporter()
+      val somethings = exporter.getAllSomethings()
+      somethings
+    }
   }
 
 }
