@@ -4,7 +4,7 @@ import {
   Output,
   EventEmitter,
   OnChanges,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 
 import {
@@ -12,14 +12,14 @@ import {
   FeatureToggleService,
   ListItemsService,
   RuleManagementService,
-  SpellingsService
+  SpellingsService,
 } from '../../../services';
 import { InputTag, ListItem } from '../../../models';
 
 @Component({
   selector: 'app-smui-rules-list',
   templateUrl: './rules-list.component.html',
-  styleUrls: ['./rules-list.component.css']
+  styleUrls: ['./rules-list.component.css'],
 })
 export class RulesListComponent implements OnChanges {
   @Input() currentSolrIndexId?: string;
@@ -34,7 +34,8 @@ export class RulesListComponent implements OnChanges {
   @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
 
-  readonly limitItemsTo: number = +this.featureToggleService.getSyncToggleUiListLimitItemsTo();
+  readonly limitItemsTo: number =
+    +this.featureToggleService.getSyncToggleUiListLimitItemsTo();
   isShowingAllItems: boolean = this.limitItemsTo < 0;
 
   constructor(
@@ -47,7 +48,7 @@ export class RulesListComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.commonService.hasChanged(changes, 'currentSolrIndexId')) {
-      this.refreshItemsInList().catch(error => this.showErrorMsg.emit(error));
+      this.refreshItemsInList().catch((error) => this.showErrorMsg.emit(error));
     }
   }
 
@@ -55,7 +56,7 @@ export class RulesListComponent implements OnChanges {
     return this.currentSolrIndexId
       ? this.listItemsService
           .getAllItemsForInputList(this.currentSolrIndexId)
-          .then(listItems => {
+          .then((listItems) => {
             this.listItems = listItems;
             this.listItemsChange.emit(listItems);
             this.searchInputTerm = '';
@@ -66,26 +67,27 @@ export class RulesListComponent implements OnChanges {
   refreshAndSelectListItemById(listItemId: string) {
     return this.refreshItemsInList()
       .then(() => {
-        const listItem = this.listItems.find(item => item.id === listItemId);
+        const listItem = this.listItems.find((item) => item.id === listItemId);
         this.selectListItem(listItem || undefined);
       })
-      .catch(error => this.showErrorMsg.emit(error));
+      .catch((error) => this.showErrorMsg.emit(error));
   }
 
   getFilteredListItems(): ListItem[] {
     if (this.searchInputTerm || this.appliedTagFilter) {
-      return this.listItems.filter(item => (
-          this.listItemContainsString(item) &&
-          this.listItemContainsTag(item)
-        ));
+      return this.listItems.filter(
+        (item) =>
+          (this.listItemContainsString(item) &&
+            this.listItemContainsTag(item)) ||
+          this.listItemContainsComment(item)
+      );
     }
-
     return this.listItems;
   }
 
   selectListItemWithCheck(listItem: ListItem) {
     this.executeWithChangeCheck.emit({
-      executeFnOk: () => this.selectListItem(listItem)
+      executeFnOk: () => this.selectListItem(listItem),
     });
   }
 
@@ -96,7 +98,7 @@ export class RulesListComponent implements OnChanges {
         .deleteSpelling(id)
         .then(() => this.refreshItemsInList())
         .then(() => this.selectListItem(undefined))
-        .catch(error => this.showErrorMsg.emit(error));
+        .catch((error) => this.showErrorMsg.emit(error));
 
     this.openDeleteConfirmModal.emit({ deleteCallback });
   }
@@ -108,7 +110,7 @@ export class RulesListComponent implements OnChanges {
         .deleteSearchInput(id)
         .then(() => this.refreshItemsInList())
         .then(() => this.selectListItem(undefined))
-        .catch(error => this.showErrorMsg.emit(error));
+        .catch((error) => this.showErrorMsg.emit(error));
 
     this.openDeleteConfirmModal.emit({ deleteCallback });
   }
@@ -128,10 +130,38 @@ export class RulesListComponent implements OnChanges {
     this.selectedListItemChange.emit(listItem);
   }
 
+  private listItemContainsComment(item: ListItem): boolean {
+    const searchTermLower = (this.searchInputTerm || '').trim().toLowerCase();
+    const searchTermSplit = searchTermLower.split(' ');
+    const allSearchTermsIncludesComment = (comment: string, searchInput: string) =>
+      comment.toLowerCase().indexOf(searchInput) !== -1;
+    const searchTermIncludesComment = (comment: string) =>
+      comment.toLowerCase().indexOf(searchTermLower) !== -1;
+    if (searchTermLower.length === 0) {
+      return true;
+    }
+
+    if (searchTermSplit.length > 0) {
+      for (const searchInput of searchTermSplit) {
+        if (!allSearchTermsIncludesComment(item.comment, searchInput)) {
+          return false;
+        }
+
+      }
+      return true;
+    } else {
+      if (searchTermIncludesComment(item.comment)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private listItemContainsString(item: ListItem): boolean {
     const searchTermLower = (this.searchInputTerm || '').trim().toLowerCase();
 
-    const searchTermIncludesString = (s: string) => s.toLowerCase().indexOf(searchTermLower) !== -1;
+    const searchTermIncludesString = (s: string) =>
+      s.toLowerCase().indexOf(searchTermLower) !== -1;
 
     if (searchTermLower.length === 0) {
       return true;
