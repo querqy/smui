@@ -49,10 +49,6 @@ object RedirectRuleExport extends CommonRuleFields {
 
   implicit val jsonFormat: OFormat[RedirectRule] = Json.format[RedirectRule]
 
-  //override def fieldNames: Seq[String] = super.fieldNames :+ TARGET
-
-  //override def orderByField: String = TARGET
-
   val sqlParser: RowParser[RedirectRuleExport] = {
     get[RedirectRuleId](s"$TABLE_NAME.$ID") ~
       get[String](s"$TABLE_NAME.$TARGET") ~

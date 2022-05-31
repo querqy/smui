@@ -57,8 +57,6 @@ object UpDownRuleExport extends CommonRuleFields {
 
   val TYPE_UP = 0
   val TYPE_DOWN = 1
-//
-//  override def fieldNames: Seq[String] = super.fieldNames ++ Seq(BOOST_MALUS_VALUE, UP_DOWN_TYPE)
 
   implicit val jsonFormat: OFormat[UpDownRuleExport] = Json.format[UpDownRuleExport]
 

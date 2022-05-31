@@ -57,8 +57,6 @@ object SynonymRuleExport extends CommonRuleFields {
 
   implicit val jsonFormat: OFormat[SynonymRule] = Json.format[SynonymRule]
 
-  //override def fieldNames: Seq[String] = super.fieldNames :+ TYPE
-
   val sqlParser: RowParser[SynonymRuleExport] = {
     get[SynonymRuleId](s"$TABLE_NAME.$ID") ~
       get[Int](s"$TABLE_NAME.$TYPE") ~
@@ -69,13 +67,5 @@ object SynonymRuleExport extends CommonRuleFields {
       SynonymRuleExport(id, synonymType, term, status, searchInputId, lastUpdate)
     }
   }
-//
-//  def loadUndirectedBySearchInputIds(ids: Seq[SearchInputId])(implicit connection: Connection): Map[SearchInputId, Seq[SynonymRule]] = {
-//    ids.grouped(100).toSeq.flatMap { idGroup =>
-//      SQL"select * from #$TABLE_NAME where #$TYPE = #$TYPE_UNDIRECTED AND #$SEARCH_INPUT_ID in ($idGroup)".as((sqlParser ~ get[SearchInputId](SEARCH_INPUT_ID)).*).map { case rule ~ id =>
-//        id -> rule
-//      }
-//    }.groupBy(_._1).mapValues(_.map(_._2))
-//  }
 
 }

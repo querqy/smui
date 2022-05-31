@@ -10,10 +10,6 @@ import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
 
 import java.time.LocalDateTime
 
-//class FilterRuleId(id: String) extends Id(id)
-//object FilterRuleId extends IdObject[FilterRuleId](new FilterRuleId(_))
-
-
 case class FilterRuleExport(id: FilterRuleId,
                       term: String,
                       isActive: Boolean,
