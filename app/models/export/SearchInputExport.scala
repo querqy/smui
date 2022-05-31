@@ -1,12 +1,12 @@
-package models.input
+package models.`export`
 
 import anorm.SqlParser.get
 import anorm._
 import models._
 import models.`export`.JsonExportable
+import models.input.{SearchInput, SearchInputId}
 import play.api.libs.json._
 
-import java.sql.Connection
 import java.time.LocalDateTime
 
 case class SearchInputExport(id: SearchInputId,
@@ -65,8 +65,10 @@ object SearchInputExport {
       get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") ~
       get[Int](s"$TABLE_NAME.$STATUS") ~
       get[String](s"$TABLE_NAME.$COMMENT") map { case id ~ term ~ indexId ~ lastUpdate ~ status ~ comment =>
-        SearchInputExport(id, indexId, term, lastUpdate, status, comment)
+        models.`export`.SearchInputExport(id, indexId, term, lastUpdate, status, comment)
     }
   }
+
+  val selectAllStatement = s"select id, term, solr_index_id, last_update, status, comment from search_input"
 
 }

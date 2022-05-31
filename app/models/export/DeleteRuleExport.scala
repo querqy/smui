@@ -1,11 +1,12 @@
-package models.rules
+package models.`export`
 
 import anorm.SqlParser.get
 import anorm.{RowParser, ~}
 import models.`export`.JsonExportable
 import models.input.SearchInputId
-import models.{Id, IdObject, Status}
-import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
+import models.rules.{CommonRuleFields, DeleteRuleId}
+import models.{Status, `export`}
+import play.api.libs.json._
 
 import java.time.LocalDateTime
 
@@ -56,8 +57,10 @@ object DeleteRuleExport extends CommonRuleFields {
       get[Int](s"$TABLE_NAME.$STATUS") ~
       get[SearchInputId](s"$TABLE_NAME.$SEARCH_INPUT_ID") ~
       get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") map { case id ~ term ~ status ~ searchInputId ~ lastUpdate =>
-      DeleteRuleExport(id, term, Status.isActiveFromStatus(status), status, searchInputId, lastUpdate)
+      `export`.DeleteRuleExport(id, term, Status.isActiveFromStatus(status), status, searchInputId, lastUpdate)
     }
   }
+
+  val selectAllStatement = s"select id, term, search_input_id, last_update, status from delete_rule"
 
 }

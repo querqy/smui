@@ -1,10 +1,10 @@
 package models.`export`
 
 import anorm.SQL
-import models.DatabaseExecutionContext
+import models.{DatabaseExecutionContext, SuggestedSolrField}
 import models.FeatureToggleModel.FeatureToggleService
-import models.input.{SearchInput, SearchInputExport}
-import models.rules.{DeleteRule, DeleteRuleExport, FilterRule, FilterRuleExport, SynonymRule, SynonymRuleExport, UpDownRuleExport}
+import models.input.SearchInput
+import models.rules.{DeleteRule, FilterRule, SynonymRule}
 import play.api.libs.json.{JsArray, JsObject, JsString, JsValue}
 import play.api.Logging
 import play.api.db.DBApi
@@ -31,19 +31,14 @@ class Exporter @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(impl
 
   def getAllTablesForJs1(tables : IndexedSeq[IndexedSeq[JsonExportable]], aggregation: Seq[JsValue]): JsValue = {
     if (tables.nonEmpty) {
-      val headTable = tables.head
-      val remainingTables = tables.drop(1)
-      println("remaining")
-      println(remainingTables.size)
-
+      val headTable = tables.head // the first table
+      val remainingTables = tables.drop(1) // a list of the tables AFTER the first table
       if (headTable.nonEmpty) {
-        println("tablename")
-        println(headTable.seq(0).getTableName)
+        logger.debug("In Exporter.getAllTablesForJs1 : head table was non-empty")
         val name: (String, JsValue) = "tableName" -> headTable.seq(0).getTableName
         val cols: (String, JsValue) = "columns" -> headTable.seq(0).getColumns
         val rows: (String, JsValue) = "rows" -> asIndexedSeqForJs(headTable)
         val obj: (JsValue) = JsObject(IndexedSeq(name, cols, rows))
-        println("calling recursion")
         getAllTablesForJs1(remainingTables, aggregation :+ obj)
       } else {
         logger.debug("In Exporter.getAllTablesForJs1 : return aggregation because headTable is empty")
@@ -64,66 +59,101 @@ class Exporter @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(impl
     JsArray(target.toIndexedSeq)
   }
 
-//  def getSomethingsFromDatabase: IndexedSeq[Something] = db.withConnection {
-//    implicit connection => {
-//      logger.debug("In SearchManagementRepository:getSomethingsFromDatabase():1")
-//      val x : List[Something] = SQL(s"select id, value0, last_update from something")
-//        .as(SomethingRow.sqlParser.*)
-//      logger.debug("In SearchManagementRepository:getSomethingsFromDatabase():2")
-//      x.toIndexedSeq
-//    }
-//  }
+  def getSomethingsFromDatabase: IndexedSeq[Something] = db.withConnection {
+    implicit connection => {
+      SQL(Something.selectAllStatement).as(Something.sqlParser.*).toIndexedSeq
+    }
+  }
 
   def getSearchInputsFromDatabase: IndexedSeq[SearchInputExport] = db.withConnection {
     implicit connection => {
-      val x : List[SearchInputExport] = SQL(s"select id, term, solr_index_id, last_update, status, comment from search_input")
-        .as(SearchInputExport.sqlParser.*)
-      x.toIndexedSeq
+      SQL(SearchInputExport.selectAllStatement).as(SearchInputExport.sqlParser.*).toIndexedSeq
     }
   }
 
   def getDeleteRulesFromDatabase: IndexedSeq[DeleteRuleExport] = db.withConnection {
     implicit connection => {
-      val x : List[DeleteRuleExport] = SQL(s"select id, term, search_input_id, last_update, status from delete_rule")
-        .as(DeleteRuleExport.sqlParser.*)
-      x.toIndexedSeq
+      SQL(DeleteRuleExport.selectAllStatement).as(DeleteRuleExport.sqlParser.*).toIndexedSeq
     }
   }
 
   def getFilterRulesFromDatabase: IndexedSeq[FilterRuleExport] = db.withConnection {
     implicit connection => {
-      logger.debug("In getFilterRulesFromDatabase")
-      val x : List[FilterRuleExport] = SQL(s"select id, term, search_input_id, last_update, status from filter_rule")
-        .as(FilterRuleExport.sqlParser.*)
-      x.toIndexedSeq
+      SQL(FilterRuleExport.selectAllStatement).as(FilterRuleExport.sqlParser.*).toIndexedSeq
     }
   }
 
   def getSynonymRulesFromDatabase: IndexedSeq[SynonymRuleExport] = db.withConnection {
     implicit connection => {
-      val x : List[SynonymRuleExport] = SQL(s"select id, synonym_type, term, search_input_id, last_update, status from synonym_rule")
-        .as(SynonymRuleExport.sqlParser.*)
-      x.toIndexedSeq
+      SQL(SynonymRuleExport.selectAllStatement).as(SynonymRuleExport.sqlParser.*).toIndexedSeq
     }
   }
 
   def getUpDownRulesFromDatabase: IndexedSeq[UpDownRuleExport] = db.withConnection {
     implicit connection => {
-      val x : List[UpDownRuleExport] = SQL(s"select id, up_down_type, boost_malus_value, term, search_input_id, last_update, status from up_down_rule")
-        .as(UpDownRuleExport.sqlParser.*)
-      x.toIndexedSeq
+      SQL(UpDownRuleExport.selectAllStatement).as(UpDownRuleExport.sqlParser.*).toIndexedSeq
     }
   }
+
+  def getRedirectRulesFromDatabase: IndexedSeq[RedirectRuleExport] = db.withConnection {
+    implicit connection => {
+      SQL(RedirectRuleExport.selectAllStatement).as(RedirectRuleExport.sqlParser.*).toIndexedSeq
+    }
+  }
+
+  def getSolrIndexFromDatabase: IndexedSeq[SolrIndexExport] = db.withConnection {
+    implicit connection => {
+      SQL(SolrIndexExport.selectAllStatement).as(SolrIndexExport.sqlParser.*).toIndexedSeq
+    }
+  }
+
+  def getSuggestedSolrFieldsFromDatabase: IndexedSeq[SuggestedSolrFieldExport] = db.withConnection {
+    implicit connection => {
+      SQL(SuggestedSolrFieldExport.selectAllStatement).as(SuggestedSolrFieldExport.sqlParser.*).toIndexedSeq
+    }
+  }
+
+  def getInputTagsFromDatabase: IndexedSeq[InputTagExport] = db.withConnection {
+    implicit connection => {
+      SQL(InputTagExport.selectAllStatement).as(InputTagExport.sqlParser.*).toIndexedSeq
+    }
+  }
+
+  def getTagInputAssociationsFromDatabase: IndexedSeq[TagInputAssociationExport] = db.withConnection {
+    implicit connection => {
+      SQL(TagInputAssociationExport.selectAllStatement).as(TagInputAssociationExport.sqlParser.*).toIndexedSeq
+    }
+  }
+
+  def getCanonicalSpellingsFromDatabase: IndexedSeq[CanonicalSpellingExport] = db.withConnection {
+    implicit connection => {
+      SQL(CanonicalSpellingExport.selectAllStatement).as(CanonicalSpellingExport.sqlParser.*).toIndexedSeq
+    }
+  }
+
+  def getAlternativeSpellingsFromDatabase: IndexedSeq[AlternativeSpellingExport] = db.withConnection {
+    implicit connection => {
+      SQL(AlternativeSpellingExport.selectAllStatement).as(AlternativeSpellingExport.sqlParser.*).toIndexedSeq
+    }
+  }
+
 
   def getDatabaseJson: JsValue = {
     logger.debug("In getDatabaseJson")
     val tableSeq = IndexedSeq(
-      //getSomethingsFromDatabase,
-      getSearchInputsFromDatabase,
-      getDeleteRulesFromDatabase,
-      getFilterRulesFromDatabase,
-      getSynonymRulesFromDatabase,
-      getUpDownRulesFromDatabase
+      getSolrIndexFromDatabase, //1
+      getSearchInputsFromDatabase, //2
+      getRedirectRulesFromDatabase, //3
+      getSynonymRulesFromDatabase, //4
+      getUpDownRulesFromDatabase, //5
+      getDeleteRulesFromDatabase, //6
+      getFilterRulesFromDatabase, //7
+      getSuggestedSolrFieldsFromDatabase, //8
+      getInputTagsFromDatabase, //9
+      getTagInputAssociationsFromDatabase, //10
+      getCanonicalSpellingsFromDatabase, //11
+      getAlternativeSpellingsFromDatabase //12
+      //getSomethingsFromDatabase //13
     )
     getAllTablesForJs(tableSeq)
   }

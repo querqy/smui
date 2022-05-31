@@ -1,38 +1,27 @@
 package models.`export`
 
 import anorm.SqlParser.get
-import anorm.{NamedParameter, RowParser, ~}
-import models.`export`.SomethingRow.{id, last_update, myJavascriptObject, value0}
-import models.input.SearchInputId
-import models.rules.Rule.{ID, LAST_UPDATE, SEARCH_INPUT_ID, STATUS}
-import models.rules.{RuleWithTerm, SynonymRule, SynonymRuleId}
+import anorm.{RowParser, ~}
+import models.`export`.Something.myJavascriptObject
 import models.{Id, IdObject}
-import play.api.libs.json.{JsArray, JsNull, JsNumber, JsObject, JsString, JsValue, Json, Writes}
+import play.api.libs.json.{JsArray, JsString, JsValue, Json, Writes}
 
 import java.time.LocalDateTime
 import java.util.UUID
 
+class SomethingId(id: String) extends Id(id)
+object SomethingId extends IdObject[SomethingId](new SomethingId(_))
+
 case class Something(id: SomethingId = SomethingId(),
-                     value0: String,
+                     value_0: String,
                      last_update: LocalDateTime) extends JsonExportable {
-//  override def toNamedParameters(searchInputId: SearchInputId): Seq[NamedParameter] = {
-//    super.toNamedParameters(searchInputId) ++ Seq[NamedParameter](
-//      .TYPE -> synonymType
-//    )
-//  }
-  def toNamedParameters(id: SomethingId): Seq[NamedParameter] = Seq(
-    ID -> id.id,
-    value0 -> value0,
-    LAST_UPDATE -> LocalDateTime.now()
-  )
 
   implicit val writer: Writes[String] = new Writes[(String)] {
     def writes(t: (String)): JsValue = {
       Json.obj(
-        "value0" -> myJavascriptObject.value0,
-        "value1" -> myJavascriptObject.value1,
-        "value2" -> myJavascriptObject.value2,
-        "value3" -> myJavascriptObject.value3)
+        "id" -> myJavascriptObject.id,
+        "value_0" -> myJavascriptObject.value_0,
+        "last_update" -> myJavascriptObject.last_update)
     }
   }
 
@@ -42,7 +31,7 @@ case class Something(id: SomethingId = SomethingId(),
     JsArray(
       IndexedSeq (
         JsString("id"),
-        JsString("value0"),
+        JsString("value_0"),
         JsString("last_update")
       )
     )
@@ -52,7 +41,7 @@ case class Something(id: SomethingId = SomethingId(),
     JsArray(
       IndexedSeq (
         JsString(id.toString),
-        JsString(value0),
+        JsString(value_0),
         JsString(last_update.toString)
       )
     )
@@ -60,49 +49,39 @@ case class Something(id: SomethingId = SomethingId(),
 
 }
 
-class SomethingId(id: String) extends Id(id)
-object SomethingId extends IdObject[SomethingId](new SomethingId(_))
-
 case class MyJsObject(
-                  value0: JsValue,
-                  value1: JsValue,
-                  value2: JsValue,
-                  value3: JsValue
+                  id: JsValue,
+                  value_0: JsValue,
+                  last_update: JsValue
                 )
 
-object SomethingRow extends Something(id=SomethingId(), value0="", last_update=LocalDateTime.now()) {
+object Something {
 
   val TABLE_NAME = "something"
-  val TYPE = "something"
+  val ID = "id"
+  val VALUE_0 = "value_0"
+  val LAST_UPDATE = "last_update"
 
   val sqlParser: RowParser[Something] = {
-    get[SomethingId] (s"$TABLE_NAME.id") ~
-      get[String](s"$TABLE_NAME.value0") ~
-      get[LocalDateTime](s"$TABLE_NAME.last_update") map { case id ~ value0 ~ last_update =>
-      Something(id, value0, last_update)
+    get[SomethingId] (s"$TABLE_NAME.$ID") ~
+      get[String](s"$TABLE_NAME.$VALUE_0") ~
+      get[LocalDateTime](s"$TABLE_NAME.last_update") map { case id ~ value_0 ~ last_update =>
+      Something(id, value_0, last_update)
     }
   }
 
-  val myJavascriptObject: MyJsObject =
-    MyJsObject(
-      value0 = new JsString("id = " + id),
-      value1 = JsObject(Seq("simpleObject" -> JsString("simpleStringValue"))),
-      value2 = JsObject(
-        Seq(
-          "aString" -> JsString("simpleString"),
-          "aNumber"  -> JsNumber(4.3),
-          "aNull" -> JsNull
-        )
-      ),
-      value3 = JsArray(
-        IndexedSeq(
-          new JsString("first value of array"),
-          new JsString("second value of array"))
-      )
-    )
+  val selectAllStatement : String = {
+    s"select $TABLE_NAME.$ID, " +
+      s"$TABLE_NAME.$VALUE_0, " +
+      s"$TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
+  }
 
-//  def getAsJsonRow(): JsObject = {
-//    value1 = JsObject(Seq("simpleObject" -> JsString("simpleStringValue"))),
+  val myJavascriptObject: MyJsObject = {
+    MyJsObject(
+      id = JsString(UUID.randomUUID().toString),
+      value_0 = JsString("this is some value for value_0"),
+      last_update = JsString(LocalDateTime.now().toString)
+//      value1 = JsObject(Seq("simpleObject" -> JsString("simpleStringValue"))),
 //      value2 = JsObject(
 //        Seq(
 //          "aString" -> JsString("simpleString"),
@@ -115,8 +94,7 @@ object SomethingRow extends Something(id=SomethingId(), value0="", last_update=L
 //          new JsString("first value of array"),
 //          new JsString("second value of array"))
 //      )
-//    )
-//  }
-
+    )
+  }
 
 }

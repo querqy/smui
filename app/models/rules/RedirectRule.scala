@@ -14,9 +14,7 @@ object RedirectRuleId extends IdObject[RedirectRuleId](new RedirectRuleId(_))
 
 case class RedirectRule(id: RedirectRuleId = RedirectRuleId(),
                         target: String,
-                        isActive: Boolean,
-                        searchInputId: SearchInputId = SearchInputId(),
-                        lastUpdate: LocalDateTime = LocalDateTime.now()) extends Rule {
+                        isActive: Boolean) extends Rule {
 
   override def toNamedParameters(searchInputId: SearchInputId): Seq[NamedParameter] = {
     super.toNamedParameters(searchInputId) ++ Seq[NamedParameter](
@@ -24,31 +22,6 @@ case class RedirectRule(id: RedirectRuleId = RedirectRuleId(),
     )
   }
 
-  def getTableName: JsString = JsString("delete_rule")
-
-  def getColumns: JsValue = {
-    JsArray(
-      IndexedSeq (
-        JsString("id"),
-        JsString("target"),
-        JsString("search_input_id"),
-        JsString("last_update"),
-        JsString("status")
-      )
-    )
-  }
-
-  def getRow: JsValue = {
-    JsArray(
-      IndexedSeq (
-        JsString(id.toString),
-        JsString(target),
-        JsString(searchInputId.toString),
-        JsString(lastUpdate.toString),
-        JsNumber(status)
-      )
-    )
-  }
 }
 
 object RedirectRule extends RuleObject[RedirectRule] {

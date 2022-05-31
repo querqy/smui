@@ -1,13 +1,10 @@
-package models.rules
+package models.export
 
-import java.sql.Connection
 import anorm.SqlParser.get
 import anorm._
-import models.`export`.{JsonExportable, Something, SomethingId}
 import models.input.SearchInputId
-import models.rules.FilterRule.{LAST_UPDATE, SEARCH_INPUT_ID, TABLE_NAME}
-import models.{Id, IdObject, Status}
-import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
+import models.rules.{CommonRuleFields, SynonymRule, SynonymRuleId}
+import play.api.libs.json._
 
 import java.time.LocalDateTime
 
@@ -67,5 +64,7 @@ object SynonymRuleExport extends CommonRuleFields {
       SynonymRuleExport(id, synonymType, term, status, searchInputId, lastUpdate)
     }
   }
+
+  val selectAllStatement = s"select $TABLE_NAME.$ID, $TABLE_NAME.$TYPE, $TABLE_NAME.$TERM, $TABLE_NAME.$STATUS, $TABLE_NAME.$SEARCH_INPUT_ID, $TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
 
 }

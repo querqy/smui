@@ -1,11 +1,12 @@
-package models.rules
+package models.`export`
 
 import anorm.SqlParser.get
-import anorm.{NamedParameter, RowParser, ~}
+import anorm.{RowParser, ~}
+import models.`export`
 import models.`export`.JsonExportable
 import models.input.SearchInputId
-import models.{Id, IdObject, Status}
-import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
+import models.rules.{CommonRuleFields, RedirectRule, RedirectRuleId}
+import play.api.libs.json._
 
 import java.time.LocalDateTime
 
@@ -47,8 +48,6 @@ object RedirectRuleExport extends CommonRuleFields {
   val TABLE_NAME = "redirect_rule"
   val TARGET = "target"
 
-  implicit val jsonFormat: OFormat[RedirectRule] = Json.format[RedirectRule]
-
   val sqlParser: RowParser[RedirectRuleExport] = {
     get[RedirectRuleId](s"$TABLE_NAME.$ID") ~
       get[String](s"$TABLE_NAME.$TARGET") ~
@@ -58,5 +57,7 @@ object RedirectRuleExport extends CommonRuleFields {
       RedirectRuleExport(id, target, searchInputId, lastUpdate, status)
     }
   }
+
+  val selectAllStatement = s"select $TABLE_NAME.$ID, $TABLE_NAME.$TARGET, $TABLE_NAME.$SEARCH_INPUT_ID, $TABLE_NAME.$LAST_UPDATE, $TABLE_NAME.$STATUS from $TABLE_NAME"
 
 }

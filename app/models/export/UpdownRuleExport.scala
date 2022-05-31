@@ -1,11 +1,10 @@
-package models.rules
+package models.export
 
 import anorm.SqlParser.get
-import anorm.{NamedParameter, RowParser, ~}
-import models.`export`.JsonExportable
+import anorm.{RowParser, ~}
 import models.input.SearchInputId
-import models.{Id, IdObject, Status}
-import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
+import models.rules.{CommonRuleFields, UpDownRuleId}
+import play.api.libs.json._
 
 import java.time.LocalDateTime
 
@@ -61,15 +60,38 @@ object UpDownRuleExport extends CommonRuleFields {
   implicit val jsonFormat: OFormat[UpDownRuleExport] = Json.format[UpDownRuleExport]
 
   val sqlParser: RowParser[UpDownRuleExport] = {
-    get[UpDownRuleId](s"$TABLE_NAME.$ID") ~
+    (get[UpDownRuleId](s"$TABLE_NAME.$ID") ~
       get[Int](s"$TABLE_NAME.$UP_DOWN_TYPE") ~
       get[Int](s"$TABLE_NAME.$BOOST_MALUS_VALUE") ~
       get[String](s"$TABLE_NAME.$TERM") ~
       get[Int](s"$TABLE_NAME.$STATUS") ~
       get[SearchInputId](s"$TABLE_NAME.$SEARCH_INPUT_ID") ~
-      get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") map { case id ~ upDownType ~ boostMalusValue ~ term ~ status ~ searchInputId ~ lastUpdate =>
-      UpDownRuleExport(id, upDownType, boostMalusValue, term, status, searchInputId, lastUpdate)
-    }
+      get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE")) map {
+        case id ~
+          upDownType ~
+          boostMalusValue ~
+          term ~
+          status ~
+          searchInputId ~
+          lastUpdate =>
+          UpDownRuleExport(id,
+            upDownType,
+            boostMalusValue,
+            term,
+            status,
+            searchInputId,
+            lastUpdate)
+      }
+  }
+
+  val selectAllStatement : String = {
+    s"select $TABLE_NAME.$ID, " +
+    s"$TABLE_NAME.$UP_DOWN_TYPE, " +
+    s"$TABLE_NAME.$BOOST_MALUS_VALUE, " +
+    s"$TABLE_NAME.$TERM, " +
+    s"$TABLE_NAME.$STATUS, " +
+    s"$TABLE_NAME.$SEARCH_INPUT_ID, " +
+    s"$TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
   }
 
 }

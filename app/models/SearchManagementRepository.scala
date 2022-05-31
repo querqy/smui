@@ -10,7 +10,6 @@ import play.api.db.DBApi
 import anorm._
 import models.FeatureToggleModel.FeatureToggleService
 import models.SolrIndex.TABLE_NAME
-import models.`export`.SomethingRow
 import models.export.{Exporter, Something, SomethingId}
 import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}

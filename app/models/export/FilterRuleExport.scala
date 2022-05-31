@@ -1,12 +1,11 @@
-package models.rules
+package models.export
 
 import anorm.SqlParser.get
 import anorm.{RowParser, ~}
-import models.`export`.JsonExportable
 import models.input.SearchInputId
-import models.rules.DeleteRule.{LAST_UPDATE, SEARCH_INPUT_ID, TABLE_NAME}
-import models.{Id, IdObject, Status}
-import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
+import models.rules.{CommonRuleFields, FilterRule, FilterRuleId}
+import models.{Status, `export`}
+import play.api.libs.json._
 
 import java.time.LocalDateTime
 
@@ -60,5 +59,7 @@ object FilterRuleExport extends CommonRuleFields {
       FilterRuleExport(id, term, Status.isActiveFromStatus(status), status, searchInputId, lastUpdate)
     }
   }
+
+  val selectAllStatement = s"select $TABLE_NAME.$ID, $TABLE_NAME.$TERM, $TABLE_NAME.$STATUS, $TABLE_NAME.$SEARCH_INPUT_ID, $TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
 
 }
