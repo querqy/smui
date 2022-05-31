@@ -16,7 +16,7 @@ import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInp
 import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
 import models.reports.{ActivityReport, DeploymentLog, RulesReport}
-import models.rules.SynonymRuleId
+import models.rules.{DeleteRule, FilterRule, SynonymRuleId}
 import play.api.Logging
 import play.api.libs.json.JsValue
 
@@ -335,26 +335,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   }
   }
 
-  def getSomethingsFromDatabase(): IndexedSeq[Something] = db.withConnection {
-    implicit connection => {
-      logger.debug("In SearchManagementRepository:getSomethingsFromDatabase():1")
-      val x : List[Something] = SQL(s"select id, value0, last_update from something")
-        .as(SomethingRow.sqlParser.*)
-      logger.debug("In SearchManagementRepository:getSomethingsFromDatabase():2")
-      x.toIndexedSeq
-    }
-  }
-
-  def getAllSomethingsForJs(): JsValue = db.withConnection {
+  def getDatabaseJson: JsValue = db.withConnection {
     implicit connection => {
       logger.debug("In SearchManagementRepository:getAllSomethingsForJs():1")
-      val exporter : Exporter = new Exporter()
-      logger.debug("In SearchManagementRepository:getAllSomethingsForJs():2")
-      val somethings1 : IndexedSeq[Something] = getSomethingsFromDatabase()
-      logger.debug("In SearchManagementRepository:getAllSomethingsForJs():3... length:" + somethings1.size)
-      val somethings2 = exporter.getAllSomethingsForJs(somethings1)
-      logger.debug("In SearchManagementRepository:getAllSomethingsForJs():4")
-      somethings2
+      val exporter : Exporter = new Exporter(dbapi, toggleService)
+      exporter.getDatabaseJson
     }
   }
 

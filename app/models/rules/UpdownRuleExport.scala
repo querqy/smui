@@ -1,0 +1,77 @@
+package models.rules
+
+import anorm.SqlParser.get
+import anorm.{NamedParameter, RowParser, ~}
+import models.`export`.JsonExportable
+import models.input.SearchInputId
+import models.{Id, IdObject, Status}
+import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
+
+import java.time.LocalDateTime
+
+case class UpDownRuleExport(id: UpDownRuleId = UpDownRuleId(),
+                      upDownType: Int,
+                      boostMalusValue: Int,
+                      term: String,
+                      status: Int,
+                      searchInputId: SearchInputId,
+                      lastUpdate: LocalDateTime) extends JsonExportable {
+
+  def getTableName: JsString = JsString("up_down_rule")
+
+  def getColumns: JsValue = {
+    JsArray(
+      IndexedSeq (
+        JsString("id"),
+        JsString("up_down_type"),
+        JsString("boost_malus_type"),
+        JsString("term"),
+        JsString("search_input_id"),
+        JsString("last_update"),
+        JsString("status")
+      )
+    )
+  }
+
+  def getRow: JsValue = {
+    JsArray(
+      IndexedSeq (
+        JsString(id.toString),
+        JsNumber(upDownType),
+        JsNumber(boostMalusValue),
+        JsString(term),
+        JsNumber(status),
+        JsString(searchInputId.toString),
+        JsString(lastUpdate.toString)
+      )
+    )
+  }
+}
+
+object UpDownRuleExport extends CommonRuleFields {
+
+  val TABLE_NAME = "up_down_rule"
+
+  val UP_DOWN_TYPE = "up_down_type"
+  val BOOST_MALUS_VALUE = "boost_malus_value"
+
+  val TYPE_UP = 0
+  val TYPE_DOWN = 1
+//
+//  override def fieldNames: Seq[String] = super.fieldNames ++ Seq(BOOST_MALUS_VALUE, UP_DOWN_TYPE)
+
+  implicit val jsonFormat: OFormat[UpDownRuleExport] = Json.format[UpDownRuleExport]
+
+  val sqlParser: RowParser[UpDownRuleExport] = {
+    get[UpDownRuleId](s"$TABLE_NAME.$ID") ~
+      get[Int](s"$TABLE_NAME.$UP_DOWN_TYPE") ~
+      get[Int](s"$TABLE_NAME.$BOOST_MALUS_VALUE") ~
+      get[String](s"$TABLE_NAME.$TERM") ~
+      get[Int](s"$TABLE_NAME.$STATUS") ~
+      get[SearchInputId](s"$TABLE_NAME.$SEARCH_INPUT_ID") ~
+      get[LocalDateTime](s"$TABLE_NAME.$LAST_UPDATE") map { case id ~ upDownType ~ boostMalusValue ~ term ~ status ~ searchInputId ~ lastUpdate =>
+      UpDownRuleExport(id, upDownType, boostMalusValue, term, status, searchInputId, lastUpdate)
+    }
+  }
+
+}

@@ -166,11 +166,11 @@ export class SolrService {
       .toPromise();
   }
 
-  getSomethings() {
+  getExport() {
     const headers = { headers: this.jsonHeader };
     const body = {};
     return this.http
-      .get<ApiResult>(`${this.baseUrl}/get-somethings`, body)
+      .get<ApiResult>(`${this.baseUrl}/get-export`, body)
       .toPromise();
   }
 

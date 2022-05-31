@@ -14,7 +14,7 @@ import java.util.UUID
 
 case class Something(id: SomethingId = SomethingId(),
                      value0: String,
-                     last_update: LocalDateTime)  {
+                     last_update: LocalDateTime) extends JsonExportable {
 //  override def toNamedParameters(searchInputId: SearchInputId): Seq[NamedParameter] = {
 //    super.toNamedParameters(searchInputId) ++ Seq[NamedParameter](
 //      .TYPE -> synonymType
@@ -36,15 +36,26 @@ case class Something(id: SomethingId = SomethingId(),
     }
   }
 
-  def getJsValue(): JsValue = {
-    val x : JsObject = JsObject(
-      Seq (
-        "id" -> JsString(id.toString),
-        "value0" -> JsString(value0),
-        "last_update" -> JsString(last_update.toString)
+  def getTableName: JsString = JsString("something")
+
+  def getColumns: JsValue = {
+    JsArray(
+      IndexedSeq (
+        JsString("id"),
+        JsString("value0"),
+        JsString("last_update")
       )
     )
-    x
+  }
+
+  def getRow: JsValue = {
+    JsArray(
+      IndexedSeq (
+        JsString(id.toString),
+        JsString(value0),
+        JsString(last_update.toString)
+      )
+    )
   }
 
 }

@@ -2,10 +2,11 @@ package models.rules
 
 import java.sql.Connection
 import java.time.LocalDateTime
-
 import anorm._
 import models.Id
+import models.`export`.JsonExportable
 import models.input.SearchInputId
+import play.api.Logging
 
 trait Rule {
 
@@ -35,7 +36,7 @@ trait RuleWithTerm extends Rule {
 
 }
 
-trait CommonRuleFields {
+trait CommonRuleFields extends Logging {
 
   val ID = "id"
   val STATUS = "status"
@@ -57,7 +58,7 @@ trait RuleObject[T <: Rule] extends CommonRuleFields {
 
   def updateForSearchInput(searchInputId: SearchInputId, rules: Seq[T])(implicit connection: Connection) {
     // TODO consider to really determine an update/delete diff to ensure that last_update timestamps only updated for affected rules
-
+    logger.debug("RuleObject:updateForSearchInput")
     SQL"delete from #$TABLE_NAME where #$SEARCH_INPUT_ID = $searchInputId".execute()
 
     if (rules.nonEmpty) {
@@ -74,6 +75,7 @@ trait RuleObject[T <: Rule] extends CommonRuleFields {
   }
 
   def loadByInputId(searchInputId: SearchInputId)(implicit connection: Connection): List[T] = {
+    logger.debug("RuleObject:loadByInputId")
     SQL"select * from #$TABLE_NAME where #$SEARCH_INPUT_ID = $searchInputId order by #$orderByField".as(sqlParser.*)
   }
 

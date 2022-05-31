@@ -138,6 +138,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
   def addNewSearchInput(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
+      logger.debug("addNewSearchInput")
       val userInfo: Option[String] = lookupUserInfo(request)
 
       val body: AnyContent = request.body
@@ -168,16 +169,26 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
 
   def updateSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
-    val body: AnyContent = request.body
+    logger.debug("updateSearchInput:1")
+    var body: AnyContent = request.body
+    //var jsonString: String = "{\"id\":\"ab116147-498a-427e-9481-9565739aa706\",\"term\":\"synonym1\",\"synonymRules\":[{\"id\":\"e7ab9b28-e6af-48dc-af7f-224b00381e62\",\"synonymType\":1,\"term\":\"synonym2\",\"isActive\":true,\"status\":1,\"lastUpdate\":\"2005\"}],\"upDownRules\":[],\"filterRules\":[],\"deleteRules\":[],\"redirectRules\":[],\"tags\":[],\"isActive\":true,\"comment\":\"synonym3\"}"
+    //val jsVal: JsValue = Json.parse(jsonString)
+    //body = AnyContentAsJson(jsVal)
     val jsonBody: Option[JsValue] = body.asJson
     val userInfo: Option[String] = lookupUserInfo(request)
-
+    logger.debug("updateSearchInput:2")
+    logger.debug("updateSearchInput:body")
+    logger.debug(body.toString)
+    logger.debug("updateSearchInput:jsonBody")
+    logger.debug(jsonBody.toString)
     // Expecting json body
     jsonBody.map { json =>
+      logger.debug("updateSearchInput:3")
       val searchInput = json.as[SearchInputWithRules]
-
+      logger.debug("updateSearchInput:4")
       InputValidator.validateInputTerm(searchInput.term) match {
         case Nil => {
+          logger.debug("updateSearchInput:5")
           // proceed updating input with rules
           querqyRulesTxtGenerator.validateSearchInputToErrMsg(searchInput) match {
             case Some(strErrMsg: String) =>
@@ -192,6 +203,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
           }
         }
         case errors => {
+          logger.debug("updateSearchInput:6")
           val msgs = s"Failed to update Search Input with new term ${searchInput.term}: " + errors.mkString("\n")
           logger.error(msgs)
           BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
@@ -199,6 +211,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       }
 
     }.getOrElse {
+      logger.debug("updateSearchInput:7")
       BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
     }
   }
@@ -600,16 +613,14 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
   }
 
 
-  def getSomething(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+  def getSomething(solrIndexId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       val something = searchManagementRepository.getSomething(solrIndexId)
       Ok(Json.toJson(something.writer.writes("writesMsg1")))
-      //Ok(Json.toJson(
     }
   }
 
-  def putSomething() = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
-    //Future {
+  def putSomething(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
       logger.debug("putSomething:0");
       val body: AnyContent = request.body
       val jsonBody: Option[JsValue] = body.asJson
@@ -619,22 +630,16 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         val thingName = (json \ "thingName").as[String]
         logger.debug("putSomething:2 we got " + thingName);
         searchManagementRepository.putSomething(thingName)
-//        val field = searchManagementRepository.addNewSuggestedSolrField(
-//          SolrIndexId(solrIndexId), searchSuggestedSolrFieldName
-//        )
-
         Ok(Json.toJson(ApiResult(API_RESULT_OK, "That worked.", None)))
-        //    Ok(Json.toJson("ok"))
       }.getOrElse {
         BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "That failed.", None)))
       }
     }
 
-  def getSomethings() = authActionFactory.getAuthenticatedAction(Action).async {
+  def getDatabaseJson: Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
       logger.debug("In ApiController:getSomethings")
-      Ok(Json.toJson(searchManagementRepository.getAllSomethingsForJs()))
-      //Ok(Json.toJson(
+      Ok(Json.toJson(searchManagementRepository.getDatabaseJson))
     }
   }
 

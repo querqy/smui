@@ -85,7 +85,7 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
     console.log("getRows()");
     //this.solrService.putSomething2("something3").then(() => console.log("done"));
     //this.solrService.putSomething2("something4").then(() => console.log("done"));
-    this.solrService.getSomethings().then(
+    this.solrService.getExport().then(
       result => {
         console.log(result)
         this.showSuccessMsg.emit("Get Rows: OK, see console log")
@@ -95,7 +95,7 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
 
   download(event: Event) {
     console.log("download()");
-    this.solrService.getSomethings().then(
+    this.solrService.getExport().then(
       result => {
         var str = JSON.stringify(result);
         this.downloadStringAsFile(
