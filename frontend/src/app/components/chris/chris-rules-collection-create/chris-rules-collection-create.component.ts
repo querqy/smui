@@ -14,6 +14,8 @@ import {
   ModalService
 } from '../../../services';
 
+import {FileUploadComponent} from "./file-upload.component";
+
 @Component({
   selector: 'app-smui-chris-chris-rules-collection-create',
   templateUrl: './chris-rules-collection-create.component.html'
@@ -25,6 +27,7 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
   @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
   @Output() refreshChrisRulesCollectionList: EventEmitter<string> = new EventEmitter();
   @Output() solrIndicesChange: EventEmitter<string> = new EventEmitter();
+  fuc: FileUploadComponent;
 
   solrIndices: SolrIndex[];
   valueName: string;
@@ -116,4 +119,12 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
     document.body.removeChild(element);
   }
 
+  onFileSelected(event: Event) {
+    console.log("event:" + event.target);
+  }
+
+  putty(event: Event) {
+    this.solrService.putty().then(() => console.log("did putty"));
+    this.showSuccessMsg.emit("Putty: OK")
+  }
 }

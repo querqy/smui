@@ -82,4 +82,8 @@ object InputTagExport {
     s"$TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
   }
 
+  def selectStatement(id: String) : String = {
+    this.selectAllStatement + s" where $TABLE_NAME.$SOLR_INDEX_ID = '" + id + "'"
+  }
+
 }

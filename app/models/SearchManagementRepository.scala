@@ -16,6 +16,7 @@ import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpelli
 import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
 import models.reports.{ActivityReport, DeploymentLog, RulesReport}
 import models.rules.{DeleteRule, FilterRule, SynonymRuleId}
+import models.validatedimport.{ValidatedImportData, ValidatedImportImporter}
 import play.api.Logging
 import play.api.libs.json.JsValue
 
@@ -336,10 +337,52 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
   def getDatabaseJson: JsValue = db.withConnection {
     implicit connection => {
-      logger.debug("In SearchManagementRepository:getAllSomethingsForJs():1")
+      logger.debug("In SearchManagementRepository:getDatabaseJson():1")
       val exporter : Exporter = new Exporter(dbapi, toggleService)
       exporter.getDatabaseJson
     }
+  }
+
+  def getDatabaseJsonWithId(id: String): JsValue = db.withConnection {
+    implicit connection => {
+      logger.debug("In SearchManagementRepository:getDatabaseJsonWithId():1")
+      val exporter : Exporter = new Exporter(dbapi, toggleService)
+      exporter.getDatabaseJsonWithId(id)
+    }
+  }
+
+  def putty: String = db.withTransaction { implicit connection =>
+    var aString : String = "At SearchManagementRepository:putty():1"
+    logger.debug(aString)
+      SQL("insert into something (id,value0,last_update) values ({id}, {value0}, {last_update})")
+        .on(
+          'id -> SomethingId(),
+          'value0 -> "test22222",
+          'last_update -> LocalDateTime.now()
+        ).execute()
+
+      SQL("insert into something (id,value0,last_update) values ({id}, {value0}, {last_update})")
+        .on(
+          'id -> SomethingId(),
+          'value0 -> 3,
+          'last_update -> LocalDateTime.now()
+        ).execute()
+
+    aString = "At SearchManagementRepository:putty():2"
+    logger.debug(aString)
+    aString
+  }
+
+  def doImport(validatedImport: ValidatedImportData): String = db.withTransaction { implicit connection =>
+    var aString : String = "At SearchManagementRepository:doImport():1"
+    logger.debug(aString)
+
+    val importer = new ValidatedImportImporter(validatedImport, dbapi, toggleService)
+    importer.performImport()
+
+    aString = "At SearchManagementRepository:doImport():2"
+    logger.debug(aString)
+    aString
   }
 
 }

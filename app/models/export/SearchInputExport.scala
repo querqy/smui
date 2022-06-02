@@ -71,4 +71,8 @@ object SearchInputExport {
 
   val selectAllStatement = s"select id, term, solr_index_id, last_update, status, comment from search_input"
 
+  def selectStatement(id: String) : String = {
+    s"select id, term, solr_index_id, last_update, status, comment from search_input where solr_index_id = '" + id + "'"
+  }
+
 }

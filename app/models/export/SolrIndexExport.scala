@@ -55,4 +55,8 @@ object SolrIndexExport extends CommonRuleFields {
 
   val selectAllStatement = s"select $TABLE_NAME.$ID, $TABLE_NAME.$ID, $TABLE_NAME.$DESCRIPTION, $TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
 
+  def selectStatement(id: String) = {
+    s"select $TABLE_NAME.$ID, $TABLE_NAME.$ID, $TABLE_NAME.$DESCRIPTION, $TABLE_NAME.$LAST_UPDATE from $TABLE_NAME where $TABLE_NAME.$ID = '" + id + "'"
+  }
+
 }

@@ -63,4 +63,8 @@ object DeleteRuleExport extends CommonRuleFields {
 
   val selectAllStatement = s"select id, term, search_input_id, last_update, status from delete_rule"
 
+  def selectStatement(id: String) : String = {
+    this.selectAllStatement + " where search_input_id in (select id from search_input where solr_index_id = '" + id + "')"
+  }
+
 }

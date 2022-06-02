@@ -1,0 +1,19 @@
+
+<div class="card">
+  <div class="card-body">
+
+    <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
+
+    <div class="file-upload">
+
+      <button color="primary" class="upload-btn"
+              (click)="fileUpload.click()">
+        Select File to Upload
+      </button>
+
+      {{fileName || "No file uploaded yet."}}
+
+    </div>
+
+  </div>
+</div>

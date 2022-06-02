@@ -81,6 +81,7 @@ import {
   RulesListComponent,
   RulesSearchComponent
 } from './components/rules-panel';
+import {FileUploadComponent} from "./components/chris/chris-rules-collection-create/file-upload.component";
 
 @NgModule({
   imports: [
@@ -122,6 +123,7 @@ import {
     ChrisComponent,
     // ChrisRulesCollectionListComponent,
     ChrisRulesCollectionCreateComponent,
+    FileUploadComponent
     // ChrisSuggestedFieldsComponent,
     // ChrisSuggestedFieldsCreateComponent,
     // ChrisSuggestedFieldsListComponent

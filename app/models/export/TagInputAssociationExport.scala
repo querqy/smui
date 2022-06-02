@@ -64,4 +64,8 @@ object TagInputAssociationExport  {
     s"$TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
   }
 
+  def selectStatement(id: String) : String = {
+    this.selectAllStatement + s" where $TABLE_NAME.$SEARCH_INPUT_ID in (select id from search_input where solr_index_id = '" + id + "')"
+  }
+
 }

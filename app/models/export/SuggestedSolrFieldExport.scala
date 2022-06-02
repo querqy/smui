@@ -59,4 +59,8 @@ object SuggestedSolrFieldExport {
 
   val selectAllStatement = s"select $TABLE_NAME.$ID, $TABLE_NAME.$NAME, $TABLE_NAME.$SOLR_INDEX_ID, $TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
 
+  def selectStatement(id: String) : String = {
+    this.selectAllStatement + " where solr_index_id = '" + id + "'"
+  }
+
 }

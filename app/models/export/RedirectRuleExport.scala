@@ -60,4 +60,8 @@ object RedirectRuleExport extends CommonRuleFields {
 
   val selectAllStatement = s"select $TABLE_NAME.$ID, $TABLE_NAME.$TARGET, $TABLE_NAME.$SEARCH_INPUT_ID, $TABLE_NAME.$LAST_UPDATE, $TABLE_NAME.$STATUS from $TABLE_NAME"
 
+  def selectStatement(id: String) : String = {
+    this.selectAllStatement + " where search_input_id in (select id from search_input where solr_index_id = '" + id + "')"
+  }
+
 }

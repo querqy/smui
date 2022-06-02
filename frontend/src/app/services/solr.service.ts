@@ -166,11 +166,27 @@ export class SolrService {
       .toPromise();
   }
 
+  putty() {
+    const headers = { headers: this.jsonHeader };
+    const body = JSON.stringify( { });
+    return this.http
+      .put<ApiResult>(`${this.baseUrl}/putty`, body, httpOptions)
+      .toPromise();
+  }
+
   getExport() {
     const headers = { headers: this.jsonHeader };
     const body = {};
     return this.http
       .get<ApiResult>(`${this.baseUrl}/get-export`, body)
+      .toPromise();
+  }
+
+  getExportWithId(id:String ) {
+    const headers = { headers: this.jsonHeader };
+    const body = {};
+    return this.http
+      .get<ApiResult>(`${this.baseUrl}/get-export-with-id/${id}`, body)
       .toPromise();
   }
 

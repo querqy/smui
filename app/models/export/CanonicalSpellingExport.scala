@@ -78,4 +78,8 @@ object CanonicalSpellingExport {
       s"$TABLE_NAME.$COMMENT, " +
       s"$TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
   }
+
+  def selectStatement(id: String) : String = {
+    this.selectAllStatement + " where solr_index_id = '" + id + "'"
+  }
 }

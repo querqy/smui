@@ -9,7 +9,7 @@ import models.spellings.{AlternativeSpellingId, CanonicalSpellingId}
 import models.{SolrIndexId, Status, `export`}
 import play.api.libs.json._
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset}
 
 case class AlternativeSpellingExport(id: AlternativeSpellingId = AlternativeSpellingId(),
                                      canonicalSpellingId: CanonicalSpellingId,
@@ -71,5 +71,9 @@ object AlternativeSpellingExport {
       s"$TABLE_NAME.$TERM, " +
       s"$TABLE_NAME.$STATUS, " +
       s"$TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
+  }
+
+  def selectStatement(id: String) : String = {
+    this.selectAllStatement + s" where canonical_spelling_id in (select id from canonical_spelling where solr_index_id = '" + id + "')"
   }
 }

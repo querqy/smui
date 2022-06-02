@@ -21,7 +21,7 @@ case class SynonymRuleExport(id: SynonymRuleId,
     JsArray(
       IndexedSeq (
         JsString("id"),
-        JsString("synonymType"),
+        JsString("synonym_type"),
         JsString("term"),
         JsString("search_input_id"),
         JsString("last_update"),
@@ -67,4 +67,7 @@ object SynonymRuleExport extends CommonRuleFields {
 
   val selectAllStatement = s"select $TABLE_NAME.$ID, $TABLE_NAME.$TYPE, $TABLE_NAME.$TERM, $TABLE_NAME.$STATUS, $TABLE_NAME.$SEARCH_INPUT_ID, $TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
 
+  def selectStatement(id: String) : String = {
+    this.selectAllStatement + " where search_input_id in " + s"(select id from search_input where solr_index_id = '" + id + "')"
+  }
 }

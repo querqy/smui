@@ -23,7 +23,7 @@ case class UpDownRuleExport(id: UpDownRuleId = UpDownRuleId(),
       IndexedSeq (
         JsString("id"),
         JsString("up_down_type"),
-        JsString("boost_malus_type"),
+        JsString("boost_malus_value"),
         JsString("term"),
         JsString("search_input_id"),
         JsString("last_update"),
@@ -39,9 +39,9 @@ case class UpDownRuleExport(id: UpDownRuleId = UpDownRuleId(),
         JsNumber(upDownType),
         JsNumber(boostMalusValue),
         JsString(term),
-        JsNumber(status),
         JsString(searchInputId.toString),
-        JsString(lastUpdate.toString)
+        JsString(lastUpdate.toString),
+        JsNumber(status)
       )
     )
   }
@@ -92,6 +92,10 @@ object UpDownRuleExport extends CommonRuleFields {
     s"$TABLE_NAME.$STATUS, " +
     s"$TABLE_NAME.$SEARCH_INPUT_ID, " +
     s"$TABLE_NAME.$LAST_UPDATE from $TABLE_NAME"
+  }
+
+  def selectStatement(id: String) : String = {
+    this.selectAllStatement + " where search_input_id in (select id from search_input where solr_index_id = '" + id + "')"
   }
 
 }

@@ -1,7 +1,7 @@
 //CJM 10
 package controllers
 
-import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
+import java.io.{File, OutputStream, PipedInputStream, PipedOutputStream}
 import akka.stream.scaladsl.{Source, StreamConverters}
 import akka.util.ByteString
 
@@ -22,8 +22,13 @@ import models.config.SmuiVersion
 import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
+import models.validatedimport.ValidatedImportData
 import org.checkerframework.checker.units.qual.A
+import play.api.libs.Files
+import play.api.libs.Files.TemporaryFile.temporaryFileToPath
 import services.{RulesTxtDeploymentService, RulesTxtImportService}
+
+import java.util.UUID
 import scala.collection.JavaConverters._
 
 
@@ -638,10 +643,57 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
   def getDatabaseJson: Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
     Future {
-      logger.debug("In ApiController:getSomethings")
+      logger.debug("In ApiController:getDatabaseJson")
       Ok(Json.toJson(searchManagementRepository.getDatabaseJson))
     }
   }
 
+  def getDatabaseJsonWithId(id: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      logger.debug("In ApiController:getDatabaseJsonWithId and got id: " + id)
+      Ok(Json.toJson(searchManagementRepository.getDatabaseJsonWithId(id)))
+    }
+  }
+
+  def uploadImport: Action[MultipartFormData[Files.TemporaryFile]] = authActionFactory.getAuthenticatedAction(Action).async(parse.multipartFormData) { implicit request =>
+    Future {
+      val tryDatabaseStuff: Boolean = true
+      logger.debug("In ApiController:uploadImport")
+      if (request.body.files.size == 1) {
+
+        val fileName: String = request.body.files.head.filename
+        logger.debug(fileName)
+        import java.nio.file.Files
+        val content = Files.readString(temporaryFileToPath(request.body.files.head.ref))
+        logger.debug(content)
+        val validatedImport: ValidatedImportData = new ValidatedImportData(content)
+        if (tryDatabaseStuff) {
+          searchManagementRepository.doImport(validatedImport)
+        }
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Got file.", None)))
+      } else {
+        BadRequest("Only one upload file is allowed. Input must be valid")
+      }
+    }
+  }
+
+//  def putty: Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+//    Future {
+//      logger.debug("ApiController.putty():1")
+//      searchManagementRepository.putty
+//      logger.debug("ApiController.putty():2")
+//      Ok(Json.toJson(ApiResult(API_RESULT_OK, "That worked.", None)))
+//    }
+//  }
+
+  def putty: Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      logger.debug("In ApiController:putty")
+      val content = "[{\"tableName\":\"solr_index\",\"columns\":[\"id\",\"name\",\"description\",\"last_update\"],\"rows\":[[\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"test\",\"2022-05-31T11:14:38\"]]},{\"tableName\":\"search_input\",\"columns\":[\"id\",\"term\",\"solr_index_id\",\"last_update\",\"status\",\"comment\"],\"rows\":[[\"16c30efd-3139-4916-bfb6-57463af18250\",\"test\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T17:25:25\",1,\"updown comment\"],[\"5418428c-0d4c-4464-a2a6-084f264be360\",\"s\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T15:29:59\",1,\"syn com\"],[\"70823642-e7c6-4857-9d6c-a54b3c382f0d\",\"test\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T14:43:54\",1,\"\"],[\"89c10061-26d9-4b5f-9e99-92696cc5da74\",\"test two three\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T13:43:50\",1,\"a comment\"],[\"9fb7f8b4-5544-4df0-9d08-d485a0145dbe\",\"redirect\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T17:20:36\",1,\"redirect comment\"],[\"ccc48739-f192-44b1-b552-995eed4a0a51\",\"all\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T14:41:55\",1,\"\"],[\"dd1bd496-90ed-43ad-9895-e67a4f67adeb\",\"test1\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T13:54:27\",1,\"\"],[\"e8064dd4-0e76-4e0b-963a-06ea8cae65e2\",\"t345\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T14:56:51\",1,\"c\"]]},{\"tableName\":\"redirect_rule\",\"columns\":[\"id\",\"target\",\"search_input_id\",\"last_update\",\"status\"],\"rows\":[[\"89e5833a-64b4-4a97-924b-a18b66694437\",\"https://www.google.com\",\"9fb7f8b4-5544-4df0-9d08-d485a0145dbe\",\"2022-05-31T17:20:36\",1]]},{\"tableName\":\"synonym_rule\",\"columns\":[\"id\",\"synonymType\",\"term\",\"search_input_id\",\"last_update\",\"status\"],\"rows\":[[\"70d3eb55-ad67-4890-a157-130ea72637c1\",0,\"y\",\"5418428c-0d4c-4464-a2a6-084f264be360\",\"2022-05-31T15:29:59\",1]]},{\"tableName\":\"up_down_rule\",\"columns\":[\"id\",\"up_down_type\",\"boost_malus_type\",\"term\",\"search_input_id\",\"last_update\",\"status\"],\"rows\":[[\"a26f49ad-28ba-40e3-a968-ada168d948c7\",0,5,\"* a:test\",1,\"16c30efd-3139-4916-bfb6-57463af18250\",\"2022-05-31T17:25:25\"]]},{\"tableName\":\"delete_rule\",\"columns\":[\"id\",\"term\",\"search_input_id\",\"last_update\",\"status\"],\"rows\":[[\"36d7a7d2-4133-4bcc-b4b3-19ec6d0404d1\",\"two\",\"89c10061-26d9-4b5f-9e99-92696cc5da74\",\"2022-05-31T13:43:50\",1]]},{\"tableName\":\"filter_rule\",\"columns\":[\"id\",\"term\",\"search_input_id\",\"last_update\",\"status\"],\"rows\":[[\"8ed6c4bd-ac69-4a94-898c-fabb13a7fc47\",\"* test:* a:b\",\"e8064dd4-0e76-4e0b-963a-06ea8cae65e2\",\"2022-05-31T14:56:51\",1]]},{\"tableName\":\"suggested_solr_field\",\"columns\":[\"id\",\"name\",\"solr_index_id\",\"last_update\"],\"rows\":[[\"4ce83b3a-7263-4873-b4f2-a66a9321fdbb\",\"test\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T17:37:43\"]]},{\"tableName\":\"input_tag\",\"columns\":[\"id\",\"solr_index_id\",\"property\",\"tag_value\",\"exported\",\"predefined\",\"last_update\"],\"rows\":[[\"wh\",\"some solr_index_id\",\"some property\",\"some tag_value\",2345,123,\"2022-05-31T18:23:47\"]]},{\"tableName\":\"tag_2_input\",\"columns\":[\"id\",\"searchInputId\",\"last_update\"],\"rows\":[[\"hi\",\"3\",\"2022-05-31T18:22:14\"]]},{\"tableName\":\"canonical_spelling\",\"columns\":[\"id\",\"solr_index_id\",\"term\",\"status\",\"comment\",\"last_update\"],\"rows\":[[\"id8\",\"id9\",\"a_term_can_spell\",0,\"can_spell_comment\",\"2022-05-31T18:44:15\"]]},{\"tableName\":\"alternative_spelling\",\"columns\":[\"id\",\"canonical_spelling_id\",\"term\",\"status\",\"last_update\"],\"rows\":[[\"id10\",\"id11\",\"alt_spell_term\",0,\"2022-05-31T18:44:15\"]]}]"
+      val validatedImport: ValidatedImportData = new ValidatedImportData(content)
+      searchManagementRepository.doImport(validatedImport)
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "OK.", None)))
+    }
+  }
 
 }
