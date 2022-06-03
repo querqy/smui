@@ -1,5 +1,6 @@
 import {Component, ElementRef, ViewChild} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
+import {ToasterService} from "angular2-toaster";
 
 @Component({
   selector: 'file-upload',
@@ -13,7 +14,12 @@ export class FileUploadComponent {
   @ViewChild('fileUpload')
   myInputVariable: ElementRef;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private toasterService: ToasterService) {
+  }
+
+  public showSuccessMsg(msgText: string) {
+    this.toasterService.pop('success', '', msgText);
   }
 
   onFileSelected(event: Event) {
@@ -28,6 +34,7 @@ export class FileUploadComponent {
         upload$.subscribe();
         this.fileName = 'Last file uploaded: ' + this.fileName;
         this.myInputVariable.nativeElement.value = '';
+        this.showSuccessMsg(this.fileName + " received and imported.")
       }
     }
   }

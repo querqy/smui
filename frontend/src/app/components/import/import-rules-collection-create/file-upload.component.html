@@ -6,12 +6,21 @@
 
     <div class="file-upload">
 
-      <button color="primary" class="upload-btn"
-              (click)="fileUpload.click()">
-        Select File to Upload
+      <button
+        type="button"
+        class="btn btn-primary btn-sm btn-dark"
+        (click)="fileUpload.click()"
+      >
+        <i class="fa fa-upload btn-dark" aria-hidden="true"></i>
+        <span class="horizontalgap">&nbsp;</span>
+        Select File to Import
+        <span class="horizontalgap">&nbsp;</span>
       </button>
 
-      {{fileName || "No file uploaded yet."}}
+      <span class="horizontalgap">&nbsp;</span>
+      <span class="horizontalgap">&nbsp;</span>
+
+      <!-- {{fileName || "No file imported yet."}} -->
 
     </div>
 
