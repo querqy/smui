@@ -158,7 +158,7 @@ export class RulesCollectionListComponent implements OnInit, OnChanges {
   //   document.body.removeChild(element);
   // }
 
-  downloadRulesCollection(id:String, event: Event) {
+  downloadRulesCollectionExport(id:String, event: Event) {
     console.log("download()");
     this.solrService.getExportWithId(id).then(
       result => {
