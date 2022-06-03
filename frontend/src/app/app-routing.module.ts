@@ -4,7 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { SearchManagementComponent } from './components/search-management';
 import { ReportComponent } from './components/report';
 import { AdminComponent } from './components/admin';
-import { ChrisComponent } from './components/chris';
+import { ImportComponent } from './components/import';
 import { SuggestedFieldsComponent } from './components/admin/suggested-fields';
 
 const routes: Routes = [
@@ -12,7 +12,7 @@ const routes: Routes = [
   { path: 'rules', component: SearchManagementComponent },
   { path: 'report', component: ReportComponent },
   { path: 'admin', component: AdminComponent },
-  { path: 'chris', component: ChrisComponent },
+  { path: 'import', component: ImportComponent },
   { path: 'admin/suggested-fields/:solrIndexId', component: SuggestedFieldsComponent }
 ];
 

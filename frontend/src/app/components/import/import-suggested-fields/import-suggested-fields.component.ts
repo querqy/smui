@@ -14,14 +14,14 @@ import {
 
 
 @Component({
-  selector: 'app-smui-chris-suggested-fields',
-  templateUrl: './chris-suggested-fields.component.html'
+  selector: 'app-smui-import-suggested-fields',
+  templateUrl: './import-suggested-fields.component.html'
 })
-export class ChrisSuggestedFieldsComponent implements OnInit {
+export class ImportSuggestedFieldsComponent implements OnInit {
 
   //@Input() solrIndex: SolrIndex;
   //@Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
-  chrisSuggestedFields: Array<SuggestedSolrField>;
+  importSuggestedFields: Array<SuggestedSolrField>;
 
   constructor(
     private route: ActivatedRoute,
@@ -36,7 +36,7 @@ export class ChrisSuggestedFieldsComponent implements OnInit {
 
 
   ngOnInit() {
-    console.log('In ChrisSuggestedFieldsComponent :: ngOnInit');
+    console.log('In ImportSuggestedFieldsComponent :: ngOnInit');
 
 
     this.route.paramMap.subscribe((params: ParamMap) => {
@@ -47,7 +47,7 @@ export class ChrisSuggestedFieldsComponent implements OnInit {
       .then(solrIndex =>
         this.solrIndex = solrIndex
       )
-          .then(() => this.lookupChrisSuggestedFields())
+          .then(() => this.lookupImportSuggestedFields())
       .catch(error => this.showErrorMsg(error));
 
 
@@ -56,17 +56,17 @@ export class ChrisSuggestedFieldsComponent implements OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('In ChrisSuggestedFieldsComponent :: ngOnChanges');
-    this.lookupChrisSuggestedFields();
+    console.log('In ImportSuggestedFieldsComponent :: ngOnChanges');
+    this.lookupImportSuggestedFields();
   }
 
 
-  lookupChrisSuggestedFields() {
-    console.log('In ChrisSuggestedFieldsListComponent :: lookupChrisSuggestedFields');
+  lookupImportSuggestedFields() {
+    console.log('In ImportSuggestedFieldsListComponent :: lookupImportSuggestedFields');
     console.log("Solr id?" + this.solrIndex.id)
     this.solrService.getSuggestedFields(this.solrIndex.id)
         .then(suggestedFields => {
-          this.chrisSuggestedFields = suggestedFields;
+          this.importSuggestedFields = suggestedFields;
         })
         .catch(error => this.showErrorMsg(error));
 
@@ -80,9 +80,9 @@ export class ChrisSuggestedFieldsComponent implements OnInit {
     this.toasterService.pop('error', '', msgText);
   }
 
-  public chrisSuggestedFieldsChange( id: string){
-    console.log("ChrisSuggestedFieldsComponent::chrisSuggestedFieldsChange")
-    this.lookupChrisSuggestedFields();
+  public importSuggestedFieldsChange( id: string){
+    console.log("ImportSuggestedFieldsComponent::importSuggestedFieldsChange")
+    this.lookupImportSuggestedFields();
 
   }
 

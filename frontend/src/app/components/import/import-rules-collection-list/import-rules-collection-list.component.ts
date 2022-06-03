@@ -15,10 +15,10 @@ import {
 } from '../../../services';
 
 @Component({
-  selector: 'app-smui-chris-chris-rules-collection-list',
-  templateUrl: './chris-rules-collection-list.component.html'
+  selector: 'app-smui-import-import-rules-collection-list',
+  templateUrl: './import-rules-collection-list.component.html'
 })
-export class ChrisRulesCollectionListComponent implements OnInit, OnChanges {
+export class ImportRulesCollectionListComponent implements OnInit, OnChanges {
 
   @Output() openDeleteConfirmModal: EventEmitter<any> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
@@ -35,14 +35,14 @@ export class ChrisRulesCollectionListComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    console.log('In ChrisRulesCollectionListComponent :: ngOnInit');
+    console.log('In ImportRulesCollectionListComponent :: ngOnInit');
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('In ChrisRulesCollectionListComponent :: ngOnChanges');
+    console.log('In ImportRulesCollectionListComponent :: ngOnChanges');
   }
 
-  deleteChrisRulesCollection(id: string, event: Event) {
+  deleteImportRulesCollection(id: string, event: Event) {
     event.stopPropagation();
     const deleteCallback = () =>
       this.solrService
@@ -50,7 +50,7 @@ export class ChrisRulesCollectionListComponent implements OnInit, OnChanges {
         .then(() => this.solrService.listAllSolrIndices())
         .then(() => this.solrIndicesChange.emit(id))
         .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
-        .then(() => this.showSuccessMsg.emit("Chris Rule collection successfully deleted."))
+        .then(() => this.showSuccessMsg.emit("Import Rule collection successfully deleted."))
         .catch(error => {
           // unpack and emit error message
           var errorMsg = 'Unknown error'

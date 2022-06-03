@@ -7,21 +7,21 @@
 
 <h3 *ngIf="solrIndex" style="display:inline-block;">Suggested Fields for {{solrIndex.description}}</h3>
 
-<app-smui-chris-suggested-fields-create
+<app-smui-import-suggested-fields-create
   (showSuccessMsg)="showSuccessMsg($event)"
   (showErrorMsg)="showErrorMsg($event)"
-  (chrisSuggestedFieldsChange)="chrisSuggestedFieldsChange($event)"
+  (importSuggestedFieldsChange)="importSuggestedFieldsChange($event)"
   [solrIndex]="solrIndex"
 >
-</app-smui-chris-suggested-fields-create>
+</app-smui-import-suggested-fields-create>
 
-<app-smui-chris-suggested-fields-list
+<app-smui-import-suggested-fields-list
   (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
-  (chrisSuggestedFieldsChange)="chrisSuggestedFieldsChange($event)"
+  (importSuggestedFieldsChange)="importSuggestedFieldsChange($event)"
   [solrIndex]="solrIndex"
-  [chrisSuggestedFields]="chrisSuggestedFields"
+  [importSuggestedFields]="importSuggestedFields"
 >
-</app-smui-chris-suggested-fields-list>
+</app-smui-import-suggested-fields-list>
 
 <app-smui-confirm-modal
   id="confirm-delete"

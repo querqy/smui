@@ -45,25 +45,12 @@ import {
 } from './components/admin/suggested-fields';
 
 import {
-  ChrisComponent,
-  //ChrisRulesCollectionListComponent,
-  //ChrisRulesCollectionCreateComponent
-} from './components/chris';
+  ImportComponent
+} from './components/import';
 
 import {
-  ChrisRulesCollectionCreateComponent
-} from './components/chris/chris-rules-collection-create';
-
-import {
-  ChrisRulesCollectionListComponent
-} from './components/chris/chris-rules-collection-list';
-
-// import {
-//   ChrisSuggestedFieldsComponent,
-//   ChrisSuggestedFieldsCreateComponent,
-//   ChrisSuggestedFieldsListComponent
-// } from './components/chris/chris-suggested-fields';
-
+  ImportRulesCollectionCreateComponent
+} from './components/import/import-rules-collection-create';
 
 import {
   ButtonRowComponent,
@@ -81,7 +68,7 @@ import {
   RulesListComponent,
   RulesSearchComponent
 } from './components/rules-panel';
-import {FileUploadComponent} from "./components/chris/chris-rules-collection-create/file-upload.component";
+import {FileUploadComponent} from "./components/import/import-rules-collection-create/file-upload.component";
 
 @NgModule({
   imports: [
@@ -120,13 +107,9 @@ import {FileUploadComponent} from "./components/chris/chris-rules-collection-cre
     SuggestedFieldsComponent,
     SuggestedFieldsCreateComponent,
     SuggestedFieldsListComponent,
-    ChrisComponent,
-    // ChrisRulesCollectionListComponent,
-    ChrisRulesCollectionCreateComponent,
+    ImportComponent,
+    ImportRulesCollectionCreateComponent,
     FileUploadComponent
-    // ChrisSuggestedFieldsComponent,
-    // ChrisSuggestedFieldsCreateComponent,
-    // ChrisSuggestedFieldsListComponent
   ],
   providers: [
     CommonsService,

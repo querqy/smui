@@ -7,7 +7,7 @@ import java.util
 import java.util.UUID
 import scala.collection.mutable
 
-case class ValidatedImportData(content: String) extends Logging {
+case class ValidatedImportData(filename: String, content: String) extends Logging {
 
   var validTableNames: List[String] = List(
     "alternative_spelling",
@@ -32,8 +32,10 @@ case class ValidatedImportData(content: String) extends Logging {
   var statements: IndexedSeq[String] = IndexedSeq()
   var solr_index_id: String = ""
   var old_solr_index_id: String = ""
-  val a_different_existing_solr_index_id: String = UUID.randomUUID().toString
+  var a_different_existing_solr_index_id: String = UUID.randomUUID().toString
+  var a_shorthand_id: String = ""
   val SUCCESS: Int = 0
+  var inputFilename: String = ""
 
   var allStatementsConcatenated: String = ""
   var replacementIds: mutable.HashMap[String, String] = mutable.HashMap()
@@ -43,6 +45,9 @@ case class ValidatedImportData(content: String) extends Logging {
   }
 
   def parseJson: Int = {
+    this.inputFilename = filename
+    a_different_existing_solr_index_id =  UUID.randomUUID().toString
+    a_shorthand_id = a_different_existing_solr_index_id.substring(0, 8)
     logger.debug("ValidatedImportData.parseJson():1 begin parsing")
     inputJsonValue = Option(Json.parse(content))
     if (inputJsonValue.isDefined) {
@@ -114,17 +119,17 @@ case class ValidatedImportData(content: String) extends Logging {
       if (this.tableName.equals("solr_index")) {
         //logger.debug(currentColumns(index))
         if (currentColumns(index).equals("id")) {
-          logger.debug("555 in id!")
           this.old_solr_index_id = rawCellValue;
           this.solr_index_id = "'" + this.a_different_existing_solr_index_id + "'"
           cellValue = solr_index_id
-        } else if (currentColumns(index).equals("name")) {
-          logger.debug("555 in name!")
+        } else if (currentColumns(index).equals("name") || currentColumns(index).equals("description")) {
+          var old_id_shorthand = this.old_solr_index_id.substring(0, 8)
+          var sds = shortDistinguishedString
+          logger.debug("cur col:" + currentColumns(index))
+          logger.debug("rawCellValue: " + rawCellValue)
+          logger.debug("old_id_shorthand: " + old_id_shorthand)
           //this.solr_index_id = "'" + this.a_different_existing_solr_index_id + "'"
-          cellValue = "'" + rawCellValue + ", imported from (" + this.old_solr_index_id + ")'"
-        } else if (currentColumns(index).equals("description")) {
-          logger.debug("555 in description!")
-          cellValue = "'" + rawCellValue + ", imported from (" + this.old_solr_index_id + ")'"
+          cellValue = "'" + rawCellValue + ", (file: " + inputFilename + " copied from key: " + old_id_shorthand + ") " + sds + "'"
         }
       }
       else if (currentColumns(index).equals("id")) {
@@ -183,6 +188,10 @@ case class ValidatedImportData(content: String) extends Logging {
       this.allStatementsConcatenated = this.allStatementsConcatenated + " " + input.head
       printStatements(input.drop(1))
     }
+  }
+
+  def shortDistinguishedString: String = {
+    UUID.randomUUID().toString.substring(0, 8)
   }
 
 }

@@ -10,10 +10,10 @@ import {
  } from '../../services';
 
 @Component({
-  selector: 'app-smui-chris',
-  templateUrl: './chris.component.html'
+  selector: 'app-smui-import',
+  templateUrl: './import.component.html'
 })
-export class ChrisComponent implements OnInit {
+export class ImportComponent implements OnInit {
 
   constructor(
     private modalService: ModalService,
@@ -26,7 +26,7 @@ export class ChrisComponent implements OnInit {
   solrIndices: SolrIndex[];
 
   ngOnInit() {
-    console.log('In ChrisComponent :: ngOnInit');
+    console.log('In ImportComponent :: ngOnInit');
     this.solrIndices = this.solrService.solrIndices;
   }
 
@@ -48,7 +48,7 @@ export class ChrisComponent implements OnInit {
   }
 
   public solrIndicesChange(id: string){
-    console.log("ChrisComponent :: solrIndicesChange :: id = " + id)
+    console.log("ImportComponent :: solrIndicesChange :: id = " + id)
     this.solrIndices = this.solrService.solrIndices;
   }
 

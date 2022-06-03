@@ -14,18 +14,18 @@ import {
 } from '../../../../services';
 
 @Component({
-  selector: 'app-smui-chris-suggested-fields-list',
-  templateUrl: './chris-suggested-fields-list.component.html'
+  selector: 'app-smui-import-suggested-fields-list',
+  templateUrl: './import-suggested-fields-list.component.html'
 })
-export class ChrisSuggestedFieldsListComponent implements OnInit, OnChanges {
+export class ImportSuggestedFieldsListComponent implements OnInit, OnChanges {
 
   @Input() solrIndex: SolrIndex;
-  @Input() chrisSuggestedFields: Array<SuggestedSolrField>;
+  @Input() importSuggestedFields: Array<SuggestedSolrField>;
 
   @Output() openDeleteConfirmModal: EventEmitter<any> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
   @Output() solrIndicesChange: EventEmitter<string> = new EventEmitter();
-  @Output() chrisSuggestedFieldsChange: EventEmitter<string> = new EventEmitter();
+  @Output() importSuggestedFieldsChange: EventEmitter<string> = new EventEmitter();
 
   constructor(
     private solrService: SolrService,
@@ -34,31 +34,31 @@ export class ChrisSuggestedFieldsListComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    console.log('In ChrisSuggestedFieldsListComponent :: ngOnInit');
+    console.log('In ImportSuggestedFieldsListComponent :: ngOnInit');
 
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('In ChrisSuggestedFieldsListComponent :: ngOnChanges');
+    console.log('In ImportSuggestedFieldsListComponent :: ngOnChanges');
   }
 
 
-  lookupChrisSuggestedFields() {
-    console.log('In ChrisSuggestedFieldsListComponent :: lookupSuggestedFields');
+  lookupImportSuggestedFields() {
+    console.log('In ImportSuggestedFieldsListComponent :: lookupSuggestedFields');
     this.solrService.getSuggestedFields(this.solrIndex.id)
-      .then(chrisSuggestedFields => {
-        this.chrisSuggestedFields = chrisSuggestedFields;
+      .then(importSuggestedFields => {
+        this.importSuggestedFields = importSuggestedFields;
       })
       .catch(error => this.showErrorMsg.emit(error));
 
   }
 
-  deleteChrisSuggestedField(suggestedFieldId: string, event: Event) {
+  deleteImportSuggestedField(suggestedFieldId: string, event: Event) {
     event.stopPropagation();
     const deleteCallback = () =>
       this.solrService
         .deleteSuggestedField(this.solrIndex.id, suggestedFieldId)
-        .then(() => this.lookupChrisSuggestedFields())
+        .then(() => this.lookupImportSuggestedFields())
 
         .catch(error => this.showErrorMsg.emit(error));
 

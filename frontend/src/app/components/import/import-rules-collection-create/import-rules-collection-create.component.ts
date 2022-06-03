@@ -17,15 +17,15 @@ import {
 import {FileUploadComponent} from "./file-upload.component";
 
 @Component({
-  selector: 'app-smui-chris-chris-rules-collection-create',
-  templateUrl: './chris-rules-collection-create.component.html'
+  selector: 'app-smui-import-import-rules-collection-create',
+  templateUrl: './import-rules-collection-create.component.html'
 })
-export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
+export class ImportRulesCollectionCreateComponent implements OnInit, OnChanges {
 
   //@Output() updateRulesCollectionList: EventEmitter<> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
   @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
-  @Output() refreshChrisRulesCollectionList: EventEmitter<string> = new EventEmitter();
+  @Output() refreshImportRulesCollectionList: EventEmitter<string> = new EventEmitter();
   @Output() solrIndicesChange: EventEmitter<string> = new EventEmitter();
   fuc: FileUploadComponent;
 
@@ -38,12 +38,12 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
 
   }
   ngOnInit() {
-    console.log('In ChrisRulesCollectionCreateComponent :: ngOnInit');
+    console.log('In ImportRulesCollectionCreateComponent :: ngOnInit');
     this.solrIndices = this.solrService.solrIndices;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('In ChrisRulesCollectionCreateComponent :: ngOnChanges');
+    console.log('In ImportRulesCollectionCreateComponent :: ngOnChanges');
   }
 
   refreshSolrIndicies() {
@@ -58,7 +58,7 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
   addOneValue( event: Event){
     if (this.valueName) {
       console.log("addOneValue() , thingName: " + this.valueName);
-      //console.log('In ChrisRulesCollectidonCreateComponent :: createChrisRulesCollection');
+      //console.log('In ImportRulesCollectidonCreateComponent :: createImportRulesCollection');
       this.solrService.putSomething2(this.valueName)
         .then(() => this.showSuccessMsg.emit("Add Value: OK"));
       //
@@ -67,7 +67,7 @@ export class ChrisRulesCollectionCreateComponent implements OnInit, OnChanges {
       //     .createSolrIndex(this.name, this.description)
       //     .then(() => this.solrService.listAllSolrIndices())
       //     .then(() => this.solrIndicesChange.emit())
-      //     .then(() => this.showSuccessMsg.emit("Created new Chris Rules Collection " + this.description))
+      //     .then(() => this.showSuccessMsg.emit("Created new Import Rules Collection " + this.description))
       //     .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
       //     .then(() => this.clearForm())
       //     .catch(error => this.showErrorMsg.emit(error));

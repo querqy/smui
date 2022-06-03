@@ -15,15 +15,15 @@ import {
 } from '../../../../services';
 
 @Component({
-  selector: 'app-smui-chris-suggested-fields-create',
-  templateUrl: './chris-suggested-fields-create.component.html'
+  selector: 'app-smui-import-suggested-fields-create',
+  templateUrl: './import-suggested-fields-create.component.html'
 })
-export class ChrisSuggestedFieldsCreateComponent implements OnInit, OnChanges {
+export class ImportSuggestedFieldsCreateComponent implements OnInit, OnChanges {
 
   @Input() solrIndex: SolrIndex;
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
   @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
-  @Output() chrisSuggestedFieldsChange: EventEmitter<string> = new EventEmitter();
+  @Output() importSuggestedFieldsChange: EventEmitter<string> = new EventEmitter();
 
   name: string;
   suggestedFields: SuggestedSolrField[] = [];
@@ -34,11 +34,11 @@ export class ChrisSuggestedFieldsCreateComponent implements OnInit, OnChanges {
 
   }
   ngOnInit() {
-    console.log('In ChrisSuggestedFieldsCreateComponent :: ngOnInit');
+    console.log('In ImportSuggestedFieldsCreateComponent :: ngOnInit');
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('In ChrisSuggestedFieldsCreateComponent :: ngOnChanges');
+    console.log('In ImportSuggestedFieldsCreateComponent :: ngOnChanges');
   }
 
 
@@ -46,13 +46,13 @@ export class ChrisSuggestedFieldsCreateComponent implements OnInit, OnChanges {
     this.name = '';
   }
 
-  createChrisSuggestedField( event: Event){
-    console.log('In ChrisSuggestedFieldsCreateComponent :: createSuggestedField');
+  createImportSuggestedField( event: Event){
+    console.log('In ImportSuggestedFieldsCreateComponent :: createSuggestedField');
     if (this.name) {
       this.solrService
         .createSuggestedField(this.solrIndex.id, this.name)
-        .then(() => this.showSuccessMsg.emit("Created new Chris Suggested Field " + this.name))
-        .then(() => this.chrisSuggestedFieldsChange.emit())
+        .then(() => this.showSuccessMsg.emit("Created new Import Suggested Field " + this.name))
+        .then(() => this.importSuggestedFieldsChange.emit())
         .then(() => this.clearForm())
         .catch(error => this.showErrorMsg.emit(error));
     }
