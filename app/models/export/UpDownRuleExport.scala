@@ -5,7 +5,6 @@ import anorm.{RowParser, ~}
 import models.input.SearchInputId
 import models.rules.{CommonRuleFields, UpDownRuleId}
 import play.api.libs.json._
-
 import java.time.LocalDateTime
 
 case class UpDownRuleExport(id: UpDownRuleId = UpDownRuleId(),

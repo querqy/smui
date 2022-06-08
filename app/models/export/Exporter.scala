@@ -8,7 +8,6 @@ import models.rules.{DeleteRule, FilterRule, SynonymRule}
 import play.api.libs.json.{JsArray, JsObject, JsString, JsValue}
 import play.api.Logging
 import play.api.db.DBApi
-
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -224,7 +223,6 @@ class Exporter @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(impl
       getTagInputAssociationsFromDatabase, //10
       getCanonicalSpellingsFromDatabase, //11
       getAlternativeSpellingsFromDatabase //12
-      //getSomethingsFromDatabase //13
     )
     getAllTablesForJs(tableSeq)
   }

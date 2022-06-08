@@ -43,6 +43,7 @@ export class RulesCollectionListComponent implements OnInit, OnChanges {
 
   currentSolrIndexId = '-1';
   currentSolrIndexIdSubject: Subject<string> = new Subject<string>();
+  collectionName: String;
 
   constructor(
     private solrService: SolrService,
@@ -160,11 +161,12 @@ export class RulesCollectionListComponent implements OnInit, OnChanges {
 
   downloadRulesCollectionExport(id:String, event: Event) {
     console.log("download()");
+    this.solrService.getSolrIndex(id.toString()).then(solrIndex => this.collectionName = solrIndex.name);
     this.solrService.getExportWithId(id).then(
       result => {
         var str = JSON.stringify(result);
         this.downloadStringAsFile(
-          "file.json.txt",
+          this.collectionName + ".json.txt",
           str);
         this.showSuccessMsg.emit("Download: OK")
       }
