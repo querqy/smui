@@ -37,13 +37,8 @@ GET     /api/v1/log/rule-activity-log                           controllers.ApiC
 GET     /api/v1/report/rules-report/:solrIndexId                controllers.ApiController.getRulesReport(solrIndexId: String)
 GET     /api/v1/report/activity-report/:solrIndexId             controllers.ApiController.getActivityReport(solrIndexId: String)
 GET     /api/v1/version/latest-info                             controllers.ApiController.getLatestVersionInfo()
-
-GET     /api/v1/solr-index/:solrIndexId/something               controllers.ApiController.getSomething(solrIndexId: String)
-PUT     /api/v1/put-something                                   controllers.ApiController.putSomething
-GET     /api/v1/get-export                                      controllers.ApiController.getDatabaseJson
 GET     /api/v1/get-export-with-id/:id                          controllers.ApiController.getDatabaseJsonWithId(id: String)
 POST    /api/v1/upload-import                                   controllers.ApiController.uploadImport
-PUT     /api/v1/putty                                           controllers.ApiController.putty
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /*file   controllers.FrontendController.assetOrDefault(file)

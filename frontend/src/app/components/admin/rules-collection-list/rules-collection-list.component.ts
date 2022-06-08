@@ -23,8 +23,6 @@ import {
 } from '../../../services';
 import {HttpClient} from "@angular/common/http";
 import {Subject} from "rxjs";
-import {Something} from "../../../models/export";
-
 
 @Component({
   selector: 'app-smui-admin-rules-collection-list',

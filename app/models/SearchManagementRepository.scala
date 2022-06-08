@@ -1,23 +1,20 @@
 package models
 
-import anorm.SqlParser.get
+import anorm._
+import models.FeatureToggleModel.FeatureToggleService
+import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
+import models.export.Exporter
+import models.input._
+import models.reports.{ActivityReport, DeploymentLog, RulesReport}
+import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import models.validatedimport.{ValidatedImportData, ValidatedImportImporter}
+import play.api.Logging
+import play.api.db.DBApi
+import play.api.libs.json.JsValue
 
 import java.time.LocalDateTime
 import java.util.{Date, UUID}
 import javax.inject.Inject
-import play.api.db.DBApi
-import anorm._
-import models.FeatureToggleModel.FeatureToggleService
-import models.SolrIndex.TABLE_NAME
-import models.export.{Exporter, Something, SomethingId}
-import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
-import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
-import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
-import models.reports.{ActivityReport, DeploymentLog, RulesReport}
-import models.rules.{DeleteRule, FilterRule, SynonymRuleId}
-import models.validatedimport.{ValidatedImportData, ValidatedImportImporter}
-import play.api.Logging
-import play.api.libs.json.JsValue
 
 // TODO Make `userInfo` mandatory (for all input/spelling and deploymentLog CRUD operations), when removing unauthorized access.
 @javax.inject.Singleton
@@ -311,61 +308,12 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
     }
   }
 
-  def getSomething(id: String): Something = db.withConnection {
-    implicit connection => {
-      val something = new Something(SomethingId(), "", LocalDateTime.now())
-      something
-    }
-  }
-
-  def putSomething(thingName: String): Boolean = db.withConnection { implicit connection => {
-    logger.debug("smr putSomething:0 " + thingName)
-    SQL("insert into something (id, value0, last_update) values ({id}, {value0}, {last_update})")
-      .on(
-        'id -> SomethingId(),
-        'value0 -> thingName,
-        'last_update -> LocalDateTime.now()
-      )
-      .execute()
-  }
-  }
-
-  def getDatabaseJson: JsValue = db.withConnection {
-    implicit connection => {
-      logger.debug("In SearchManagementRepository:getDatabaseJson():1")
-      val exporter : Exporter = new Exporter(dbapi, toggleService)
-      exporter.getDatabaseJson
-    }
-  }
-
   def getDatabaseJsonWithId(id: String): JsValue = db.withConnection {
     implicit connection => {
       logger.debug("In SearchManagementRepository:getDatabaseJsonWithId():1")
       val exporter : Exporter = new Exporter(dbapi, toggleService)
       exporter.getDatabaseJsonWithId(id)
     }
-  }
-
-  def putty: String = db.withTransaction { implicit connection =>
-    var aString : String = "At SearchManagementRepository:putty():1"
-    logger.debug(aString)
-      SQL("insert into something (id,value0,last_update) values ({id}, {value0}, {last_update})")
-        .on(
-          'id -> SomethingId(),
-          'value0 -> "test22222",
-          'last_update -> LocalDateTime.now()
-        ).execute()
-
-      SQL("insert into something (id,value0,last_update) values ({id}, {value0}, {last_update})")
-        .on(
-          'id -> SomethingId(),
-          'value0 -> 3,
-          'last_update -> LocalDateTime.now()
-        ).execute()
-
-    aString = "At SearchManagementRepository:putty():2"
-    logger.debug(aString)
-    aString
   }
 
   def doImport(validatedImport: ValidatedImportData): String = db.withTransaction { implicit connection =>

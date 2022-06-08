@@ -1,15 +1,12 @@
 package models.rules
 
-import java.sql.Connection
 import anorm.SqlParser.get
 import anorm._
-import models.`export`.{Something, SomethingId}
 import models.input.SearchInputId
-import models.rules.FilterRule.{LAST_UPDATE, SEARCH_INPUT_ID, TABLE_NAME}
 import models.{Id, IdObject, Status}
-import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
+import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDateTime
+import java.sql.Connection
 
 class SynonymRuleId(id: String) extends Id(id)
 object SynonymRuleId extends IdObject[SynonymRuleId](new SynonymRuleId(_))

@@ -1,12 +1,11 @@
 package models.`export`
 
 import anorm.SQL
-import models.{DatabaseExecutionContext, SuggestedSolrField}
+import models.DatabaseExecutionContext
 import models.FeatureToggleModel.FeatureToggleService
-import play.api.libs.json.{JsArray, JsObject, JsString, JsValue}
+import play.api.libs.json.{JsArray, JsObject, JsValue}
 import play.api.Logging
 import play.api.db.DBApi
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @javax.inject.Singleton
@@ -15,11 +14,6 @@ class Exporter @Inject()(dbApi: DBApi,
                         (implicit ec: DatabaseExecutionContext) extends Logging {
 
   private val db = dbApi.database("default")
-
-  var somethings1: IndexedSeq[Something] = IndexedSeq(
-    new Something(SomethingId(), "something1", LocalDateTime.now()),
-    new Something(SomethingId(), "something2", LocalDateTime.now())
-  )
 
   def getAllTablesForJs(tables : IndexedSeq[IndexedSeq[JsonExportable]]): JsValue = {
     var aggregation: Seq[JsValue] = Seq[JsValue]()
@@ -57,27 +51,9 @@ class Exporter @Inject()(dbApi: DBApi,
     JsArray(target.toIndexedSeq)
   }
 
-  def getSomethingsFromDatabase: IndexedSeq[Something] = db.withConnection {
-    implicit connection => {
-      SQL(Something.selectAllStatement).as(Something.sqlParser.*).toIndexedSeq
-    }
-  }
-
-  def getSearchInputsFromDatabase: IndexedSeq[SearchInputExport] = db.withConnection {
-    implicit connection => {
-      SQL(SearchInputExport.selectAllStatement).as(SearchInputExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
   def getSearchInputsFromDatabase(id: String): IndexedSeq[SearchInputExport] = db.withConnection {
     implicit connection => {
       SQL(SearchInputExport.selectStatement(id)).as(SearchInputExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
-  def getDeleteRulesFromDatabase: IndexedSeq[DeleteRuleExport] = db.withConnection {
-    implicit connection => {
-      SQL(DeleteRuleExport.selectAllStatement).as(DeleteRuleExport.sqlParser.*).toIndexedSeq
     }
   }
 
@@ -87,21 +63,9 @@ class Exporter @Inject()(dbApi: DBApi,
     }
   }
 
-  def getFilterRulesFromDatabase: IndexedSeq[FilterRuleExport] = db.withConnection {
-    implicit connection => {
-      SQL(FilterRuleExport.selectAllStatement).as(FilterRuleExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
   def getFilterRulesFromDatabase(id: String): IndexedSeq[FilterRuleExport] = db.withConnection {
     implicit connection => {
       SQL(FilterRuleExport.selectStatement(id)).as(FilterRuleExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
-  def getSynonymRulesFromDatabase: IndexedSeq[SynonymRuleExport] = db.withConnection {
-    implicit connection => {
-      SQL(SynonymRuleExport.selectAllStatement).as(SynonymRuleExport.sqlParser.*).toIndexedSeq
     }
   }
 
@@ -111,21 +75,9 @@ class Exporter @Inject()(dbApi: DBApi,
     }
   }
 
-  def getUpDownRulesFromDatabase: IndexedSeq[UpDownRuleExport] = db.withConnection {
-    implicit connection => {
-      SQL(UpDownRuleExport.selectAllStatement).as(UpDownRuleExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
   def getUpDownRulesFromDatabase(id: String): IndexedSeq[UpDownRuleExport] = db.withConnection {
     implicit connection => {
       SQL(UpDownRuleExport.selectStatement(id)).as(UpDownRuleExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
-  def getRedirectRulesFromDatabase: IndexedSeq[RedirectRuleExport] = db.withConnection {
-    implicit connection => {
-      SQL(RedirectRuleExport.selectAllStatement).as(RedirectRuleExport.sqlParser.*).toIndexedSeq
     }
   }
 
@@ -135,21 +87,9 @@ class Exporter @Inject()(dbApi: DBApi,
     }
   }
 
-  def getSolrIndexFromDatabase: IndexedSeq[SolrIndexExport] = db.withConnection {
-    implicit connection => {
-      SQL(SolrIndexExport.selectAllStatement).as(SolrIndexExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
   def getSolrIndexFromDatabase(id: String): IndexedSeq[SolrIndexExport] = db.withConnection {
     implicit connection => {
       SQL(SolrIndexExport.selectStatement(id)).as(SolrIndexExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
-  def getSuggestedSolrFieldsFromDatabase: IndexedSeq[SuggestedSolrFieldExport] = db.withConnection {
-    implicit connection => {
-      SQL(SuggestedSolrFieldExport.selectAllStatement).as(SuggestedSolrFieldExport.sqlParser.*).toIndexedSeq
     }
   }
 
@@ -159,21 +99,9 @@ class Exporter @Inject()(dbApi: DBApi,
     }
   }
 
-  def getInputTagsFromDatabase: IndexedSeq[InputTagExport] = db.withConnection {
-    implicit connection => {
-      SQL(InputTagExport.selectAllStatement).as(InputTagExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
   def getInputTagsFromDatabase(id: String): IndexedSeq[InputTagExport] = db.withConnection {
     implicit connection => {
       SQL(InputTagExport.selectStatement(id)).as(InputTagExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
-  def getTagInputAssociationsFromDatabase: IndexedSeq[TagInputAssociationExport] = db.withConnection {
-    implicit connection => {
-      SQL(TagInputAssociationExport.selectAllStatement).as(TagInputAssociationExport.sqlParser.*).toIndexedSeq
     }
   }
 
@@ -183,21 +111,9 @@ class Exporter @Inject()(dbApi: DBApi,
     }
   }
 
-  def getCanonicalSpellingsFromDatabase: IndexedSeq[CanonicalSpellingExport] = db.withConnection {
-    implicit connection => {
-      SQL(CanonicalSpellingExport.selectAllStatement).as(CanonicalSpellingExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
   def getCanonicalSpellingsFromDatabase(id: String): IndexedSeq[CanonicalSpellingExport] = db.withConnection {
     implicit connection => {
       SQL(CanonicalSpellingExport.selectStatement(id)).as(CanonicalSpellingExport.sqlParser.*).toIndexedSeq
-    }
-  }
-
-  def getAlternativeSpellingsFromDatabase: IndexedSeq[AlternativeSpellingExport] = db.withConnection {
-    implicit connection => {
-      SQL(AlternativeSpellingExport.selectAllStatement).as(AlternativeSpellingExport.sqlParser.*).toIndexedSeq
     }
   }
 
@@ -205,25 +121,6 @@ class Exporter @Inject()(dbApi: DBApi,
     implicit connection => {
       SQL(AlternativeSpellingExport.selectStatement(id)).as(AlternativeSpellingExport.sqlParser.*).toIndexedSeq
     }
-  }
-
-  def getDatabaseJson: JsValue = {
-    logger.debug("In Exporter.getDatabaseJson")
-    val tableSeq = IndexedSeq(
-      getSolrIndexFromDatabase,
-      getSearchInputsFromDatabase,
-      getRedirectRulesFromDatabase,
-      getSynonymRulesFromDatabase,
-      getUpDownRulesFromDatabase,
-      getDeleteRulesFromDatabase,
-      getFilterRulesFromDatabase,
-      getSuggestedSolrFieldsFromDatabase,
-      getInputTagsFromDatabase,
-      getTagInputAssociationsFromDatabase,
-      getCanonicalSpellingsFromDatabase,
-      getAlternativeSpellingsFromDatabase
-    )
-    getAllTablesForJs(tableSeq)
   }
 
   def getDatabaseJsonWithId(id: String): JsValue = {

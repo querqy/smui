@@ -1,12 +1,12 @@
 package models.rules
 
-import java.sql.Connection
-import java.time.LocalDateTime
 import anorm._
 import models.Id
-import models.`export`.JsonExportable
 import models.input.SearchInputId
 import play.api.Logging
+
+import java.sql.Connection
+import java.time.LocalDateTime
 
 trait Rule {
 

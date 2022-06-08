@@ -4,9 +4,7 @@ import anorm.SqlParser.get
 import anorm.{NamedParameter, RowParser, ~}
 import models.input.SearchInputId
 import models.{Id, IdObject, Status}
-import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
-
-import java.time.LocalDateTime
+import play.api.libs.json.{Json, OFormat}
 
 class UpDownRuleId(id: String) extends Id(id)
 object UpDownRuleId extends IdObject[UpDownRuleId](new UpDownRuleId(_))

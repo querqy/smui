@@ -1,35 +1,31 @@
 //CJM 10
 package controllers
 
-import java.io.{File, OutputStream, PipedInputStream, PipedOutputStream}
 import akka.stream.scaladsl.{Source, StreamConverters}
 import akka.util.ByteString
-
-import javax.inject.Inject
-import play.api.Logging
-import play.api.mvc._
-import play.api.libs.json._
-import play.api.libs.json.Reads._
-
-import java.nio.file.Paths
-import java.time.format.DateTimeFormatter
-import java.time.LocalDateTime
-import scala.concurrent.{ExecutionContext, Future}
 import controllers.auth.{AuthActionFactory, UserRequest}
 import models.FeatureToggleModel.FeatureToggleService
 import models._
 import models.config.SmuiVersion
-import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
+import models.input._
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
 import models.validatedimport.ValidatedImportData
 import org.checkerframework.checker.units.qual.A
+import play.api.Logging
 import play.api.libs.Files
 import play.api.libs.Files.TemporaryFile.temporaryFileToPath
+import play.api.libs.json.Reads._
+import play.api.libs.json._
+import play.api.mvc._
 import services.{RulesTxtDeploymentService, RulesTxtImportService}
 
-import java.util.UUID
-import scala.collection.JavaConverters._
+import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
+import java.nio.file.Paths
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
@@ -615,37 +611,6 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       Ok(Json.toJson(report))
     }
   }
-  }
-
-
-  def getSomething(solrIndexId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
-    Future {
-      val something = searchManagementRepository.getSomething(solrIndexId)
-      Ok(Json.toJson(something.writer.writes("writesMsg1")))
-    }
-  }
-
-  def putSomething(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
-      logger.debug("putSomething:0");
-      val body: AnyContent = request.body
-      val jsonBody: Option[JsValue] = body.asJson
-      logger.debug("putSomething:1");
-      // Expecting json body
-      jsonBody.map { json =>
-        val thingName = (json \ "thingName").as[String]
-        logger.debug("putSomething:2 we got " + thingName);
-        searchManagementRepository.putSomething(thingName)
-        Ok(Json.toJson(ApiResult(API_RESULT_OK, "That worked.", None)))
-      }.getOrElse {
-        BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "That failed.", None)))
-      }
-    }
-
-  def getDatabaseJson: Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
-    Future {
-      logger.debug("In ApiController:getDatabaseJson")
-      Ok(Json.toJson(searchManagementRepository.getDatabaseJson))
-    }
   }
 
   def getDatabaseJsonWithId(id: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
