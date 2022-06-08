@@ -3,9 +3,11 @@ package models.validatedimport
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsObject, JsValue, Json}
 
+import java.time.{LocalDateTime, LocalTime}
 import java.util
 import java.util.UUID
 import scala.collection.mutable
+import anorm._
 
 case class ValidatedImportData(filename: String, content: String) extends Logging {
 
@@ -132,7 +134,7 @@ case class ValidatedImportData(filename: String, content: String) extends Loggin
           cellValue = "'" + rawCellValue + ", (file: " + inputFilename + " copied from key: " + old_id_shorthand + ") " + sds + "'"
         }
       }
-      else if (currentColumns(index).equals("id")) {
+      else if (currentColumns(index).equals("id") || currentColumns(index).equals("search_input_id") || currentColumns(index).equals("input_id")) {
         if (!replacementIds.contains(cellValue)) {
           replacementIds.put(cellValue, UUID.randomUUID().toString)
         }
@@ -141,12 +143,19 @@ case class ValidatedImportData(filename: String, content: String) extends Loggin
         //logger.debug("replaced it with :" + cellValue)
       }
 
+      if (currentColumns(index).equals("last_update")) {
+        //ISO_LOCAL_DATE + " " + ISO_LOCAL_TIME
+        val sqlDate = java.sql.Date.valueOf(LocalDateTime.now.toLocalDate)
+        val sqlTime = java.sql.Time.valueOf(LocalTime.now)
+        var isoLocalDateTimeStr = sqlDate + " " + sqlTime
+        cellValue = "'" + isoLocalDateTimeStr + "'"
+      }
+
       if (this.tableName.equals("search_input") ||
         this.tableName.equals("suggested_solr_field") ||
         this.tableName.equals("input_tag")
       ) {
         if (currentColumns(index).equals("solr_index_id")) {
-          //logger.debug("replacing old solr_index_id " + cellValue + " with new one: '" + this.a_different_existing_solr_index_id + "''")
           cellValue = "'" + this.a_different_existing_solr_index_id + "'"
         }
       }
