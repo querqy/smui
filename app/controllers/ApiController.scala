@@ -1,28 +1,31 @@
+//CJM 10
 package controllers
 
-import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
 import akka.stream.scaladsl.{Source, StreamConverters}
 import akka.util.ByteString
-
-import javax.inject.Inject
-import play.api.Logging
-import play.api.mvc._
-import play.api.libs.json._
-import play.api.libs.json.Reads._
-
-import java.nio.file.Paths
-import java.time.format.DateTimeFormatter
-import java.time.LocalDateTime
-import scala.concurrent.{ExecutionContext, Future}
 import controllers.auth.{AuthActionFactory, UserRequest}
 import models.FeatureToggleModel.FeatureToggleService
 import models._
 import models.config.SmuiVersion
-import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
+import models.input._
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
+import models.validatedimport.ValidatedImportData
 import org.checkerframework.checker.units.qual.A
+import play.api.Logging
+import play.api.libs.Files
+import play.api.libs.Files.TemporaryFile.temporaryFileToPath
+import play.api.libs.json.Reads._
+import play.api.libs.json._
+import play.api.mvc._
 import services.{RulesTxtDeploymentService, RulesTxtImportService}
+
+import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
+import java.nio.file.Paths
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
@@ -58,11 +61,20 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     jsonBody.map { json =>
       val searchIndexName = (json \ "name").as[String]
       val searchIndexDescription = (json \ "description").as[String]
-      val solrIndexId = searchManagementRepository.addNewSolrIndex(
-        SolrIndex(name = searchIndexName, description = searchIndexDescription)
-      )
 
-      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully added Deployment Channel '" + searchIndexName + "'.", Some(solrIndexId))))
+      try {
+        var solrIndexId = searchManagementRepository.addNewSolrIndex(
+          SolrIndex(name = searchIndexName, description = searchIndexDescription)
+        );
+        logger.debug("solrIndexId:" + solrIndexId);
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Successfully added Deployment Channel '" + searchIndexName + "'.", Some(solrIndexId))))
+      } catch {
+        case e: Exception => {
+          logger.debug("The searchIndexDescription (Search Engine Collection Name) given was likely a duplicate.");
+          BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Could not add Rules Collection. Only one Rules Collection per Search Engine Collection is allowed.", None)))
+        };
+      }
+
     }.getOrElse {
       BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Deployment Channel failed. Unexpected body data.", None)))
     }
@@ -95,6 +107,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
+  //CJM 8
   def downloadAllRulesTxtFiles = authActionFactory.getAuthenticatedAction(Action) { req =>
     Ok.chunked(
       createStreamResultInBackground(
@@ -126,6 +139,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
   def addNewSearchInput(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
+      logger.debug("addNewSearchInput")
       val userInfo: Option[String] = lookupUserInfo(request)
 
       val body: AnyContent = request.body
@@ -156,16 +170,26 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
 
   def updateSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
-    val body: AnyContent = request.body
+    logger.debug("updateSearchInput:1")
+    var body: AnyContent = request.body
+    //var jsonString: String = "{\"id\":\"ab116147-498a-427e-9481-9565739aa706\",\"term\":\"synonym1\",\"synonymRules\":[{\"id\":\"e7ab9b28-e6af-48dc-af7f-224b00381e62\",\"synonymType\":1,\"term\":\"synonym2\",\"isActive\":true,\"status\":1,\"lastUpdate\":\"2005\"}],\"upDownRules\":[],\"filterRules\":[],\"deleteRules\":[],\"redirectRules\":[],\"tags\":[],\"isActive\":true,\"comment\":\"synonym3\"}"
+    //val jsVal: JsValue = Json.parse(jsonString)
+    //body = AnyContentAsJson(jsVal)
     val jsonBody: Option[JsValue] = body.asJson
     val userInfo: Option[String] = lookupUserInfo(request)
-
+    logger.debug("updateSearchInput:2")
+    logger.debug("updateSearchInput:body")
+    logger.debug(body.toString)
+    logger.debug("updateSearchInput:jsonBody")
+    logger.debug(jsonBody.toString)
     // Expecting json body
     jsonBody.map { json =>
+      logger.debug("updateSearchInput:3")
       val searchInput = json.as[SearchInputWithRules]
-
+      logger.debug("updateSearchInput:4")
       InputValidator.validateInputTerm(searchInput.term) match {
         case Nil => {
+          logger.debug("updateSearchInput:5")
           // proceed updating input with rules
           querqyRulesTxtGenerator.validateSearchInputToErrMsg(searchInput) match {
             case Some(strErrMsg: String) =>
@@ -180,6 +204,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
           }
         }
         case errors => {
+          logger.debug("updateSearchInput:6")
           val msgs = s"Failed to update Search Input with new term ${searchInput.term}: " + errors.mkString("\n")
           logger.error(msgs)
           BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, msgs, None)))
@@ -187,6 +212,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       }
 
     }.getOrElse {
+      logger.debug("updateSearchInput:7")
       BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Adding new Search Input failed. Unexpected body data.", None)))
     }
   }
@@ -204,6 +230,19 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     val spellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId))
     Ok(Json.toJson(ListItem.create(searchInputs, spellings)))
   }
+
+//  def listAll2(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action) {
+//    //val searchInputs = searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))
+//    //val searchInputs = searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))
+//    //val spellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId))
+//    Future {
+//      this.getSolrIndex(solrIndexId)
+//      Ok(Json.toJson(ApiResult(API_RESULT_OK, "Solr Index successful", None)))
+//
+//    }
+//    //Ok(s);
+//    //Ok(Json.toJson(x))
+//  }
 
   def addNewSpelling(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
@@ -572,6 +611,54 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       Ok(Json.toJson(report))
     }
   }
+  }
+
+  def getDatabaseJsonWithId(id: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      logger.debug("In ApiController:getDatabaseJsonWithId and got id: " + id)
+      Ok(Json.toJson(searchManagementRepository.getDatabaseJsonWithId(id)))
+    }
+  }
+
+  def uploadImport: Action[MultipartFormData[Files.TemporaryFile]] = authActionFactory.getAuthenticatedAction(Action).async(parse.multipartFormData) { implicit request =>
+    Future {
+      val tryDatabaseStuff: Boolean = true
+      logger.debug("In ApiController:uploadImport")
+      if (request.body.files.size == 1) {
+
+        val fileName: String = request.body.files.head.filename
+        logger.debug(fileName)
+        import java.nio.file.Files
+        val content = Files.readString(temporaryFileToPath(request.body.files.head.ref))
+        logger.debug(content)
+        val validatedImport: ValidatedImportData = new ValidatedImportData(fileName, content)
+        if (tryDatabaseStuff) {
+          searchManagementRepository.doImport(validatedImport)
+        }
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Got file.", None)))
+      } else {
+        BadRequest("Only one upload file is allowed. Input must be valid")
+      }
+    }
+  }
+
+//  def putty: Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+//    Future {
+//      logger.debug("ApiController.putty():1")
+//      searchManagementRepository.putty
+//      logger.debug("ApiController.putty():2")
+//      Ok(Json.toJson(ApiResult(API_RESULT_OK, "That worked.", None)))
+//    }
+//  }
+
+  def putty: Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+      logger.debug("In ApiController:putty")
+      val content = "[{\"tableName\":\"solr_index\",\"columns\":[\"id\",\"name\",\"description\",\"last_update\"],\"rows\":[[\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"test\",\"2022-05-31T11:14:38\"]]},{\"tableName\":\"search_input\",\"columns\":[\"id\",\"term\",\"solr_index_id\",\"last_update\",\"status\",\"comment\"],\"rows\":[[\"16c30efd-3139-4916-bfb6-57463af18250\",\"test\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T17:25:25\",1,\"updown comment\"],[\"5418428c-0d4c-4464-a2a6-084f264be360\",\"s\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T15:29:59\",1,\"syn com\"],[\"70823642-e7c6-4857-9d6c-a54b3c382f0d\",\"test\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T14:43:54\",1,\"\"],[\"89c10061-26d9-4b5f-9e99-92696cc5da74\",\"test two three\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T13:43:50\",1,\"a comment\"],[\"9fb7f8b4-5544-4df0-9d08-d485a0145dbe\",\"redirect\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T17:20:36\",1,\"redirect comment\"],[\"ccc48739-f192-44b1-b552-995eed4a0a51\",\"all\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T14:41:55\",1,\"\"],[\"dd1bd496-90ed-43ad-9895-e67a4f67adeb\",\"test1\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T13:54:27\",1,\"\"],[\"e8064dd4-0e76-4e0b-963a-06ea8cae65e2\",\"t345\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T14:56:51\",1,\"c\"]]},{\"tableName\":\"redirect_rule\",\"columns\":[\"id\",\"target\",\"search_input_id\",\"last_update\",\"status\"],\"rows\":[[\"89e5833a-64b4-4a97-924b-a18b66694437\",\"https://www.google.com\",\"9fb7f8b4-5544-4df0-9d08-d485a0145dbe\",\"2022-05-31T17:20:36\",1]]},{\"tableName\":\"synonym_rule\",\"columns\":[\"id\",\"synonymType\",\"term\",\"search_input_id\",\"last_update\",\"status\"],\"rows\":[[\"70d3eb55-ad67-4890-a157-130ea72637c1\",0,\"y\",\"5418428c-0d4c-4464-a2a6-084f264be360\",\"2022-05-31T15:29:59\",1]]},{\"tableName\":\"up_down_rule\",\"columns\":[\"id\",\"up_down_type\",\"boost_malus_type\",\"term\",\"search_input_id\",\"last_update\",\"status\"],\"rows\":[[\"a26f49ad-28ba-40e3-a968-ada168d948c7\",0,5,\"* a:test\",1,\"16c30efd-3139-4916-bfb6-57463af18250\",\"2022-05-31T17:25:25\"]]},{\"tableName\":\"delete_rule\",\"columns\":[\"id\",\"term\",\"search_input_id\",\"last_update\",\"status\"],\"rows\":[[\"36d7a7d2-4133-4bcc-b4b3-19ec6d0404d1\",\"two\",\"89c10061-26d9-4b5f-9e99-92696cc5da74\",\"2022-05-31T13:43:50\",1]]},{\"tableName\":\"filter_rule\",\"columns\":[\"id\",\"term\",\"search_input_id\",\"last_update\",\"status\"],\"rows\":[[\"8ed6c4bd-ac69-4a94-898c-fabb13a7fc47\",\"* test:* a:b\",\"e8064dd4-0e76-4e0b-963a-06ea8cae65e2\",\"2022-05-31T14:56:51\",1]]},{\"tableName\":\"suggested_solr_field\",\"columns\":[\"id\",\"name\",\"solr_index_id\",\"last_update\"],\"rows\":[[\"4ce83b3a-7263-4873-b4f2-a66a9321fdbb\",\"test\",\"b0eecea6-efa7-4575-9bb4-acba1aab146b\",\"2022-05-31T17:37:43\"]]},{\"tableName\":\"input_tag\",\"columns\":[\"id\",\"solr_index_id\",\"property\",\"tag_value\",\"exported\",\"predefined\",\"last_update\"],\"rows\":[[\"wh\",\"some solr_index_id\",\"some property\",\"some tag_value\",2345,123,\"2022-05-31T18:23:47\"]]},{\"tableName\":\"tag_2_input\",\"columns\":[\"id\",\"searchInputId\",\"last_update\"],\"rows\":[[\"hi\",\"3\",\"2022-05-31T18:22:14\"]]},{\"tableName\":\"canonical_spelling\",\"columns\":[\"id\",\"solr_index_id\",\"term\",\"status\",\"comment\",\"last_update\"],\"rows\":[[\"id8\",\"id9\",\"a_term_can_spell\",0,\"can_spell_comment\",\"2022-05-31T18:44:15\"]]},{\"tableName\":\"alternative_spelling\",\"columns\":[\"id\",\"canonical_spelling_id\",\"term\",\"status\",\"last_update\"],\"rows\":[[\"id10\",\"id11\",\"alt_spell_term\",0,\"2022-05-31T18:44:15\"]]}]"
+      val validatedImport: ValidatedImportData = new ValidatedImportData("unknown.txt", content)
+      searchManagementRepository.doImport(validatedImport)
+      Ok(Json.toJson(ApiResult(API_RESULT_OK, "OK.", None)))
+    }
   }
 
 }

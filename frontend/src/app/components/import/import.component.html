@@ -1,0 +1,15 @@
+<app-smui-import-import-rules-collection-create
+  (showSuccessMsg)="showSuccessMsg($event)"
+  (showErrorMsg)="showErrorMsg($event)"
+  (solrIndicesChange)="solrIndicesChange($event)"
+>
+</app-smui-import-import-rules-collection-create>
+
+<app-smui-confirm-modal
+  id="confirm-delete"
+  title="Confirm deletion"
+  okLabel="Yes"
+  cancelLabel="No"
+>
+  <p>Are you sure you want to delete the item?</p>
+</app-smui-confirm-modal>

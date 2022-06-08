@@ -4,7 +4,9 @@ import anorm.SqlParser.get
 import anorm.{NamedParameter, RowParser, ~}
 import models.input.SearchInputId
 import models.{Id, IdObject, Status}
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
+
+import java.time.LocalDateTime
 
 class RedirectRuleId(id: String) extends Id(id)
 object RedirectRuleId extends IdObject[RedirectRuleId](new RedirectRuleId(_))
@@ -19,6 +21,7 @@ case class RedirectRule(id: RedirectRuleId = RedirectRuleId(),
       RedirectRule.TARGET -> target
     )
   }
+
 }
 
 object RedirectRule extends RuleObject[RedirectRule] {

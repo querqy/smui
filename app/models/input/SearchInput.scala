@@ -2,13 +2,11 @@ package models.input
 
 import java.sql.Connection
 import java.time.LocalDateTime
-
-import play.api.libs.json.{Json, OFormat}
-
+import play.api.libs.json.{JsArray, JsNumber, JsObject, JsString, JsValue, Json, OFormat}
 import anorm.SqlParser.get
 import anorm._
-
 import models._
+import models.`export`.JsonExportable
 
 class SearchInputId(id: String) extends Id(id)
 object SearchInputId extends IdObject[SearchInputId](new SearchInputId(_))
@@ -18,7 +16,7 @@ case class SearchInput(id: SearchInputId = SearchInputId(),
                        term: String,
                        lastUpdate: LocalDateTime,
                        isActive: Boolean,
-                       comment: String) {
+                       comment: String) extends JsonExportable {
 
   import SearchInput._
 
@@ -32,6 +30,34 @@ case class SearchInput(id: SearchInputId = SearchInputId(),
     STATUS -> status,
     COMMENT -> comment
   )
+
+  def getTableName: JsString = JsString("search_input")
+
+  def getRow: JsValue = {
+    JsArray(
+      IndexedSeq (
+        JsString(id.toString),
+        JsString(term),
+        JsString(solrIndexId.toString),
+        JsString(lastUpdate.toString),
+        JsNumber(status),
+        JsString(comment)
+      )
+    )
+  }
+
+  def getColumns: JsValue = {
+    JsArray(
+      IndexedSeq (
+        JsString("id"),
+        JsString("term"),
+        JsString("solr_index_id"),
+        JsString("last_update"),
+        JsString("status"),
+        JsString("comment")
+      )
+    )
+  }
 
 }
 

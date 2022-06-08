@@ -2,8 +2,12 @@ package models.rules
 
 import anorm.SqlParser.get
 import anorm.{RowParser, ~}
+import models.input.SearchInputId
+import models.rules.DeleteRule.{LAST_UPDATE, SEARCH_INPUT_ID, TABLE_NAME}
 import models.{Id, IdObject, Status}
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{JsArray, JsNumber, JsString, JsValue, Json, OFormat}
+
+import java.time.LocalDateTime
 
 class FilterRuleId(id: String) extends Id(id)
 object FilterRuleId extends IdObject[FilterRuleId](new FilterRuleId(_))

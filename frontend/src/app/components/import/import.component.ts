@@ -5,15 +5,15 @@ import { ToasterService } from 'angular2-toaster';
 import { SolrIndex } from '../../models';
 
 import {
-  SolrService,
-  ModalService
-} from '../../services';
+   SolrService,
+   ModalService
+ } from '../../services';
 
 @Component({
-  selector: 'app-smui-admin',
-  templateUrl: './admin.component.html'
+  selector: 'app-smui-import',
+  templateUrl: './import.component.html'
 })
-export class AdminComponent implements OnInit {
+export class ImportComponent implements OnInit {
 
   constructor(
     private modalService: ModalService,
@@ -26,7 +26,7 @@ export class AdminComponent implements OnInit {
   solrIndices: SolrIndex[];
 
   ngOnInit() {
-    console.log('In AdminComponent :: ngOnInit');
+    console.log('In ImportComponent :: ngOnInit');
     this.solrIndices = this.solrService.solrIndices;
   }
 
@@ -48,7 +48,7 @@ export class AdminComponent implements OnInit {
   }
 
   public solrIndicesChange(id: string){
-    console.log("AdminComponent :: solrIndicesChange :: id = " + id)
+    console.log("ImportComponent :: solrIndicesChange :: id = " + id)
     this.solrIndices = this.solrService.solrIndices;
   }
 

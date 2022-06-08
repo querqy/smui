@@ -64,9 +64,16 @@ export class RulesCollectionCreateComponent implements OnInit, OnChanges {
         .then(() => this.showSuccessMsg.emit("Created new Rules Collection " + this.description))
         .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
         .then(() => this.clearForm())
-        .catch(error => this.showErrorMsg.emit(error));
+        .catch(error => {
+          console.log(error);
+          var errorMsg = 'Unknown Error'
+          if ('message' in error.error) {
+            errorMsg = error.error.message;
+          }
+          this.showErrorMsg.emit(errorMsg);
+        });
+    } else {
+      this.showErrorMsg.emit("Fill in both name fields.");
     }
   }
-
-
 }

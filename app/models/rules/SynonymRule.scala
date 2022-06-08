@@ -1,12 +1,12 @@
 package models.rules
 
-import java.sql.Connection
-
 import anorm.SqlParser.get
 import anorm._
 import models.input.SearchInputId
 import models.{Id, IdObject, Status}
 import play.api.libs.json.{Json, OFormat}
+
+import java.sql.Connection
 
 class SynonymRuleId(id: String) extends Id(id)
 object SynonymRuleId extends IdObject[SynonymRuleId](new SynonymRuleId(_))
@@ -21,6 +21,7 @@ case class SynonymRule(id: SynonymRuleId = SynonymRuleId(),
       SynonymRule.TYPE -> synonymType
     )
   }
+
 }
 
 object SynonymRule extends RuleObjectWithTerm[SynonymRule] {
