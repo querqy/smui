@@ -35,7 +35,6 @@ export class FileUploadComponent {
 
   refreshSolrIndicies() {
     return this.solrService.listAllSolrIndices;
-    //  : Promise.reject('No selected Solr index');
   }
 
   onFileSelected(event: Event) {
@@ -57,7 +56,6 @@ export class FileUploadComponent {
           .then(() => { this.fileMessage = '... Done Processing.'; })
           .then(() => { this.showSuccessMsg("Imported: " + this.fileName); })
       }
-
     }
   }
 

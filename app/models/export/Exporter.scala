@@ -3,8 +3,6 @@ package models.`export`
 import anorm.SQL
 import models.{DatabaseExecutionContext, SuggestedSolrField}
 import models.FeatureToggleModel.FeatureToggleService
-import models.input.SearchInput
-import models.rules.{DeleteRule, FilterRule, SynonymRule}
 import play.api.libs.json.{JsArray, JsObject, JsString, JsValue}
 import play.api.Logging
 import play.api.db.DBApi
@@ -12,9 +10,11 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 
 @javax.inject.Singleton
-class Exporter @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(implicit ec: DatabaseExecutionContext) extends Logging {
+class Exporter @Inject()(dbApi: DBApi,
+                         toggleService: FeatureToggleService)
+                        (implicit ec: DatabaseExecutionContext) extends Logging {
 
-  private val db = dbapi.database("default")
+  private val db = dbApi.database("default")
 
   var somethings1: IndexedSeq[Something] = IndexedSeq(
     new Something(SomethingId(), "something1", LocalDateTime.now()),
@@ -23,7 +23,6 @@ class Exporter @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(impl
 
   def getAllTablesForJs(tables : IndexedSeq[IndexedSeq[JsonExportable]]): JsValue = {
     var aggregation: Seq[JsValue] = Seq[JsValue]()
-    //println(tables.size)
     getAllTablesForJs1(tables, aggregation)
   }
 
@@ -211,18 +210,18 @@ class Exporter @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(impl
   def getDatabaseJson: JsValue = {
     logger.debug("In Exporter.getDatabaseJson")
     val tableSeq = IndexedSeq(
-      getSolrIndexFromDatabase, //1
-      getSearchInputsFromDatabase, //2
-      getRedirectRulesFromDatabase, //3
-      getSynonymRulesFromDatabase, //4
-      getUpDownRulesFromDatabase, //5
-      getDeleteRulesFromDatabase, //6
-      getFilterRulesFromDatabase, //7
-      getSuggestedSolrFieldsFromDatabase, //8
-      getInputTagsFromDatabase, //9
-      getTagInputAssociationsFromDatabase, //10
-      getCanonicalSpellingsFromDatabase, //11
-      getAlternativeSpellingsFromDatabase //12
+      getSolrIndexFromDatabase,
+      getSearchInputsFromDatabase,
+      getRedirectRulesFromDatabase,
+      getSynonymRulesFromDatabase,
+      getUpDownRulesFromDatabase,
+      getDeleteRulesFromDatabase,
+      getFilterRulesFromDatabase,
+      getSuggestedSolrFieldsFromDatabase,
+      getInputTagsFromDatabase,
+      getTagInputAssociationsFromDatabase,
+      getCanonicalSpellingsFromDatabase,
+      getAlternativeSpellingsFromDatabase
     )
     getAllTablesForJs(tableSeq)
   }
@@ -230,18 +229,18 @@ class Exporter @Inject()(dbapi: DBApi, toggleService: FeatureToggleService)(impl
   def getDatabaseJsonWithId(id: String): JsValue = {
     logger.debug("In Exporter.getDatabaseJsonWithId")
     val tableSeq = IndexedSeq(
-      getSolrIndexFromDatabase(id), //1
-      getSearchInputsFromDatabase(id), //2
-      getRedirectRulesFromDatabase(id), //3
-      getSynonymRulesFromDatabase(id), //4
-      getUpDownRulesFromDatabase(id), //5
-      getDeleteRulesFromDatabase(id), //6
-      getFilterRulesFromDatabase(id), //7
-      getSuggestedSolrFieldsFromDatabase(id), //8
-      getInputTagsFromDatabase(id), //9
-      getTagInputAssociationsFromDatabase(id), //10
-      getCanonicalSpellingsFromDatabase(id), //11
-      getAlternativeSpellingsFromDatabase(id) //12
+      getSolrIndexFromDatabase(id),
+      getSearchInputsFromDatabase(id),
+      getRedirectRulesFromDatabase(id),
+      getSynonymRulesFromDatabase(id),
+      getUpDownRulesFromDatabase(id),
+      getDeleteRulesFromDatabase(id),
+      getFilterRulesFromDatabase(id),
+      getSuggestedSolrFieldsFromDatabase(id),
+      getInputTagsFromDatabase(id),
+      getTagInputAssociationsFromDatabase(id),
+      getCanonicalSpellingsFromDatabase(id),
+      getAlternativeSpellingsFromDatabase(id)
     )
     getAllTablesForJs(tableSeq)
   }
