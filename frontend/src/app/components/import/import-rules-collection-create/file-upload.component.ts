@@ -54,33 +54,11 @@ export class FileUploadComponent {
             this.refreshSolrIndicies();
             })
           .then(() => { this.solrService.listAllSolrIndices().then(() => this.solrService.emitRulesCollectionChangeEvent("")); })
-          //.then(() => { this.showSuccessMsg.emit(this.fileName + " received and imported."); })
           .then(() => { this.fileMessage = '... Done Processing.'; })
+          .then(() => { this.showSuccessMsg("Imported: " + this.fileName); })
       }
 
     }
   }
-  //
-  // reateRulesCollection( event: Event){
-  //   console.log('In RulesCollectionCreateComponent :: createRulesCollection');
-  //   if (true) {
-  //     this.solrService
-  //       .createSolrIndex(this.name, this.description)
-  //       .then(() => this.solrService.listAllSolrIndices())
-  //       .then(() => this.solrIndicesChange.emit())
-  //       .then(() => this.showSuccessMsg.emit("Created new Rules Collection " + this.description))
-  //       .then(() => this.solrService.emitRulesCollectionChangeEvent(""))
-  //       .then(() => this.clearForm())
-  //       .catch(error => {
-  //         console.log(error);
-  //         var errorMsg = 'Unknown Error'
-  //         if ('message' in error.error) {
-  //           errorMsg = error.error.message;
-  //         }
-  //         this.showErrorMsg.emit(errorMsg);
-  //       });
-  //   } else {
-  //     this.showErrorMsg.emit("Fill in both name fields.");
-  //   }
-  // }
+
 }
