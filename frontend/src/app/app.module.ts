@@ -36,7 +36,10 @@ import {
 import {
   AdminComponent,
   RulesCollectionListComponent,
-  RulesCollectionCreateComponent
+  RulesCollectionCreateComponent,
+  // FilzUploadComponent,
+  // ImporzComponent,
+  // ImporzRulesCollectionCreateComponent
 } from './components/admin';
 import {
   SuggestedFieldsComponent,
@@ -109,7 +112,10 @@ import {FileUploadComponent} from "./components/import/import-rules-collection-c
     SuggestedFieldsListComponent,
     ImportComponent,
     ImportRulesCollectionCreateComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    // ImporzComponent,
+    // ImporzRulesCollectionCreateComponent,
+    // FilzUploadComponent
   ],
   providers: [
     CommonsService,

@@ -1,0 +1,15 @@
+[0m[[0m[0mdebug[0m] [0m[0mCopy resource mappings: [0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/logback.xml,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/logback.xml)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/messages,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/messages)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/smui2solr.sh,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/smui2solr.sh)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/application.conf,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/application.conf)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/smui2git.sh,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/smui2git.sh)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/routes,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/routes)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/evolutions/default/4.sql,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/evolutions/default/4.sql)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/evolutions/default/5.sql,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/evolutions/default/5.sql)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/evolutions/default/7.sql,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/evolutions/default/7.sql)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/evolutions/default/6.sql,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/evolutions/default/6.sql)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/evolutions/default/2.sql,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/evolutions/default/2.sql)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/evolutions/default/3.sql,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/evolutions/default/3.sql)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/evolutions/default/1.sql,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/evolutions/default/1.sql)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/conf/evolutions/default/8.sql,/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/evolutions/default/8.sql)[0m

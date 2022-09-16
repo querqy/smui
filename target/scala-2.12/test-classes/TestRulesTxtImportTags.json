@@ -1,0 +1,18 @@
+[
+  {
+    "property": "tenant",
+    "value": "AA"
+  },
+  {
+    "property": "tenant",
+    "value": "BB"
+  },
+  {
+    "property": "lang",
+    "value": "de"
+  },
+  {
+    "property": "lang",
+    "value": "en"
+  }
+]

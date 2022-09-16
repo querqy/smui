@@ -1,0 +1,762 @@
+2022-09-16 13:00:32,405 [INFO] from play.api.db.DefaultDBApi in play-dev-mode-akka.actor.default-dispatcher-7 - Database [default] initialized at jdbc:mysql://localhost/smui?autoReconnect=true&useSSL=false
+2022-09-16 13:00:32,412 [INFO] from application in play-dev-mode-akka.actor.default-dispatcher-7 - Creating Pool for datasource 'default'
+2022-09-16 13:00:32,417 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - Driver class com.mysql.cj.jdbc.Driver found in Thread context class loader ReloadableClassLoader(v1){file:/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/target/scala-2.12/classes/}
+2022-09-16 13:00:32,421 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - HikariPool-1 - configuration:
+2022-09-16 13:00:32,423 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - allowPoolSuspension.............false
+2022-09-16 13:00:32,423 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - autoCommit......................true
+2022-09-16 13:00:32,423 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - catalog.........................none
+2022-09-16 13:00:32,423 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - connectionInitSql...............none
+2022-09-16 13:00:32,423 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - connectionTestQuery.............none
+2022-09-16 13:00:32,424 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - connectionTimeout...............30000
+2022-09-16 13:00:32,424 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - dataSource......................none
+2022-09-16 13:00:32,424 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - dataSourceClassName.............none
+2022-09-16 13:00:32,424 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - dataSourceJNDI..................none
+2022-09-16 13:00:32,424 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - dataSourceProperties............{password=<masked>}
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - driverClassName................."com.mysql.cj.jdbc.Driver"
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - healthCheckProperties...........{}
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - healthCheckRegistry.............none
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - idleTimeout.....................600000
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - initializationFailTimeout.......-1
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - isolateInternalQueries..........false
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - jdbcUrl.........................jdbc:mysql://localhost/smui?autoReconnect=true&useSSL=false
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - leakDetectionThreshold..........0
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - maxLifetime.....................1800000
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - maximumPoolSize.................9
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - metricRegistry..................none
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - metricsTrackerFactory...........none
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - minimumIdle.....................9
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - password........................<masked>
+2022-09-16 13:00:32,425 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - poolName........................"HikariPool-1"
+2022-09-16 13:00:32,426 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - readOnly........................false
+2022-09-16 13:00:32,426 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - registerMbeans..................false
+2022-09-16 13:00:32,426 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - scheduledExecutor...............none
+2022-09-16 13:00:32,426 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - schema..........................none
+2022-09-16 13:00:32,426 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - threadFactory...................internal
+2022-09-16 13:00:32,426 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - transactionIsolation............default
+2022-09-16 13:00:32,426 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - username........................"smui"
+2022-09-16 13:00:32,426 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - validationTimeout...............5000
+2022-09-16 13:00:32,427 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - HikariPool-1 - configuration:
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - allowPoolSuspension.............false
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - autoCommit......................true
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - catalog.........................none
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - connectionInitSql...............none
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - connectionTestQuery.............none
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - connectionTimeout...............30000
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - dataSource......................none
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - dataSourceClassName.............none
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - dataSourceJNDI..................none
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - dataSourceProperties............{password=<masked>}
+2022-09-16 13:00:32,428 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - driverClassName................."com.mysql.cj.jdbc.Driver"
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - healthCheckProperties...........{}
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - healthCheckRegistry.............none
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - idleTimeout.....................600000
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - initializationFailTimeout.......-1
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - isolateInternalQueries..........false
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - jdbcUrl.........................jdbc:mysql://localhost/smui?autoReconnect=true&useSSL=false
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - leakDetectionThreshold..........0
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - maxLifetime.....................1800000
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - maximumPoolSize.................9
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - metricRegistry..................none
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - metricsTrackerFactory...........none
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - minimumIdle.....................9
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - password........................<masked>
+2022-09-16 13:00:32,429 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - poolName........................"HikariPool-1"
+2022-09-16 13:00:32,430 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - readOnly........................false
+2022-09-16 13:00:32,430 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - registerMbeans..................false
+2022-09-16 13:00:32,430 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - scheduledExecutor...............none
+2022-09-16 13:00:32,430 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - schema..........................none
+2022-09-16 13:00:32,430 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - threadFactory...................internal
+2022-09-16 13:00:32,430 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - transactionIsolation............default
+2022-09-16 13:00:32,430 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - username........................"smui"
+2022-09-16 13:00:32,430 [DEBUG] from com.zaxxer.hikari.HikariConfig in play-dev-mode-akka.actor.default-dispatcher-7 - validationTimeout...............5000
+2022-09-16 13:00:32,432 [INFO] from com.zaxxer.hikari.HikariDataSource in play-dev-mode-akka.actor.default-dispatcher-7 - HikariPool-1 - Starting...
+2022-09-16 13:00:32,464 [INFO] from com.zaxxer.hikari.HikariDataSource in play-dev-mode-akka.actor.default-dispatcher-7 - HikariPool-1 - Start completed.
+2022-09-16 13:00:32,566 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=0, active=0, idle=0, waiting=1)
+2022-09-16 13:00:32,628 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4636a2dc
+2022-09-16 13:00:32,638 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@56ddf5fa
+2022-09-16 13:00:32,649 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@281b1244
+2022-09-16 13:00:32,658 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@25307942
+2022-09-16 13:00:32,669 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4dc4b775
+2022-09-16 13:00:32,679 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2e4e92cb
+2022-09-16 13:00:32,689 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@136c2308
+2022-09-16 13:00:32,700 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@25f1b1f
+2022-09-16 13:00:32,713 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@488c79c1
+2022-09-16 13:00:32,719 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in play-dev-mode-akka.actor.default-dispatcher-7 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@4636a2dc
+2022-09-16 13:00:32,832 [INFO] from akka.event.slf4j.Slf4jLogger in application-akka.actor.default-dispatcher-3 - Slf4jLogger started
+2022-09-16 13:00:32,833 [DEBUG] from akka.event.EventStream in application-akka.actor.default-dispatcher-3 - logger log1-Slf4jLogger started
+2022-09-16 13:00:32,833 [DEBUG] from akka.event.EventStream in application-akka.actor.default-dispatcher-3 - Default Loggers started
+2022-09-16 13:00:32,844 [DEBUG] from play.api.libs.concurrent.ActorSystemProvider in play-dev-mode-akka.actor.default-dispatcher-7 - Starting application default Akka system: application
+2022-09-16 13:00:32,845 [INFO] from services.MigrationService in play-dev-mode-akka.actor.default-dispatcher-7 - In MigrationService :: ensure applicationEvolutions are up-to-date: true
+2022-09-16 13:00:32,847 [INFO] from services.MigrationService in play-dev-mode-akka.actor.default-dispatcher-7 - In virtuallyCreateEventsPreVersion38 (event history switched ON)
+2022-09-16 13:00:32,934 [INFO] from services.SmuiMigrationLock in play-dev-mode-akka.actor.default-dispatcher-7 - SmuiMigrationLock :: Found a migration for migrationKey = pre_v3.8 ...
+2022-09-16 13:00:32,935 [INFO] from services.SmuiMigrationLock in play-dev-mode-akka.actor.default-dispatcher-7 - SmuiMigrationLock :: Migration migrationKey = pre_v3.8 completed ... nothing do to any more!!
+2022-09-16 13:00:32,938 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in play-dev-mode-akka.actor.default-dispatcher-7 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@4636a2dc
+2022-09-16 13:00:32,941 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in play-dev-mode-akka.actor.default-dispatcher-7 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@4636a2dc
+2022-09-16 13:00:32,964 [WARN] from services.MigrationService in play-dev-mode-akka.actor.default-dispatcher-7 - You have 4 history events without userInfo in your database. Support for empty userInfo entries have been removed as of v3.14 of SMUI (see https://github.com/querqy/smui/pull/83#issuecomment-1023284550). Please migrate existing event data.
+2022-09-16 13:00:32,966 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in play-dev-mode-akka.actor.default-dispatcher-7 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@4636a2dc
+2022-09-16 13:00:33,024 [DEBUG] from controllers.AssetsConfiguration in play-dev-mode-akka.actor.default-dispatcher-7 - Using the following cache configuration for assets:
+	 enableCaching = false
+	 enableCacheControl = false
+	 defaultCacheControl = public, max-age=3600
+	 aggressiveCacheControl = public, max-age=31536000, immutable
+	 configuredCacheControl:
+		 /public/app/ = Some(no-cache)
+
+2022-09-16 13:00:33,056 [INFO] from play.api.http.EnabledFilters in play-dev-mode-akka.actor.default-dispatcher-7 - Enabled Filters (see <https://www.playframework.com/documentation/latest/Filters>):
+
+    play.filters.headers.SecurityHeadersFilter
+
+2022-09-16 13:00:33,062 [INFO] from play.api.Play in play-dev-mode-akka.actor.default-dispatcher-7 - Application started (Dev) (no global state)
+2022-09-16 13:00:33,126 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in play-dev-mode-akka.actor.default-dispatcher-7 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@4636a2dc
+2022-09-16 13:00:33,398 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-4 - New connection accepted
+2022-09-16 13:00:33,403 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-8 - New connection accepted
+2022-09-16 13:00:33,550 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-3 - :: Successfully parsed version number
+2022-09-16 13:00:33,556 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-3 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 13:00:33,557 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-3 - :: latest version from DockerHub = 3.14.0
+2022-09-16 13:00:33,741 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-4 - New connection accepted
+2022-09-16 13:00:33,800 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-3 - :: Successfully parsed version number
+2022-09-16 13:00:33,801 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-3 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 13:00:33,801 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-3 - :: latest version from DockerHub = 3.14.0
+2022-09-16 13:00:33,828 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-3 - New connection accepted
+2022-09-16 13:00:33,830 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-2 - New connection accepted
+2022-09-16 13:01:02,569 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:01:32,571 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:01:36,352 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-3 - New connection accepted
+2022-09-16 13:01:59,332 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-8 - New connection accepted
+2022-09-16 13:01:59,360 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-8 - New connection accepted
+2022-09-16 13:01:59,360 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-8 - New connection accepted
+2022-09-16 13:01:59,363 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in application-akka.actor.default-dispatcher-5 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@4636a2dc
+2022-09-16 13:01:59,880 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-6 - :: Successfully parsed version number
+2022-09-16 13:01:59,881 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 13:01:59,881 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - :: latest version from DockerHub = 3.14.0
+2022-09-16 13:02:02,575 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:02:03,934 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-8 - New connection accepted
+2022-09-16 13:02:08,173 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in application-akka.actor.default-dispatcher-5 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@4636a2dc
+2022-09-16 13:02:08,182 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-3 - New connection accepted
+2022-09-16 13:02:10,999 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-11 - New connection accepted
+2022-09-16 13:02:11,015 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in application-akka.actor.default-dispatcher-5 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@4636a2dc
+2022-09-16 13:02:11,022 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-11 - New connection accepted
+2022-09-16 13:02:20,077 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-3 - New connection accepted
+2022-09-16 13:02:20,134 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-5 - solrIndexId:139b92bd-4a19-4c77-b4fc-1dd7a22ba553
+2022-09-16 13:02:20,142 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-9 - New connection accepted
+2022-09-16 13:02:23,665 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-11 - New connection accepted
+2022-09-16 13:02:23,682 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-11 - New connection accepted
+2022-09-16 13:02:27,049 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-3 - New connection accepted
+2022-09-16 13:02:27,055 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - addNewSearchInput
+2022-09-16 13:02:29,962 [DEBUG] from models.rules.SynonymRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:29,965 [DEBUG] from models.rules.UpDownRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:29,968 [DEBUG] from models.rules.FilterRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:29,971 [DEBUG] from models.rules.DeleteRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:29,974 [DEBUG] from models.rules.RedirectRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:30,009 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-6 - New connection accepted
+2022-09-16 13:02:30,052 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-3 - New connection accepted
+2022-09-16 13:02:30,067 [DEBUG] from models.rules.SynonymRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:30,071 [DEBUG] from models.rules.UpDownRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:30,074 [DEBUG] from models.rules.FilterRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:30,077 [DEBUG] from models.rules.DeleteRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:30,080 [DEBUG] from models.rules.RedirectRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:32,578 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:02:40,210 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-11 - New connection accepted
+2022-09-16 13:02:40,216 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:1
+2022-09-16 13:02:40,216 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:2
+2022-09-16 13:02:40,216 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:body
+2022-09-16 13:02:40,217 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - AnyContentAsJson({"id":"390f5ca3-856b-4f0d-b12b-410692e71d3b","term":"test1","synonymRules":[],"upDownRules":[],"filterRules":[],"deleteRules":[{"id":"2c06a7af-ae5b-4cb3-a98f-094e88131089","term":"testdelete","isActive":true}],"redirectRules":[],"tags":[],"isActive":true,"comment":"testcomment"})
+2022-09-16 13:02:40,217 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:jsonBody
+2022-09-16 13:02:40,217 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - Some({"id":"390f5ca3-856b-4f0d-b12b-410692e71d3b","term":"test1","synonymRules":[],"upDownRules":[],"filterRules":[],"deleteRules":[{"id":"2c06a7af-ae5b-4cb3-a98f-094e88131089","term":"testdelete","isActive":true}],"redirectRules":[],"tags":[],"isActive":true,"comment":"testcomment"})
+2022-09-16 13:02:40,218 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:3
+2022-09-16 13:02:40,220 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:4
+2022-09-16 13:02:40,220 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:5
+2022-09-16 13:02:40,272 [ERROR] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput failed on validation of searchInput with id 390f5ca3-856b-4f0d-b12b-410692e71d3b - validation returned the following error output: <<<Line 2: Condition doesn't contain the term to delete: Term [fieldNames=null, value=testdelete]>>>
+2022-09-16 13:02:50,397 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-11 - New connection accepted
+2022-09-16 13:02:50,401 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:1
+2022-09-16 13:02:50,401 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:2
+2022-09-16 13:02:50,401 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:body
+2022-09-16 13:02:50,401 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - AnyContentAsJson({"id":"390f5ca3-856b-4f0d-b12b-410692e71d3b","term":"test1 deletethis","synonymRules":[],"upDownRules":[],"filterRules":[],"deleteRules":[{"id":"2c06a7af-ae5b-4cb3-a98f-094e88131089","term":"deletethis","isActive":true}],"redirectRules":[],"tags":[],"isActive":true,"comment":"testcomment"})
+2022-09-16 13:02:50,401 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:jsonBody
+2022-09-16 13:02:50,401 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - Some({"id":"390f5ca3-856b-4f0d-b12b-410692e71d3b","term":"test1 deletethis","synonymRules":[],"upDownRules":[],"filterRules":[],"deleteRules":[{"id":"2c06a7af-ae5b-4cb3-a98f-094e88131089","term":"deletethis","isActive":true}],"redirectRules":[],"tags":[],"isActive":true,"comment":"testcomment"})
+2022-09-16 13:02:50,401 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:3
+2022-09-16 13:02:50,402 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:4
+2022-09-16 13:02:50,402 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - updateSearchInput:5
+2022-09-16 13:02:50,418 [DEBUG] from models.rules.SynonymRule in application-akka.actor.default-dispatcher-6 - RuleObject:updateForSearchInput
+2022-09-16 13:02:50,420 [DEBUG] from models.rules.UpDownRule in application-akka.actor.default-dispatcher-6 - RuleObject:updateForSearchInput
+2022-09-16 13:02:50,422 [DEBUG] from models.rules.FilterRule in application-akka.actor.default-dispatcher-6 - RuleObject:updateForSearchInput
+2022-09-16 13:02:50,425 [DEBUG] from models.rules.DeleteRule in application-akka.actor.default-dispatcher-6 - RuleObject:updateForSearchInput
+2022-09-16 13:02:50,437 [DEBUG] from models.rules.RedirectRule in application-akka.actor.default-dispatcher-6 - RuleObject:updateForSearchInput
+2022-09-16 13:02:50,445 [DEBUG] from models.rules.SynonymRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:50,447 [DEBUG] from models.rules.UpDownRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:50,448 [DEBUG] from models.rules.FilterRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:50,449 [DEBUG] from models.rules.DeleteRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:50,451 [DEBUG] from models.rules.RedirectRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:50,460 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in application-akka.actor.default-dispatcher-6 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@56ddf5fa
+2022-09-16 13:02:50,467 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-11 - New connection accepted
+2022-09-16 13:02:50,486 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-3 - New connection accepted
+2022-09-16 13:02:50,493 [DEBUG] from models.rules.SynonymRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:50,494 [DEBUG] from models.rules.UpDownRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:50,496 [DEBUG] from models.rules.FilterRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:50,497 [DEBUG] from models.rules.DeleteRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:50,498 [DEBUG] from models.rules.RedirectRule in application-akka.actor.default-dispatcher-6 - RuleObject:loadByInputId
+2022-09-16 13:02:52,746 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-3 - New connection accepted
+2022-09-16 13:02:52,756 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - In ApiController :: getLatestDeploymentResult
+2022-09-16 13:02:52,756 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - ... solrIndexId = 139b92bd-4a19-4c77-b4fc-1dd7a22ba553
+2022-09-16 13:02:52,756 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - ... targetSystem = PRELIVE
+2022-09-16 13:02:52,757 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - ... isRawRequested = false
+2022-09-16 13:03:02,581 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:03:05,525 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-6 - New connection accepted
+2022-09-16 13:03:05,528 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - In ApiController :: getLatestDeploymentResult
+2022-09-16 13:03:05,528 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - ... solrIndexId = 139b92bd-4a19-4c77-b4fc-1dd7a22ba553
+2022-09-16 13:03:05,528 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - ... targetSystem = PRELIVE
+2022-09-16 13:03:05,528 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-6 - ... isRawRequested = false
+2022-09-16 13:03:32,585 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:04:02,588 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:04:32,589 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:04:47,108 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-7 - New connection accepted
+2022-09-16 13:04:47,110 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-12 - New connection accepted
+2022-09-16 13:04:47,113 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-15 - New connection accepted
+2022-09-16 13:04:50,576 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-7 - :: Successfully parsed version number
+2022-09-16 13:04:50,576 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-7 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 13:04:50,576 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-7 - :: latest version from DockerHub = 3.14.0
+2022-09-16 13:05:02,593 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:05:08,912 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-15 - New connection accepted
+2022-09-16 13:05:08,914 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-12 - New connection accepted
+2022-09-16 13:05:08,916 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-9 - New connection accepted
+2022-09-16 13:05:09,273 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-4 - :: Successfully parsed version number
+2022-09-16 13:05:09,273 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-4 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 13:05:09,274 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-4 - :: latest version from DockerHub = 3.14.0
+2022-09-16 13:05:32,598 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:06:02,600 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:06:32,600 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:07:02,601 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:07:32,602 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:08:02,605 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:08:32,609 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:09:02,613 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:09:32,615 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:10:02,619 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:10:04,573 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-17 - New connection accepted
+2022-09-16 13:10:04,593 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-13 - New connection accepted
+2022-09-16 13:10:04,596 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-13 - New connection accepted
+2022-09-16 13:10:05,165 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-7 - :: Successfully parsed version number
+2022-09-16 13:10:05,166 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-7 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 13:10:05,166 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-7 - :: latest version from DockerHub = 3.14.0
+2022-09-16 13:10:32,622 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:11:02,625 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:11:32,629 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:12:02,629 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:12:32,633 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:13:02,634 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:13:32,637 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:14:02,641 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:14:32,645 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:15:02,575 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:15:32,593 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:16:02,595 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:16:32,597 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:17:02,599 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:17:32,599 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:17:49,484 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-22 - New connection accepted
+2022-09-16 13:17:49,496 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-23 - New connection accepted
+2022-09-16 13:17:49,502 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-26 - New connection accepted
+2022-09-16 13:17:49,928 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-8 - :: Successfully parsed version number
+2022-09-16 13:17:49,929 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-8 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 13:17:49,929 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-8 - :: latest version from DockerHub = 3.14.0
+2022-09-16 13:18:02,603 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:18:32,606 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:19:02,610 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:19:32,612 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:20:02,615 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:20:20,381 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-27 - New connection accepted
+2022-09-16 13:20:20,385 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-29 - New connection accepted
+2022-09-16 13:20:20,387 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-31 - New connection accepted
+2022-09-16 13:20:20,879 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-9 - :: Successfully parsed version number
+2022-09-16 13:20:20,880 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-9 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 13:20:20,880 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-9 - :: latest version from DockerHub = 3.14.0
+2022-09-16 13:20:32,617 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:21:02,619 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:21:20,703 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-30 - New connection accepted
+2022-09-16 13:21:20,735 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-31 - New connection accepted
+2022-09-16 13:21:20,743 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-30 - New connection accepted
+2022-09-16 13:21:21,111 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-12 - :: Successfully parsed version number
+2022-09-16 13:21:21,116 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-12 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 13:21:21,116 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-12 - :: latest version from DockerHub = 3.14.0
+2022-09-16 13:21:32,626 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:21:59,914 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-29 - New connection accepted
+2022-09-16 13:21:59,919 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-24 - New connection accepted
+2022-09-16 13:21:59,921 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-24 - New connection accepted
+2022-09-16 13:22:00,758 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-10 - :: Successfully parsed version number
+2022-09-16 13:22:00,759 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-10 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 13:22:00,759 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-10 - :: latest version from DockerHub = 3.14.0
+2022-09-16 13:22:02,630 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:22:32,632 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:23:02,637 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:23:32,640 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:24:02,640 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:24:32,639 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:25:02,642 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:25:32,642 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:26:02,646 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:26:32,649 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:27:02,654 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:27:32,656 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:28:02,660 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:28:32,664 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:29:02,667 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:29:32,670 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:29:53,184 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@56ddf5fa: (connection has passed maxLifetime)
+2022-09-16 13:29:53,223 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5ff6e0ec
+2022-09-16 13:29:55,090 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@281b1244: (connection has passed maxLifetime)
+2022-09-16 13:29:55,100 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1ecbead7
+2022-09-16 13:29:57,822 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@488c79c1: (connection has passed maxLifetime)
+2022-09-16 13:29:57,832 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2f9f50fc
+2022-09-16 13:29:58,828 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@25f1b1f: (connection has passed maxLifetime)
+2022-09-16 13:29:58,841 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7ee41598
+2022-09-16 13:30:01,849 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@2e4e92cb: (connection has passed maxLifetime)
+2022-09-16 13:30:01,859 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5d12574a
+2022-09-16 13:30:02,651 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:30:05,403 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@25307942: (connection has passed maxLifetime)
+2022-09-16 13:30:05,417 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7aaa8fc5
+2022-09-16 13:30:10,204 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@4636a2dc: (connection has passed maxLifetime)
+2022-09-16 13:30:10,218 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@28a78e72
+2022-09-16 13:30:11,612 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@136c2308: (connection has passed maxLifetime)
+2022-09-16 13:30:11,623 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5a453b33
+2022-09-16 13:30:29,497 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@4dc4b775: (connection has passed maxLifetime)
+2022-09-16 13:30:29,516 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5512a110
+2022-09-16 13:30:32,649 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:31:02,652 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:31:32,655 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:32:02,656 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:32:32,657 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:33:02,661 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:33:32,661 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:34:02,665 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:34:32,667 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:35:02,669 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:35:32,672 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:36:02,671 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:36:32,676 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:37:02,681 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:37:32,684 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:38:02,688 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:38:32,689 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:39:02,688 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:39:32,690 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:40:02,694 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:40:32,697 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:41:02,697 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:41:32,701 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:42:02,704 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:42:32,707 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:43:02,712 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:43:32,716 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:44:02,719 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:44:32,722 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:45:03,149 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:45:33,157 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:46:03,163 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:46:33,168 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:47:03,172 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:47:33,178 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:48:03,183 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:48:33,188 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:49:03,194 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:49:33,198 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:50:03,203 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:50:33,208 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:51:03,213 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:51:33,217 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:52:03,222 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:52:33,228 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:53:03,233 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:53:33,239 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:54:03,245 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:54:33,249 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:55:03,256 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:55:33,262 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:56:03,267 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:56:33,273 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:57:03,279 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:57:33,283 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:58:03,288 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:58:33,295 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:59:03,300 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:59:16,293 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@1ecbead7: (connection has passed maxLifetime)
+2022-09-16 13:59:16,353 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4dc53750
+2022-09-16 13:59:25,466 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@2f9f50fc: (connection has passed maxLifetime)
+2022-09-16 13:59:25,482 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@183e3541
+2022-09-16 13:59:30,072 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@28a78e72: (connection has passed maxLifetime)
+2022-09-16 13:59:30,086 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@59033f7a
+2022-09-16 13:59:33,307 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 13:59:37,900 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@5ff6e0ec: (connection has passed maxLifetime)
+2022-09-16 13:59:37,912 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@e7a85f1
+2022-09-16 13:59:51,848 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@7aaa8fc5: (connection has passed maxLifetime)
+2022-09-16 13:59:51,861 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2e41ba6a
+2022-09-16 13:59:58,455 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@5d12574a: (connection has passed maxLifetime)
+2022-09-16 13:59:58,474 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6d4018d4
+2022-09-16 13:59:59,009 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@7ee41598: (connection has passed maxLifetime)
+2022-09-16 13:59:59,022 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2c7d12ef
+2022-09-16 14:00:03,312 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:00:06,840 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@5a453b33: (connection has passed maxLifetime)
+2022-09-16 14:00:06,853 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@469fb4c8
+2022-09-16 14:00:18,442 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@5512a110: (connection has passed maxLifetime)
+2022-09-16 14:00:18,457 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5524b7e3
+2022-09-16 14:00:33,317 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:01:03,458 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:01:33,463 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:02:03,467 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:02:33,469 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:03:03,476 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:03:33,480 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:04:03,486 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:04:33,491 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:05:03,492 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:05:33,497 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:06:03,500 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:06:33,504 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:07:03,510 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:07:33,517 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:08:03,519 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:08:33,526 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:09:03,531 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:09:33,535 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:10:03,540 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:10:33,546 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:11:03,550 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:11:33,552 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:12:03,558 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:12:33,563 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:13:03,566 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:13:33,571 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:14:03,573 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:14:33,580 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:15:03,585 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:15:33,589 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:16:03,626 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:16:33,638 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:17:03,643 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:17:33,649 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:18:03,651 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:18:33,655 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:19:03,659 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:19:33,663 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:20:03,664 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:20:33,669 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:21:03,675 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:21:33,045 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-36 - New connection accepted
+2022-09-16 14:21:33,078 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-37 - New connection accepted
+2022-09-16 14:21:33,088 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-27 - New connection accepted
+2022-09-16 14:21:33,678 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:21:33,722 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-11 - :: Successfully parsed version number
+2022-09-16 14:21:33,724 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-11 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:21:33,724 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-11 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:22:03,682 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:22:33,686 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:23:03,692 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:23:33,695 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:24:03,701 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:24:23,386 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-41 - New connection accepted
+2022-09-16 14:24:23,387 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-44 - New connection accepted
+2022-09-16 14:24:23,390 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-44 - New connection accepted
+2022-09-16 14:24:23,873 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-15 - :: Successfully parsed version number
+2022-09-16 14:24:23,875 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-15 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:24:23,875 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-15 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:24:33,702 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:25:03,707 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:25:33,713 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:26:03,715 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:26:33,720 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:27:03,725 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:27:33,727 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:28:03,732 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:28:33,737 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:28:47,308 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@4dc53750: (connection has passed maxLifetime)
+2022-09-16 14:28:47,321 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@792dd9b7
+2022-09-16 14:29:00,466 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@183e3541: (connection has passed maxLifetime)
+2022-09-16 14:29:00,478 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4ac19404
+2022-09-16 14:29:03,743 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:29:20,799 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@e7a85f1: (connection has passed maxLifetime)
+2022-09-16 14:29:20,810 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5ffb455f
+2022-09-16 14:29:23,981 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@59033f7a: (connection has passed maxLifetime)
+2022-09-16 14:29:23,992 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1ec64f64
+2022-09-16 14:29:31,961 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@469fb4c8: (connection has passed maxLifetime)
+2022-09-16 14:29:31,971 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@eddeaec
+2022-09-16 14:29:32,873 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@6d4018d4: (connection has passed maxLifetime)
+2022-09-16 14:29:32,882 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4fe0e0d7
+2022-09-16 14:29:33,749 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:29:42,646 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@2c7d12ef: (connection has passed maxLifetime)
+2022-09-16 14:29:42,655 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3e610ca6
+2022-09-16 14:29:47,948 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@5524b7e3: (connection has passed maxLifetime)
+2022-09-16 14:29:47,959 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@577ea5e8
+2022-09-16 14:29:49,978 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@2e41ba6a: (connection has passed maxLifetime)
+2022-09-16 14:29:49,992 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1643afd3
+2022-09-16 14:30:03,752 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:30:33,757 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:31:03,774 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:31:33,781 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:32:03,788 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:32:33,795 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:33:03,800 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:33:33,802 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:34:03,805 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:34:33,810 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:35:03,814 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:35:33,820 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:36:03,824 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:36:33,832 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:37:01,244 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-46 - New connection accepted
+2022-09-16 14:37:01,295 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-42 - New connection accepted
+2022-09-16 14:37:01,305 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-46 - New connection accepted
+2022-09-16 14:37:02,423 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-16 - :: Successfully parsed version number
+2022-09-16 14:37:02,426 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-16 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:37:02,426 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-16 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:37:03,836 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:37:33,841 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:38:03,844 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:38:33,850 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:39:03,851 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:39:33,857 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:40:03,862 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:40:33,865 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:41:03,870 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:41:33,873 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:42:03,879 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:42:22,307 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-49 - New connection accepted
+2022-09-16 14:42:22,310 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-53 - New connection accepted
+2022-09-16 14:42:22,313 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-56 - New connection accepted
+2022-09-16 14:42:22,586 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-18 - :: Successfully parsed version number
+2022-09-16 14:42:22,588 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-18 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:42:22,588 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-18 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:42:32,420 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-55 - New connection accepted
+2022-09-16 14:42:32,421 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-56 - New connection accepted
+2022-09-16 14:42:32,424 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-56 - New connection accepted
+2022-09-16 14:42:32,670 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-13 - :: Successfully parsed version number
+2022-09-16 14:42:32,670 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-13 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:42:32,670 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-13 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:42:33,398 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-53 - New connection accepted
+2022-09-16 14:42:33,400 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-53 - New connection accepted
+2022-09-16 14:42:33,402 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-49 - New connection accepted
+2022-09-16 14:42:33,412 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-57 - New connection accepted
+2022-09-16 14:42:33,474 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-19 - :: Successfully parsed version number
+2022-09-16 14:42:33,475 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-19 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:42:33,475 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-19 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:42:33,885 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:42:34,293 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-53 - New connection accepted
+2022-09-16 14:42:34,296 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-57 - New connection accepted
+2022-09-16 14:42:34,299 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-53 - New connection accepted
+2022-09-16 14:42:34,302 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-57 - New connection accepted
+2022-09-16 14:42:34,374 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-18 - :: Successfully parsed version number
+2022-09-16 14:42:34,375 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-18 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:42:34,375 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-18 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:43:03,891 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:43:33,897 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:44:03,902 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:44:33,903 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:44:40,635 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-54 - New connection accepted
+2022-09-16 14:44:40,652 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-54 - New connection accepted
+2022-09-16 14:44:40,658 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-53 - New connection accepted
+2022-09-16 14:44:41,483 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-21 - :: Successfully parsed version number
+2022-09-16 14:44:41,483 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-21 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:44:41,483 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-21 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:45:03,906 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:45:33,913 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:46:03,888 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:46:09,504 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-58 - New connection accepted
+2022-09-16 14:46:09,508 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-61 - New connection accepted
+2022-09-16 14:46:09,512 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-59 - New connection accepted
+2022-09-16 14:46:10,409 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-22 - :: Successfully parsed version number
+2022-09-16 14:46:10,410 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-22 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:46:10,410 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-22 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:46:33,886 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:47:03,890 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:47:33,894 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:48:03,899 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:48:33,905 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:49:03,909 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:49:21,748 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-61 - New connection accepted
+2022-09-16 14:49:21,753 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-61 - New connection accepted
+2022-09-16 14:49:21,758 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-66 - New connection accepted
+2022-09-16 14:49:22,254 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-24 - :: Successfully parsed version number
+2022-09-16 14:49:22,256 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-24 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:49:22,256 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-24 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:49:33,914 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:50:03,920 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:50:33,923 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:51:03,926 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:51:33,932 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:52:03,937 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:52:33,942 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:52:48,521 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-68 - New connection accepted
+2022-09-16 14:52:48,535 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-73 - New connection accepted
+2022-09-16 14:52:48,538 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-68 - New connection accepted
+2022-09-16 14:52:49,297 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-26 - :: Successfully parsed version number
+2022-09-16 14:52:49,299 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-26 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:52:49,299 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-26 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:53:03,947 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:53:05,338 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-73 - New connection accepted
+2022-09-16 14:53:05,340 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-74 - New connection accepted
+2022-09-16 14:53:05,344 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-76 - New connection accepted
+2022-09-16 14:53:05,896 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-23 - :: Successfully parsed version number
+2022-09-16 14:53:05,897 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-23 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:53:05,897 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-23 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:53:33,952 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:54:03,959 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:54:33,964 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:55:03,968 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:55:20,199 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-76 - New connection accepted
+2022-09-16 14:55:20,209 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-76 - New connection accepted
+2022-09-16 14:55:20,220 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-83 - New connection accepted
+2022-09-16 14:55:20,575 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-27 - :: Successfully parsed version number
+2022-09-16 14:55:20,576 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-27 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:55:20,576 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-27 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:55:33,971 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:55:40,649 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-85 - New connection accepted
+2022-09-16 14:55:40,651 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-81 - New connection accepted
+2022-09-16 14:55:40,655 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-68 - New connection accepted
+2022-09-16 14:55:41,084 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-25 - :: Successfully parsed version number
+2022-09-16 14:55:41,085 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-25 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 14:55:41,085 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-25 - :: latest version from DockerHub = 3.14.0
+2022-09-16 14:56:03,976 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:56:33,983 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:57:03,987 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:57:33,992 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:58:03,997 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:58:12,485 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@792dd9b7: (connection has passed maxLifetime)
+2022-09-16 14:58:12,501 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7383554f
+2022-09-16 14:58:30,955 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@4ac19404: (connection has passed maxLifetime)
+2022-09-16 14:58:30,965 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@31f8f0c8
+2022-09-16 14:58:34,001 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:59:04,005 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:59:12,048 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@1ec64f64: (connection has passed maxLifetime)
+2022-09-16 14:59:12,059 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1bcaf932
+2022-09-16 14:59:13,523 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@4fe0e0d7: (connection has passed maxLifetime)
+2022-09-16 14:59:13,531 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5af7f309
+2022-09-16 14:59:17,047 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@5ffb455f: (connection has passed maxLifetime)
+2022-09-16 14:59:17,059 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6b67a907
+2022-09-16 14:59:20,637 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@eddeaec: (connection has passed maxLifetime)
+2022-09-16 14:59:20,649 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3ad80c46
+2022-09-16 14:59:27,202 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@3e610ca6: (connection has passed maxLifetime)
+2022-09-16 14:59:27,213 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1ff34170
+2022-09-16 14:59:34,011 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 14:59:43,658 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@577ea5e8: (connection has passed maxLifetime)
+2022-09-16 14:59:43,685 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@53040dd
+2022-09-16 14:59:46,390 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@1643afd3: (connection has passed maxLifetime)
+2022-09-16 14:59:46,403 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 connection adder - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@440d4ae6
+2022-09-16 15:00:04,016 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:00:34,022 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:01:04,008 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:01:34,011 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:01:36,680 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-78 - New connection accepted
+2022-09-16 15:01:36,685 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-78 - New connection accepted
+2022-09-16 15:01:36,689 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-86 - New connection accepted
+2022-09-16 15:01:37,424 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-29 - :: Successfully parsed version number
+2022-09-16 15:01:37,424 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-29 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 15:01:37,424 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-29 - :: latest version from DockerHub = 3.14.0
+2022-09-16 15:02:04,015 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:02:23,808 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-89 - New connection accepted
+2022-09-16 15:02:23,810 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-89 - New connection accepted
+2022-09-16 15:02:23,813 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-88 - New connection accepted
+2022-09-16 15:02:24,498 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-27 - :: Successfully parsed version number
+2022-09-16 15:02:24,499 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-27 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 15:02:24,499 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-27 - :: latest version from DockerHub = 3.14.0
+2022-09-16 15:02:34,019 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:03:04,023 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:03:31,672 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-87 - New connection accepted
+2022-09-16 15:03:31,683 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-91 - New connection accepted
+2022-09-16 15:03:31,691 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-94 - New connection accepted
+2022-09-16 15:03:32,014 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-28 - :: Successfully parsed version number
+2022-09-16 15:03:32,014 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 15:03:32,014 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - :: latest version from DockerHub = 3.14.0
+2022-09-16 15:03:34,030 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:03:37,044 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-93 - New connection accepted
+2022-09-16 15:03:37,055 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - In ApiController :: getLatestDeploymentResult
+2022-09-16 15:03:37,056 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - ... solrIndexId = 139b92bd-4a19-4c77-b4fc-1dd7a22ba553
+2022-09-16 15:03:37,056 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - ... targetSystem = PRELIVE
+2022-09-16 15:03:37,056 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - ... isRawRequested = false
+2022-09-16 15:03:52,696 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-87 - New connection accepted
+2022-09-16 15:03:52,701 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-95 - New connection accepted
+2022-09-16 15:03:52,704 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - In ApiController :: getLatestDeploymentResult
+2022-09-16 15:03:52,704 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - ... solrIndexId = 139b92bd-4a19-4c77-b4fc-1dd7a22ba553
+2022-09-16 15:03:52,705 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - ... targetSystem = PRELIVE
+2022-09-16 15:03:52,705 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - ... isRawRequested = false
+2022-09-16 15:03:52,706 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - In ApiController :: getLatestDeploymentResult
+2022-09-16 15:03:52,706 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... solrIndexId = 139b92bd-4a19-4c77-b4fc-1dd7a22ba553
+2022-09-16 15:03:52,706 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... targetSystem = PRELIVE
+2022-09-16 15:03:52,706 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... isRawRequested = false
+2022-09-16 15:03:52,866 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-94 - New connection accepted
+2022-09-16 15:03:52,868 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-91 - New connection accepted
+2022-09-16 15:03:52,871 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-93 - New connection accepted
+2022-09-16 15:03:53,421 [INFO] from models.config.SmuiVersion in application-akka.actor.default-dispatcher-30 - :: Successfully parsed version number
+2022-09-16 15:03:53,422 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - :: SMUI version of this instance: (Some(3.14.0))
+2022-09-16 15:03:53,422 [INFO] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - :: latest version from DockerHub = 3.14.0
+2022-09-16 15:03:56,220 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-92 - New connection accepted
+2022-09-16 15:03:56,225 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - In ApiController :: getLatestDeploymentResult
+2022-09-16 15:03:56,225 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... solrIndexId = 139b92bd-4a19-4c77-b4fc-1dd7a22ba553
+2022-09-16 15:03:56,225 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... targetSystem = PRELIVE
+2022-09-16 15:03:56,225 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... isRawRequested = false
+2022-09-16 15:04:02,025 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-92 - New connection accepted
+2022-09-16 15:04:02,032 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - In ApiController :: getLatestDeploymentResult
+2022-09-16 15:04:02,032 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... solrIndexId = 139b92bd-4a19-4c77-b4fc-1dd7a22ba553
+2022-09-16 15:04:02,032 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... targetSystem = PRELIVE
+2022-09-16 15:04:02,032 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... isRawRequested = false
+2022-09-16 15:04:03,739 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-94 - New connection accepted
+2022-09-16 15:04:03,743 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - In ApiController :: getLatestDeploymentResult
+2022-09-16 15:04:03,743 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... solrIndexId = 139b92bd-4a19-4c77-b4fc-1dd7a22ba553
+2022-09-16 15:04:03,743 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... targetSystem = PRELIVE
+2022-09-16 15:04:03,743 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-30 - ... isRawRequested = false
+2022-09-16 15:04:04,035 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:04:05,032 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-92 - New connection accepted
+2022-09-16 15:04:05,034 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-92 - New connection accepted
+2022-09-16 15:04:17,025 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-94 - New connection accepted
+2022-09-16 15:04:17,055 [DEBUG] from controllers.ApiController in application-akka.actor.default-dispatcher-28 - solrIndexId:2f26a55b-2ba2-489f-abc7-7125f3d7c83f
+2022-09-16 15:04:17,061 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-95 - New connection accepted
+2022-09-16 15:04:17,076 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-92 - New connection accepted
+2022-09-16 15:04:19,943 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-92 - New connection accepted
+2022-09-16 15:04:19,961 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in application-akka.actor.default-dispatcher-28 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@7383554f
+2022-09-16 15:04:19,967 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-92 - New connection accepted
+2022-09-16 15:04:19,980 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-91 - New connection accepted
+2022-09-16 15:04:21,710 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-96 - New connection accepted
+2022-09-16 15:04:21,729 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in application-akka.actor.default-dispatcher-28 - HikariPool-1 - Reset (autoCommit) on connection com.mysql.cj.jdbc.ConnectionImpl@7383554f
+2022-09-16 15:04:21,736 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-94 - New connection accepted
+2022-09-16 15:04:21,751 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-94 - New connection accepted
+2022-09-16 15:04:34,041 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in HikariPool-1 housekeeper - HikariPool-1 - Pool stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:04:38,991 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-92 - Starting coordinated shutdown from JVM shutdown hook
+2022-09-16 15:04:38,993 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-92 - Performing phase [before-service-unbind] with [1] tasks: [trace-server-stop-request]
+2022-09-16 15:04:38,994 [INFO] from play.core.server.AkkaHttpServer in play-dev-mode-shutdown-hook-1 - Stopping server...
+2022-09-16 15:04:39,001 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-96 - Performing phase [service-unbind] with [1] tasks: [akka-http-server-unbind]
+2022-09-16 15:04:39,003 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-94 - Unbinding endpoint /0:0:0:0:0:0:0:0:9000
+2022-09-16 15:04:39,005 [DEBUG] from akka.io.TcpListener in play-dev-mode-akka.actor.default-dispatcher-94 - Unbound endpoint /0:0:0:0:0:0:0:0:9000, stopping listener
+2022-09-16 15:04:39,006 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-96 - Performing phase [service-requests-done] with [0] tasks
+2022-09-16 15:04:39,006 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-96 - Performing phase [service-stop] with [1] tasks: [shutdown-application-dev-mode]
+2022-09-16 15:04:39,008 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [before-service-unbind] with [0] tasks
+2022-09-16 15:04:39,008 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [service-unbind] with [0] tasks
+2022-09-16 15:04:39,008 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [service-requests-done] with [0] tasks
+2022-09-16 15:04:39,009 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [service-stop] with [1] tasks: [application-lifecycle-stophook]
+2022-09-16 15:04:39,013 [DEBUG] from play.api.libs.Files$DefaultTemporaryFileCreator in application-akka.actor.default-dispatcher-30 - deletePath: deleting = /var/folders/h2/l1gzqfy17qqg9mnx6n7t15jw0000gn/T/playtemp8465577613731959630
+2022-09-16 15:04:39,017 [INFO] from application in application-akka.actor.default-dispatcher-30 - Shutting down connection pool.
+2022-09-16 15:04:39,019 [INFO] from com.zaxxer.hikari.HikariDataSource in application-akka.actor.default-dispatcher-30 - HikariPool-1 - Shutdown initiated...
+2022-09-16 15:04:39,020 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in application-akka.actor.default-dispatcher-30 - HikariPool-1 - Before shutdown stats (total=9, active=0, idle=9, waiting=0)
+2022-09-16 15:04:39,020 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@7383554f: (connection evicted)
+2022-09-16 15:04:39,021 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@31f8f0c8: (connection evicted)
+2022-09-16 15:04:39,022 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@1bcaf932: (connection evicted)
+2022-09-16 15:04:39,024 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@5af7f309: (connection evicted)
+2022-09-16 15:04:39,025 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@6b67a907: (connection evicted)
+2022-09-16 15:04:39,025 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@3ad80c46: (connection evicted)
+2022-09-16 15:04:39,025 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@1ff34170: (connection evicted)
+2022-09-16 15:04:39,026 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@53040dd: (connection evicted)
+2022-09-16 15:04:39,026 [DEBUG] from com.zaxxer.hikari.pool.PoolBase in HikariPool-1 connection closer - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@440d4ae6: (connection evicted)
+2022-09-16 15:04:39,027 [DEBUG] from com.zaxxer.hikari.pool.HikariPool in application-akka.actor.default-dispatcher-30 - HikariPool-1 - After shutdown stats (total=0, active=0, idle=0, waiting=0)
+2022-09-16 15:04:39,027 [INFO] from com.zaxxer.hikari.HikariDataSource in application-akka.actor.default-dispatcher-30 - HikariPool-1 - Shutdown completed.
+2022-09-16 15:04:39,037 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [before-cluster-shutdown] with [0] tasks
+2022-09-16 15:04:39,037 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [cluster-sharding-shutdown-region] with [0] tasks
+2022-09-16 15:04:39,038 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [cluster-leave] with [0] tasks
+2022-09-16 15:04:39,038 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [cluster-exiting] with [0] tasks
+2022-09-16 15:04:39,038 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [cluster-exiting-done] with [0] tasks
+2022-09-16 15:04:39,038 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [cluster-shutdown] with [0] tasks
+2022-09-16 15:04:39,038 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [before-actor-system-terminate] with [1] tasks: [force-reload]
+2022-09-16 15:04:39,039 [DEBUG] from akka.actor.CoordinatedShutdown in application-akka.actor.default-dispatcher-28 - Performing phase [actor-system-terminate] with [1] tasks: [terminate-system]
+2022-09-16 15:04:39,042 [DEBUG] from akka.event.EventStream in application-akka.actor.default-dispatcher-30 - shutting down: StandardOutLogger
+2022-09-16 15:04:39,068 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-94 - Performing phase [before-cluster-shutdown] with [0] tasks
+2022-09-16 15:04:39,068 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-94 - Performing phase [cluster-sharding-shutdown-region] with [0] tasks
+2022-09-16 15:04:39,068 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-94 - Performing phase [cluster-leave] with [0] tasks
+2022-09-16 15:04:39,069 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-94 - Performing phase [cluster-exiting] with [0] tasks
+2022-09-16 15:04:39,071 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-94 - Performing phase [cluster-exiting-done] with [0] tasks
+2022-09-16 15:04:39,071 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-94 - Performing phase [cluster-shutdown] with [0] tasks
+2022-09-16 15:04:39,071 [DEBUG] from akka.actor.CoordinatedShutdown in play-dev-mode-akka.actor.default-dispatcher-94 - Performing phase [before-actor-system-terminate] with [2] tasks: [user-provided-server-stop-hook, shutdown-logger]

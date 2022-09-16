@@ -1,0 +1,869 @@
+[0m[[0m[0mdebug[0m] [0m[0mRunning command: 'docker build --no-cache=false --rm=true --pull=true --progress=plain --build-arg VERSION=3.14.0 --file Dockerfile /Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui'[0m
+[0m[[0m[0minfo[0m] [0m[0m#1 [internal] load build definition from Dockerfile[0m
+[0m[[0m[0minfo[0m] [0m[0m#1 sha256:dd7d14475158b5b01f172ef0ce729a6690bf7986bc1c4f7b331cc8b00baa8489[0m
+[0m[[0m[0minfo[0m] [0m[0m#1 transferring dockerfile:[0m
+[0m[[0m[0minfo[0m] [0m[0m#1 transferring dockerfile: 2.45kB 0.1s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#1 DONE 0.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#2 [internal] load .dockerignore[0m
+[0m[[0m[0minfo[0m] [0m[0m#2 sha256:4c82746171c1fbf225d7a4d6051934029b511b3cde7d6ecc45e2d7162986ad87[0m
+[0m[[0m[0minfo[0m] [0m[0m#2 transferring context: 108B 0.1s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#2 DONE 0.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#3 resolve image config for docker.io/docker/dockerfile:1.0-experimental[0m
+[0m[[0m[0minfo[0m] [0m[0m#3 sha256:74c2b22e535000215e4c6e91e97eaf031c745b5077d1b004e21d261b62c88704[0m
+[0m[[0m[0minfo[0m] [0m[0m#3 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#4 [auth] docker/dockerfile:pull token for registry-1.docker.io[0m
+[0m[[0m[0minfo[0m] [0m[0m#4 sha256:d802568dcb8adddc14cf86db03ebbf7d43b9658255f37637f00f1511737b36b3[0m
+[0m[[0m[0minfo[0m] [0m[0m#4 DONE 0.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#3 resolve image config for docker.io/docker/dockerfile:1.0-experimental[0m
+[0m[[0m[0minfo[0m] [0m[0m#3 sha256:74c2b22e535000215e4c6e91e97eaf031c745b5077d1b004e21d261b62c88704[0m
+[0m[[0m[0minfo[0m] [0m[0m#3 DONE 2.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 docker-image://docker.io/docker/dockerfile:1.0-experimental@sha256:cbd6491240cc8894d25e366ba83da19df1187f975dc3a5c2f88ce888ca696174[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 sha256:0af8e2916ef66f474d25fbdacb8b917690b037530afe0cb2062890ef568528e9[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 resolve docker.io/docker/dockerfile:1.0-experimental@sha256:cbd6491240cc8894d25e366ba83da19df1187f975dc3a5c2f88ce888ca696174 done[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 sha256:70387ff0e5d2bb01c76837530c63b7a5e0c74fd054665da9e0611f176d456c21 811B / 811B done[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 sha256:45169296fe16c4be3e75f43e6276e8adc60ea9e0aad0910264f6e0681e9e55b2 0B / 7.65MB 0.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 sha256:cbd6491240cc8894d25e366ba83da19df1187f975dc3a5c2f88ce888ca696174 2.03kB / 2.03kB done[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 sha256:9f37bbf3e89214574a30356139381d312e2a8d80877a312d31a1446eb2bdfa4a 527B / 527B done[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 sha256:45169296fe16c4be3e75f43e6276e8adc60ea9e0aad0910264f6e0681e9e55b2 2.10MB / 7.65MB 0.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 sha256:45169296fe16c4be3e75f43e6276e8adc60ea9e0aad0910264f6e0681e9e55b2 4.19MB / 7.65MB 1.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 sha256:45169296fe16c4be3e75f43e6276e8adc60ea9e0aad0910264f6e0681e9e55b2 5.24MB / 7.65MB 1.3s[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 sha256:45169296fe16c4be3e75f43e6276e8adc60ea9e0aad0910264f6e0681e9e55b2 6.29MB / 7.65MB 1.5s[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 sha256:45169296fe16c4be3e75f43e6276e8adc60ea9e0aad0910264f6e0681e9e55b2 7.65MB / 7.65MB 1.6s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 extracting sha256:45169296fe16c4be3e75f43e6276e8adc60ea9e0aad0910264f6e0681e9e55b2 0.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 extracting sha256:45169296fe16c4be3e75f43e6276e8adc60ea9e0aad0910264f6e0681e9e55b2 0.3s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#5 DONE 1.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#7 [internal] load .dockerignore[0m
+[0m[[0m[0minfo[0m] [0m[0m#7 sha256:b283e86035ed47979034d088d9b12a9ddd4c9f6d068586f54068a44e9fc189d6[0m
+[0m[[0m[0minfo[0m] [0m[0m#7 DONE 0.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#6 [internal] load build definition from Dockerfile[0m
+[0m[[0m[0minfo[0m] [0m[0m#6 sha256:bc3f20b63d1fb88fc66ff0220c9ae19743ced817b70d68fc09706941a570a614[0m
+[0m[[0m[0minfo[0m] [0m[0m#6 transferring dockerfile: 35B[0m
+[0m[[0m[0minfo[0m] [0m[0m#6 transferring dockerfile: 2.45kB done[0m
+[0m[[0m[0minfo[0m] [0m[0m#6 DONE 0.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#9 [internal] load metadata for docker.io/library/openjdk:11-buster[0m
+[0m[[0m[0minfo[0m] [0m[0m#9 sha256:697782aee50f76f188deaef1e88f491d40adc632b1b1b327f16c73d7d78a3ca1[0m
+[0m[[0m[0minfo[0m] [0m[0m#9 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#10 [auth] library/openjdk:pull token for registry-1.docker.io[0m
+[0m[[0m[0minfo[0m] [0m[0m#10 sha256:d5edff919233b08e735b976b2690d93073fb6c0f36bcb64ab77a79af0950004e[0m
+[0m[[0m[0minfo[0m] [0m[0m#10 DONE 0.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#8 [internal] load metadata for docker.io/library/openjdk:11-jre-slim-buster[0m
+[0m[[0m[0minfo[0m] [0m[0m#8 sha256:b39aab6254881e36d32418e18f27f8d275ceaad228bd60e08a758b3fd27ec128[0m
+[0m[[0m[0minfo[0m] [0m[0m#8 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#9 [internal] load metadata for docker.io/library/openjdk:11-buster[0m
+[0m[[0m[0minfo[0m] [0m[0m#9 sha256:697782aee50f76f188deaef1e88f491d40adc632b1b1b327f16c73d7d78a3ca1[0m
+[0m[[0m[0minfo[0m] [0m[0m#9 DONE 1.8s[0m
+[0m[[0m[0minfo[0m] [0m[0m#8 [internal] load metadata for docker.io/library/openjdk:11-jre-slim-buster[0m
+[0m[[0m[0minfo[0m] [0m[0m#8 sha256:b39aab6254881e36d32418e18f27f8d275ceaad228bd60e08a758b3fd27ec128[0m
+[0m[[0m[0minfo[0m] [0m[0m#8 DONE 1.8s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 [builder 1/5] FROM docker.io/library/openjdk:11-buster@sha256:e0e4d9ef9a4354f537d42218d77792bb3276090aea6db11abf886111f176db2a[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:6c17a4b42ff3437f3c2c9382c1206ea048f1ab51f3dceb6a86e5e0c907a5354d[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 resolve docker.io/library/openjdk:11-buster@sha256:e0e4d9ef9a4354f537d42218d77792bb3276090aea6db11abf886111f176db2a 0.0s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#16 [internal] load build context[0m
+[0m[[0m[0minfo[0m] [0m[0m#16 sha256:0e4a547d67f23650cdf4ad2895cf4d22b5d693e73afa577a9b1656faed96ecab[0m
+[0m[[0m[0minfo[0m] [0m[0m#16 transferring context: 2.78MB 0.1s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#16 DONE 0.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 [builder 1/5] FROM docker.io/library/openjdk:11-buster@sha256:e0e4d9ef9a4354f537d42218d77792bb3276090aea6db11abf886111f176db2a[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:6c17a4b42ff3437f3c2c9382c1206ea048f1ab51f3dceb6a86e5e0c907a5354d[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:e0e4d9ef9a4354f537d42218d77792bb3276090aea6db11abf886111f176db2a 549B / 549B done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:a82f26e09f3dc0bf5821dfd56d7a09472bbfb37addeb8e70d8c44785e4398258 1.79kB / 1.79kB done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:2d06b6375fb2622f2f639609b3c4d1b49425a1a1d03682e0dd2bbfae468a09a9 6.26kB / 6.26kB done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 0B / 50.44MB 0.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:ae7bcede80b1916d73be58ae0a2af8321770c4ce0c8ada05c39271e292355325 0B / 7.86MB 0.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa 0B / 10.00MB 0.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#25 [auth] docker/dockerfile-copy:pull token for registry-1.docker.io[0m
+[0m[[0m[0minfo[0m] [0m[0m#25 sha256:0a89b795582570bdd41f404ccefb513b9651e9af265f5e4f8cca13db5796c512[0m
+[0m[[0m[0minfo[0m] [0m[0m#25 DONE 0.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 [builder 1/5] FROM docker.io/library/openjdk:11-buster@sha256:e0e4d9ef9a4354f537d42218d77792bb3276090aea6db11abf886111f176db2a[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:6c17a4b42ff3437f3c2c9382c1206ea048f1ab51f3dceb6a86e5e0c907a5354d[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:ae7bcede80b1916d73be58ae0a2af8321770c4ce0c8ada05c39271e292355325 1.05MB / 7.86MB 0.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 4.19MB / 50.44MB 1.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa 1.05MB / 10.00MB 1.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:ae7bcede80b1916d73be58ae0a2af8321770c4ce0c8ada05c39271e292355325 2.10MB / 7.86MB 1.5s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa 2.10MB / 10.00MB 1.5s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa 3.15MB / 10.00MB 1.6s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 7.34MB / 50.44MB 1.7s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:ae7bcede80b1916d73be58ae0a2af8321770c4ce0c8ada05c39271e292355325 3.15MB / 7.86MB 1.7s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa 4.19MB / 10.00MB 1.7s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa 6.29MB / 10.00MB 1.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:ae7bcede80b1916d73be58ae0a2af8321770c4ce0c8ada05c39271e292355325 5.24MB / 7.86MB 2.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa 7.34MB / 10.00MB 2.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 12.58MB / 50.44MB 2.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:ae7bcede80b1916d73be58ae0a2af8321770c4ce0c8ada05c39271e292355325 6.29MB / 7.86MB 2.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa 10.00MB / 10.00MB 2.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:ae7bcede80b1916d73be58ae0a2af8321770c4ce0c8ada05c39271e292355325 7.34MB / 7.86MB 2.3s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa 10.00MB / 10.00MB 2.2s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 0B / 51.84MB 2.3s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:ae7bcede80b1916d73be58ae0a2af8321770c4ce0c8ada05c39271e292355325 7.86MB / 7.86MB 2.3s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:8ef450941d7b25770adc85ee5692d10ba1a9caf71ea2a759c0844b2abae84e75 0B / 5.29MB 2.4s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 [internal] helper image for file operations[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 sha256:e4c43493b1bb2320466c52248e886014710025b273f224bb96a23b8fb7a1d193[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 resolve docker.io/docker/dockerfile-copy:v0.1.9@sha256:e8f159d3f00786604b93c675ee2783f8dc194bb565e61ca5788f6a6e9d304061 2.6s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 DONE 2.6s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 [builder 1/5] FROM docker.io/library/openjdk:11-buster@sha256:e0e4d9ef9a4354f537d42218d77792bb3276090aea6db11abf886111f176db2a[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:6c17a4b42ff3437f3c2c9382c1206ea048f1ab51f3dceb6a86e5e0c907a5354d[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 15.73MB / 50.44MB 2.5s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 18.87MB / 50.44MB 2.8s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:8ef450941d7b25770adc85ee5692d10ba1a9caf71ea2a759c0844b2abae84e75 1.05MB / 5.29MB 2.8s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 3.15MB / 51.84MB 2.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:8ef450941d7b25770adc85ee5692d10ba1a9caf71ea2a759c0844b2abae84e75 2.10MB / 5.29MB 2.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 22.02MB / 50.44MB 3.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:8ef450941d7b25770adc85ee5692d10ba1a9caf71ea2a759c0844b2abae84e75 4.19MB / 5.29MB 3.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:8ef450941d7b25770adc85ee5692d10ba1a9caf71ea2a759c0844b2abae84e75 5.29MB / 5.29MB 3.1s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:55e2a41663e60e4ad1fb708adf9a339388bf4dacea4b0e5ec469605b24d47550 0B / 211B 3.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 26.21MB / 50.44MB 3.4s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 7.34MB / 51.84MB 3.4s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:55e2a41663e60e4ad1fb708adf9a339388bf4dacea4b0e5ec469605b24d47550 211B / 211B 3.3s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 0B / 203.97MB 3.4s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 30.41MB / 50.44MB 3.8s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 10.49MB / 51.84MB 3.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 34.60MB / 50.44MB 4.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 39.85MB / 50.44MB 4.5s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 14.68MB / 51.84MB 4.5s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 42.99MB / 50.44MB 4.8s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 17.83MB / 51.84MB 4.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 10.49MB / 203.97MB 4.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 46.14MB / 50.44MB 5.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 50.44MB / 50.44MB 5.3s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 20.97MB / 51.84MB 5.3s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 50.44MB / 50.44MB 5.3s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 24.12MB / 51.84MB 5.7s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 20.97MB / 203.97MB 6.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 27.26MB / 51.84MB 6.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 30.41MB / 51.84MB 6.6s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 31.46MB / 203.97MB 6.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 33.55MB / 51.84MB 7.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 36.70MB / 51.84MB 7.3s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 39.85MB / 51.84MB 7.7s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 44.04MB / 203.97MB 8.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 42.99MB / 51.84MB 8.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:b03a94565ecb6e02edf716307f25a0ea5090e3e2f7acec6a3687b95415378a30 2.7s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:ae7bcede80b1916d73be58ae0a2af8321770c4ce0c8ada05c39271e292355325[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:ae7bcede80b1916d73be58ae0a2af8321770c4ce0c8ada05c39271e292355325 0.4s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 46.14MB / 51.84MB 8.7s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 55.57MB / 203.97MB 9.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:37471fc83c2dc382a8aec5dc1c1f0f2f8156f4df529cd1aea7647cbaee4b25fa 0.3s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 49.28MB / 51.84MB 9.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 51.84MB / 51.84MB 9.6s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 [stage-1 1/7] FROM docker.io/library/openjdk:11-jre-slim-buster@sha256:42dc6623788768372e62e5c184c1c7e84d791d63c3ba53534348a263163086dc[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 sha256:4c0d4edfa5ce61ee9f0e82950fc8ef3cec4deb468ecee77d15821f3eb4ec8269[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 resolve docker.io/library/openjdk:11-jre-slim-buster@sha256:42dc6623788768372e62e5c184c1c7e84d791d63c3ba53534348a263163086dc done[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 sha256:42dc6623788768372e62e5c184c1c7e84d791d63c3ba53534348a263163086dc 549B / 549B done[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 sha256:9fc3608fffc37db5ebd7b6efa2e1af3ddbbf0e2c27d41bcdfaf5117797d4af06 1.16kB / 1.16kB done[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 sha256:7b4d8e8929d5bc1fc154e40b9fc0ab8866cddc68f5665c826d0485c7cee1454e 7.57kB / 7.57kB done[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 sha256:4a9930d1f61e9a044df90a13c9456f95b2e6b31da0c5f483757324dfe0a5fc33 3.27MB / 3.27MB 5.9s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 extracting sha256:4a9930d1f61e9a044df90a13c9456f95b2e6b31da0c5f483757324dfe0a5fc33 0.3s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 sha256:5e180b549d0140dd3a0f09953f26fcabcef901117b88f37992b70eac1d0b2ee3 211B / 211B 6.1s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 sha256:f88a38edf3851da662417ca2a0b02b9e7ef6cb78b69b8a3fe3e937fb3cb9cca6 28.31MB / 47.48MB 10.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 extracting sha256:5e180b549d0140dd3a0f09953f26fcabcef901117b88f37992b70eac1d0b2ee3 done[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 [builder 1/5] FROM docker.io/library/openjdk:11-buster@sha256:e0e4d9ef9a4354f537d42218d77792bb3276090aea6db11abf886111f176db2a[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:6c17a4b42ff3437f3c2c9382c1206ea048f1ab51f3dceb6a86e5e0c907a5354d[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 [internal] helper image for file operations[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 sha256:e4c43493b1bb2320466c52248e886014710025b273f224bb96a23b8fb7a1d193[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 sha256:e8f159d3f00786604b93c675ee2783f8dc194bb565e61ca5788f6a6e9d304061 2.03kB / 2.03kB done[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 sha256:a546a4352bcaa6512f885d24fef3d9819e70551b98535ed1995e4b567ac6d05b 736B / 736B done[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 sha256:494e63343c3f0d392e7af8d718979262baec9496a23e97ad110d62b9c90d6182 766B / 766B done[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 sha256:df3b4bed1f63b36992540a09e0d10bd3f9d0b082d50810313841d745d7cce368 898.21kB / 898.21kB 7.5s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 extracting sha256:df3b4bed1f63b36992540a09e0d10bd3f9d0b082d50810313841d745d7cce368 0.1s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 sha256:f7b6696c3fee7264ec4486cebe146a6a98aa8d1e46747843107ff473aada8d56 861.00kB / 861.00kB 7.8s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 extracting sha256:f7b6696c3fee7264ec4486cebe146a6a98aa8d1e46747843107ff473aada8d56 0.1s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#11 DONE 7.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 [builder 1/5] FROM docker.io/library/openjdk:11-buster@sha256:e0e4d9ef9a4354f537d42218d77792bb3276090aea6db11abf886111f176db2a[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:6c17a4b42ff3437f3c2c9382c1206ea048f1ab51f3dceb6a86e5e0c907a5354d[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 67.11MB / 203.97MB 10.4s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 81.79MB / 203.97MB 11.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 92.27MB / 203.97MB 11.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 102.76MB / 203.97MB 12.4s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 113.04MB / 203.97MB 13.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:0162432a49c07aa492d3e1031af58a9a9f9b22acde859829434e5a54d019aa1c 3.1s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:8ef450941d7b25770adc85ee5692d10ba1a9caf71ea2a759c0844b2abae84e75 0.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:8ef450941d7b25770adc85ee5692d10ba1a9caf71ea2a759c0844b2abae84e75 0.2s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:55e2a41663e60e4ad1fb708adf9a339388bf4dacea4b0e5ec469605b24d47550 done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 123.73MB / 203.97MB 13.5s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 134.22MB / 203.97MB 14.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 145.39MB / 203.97MB 14.6s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 157.29MB / 203.97MB 15.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 [stage-1 1/7] FROM docker.io/library/openjdk:11-jre-slim-buster@sha256:42dc6623788768372e62e5c184c1c7e84d791d63c3ba53534348a263163086dc[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 sha256:4c0d4edfa5ce61ee9f0e82950fc8ef3cec4deb468ecee77d15821f3eb4ec8269[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 sha256:f88a38edf3851da662417ca2a0b02b9e7ef6cb78b69b8a3fe3e937fb3cb9cca6 47.48MB / 47.48MB 12.6s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 extracting sha256:f88a38edf3851da662417ca2a0b02b9e7ef6cb78b69b8a3fe3e937fb3cb9cca6 2.2s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#12 DONE 15.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 [builder 1/5] FROM docker.io/library/openjdk:11-buster@sha256:e0e4d9ef9a4354f537d42218d77792bb3276090aea6db11abf886111f176db2a[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:6c17a4b42ff3437f3c2c9382c1206ea048f1ab51f3dceb6a86e5e0c907a5354d[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 168.82MB / 203.97MB 15.4s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 180.36MB / 203.97MB 16.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 191.89MB / 203.97MB 16.6s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 203.97MB / 203.97MB 17.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 203.97MB / 203.97MB 17.3s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 0.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 5.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 extracting sha256:db8b130317e8f7e67e6d247688692d259a12b7ea3fa8e7788a269df532e075b9 6.4s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#19 DONE 23.9s[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 [builder 2/5] RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" > /etc/apt/sources.list.d/sbt.list     && curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | apt-key add     && apt-get update     && apt-get install -y sbt[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 sha256:33e4fd04bea0fab21cbd6e3160a44876ddc55370addd0345596e1b550cb122a2[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 0.453 Warning: apt-key output should not be parsed (stdout is not a terminal)[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 [stage-1 2/7] RUN apt-get update     && apt-get install -y --no-install-recommends openssh-client sshpass bash curl git     && rm -rf /var/lib/apt/lists/*[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 sha256:3a36a088b94da8bff3ed13c21f252be2ae0d9e10f26d681e4eec2691d7277768[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 0.485 Get:1 http://security.debian.org/debian-security buster/updates InRelease [65.4 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 0.592 Get:2 http://deb.debian.org/debian buster InRelease [122 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 0.784 Get:3 http://deb.debian.org/debian buster-updates InRelease [51.9 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 0.816 Get:4 http://security.debian.org/debian-security buster/updates/main amd64 Packages [323 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 0.965 Get:5 http://deb.debian.org/debian buster/main amd64 Packages [7911 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 5.079 Get:6 http://deb.debian.org/debian buster-updates/main amd64 Packages [8796 B][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 6.361 Fetched 8482 kB in 6s (1413 kB/s)[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 6.361 Reading package lists...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 7.346 Reading package lists...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.468 Building dependency tree...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.637 Reading state information...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.839 bash is already the newest version (5.0-4).[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.839 bash set to manually installed.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.839 The following package was automatically installed and is no longer required:[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.840   lsb-base[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.840 Use 'apt autoremove' to remove it.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.840 The following additional packages will be installed:[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.841   git-man libbsd0 libcurl3-gnutls libcurl4 libedit2 liberror-perl libexpat1[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.841   libgdbm-compat4 libgdbm6 libgssapi-krb5-2 libk5crypto3 libkeyutils1[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.841   libkrb5-3 libkrb5support0 libldap-2.4-2 libldap-common libnghttp2-14[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.841   libpcre2-8-0 libperl5.28 libpsl5 librtmp1 libsasl2-2 libsasl2-modules-db[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.842   libssh2-1 perl perl-modules-5.28[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.844 Suggested packages:[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.844   gettext-base git-daemon-run | git-daemon-sysvinit git-doc git-el git-email[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.844   git-gui gitk gitweb git-cvs git-mediawiki git-svn gdbm-l10n krb5-doc[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.844   krb5-user sensible-utils keychain libpam-ssh monkeysphere ssh-askpass[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.844   perl-doc libterm-readline-gnu-perl | libterm-readline-perl-perl make[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.844   libb-debug-perl liblocale-codes-perl[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.844 Recommended packages:[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 8.844   patch less krb5-locales publicsuffix libsasl2-modules xauth netbase[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.230 The following NEW packages will be installed:[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.231   curl git git-man libbsd0 libcurl3-gnutls libcurl4 libedit2 liberror-perl[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.231   libexpat1 libgdbm-compat4 libgdbm6 libgssapi-krb5-2 libk5crypto3[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.231   libkeyutils1 libkrb5-3 libkrb5support0 libldap-2.4-2 libldap-common[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.232   libnghttp2-14 libpcre2-8-0 libperl5.28 libpsl5 librtmp1 libsasl2-2[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.233   libsasl2-modules-db libssh2-1 openssh-client perl perl-modules-5.28 sshpass[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.311 0 upgraded, 30 newly installed, 0 to remove and 2 not upgraded.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.311 Need to get 18.2 MB of archives.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.311 After this operation, 96.0 MB of additional disk space will be used.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.311 Get:1 http://security.debian.org/debian-security buster/updates/main amd64 libldap-common all 2.4.47+dfsg-3+deb10u7 [90.1 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.316 Get:2 http://deb.debian.org/debian buster/main amd64 perl-modules-5.28 all 5.28.1-6+deb10u1 [2873 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.345 Get:3 http://security.debian.org/debian-security buster/updates/main amd64 libldap-2.4-2 amd64 2.4.47+dfsg-3+deb10u7 [224 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.729 Get:4 http://deb.debian.org/debian buster/main amd64 libgdbm6 amd64 1.18.1-4 [64.7 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.733 Get:5 http://deb.debian.org/debian buster/main amd64 libgdbm-compat4 amd64 1.18.1-4 [44.1 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 9.738 Get:6 http://deb.debian.org/debian buster/main amd64 libperl5.28 amd64 5.28.1-6+deb10u1 [3894 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 [builder 2/5] RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" > /etc/apt/sources.list.d/sbt.list     && curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | apt-key add     && apt-get update     && apt-get install -y sbt[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 sha256:33e4fd04bea0fab21cbd6e3160a44876ddc55370addd0345596e1b550cb122a2[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 1.494 OK[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 1.634 Get:1 http://security.debian.org/debian-security buster/updates InRelease [65.4 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#20 1.655 Get:2 http://deb.debian.org/debian buster InRelease [122 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#20 1.702 Get:3 http://deb.debian.org/debian buster-updates InRelease [51.9 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#20 2.025 Get:4 http://security.debian.org/debian-security buster/updates/main amd64 Packages [323 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#20 2.077 Get:5 http://deb.debian.org/debian buster/main amd64 Packages [7911 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#20 2.929 Get:6 https://scala.jfrog.io/artifactory/debian all InRelease [3558 B][0m
+[0m[[0m[0minfo[0m] [0m[0m#20 3.315 Get:7 https://scala.jfrog.io/artifactory/debian all/main amd64 Packages [1423 B][0m
+[0m[[0m[0minfo[0m] [0m[0m#20 5.354 Get:8 http://deb.debian.org/debian buster-updates/main amd64 Packages [8796 B][0m
+[0m[[0m[0minfo[0m] [0m[0m#20 6.842 Fetched 8487 kB in 5s (1612 kB/s)[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 6.842 Reading package lists...[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 7.928 Reading package lists...[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 [stage-1 2/7] RUN apt-get update     && apt-get install -y --no-install-recommends openssh-client sshpass bash curl git     && rm -rf /var/lib/apt/lists/*[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 sha256:3a36a088b94da8bff3ed13c21f252be2ae0d9e10f26d681e4eec2691d7277768[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 10.61 Get:7 http://deb.debian.org/debian buster/main amd64 perl amd64 5.28.1-6+deb10u1 [204 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 10.87 Get:8 http://deb.debian.org/debian buster/main amd64 libsasl2-modules-db amd64 2.1.27+dfsg-1+deb10u2 [69.2 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 10.96 Get:9 http://deb.debian.org/debian buster/main amd64 libsasl2-2 amd64 2.1.27+dfsg-1+deb10u2 [106 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.11 Get:10 http://deb.debian.org/debian buster/main amd64 libbsd0 amd64 0.9.1-2+deb10u1 [99.5 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.16 Get:11 http://deb.debian.org/debian buster/main amd64 libedit2 amd64 3.1-20181209-1 [94.0 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.22 Get:12 http://deb.debian.org/debian buster/main amd64 libkeyutils1 amd64 1.6-6 [15.0 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.22 Get:13 http://deb.debian.org/debian buster/main amd64 libkrb5support0 amd64 1.17-3+deb10u3 [65.8 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.25 Get:14 http://deb.debian.org/debian buster/main amd64 libk5crypto3 amd64 1.17-3+deb10u3 [122 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.34 Get:15 http://deb.debian.org/debian buster/main amd64 libkrb5-3 amd64 1.17-3+deb10u3 [370 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.53 Get:16 http://deb.debian.org/debian buster/main amd64 libgssapi-krb5-2 amd64 1.17-3+deb10u3 [158 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.59 Get:17 http://deb.debian.org/debian buster/main amd64 openssh-client amd64 1:7.9p1-10+deb10u2 [782 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.84 Get:18 http://deb.debian.org/debian buster/main amd64 libnghttp2-14 amd64 1.36.0-2+deb10u1 [85.0 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.86 Get:19 http://deb.debian.org/debian buster/main amd64 libpsl5 amd64 0.20.2-2 [53.7 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.88 Get:20 http://deb.debian.org/debian buster/main amd64 librtmp1 amd64 2.4+20151223.gitfa8646d.1-2 [60.5 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.89 Get:21 http://deb.debian.org/debian buster/main amd64 libssh2-1 amd64 1.8.0-2.1 [140 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 11.93 Get:22 http://deb.debian.org/debian buster/main amd64 libcurl4 amd64 7.64.0-4+deb10u2 [332 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 12.03 Get:23 http://deb.debian.org/debian buster/main amd64 curl amd64 7.64.0-4+deb10u2 [265 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 12.25 Get:24 http://deb.debian.org/debian buster/main amd64 libcurl3-gnutls amd64 7.64.0-4+deb10u2 [330 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 12.41 Get:25 http://deb.debian.org/debian buster/main amd64 libexpat1 amd64 2.2.6-2+deb10u4 [108 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 12.48 Get:26 http://deb.debian.org/debian buster/main amd64 libpcre2-8-0 amd64 10.32-5 [213 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 12.59 Get:27 http://deb.debian.org/debian buster/main amd64 liberror-perl all 0.17027-2 [30.9 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 12.61 Get:28 http://deb.debian.org/debian buster/main amd64 git-man all 1:2.20.1-2+deb10u3 [1620 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 13.45 Get:29 http://deb.debian.org/debian buster/main amd64 git amd64 1:2.20.1-2+deb10u3 [5633 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 15.62 Get:30 http://deb.debian.org/debian buster/main amd64 sshpass amd64 1.06-1 [11.3 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#13 15.85 debconf: delaying package configuration, since apt-utils is not installed[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 15.89 Fetched 18.2 MB in 6s (2861 kB/s)[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 15.94 Selecting previously unselected package perl-modules-5.28.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 15.94 (Reading database ... [0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 5%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 10%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 15%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 20%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 25%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 30%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 35%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 40%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 45%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 50%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 55%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 60%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 65%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 70%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 75%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 80%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 85%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 90%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 95%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 100%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 6900 files and directories currently installed.)[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 15.97 Preparing to unpack .../00-perl-modules-5.28_5.28.1-6+deb10u1_all.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 15.98 Unpacking perl-modules-5.28 (5.28.1-6+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 16.76 Selecting previously unselected package libgdbm6:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 16.76 Preparing to unpack .../01-libgdbm6_1.18.1-4_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 16.77 Unpacking libgdbm6:amd64 (1.18.1-4) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 16.82 Selecting previously unselected package libgdbm-compat4:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 16.82 Preparing to unpack .../02-libgdbm-compat4_1.18.1-4_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 16.82 Unpacking libgdbm-compat4:amd64 (1.18.1-4) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 16.87 Selecting previously unselected package libperl5.28:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 16.88 Preparing to unpack .../03-libperl5.28_5.28.1-6+deb10u1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 16.88 Unpacking libperl5.28:amd64 (5.28.1-6+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.50 Selecting previously unselected package perl.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.50 Preparing to unpack .../04-perl_5.28.1-6+deb10u1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.51 Unpacking perl (5.28.1-6+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.57 Selecting previously unselected package libsasl2-modules-db:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.58 Preparing to unpack .../05-libsasl2-modules-db_2.1.27+dfsg-1+deb10u2_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.58 Unpacking libsasl2-modules-db:amd64 (2.1.27+dfsg-1+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.62 Selecting previously unselected package libsasl2-2:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.62 Preparing to unpack .../06-libsasl2-2_2.1.27+dfsg-1+deb10u2_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.63 Unpacking libsasl2-2:amd64 (2.1.27+dfsg-1+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.68 Selecting previously unselected package libldap-common.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.68 Preparing to unpack .../07-libldap-common_2.4.47+dfsg-3+deb10u7_all.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.71 Unpacking libldap-common (2.4.47+dfsg-3+deb10u7) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 [builder 2/5] RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" > /etc/apt/sources.list.d/sbt.list     && curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | apt-key add     && apt-get update     && apt-get install -y sbt[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 sha256:33e4fd04bea0fab21cbd6e3160a44876ddc55370addd0345596e1b550cb122a2[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 7.928 Reading package lists...[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 8.923 Building dependency tree...[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 9.131 Reading state information...[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 9.408 The following NEW packages will be installed:[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 9.408   sbt[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.25 0 upgraded, 1 newly installed, 0 to remove and 4 not upgraded.[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.25 Need to get 19.9 kB of archives.[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.25 After this operation, 49.2 kB of additional disk space will be used.[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.25 Get:1 https://scala.jfrog.io/artifactory/debian all/main amd64 sbt all 1.6.2 [19.9 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.53 debconf: delaying package configuration, since apt-utils is not installed[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.56 Fetched 19.9 kB in 1s (21.7 kB/s)[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.60 Selecting previously unselected package sbt.[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.60 (Reading database ... [0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 5%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 10%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 15%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 20%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 25%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 30%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 35%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 40%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 45%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 50%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 55%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 60%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 65%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 70%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 75%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 80%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 85%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 90%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 95%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 100%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 12572 files and directories currently installed.)[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.70 Preparing to unpack .../apt/archives/sbt_1.6.2_all.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.70 Unpacking sbt (1.6.2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.70 Setting up sbt (1.6.2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.70 Creating system group: sbt[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 10.70 Creating system user: sbt in sbt with sbt daemon-user and shell /bin/false[0m
+[0m[[0m[0minfo[0m] [0m[0m#20 DONE 12.1s[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 [stage-1 2/7] RUN apt-get update     && apt-get install -y --no-install-recommends openssh-client sshpass bash curl git     && rm -rf /var/lib/apt/lists/*[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 sha256:3a36a088b94da8bff3ed13c21f252be2ae0d9e10f26d681e4eec2691d7277768[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.77 Selecting previously unselected package libldap-2.4-2:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.77 Preparing to unpack .../08-libldap-2.4-2_2.4.47+dfsg-3+deb10u7_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.78 Unpacking libldap-2.4-2:amd64 (2.4.47+dfsg-3+deb10u7) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.85 Selecting previously unselected package libbsd0:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.85 Preparing to unpack .../09-libbsd0_0.9.1-2+deb10u1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.86 Unpacking libbsd0:amd64 (0.9.1-2+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.91 Selecting previously unselected package libedit2:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.91 Preparing to unpack .../10-libedit2_3.1-20181209-1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.92 Unpacking libedit2:amd64 (3.1-20181209-1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.97 Selecting previously unselected package libkeyutils1:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.97 Preparing to unpack .../11-libkeyutils1_1.6-6_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 17.98 Unpacking libkeyutils1:amd64 (1.6-6) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.02 Selecting previously unselected package libkrb5support0:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.02 Preparing to unpack .../12-libkrb5support0_1.17-3+deb10u3_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.03 Unpacking libkrb5support0:amd64 (1.17-3+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.08 Selecting previously unselected package libk5crypto3:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.08 Preparing to unpack .../13-libk5crypto3_1.17-3+deb10u3_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.08 Unpacking libk5crypto3:amd64 (1.17-3+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.15 Selecting previously unselected package libkrb5-3:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.15 Preparing to unpack .../14-libkrb5-3_1.17-3+deb10u3_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.15 Unpacking libkrb5-3:amd64 (1.17-3+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.25 Selecting previously unselected package libgssapi-krb5-2:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.25 Preparing to unpack .../15-libgssapi-krb5-2_1.17-3+deb10u3_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.26 Unpacking libgssapi-krb5-2:amd64 (1.17-3+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.32 Selecting previously unselected package openssh-client.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.32 Preparing to unpack .../16-openssh-client_1%3a7.9p1-10+deb10u2_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.33 Unpacking openssh-client (1:7.9p1-10+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.49 Selecting previously unselected package libnghttp2-14:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.49 Preparing to unpack .../17-libnghttp2-14_1.36.0-2+deb10u1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.49 Unpacking libnghttp2-14:amd64 (1.36.0-2+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.55 Selecting previously unselected package libpsl5:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.55 Preparing to unpack .../18-libpsl5_0.20.2-2_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.55 Unpacking libpsl5:amd64 (0.20.2-2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.60 Selecting previously unselected package librtmp1:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.60 Preparing to unpack .../19-librtmp1_2.4+20151223.gitfa8646d.1-2_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.60 Unpacking librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.65 Selecting previously unselected package libssh2-1:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.65 Preparing to unpack .../20-libssh2-1_1.8.0-2.1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.66 Unpacking libssh2-1:amd64 (1.8.0-2.1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.71 Selecting previously unselected package libcurl4:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.71 Preparing to unpack .../21-libcurl4_7.64.0-4+deb10u2_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.72 Unpacking libcurl4:amd64 (7.64.0-4+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.79 Selecting previously unselected package curl.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.79 Preparing to unpack .../22-curl_7.64.0-4+deb10u2_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.79 Unpacking curl (7.64.0-4+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.87 Selecting previously unselected package libcurl3-gnutls:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.87 Preparing to unpack .../23-libcurl3-gnutls_7.64.0-4+deb10u2_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.87 Unpacking libcurl3-gnutls:amd64 (7.64.0-4+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.96 Selecting previously unselected package libexpat1:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.96 Preparing to unpack .../24-libexpat1_2.2.6-2+deb10u4_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 18.96 Unpacking libexpat1:amd64 (2.2.6-2+deb10u4) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.02 Selecting previously unselected package libpcre2-8-0:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.02 Preparing to unpack .../25-libpcre2-8-0_10.32-5_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.03 Unpacking libpcre2-8-0:amd64 (10.32-5) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.08 Selecting previously unselected package liberror-perl.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.08 Preparing to unpack .../26-liberror-perl_0.17027-2_all.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.08 Unpacking liberror-perl (0.17027-2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.12 Selecting previously unselected package git-man.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.12 Preparing to unpack .../27-git-man_1%3a2.20.1-2+deb10u3_all.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.13 Unpacking git-man (1:2.20.1-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.29 Selecting previously unselected package git.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.29 Preparing to unpack .../28-git_1%3a2.20.1-2+deb10u3_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 19.32 Unpacking git (1:2.20.1-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.02 Selecting previously unselected package sshpass.[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.02 Preparing to unpack .../29-sshpass_1.06-1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.02 Unpacking sshpass (1.06-1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.07 Setting up perl-modules-5.28 (5.28.1-6+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.08 Setting up libexpat1:amd64 (2.2.6-2+deb10u4) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.09 Setting up libkeyutils1:amd64 (1.6-6) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.10 Setting up libpsl5:amd64 (0.20.2-2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.12 Setting up libnghttp2-14:amd64 (1.36.0-2+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.13 Setting up libldap-common (2.4.47+dfsg-3+deb10u7) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.14 Setting up sshpass (1.06-1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.15 Setting up libkrb5support0:amd64 (1.17-3+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.16 Setting up libsasl2-modules-db:amd64 (2.1.27+dfsg-1+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.17 Setting up librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.18 Setting up libpcre2-8-0:amd64 (10.32-5) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.20 Setting up libk5crypto3:amd64 (1.17-3+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.21 Setting up libsasl2-2:amd64 (2.1.27+dfsg-1+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.22 Setting up git-man (1:2.20.1-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.23 Setting up libssh2-1:amd64 (1.8.0-2.1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.24 Setting up libkrb5-3:amd64 (1.17-3+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.25 Setting up libbsd0:amd64 (0.9.1-2+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.26 Setting up libgdbm6:amd64 (1.18.1-4) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.27 Setting up libedit2:amd64 (3.1-20181209-1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.28 Setting up libldap-2.4-2:amd64 (2.4.47+dfsg-3+deb10u7) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.30 Setting up libgssapi-krb5-2:amd64 (1.17-3+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.31 Setting up libgdbm-compat4:amd64 (1.18.1-4) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.32 Setting up libperl5.28:amd64 (5.28.1-6+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.33 Setting up libcurl4:amd64 (7.64.0-4+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.34 Setting up curl (7.64.0-4+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.36 Setting up openssh-client (1:7.9p1-10+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.52 Setting up libcurl3-gnutls:amd64 (7.64.0-4+deb10u2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.53 Setting up perl (5.28.1-6+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.56 Setting up liberror-perl (0.17027-2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.57 Setting up git (1:2.20.1-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 21.62 Processing triggers for libc-bin (2.28-10+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#13 DONE 21.7s[0m
+[0m[[0m[0minfo[0m] [0m[0m#14 [stage-1 3/7] RUN addgroup --gid 1024 smui     && adduser --uid 1024 --ingroup smui smui --disabled-password --quiet[0m
+[0m[[0m[0minfo[0m] [0m[0m#14 sha256:8ece3ff65a2fc98551eaac4c29a8a1e9e67a9f43f693e527e9f25b8457a884b7[0m
+[0m[[0m[0minfo[0m] [0m[0m#14 0.382 Adding group `smui' (GID 1024) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#14 0.404 Done.[0m
+[0m[[0m[0minfo[0m] [0m[0m#14 0.521 Changing the user information for smui[0m
+[0m[[0m[0minfo[0m] [0m[0m#14 0.521 Enter the new value, or press ENTER for the default[0m
+[0m[[0m[0minfo[0m] [0m[0m#14 0.521 	Full Name []: 	Room Number []: 	Work Phone []: 	Home Phone []: 	Other []: Use of uninitialized value $answer in chop at /usr/sbin/adduser line 582.[0m
+[0m[[0m[0minfo[0m] [0m[0m#14 0.530 Use of uninitialized value $answer in pattern match (m//) at /usr/sbin/adduser line 583.[0m
+[0m[[0m[0minfo[0m] [0m[0m#14 0.530 Is the information correct? [Y/n] #14 DONE 0.6s[0m
+[0m[[0m[0minfo[0m] [0m[0m#15 [stage-1 4/7] RUN mkdir /tmp/smui-git-repo /home/smui/.ssh     && chown -R smui:smui /smui /tmp/smui-git-repo /home/smui/.ssh[0m
+[0m[[0m[0minfo[0m] [0m[0m#15 sha256:d976b4227c8727534d5e2485e9a8305e2b5a0361b91f8a009d2cd958d601fe42[0m
+[0m[[0m[0minfo[0m] [0m[0m#15 DONE 0.4s[0m
+[0m[[0m[0minfo[0m] [0m[0m#17 [stage-1 5/7] COPY --chown=smui:smui conf/logback.xml .[0m
+[0m[[0m[0minfo[0m] [0m[0m#17 sha256:03f583bcd9397057174584d221933ba7cfe6846607aaad7d798a8ddfa43492c4[0m
+[0m[[0m[0minfo[0m] [0m[0m#17 DONE 0.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#18 [stage-1 6/7] COPY --chown=smui:smui conf/smui2solr.sh conf/smui2git.sh conf/[0m
+[0m[[0m[0minfo[0m] [0m[0m#18 sha256:32c08043c550bf843beea8456288e9e3377284f924d91a13633cd6ea46e377eb[0m
+[0m[[0m[0minfo[0m] [0m[0m#18 DONE 0.2s[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 [builder 3/5] RUN apt-get install -y lsb-release     && export DISTRO="$(lsb_release -s -c)"     && echo "deb https://deb.nodesource.com/node_10.x $DISTRO main" > /etc/apt/sources.list.d/nodesource.list     && echo "deb-src https://deb.nodesource.com/node_10.x $DISTRO main" >> /etc/apt/sources.list.d/nodesource.list     && curl -sSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -     && apt-get update     && apt-get install -y nodejs[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 sha256:6cdb78c764447dbaa3ec5047a093a744227374bedb9457d63fa87d63e564dfc8[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 0.367 Reading package lists...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 1.533 Building dependency tree...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 1.752 Reading state information...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.040 The following additional packages will be installed:[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.040   distro-info-data libmpdec2 libpython3-stdlib libpython3.7-minimal[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.041   libpython3.7-stdlib python3 python3-minimal python3.7 python3.7-minimal[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.042 Suggested packages:[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.042   lsb python3-doc python3-tk python3-venv python3.7-venv python3.7-doc[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.042   binutils binfmt-support[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.258 The following NEW packages will be installed:[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.260   distro-info-data libmpdec2 libpython3-stdlib libpython3.7-minimal[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.261   libpython3.7-stdlib lsb-release python3 python3-minimal python3.7[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.262   python3.7-minimal[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.364 0 upgraded, 10 newly installed, 0 to remove and 4 not upgraded.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.364 Need to get 4629 kB of archives.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.364 After this operation, 23.3 MB of additional disk space will be used.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.364 Get:1 http://deb.debian.org/debian buster/main amd64 libpython3.7-minimal amd64 3.7.3-2+deb10u3 [589 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 2.473 Get:2 http://deb.debian.org/debian buster/main amd64 python3.7-minimal amd64 3.7.3-2+deb10u3 [1737 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 3.084 Get:3 http://deb.debian.org/debian buster/main amd64 python3-minimal amd64 3.7.3-1 [36.6 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 3.108 Get:4 http://deb.debian.org/debian buster/main amd64 libmpdec2 amd64 2.4.2-2 [87.2 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 3.162 Get:5 http://deb.debian.org/debian buster/main amd64 libpython3.7-stdlib amd64 3.7.3-2+deb10u3 [1734 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.030 Get:6 http://deb.debian.org/debian buster/main amd64 python3.7 amd64 3.7.3-2+deb10u3 [330 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.125 Get:7 http://deb.debian.org/debian buster/main amd64 libpython3-stdlib amd64 3.7.3-1 [20.0 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.128 Get:8 http://deb.debian.org/debian buster/main amd64 python3 amd64 3.7.3-1 [61.5 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.146 Get:9 http://deb.debian.org/debian buster/main amd64 distro-info-data all 0.41+deb10u4 [6880 B][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.147 Get:10 http://deb.debian.org/debian buster/main amd64 lsb-release all 10.2019051400 [27.5 kB][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.361 debconf: delaying package configuration, since apt-utils is not installed[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.399 Fetched 4629 kB in 2s (2472 kB/s)[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.434 Selecting previously unselected package libpython3.7-minimal:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.434 (Reading database ... [0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 5%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 10%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 15%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 20%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 25%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 30%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 35%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 40%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 45%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 50%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 55%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 60%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 65%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 70%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 75%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 80%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 85%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 90%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 95%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 100%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 12586 files and directories currently installed.)[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.450 Preparing to unpack .../libpython3.7-minimal_3.7.3-2+deb10u3_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.454 Unpacking libpython3.7-minimal:amd64 (3.7.3-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.601 Selecting previously unselected package python3.7-minimal.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.604 Preparing to unpack .../python3.7-minimal_3.7.3-2+deb10u3_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.617 Unpacking python3.7-minimal (3.7.3-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.903 Setting up libpython3.7-minimal:amd64 (3.7.3-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 4.921 Setting up python3.7-minimal (3.7.3-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 5.619 Selecting previously unselected package python3-minimal.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 5.619 (Reading database ... [0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 5%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 10%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 15%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 20%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 25%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 30%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 35%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 40%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 45%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 50%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 55%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 60%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 65%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 70%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 75%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 80%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 85%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 90%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 95%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 100%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 12826 files and directories currently installed.)[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 5.634 Preparing to unpack .../python3-minimal_3.7.3-1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 5.638 Unpacking python3-minimal (3.7.3-1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 5.683 Selecting previously unselected package libmpdec2:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 5.685 Preparing to unpack .../libmpdec2_2.4.2-2_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 5.692 Unpacking libmpdec2:amd64 (2.4.2-2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 5.736 Selecting previously unselected package libpython3.7-stdlib:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 5.738 Preparing to unpack .../libpython3.7-stdlib_3.7.3-2+deb10u3_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 5.741 Unpacking libpython3.7-stdlib:amd64 (3.7.3-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.044 Selecting previously unselected package python3.7.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.046 Preparing to unpack .../python3.7_3.7.3-2+deb10u3_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.049 Unpacking python3.7 (3.7.3-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.107 Selecting previously unselected package libpython3-stdlib:amd64.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.110 Preparing to unpack .../libpython3-stdlib_3.7.3-1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.116 Unpacking libpython3-stdlib:amd64 (3.7.3-1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.173 Setting up python3-minimal (3.7.3-1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.436 Selecting previously unselected package python3.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.436 (Reading database ... [0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 5%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 10%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 15%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 20%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 25%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 30%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 35%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 40%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 45%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 50%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 55%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 60%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 65%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 70%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 75%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 80%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 85%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 90%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 95%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 100%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 13238 files and directories currently installed.)[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.448 Preparing to unpack .../python3_3.7.3-1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.460 Unpacking python3 (3.7.3-1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.499 Selecting previously unselected package distro-info-data.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.501 Preparing to unpack .../distro-info-data_0.41+deb10u4_all.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.506 Unpacking distro-info-data (0.41+deb10u4) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.541 Selecting previously unselected package lsb-release.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.543 Preparing to unpack .../lsb-release_10.2019051400_all.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.547 Unpacking lsb-release (10.2019051400) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.590 Setting up distro-info-data (0.41+deb10u4) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.599 Setting up libmpdec2:amd64 (2.4.2-2) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.608 Setting up libpython3.7-stdlib:amd64 (3.7.3-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.618 Setting up libpython3-stdlib:amd64 (3.7.3-1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 6.626 Setting up python3.7 (3.7.3-2+deb10u3) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 7.640 Setting up python3 (3.7.3-1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 7.653 running python rtupdate hooks for python3.7...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 7.653 running python post-rtupdate hooks for python3.7...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 7.782 Setting up lsb-release (10.2019051400) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 7.794 Processing triggers for libc-bin (2.28-10+deb10u1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 7.828 Processing triggers for mime-support (3.62) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 8.046 Warning: apt-key output should not be parsed (stdout is not a terminal)[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 8.858 OK[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 8.998 Hit:1 http://deb.debian.org/debian buster InRelease[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 9.163 Hit:3 http://deb.debian.org/debian buster-updates InRelease[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 9.163 Hit:4 http://security.debian.org/debian-security buster/updates InRelease[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 9.163 Get:5 https://deb.nodesource.com/node_10.x buster InRelease [4584 B][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 9.675 Hit:2 https://scala.jfrog.io/artifactory/debian all InRelease[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 10.26 Get:6 https://deb.nodesource.com/node_10.x buster/main amd64 Packages [767 B][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 10.29 Fetched 5351 B in 1s (4010 B/s)[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 10.29 Reading package lists...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 11.34 Reading package lists...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 12.33 Building dependency tree...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 12.53 Reading state information...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 12.75 The following NEW packages will be installed:[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 12.75   nodejs[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 12.87 0 upgraded, 1 newly installed, 0 to remove and 4 not upgraded.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 12.87 Need to get 15.9 MB of archives.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 12.87 After this operation, 80.5 MB of additional disk space will be used.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 12.87 Get:1 https://deb.nodesource.com/node_10.x buster/main amd64 nodejs amd64 10.24.1-1nodesource1 [15.9 MB][0m
+[0m[[0m[0minfo[0m] [0m[0m#21 15.20 debconf: delaying package configuration, since apt-utils is not installed[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 15.24 Fetched 15.9 MB in 2s (7265 kB/s)[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 15.28 Selecting previously unselected package nodejs.[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 15.28 (Reading database ... [0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 5%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 10%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 15%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 20%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 25%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 30%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 35%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 40%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 45%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 50%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 55%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 60%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 65%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 70%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 75%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 80%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 85%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 90%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 95%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 100%[0m
+[0m[[0m[0minfo[0m] [0m[0m(Reading database ... 13289 files and directories currently installed.)[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 15.30 Preparing to unpack .../nodejs_10.24.1-1nodesource1_amd64.deb ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 15.30 Unpacking nodejs (10.24.1-1nodesource1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 18.60 Setting up nodejs (10.24.1-1nodesource1) ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#21 DONE 19.0s[0m
+[0m[[0m[0minfo[0m] [0m[0m#22 [builder 4/5] COPY . /smui[0m
+[0m[[0m[0minfo[0m] [0m[0m#22 sha256:0b1837eb1c431667582d5503f44217b0ae3d117d8088b48e404f902389146383[0m
+[0m[[0m[0minfo[0m] [0m[0m#22 DONE 0.3s[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 [builder 5/5] RUN --mount=target=/root/.ivy2,type=cache sbt "set test in assembly := {}" clean assembly[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 sha256:c8457ee8a03272b0abdad42415e3622bbeb5ab50fc0a902825a2ed19cebb0bf2[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 0.484 downloading sbt launcher 1.6.2[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 1.827 copying runtime jar...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 10.30 [info] [launcher] getting org.scala-sbt sbt 1.3.3  (this may take some time)...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 25.96 [info] [launcher] getting Scala 2.12.10 (for sbt)...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 35.80 [info] Loading settings for project smui-build from plugins.sbt ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 36.61 [info] Loading project definition from /smui/project[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 68.75 [warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 69.66 [info] Compiling 2 Scala sources to /smui/project/target/scala-2.12/sbt-1.0/classes ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 69.90 [info] Non-compiled module 'compiler-bridge_2.12' for Scala 2.12.10. Compiling...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 78.61 [info]   Compilation completed in 8.708s.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 79.80 [info] Done compiling.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 86.50 [info] Loading settings for project root from ui-build.sbt,build.sbt ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 87.35 [info] Set current project to search-management-ui (in build file:/smui/)[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 89.41 [info] Defining assembly / test[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 89.41 [info] The new value will be used by assembly, assemblyPackageDependency / test, assemblyPackageScala / test[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 89.41 [info] Reapplying settings...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 89.68 [info] Set current project to search-management-ui (in build file:/smui/)[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 90.26 [success] Total time: 0 s, completed May 23, 2022, 6:06:48 PM[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.5 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.5 > core-js-pure@3.22.6 postinstall /smui/frontend/node_modules/@angular-eslint/eslint-plugin-template/node_modules/core-js-pure[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.5 > node -e "try{require('./postinstall')}catch(e){}"[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.5 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [96mThe project needs your help! Please consider supporting of core-js:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [96m>[94m https://opencollective.com/core-js [0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [96m>[94m https://patreon.com/zloirock [0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [96m>[94m bitcoin: bc1qlea7544qtsmj2rayg0lthvza9fau63ux0fstcz [0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 > core-js@3.6.5 postinstall /smui/frontend/node_modules/core-js[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 > node -e "try{require('./postinstall')}catch(e){}"[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.6 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.7 [96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.7 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.7 [96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.7 [96m>[94m https://opencollective.com/core-js [0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.7 [96m>[94m https://www.patreon.com/zloirock [0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.7 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.7 [96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.7 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.8 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.8 > es5-ext@0.10.61 postinstall /smui/frontend/node_modules/es6-iterator/node_modules/es5-ext[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.8 >  node -e "try{require('./_postinstall')}catch(e){}" || exit 0[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.8 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.9 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.9 > es5-ext@0.10.61 postinstall /smui/frontend/node_modules/d/node_modules/es5-ext[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.9 >  node -e "try{require('./_postinstall')}catch(e){}" || exit 0[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 178.9 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 179.4 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 179.4 > @angular/cli@11.0.7 postinstall /smui/frontend/node_modules/@angular/cli[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 179.4 > node ./bin/postinstall/script.js[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 179.4 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 180.0 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 180.0 > @fortawesome/fontawesome-free@5.15.4 postinstall /smui/frontend/node_modules/@fortawesome/fontawesome-free[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 180.0 > node attribution.js[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 180.0 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 180.1 Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 180.1 License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 180.1 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.3.2 (node_modules/@angular-devkit/build-angular/node_modules/chokidar/node_modules/fsevents):[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"linux","arch":"x64"})[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.1.3 (node_modules/@angular-devkit/build-angular/node_modules/fsevents):[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.1.3: wanted {"os":"darwin","arch":"any"} (current: {"os":"linux","arch":"x64"})[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.13 (node_modules/watchpack-chokidar2/node_modules/fsevents):[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.13: wanted {"os":"darwin","arch":"any"} (current: {"os":"linux","arch":"x64"})[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.13 (node_modules/@angular-devkit/build-angular/node_modules/webpack-dev-server/node_modules/fsevents):[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.13: wanted {"os":"darwin","arch":"any"} (current: {"os":"linux","arch":"x64"})[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.3.2 (node_modules/fsevents):[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"linux","arch":"x64"})[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 181.8 added 2067 packages from 1243 contributors and audited 2077 packages in 90.775s[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 183.1 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 183.1 130 packages are looking for funding[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 183.1   run `npm fund` for details[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 183.1 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 183.1 found 24 vulnerabilities (2 low, 12 moderate, 10 high)[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 183.1   run `npm audit fix` to fix them, or `npm audit` for details[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 183.6 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 183.6 > smui-frontend@2.0.0 build:prod /smui/frontend[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 183.6 > ng build --progress --prod --output-path ../public[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 183.6 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 190.2 Compiling @angular/core : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 190.3 Compiling @angular/animations : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 194.5 Compiling @angular/animations/browser : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 194.5 Compiling @angular/common : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 195.1 Compiling @angular/forms : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 195.1 Compiling @angular/platform-browser : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 195.4 Compiling @angular/common/http : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 195.5 Compiling @angular/platform-browser-dynamic : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 196.1 Compiling angular2-toaster : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 196.2 Compiling @angular/platform-browser/animations : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 196.3 Compiling @angular/router : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 198.1 Compiling angular2-multiselect-dropdown : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 198.1 Compiling @ng-bootstrap/ng-bootstrap : es2015 as esm2015[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 200.2 - Generating browser application bundles...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.0 ✔ Browser application bundle generation complete.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.1 - Copying assets...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.1 ✔ Copying assets complete.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.1 - Generating index html...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 ✔ Index html generation complete.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 Initial Chunk Files               | Names         |      Size[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 main.e23936b87fdc25e6b6ca.js      | main          | 621.41 kB[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 styles.2f22090be5bbaab335f7.css   | styles        | 272.24 kB[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 polyfills.3116b8e9dbb90fea460e.js | polyfills     |  36.66 kB[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 runtime.0e49e2b53282f40c8925.js   | runtime       |   1.45 kB[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 | Initial Total | 931.77 kB[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 Build at: 2022-05-23T18:09:31.360Z - Hash: 0b14948c08a59ce2a33e - Time: 52965ms[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 Warning: /smui/frontend/node_modules/angular2-multiselect-dropdown/__ivy_ngcc__/fesm2015/angular2-multiselect-dropdown.js depends on '@tweenjs/tween.js'. CommonJS or AMD dependencies can cause optimization bailouts.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 Warning: budgets: initial exceeded maximum budget. Budget 500.00 kB was not met by 431.77 kB with a total of 931.77 kB.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.2 [0m
+[0m[[0m[0minfo[0m] [0m[0m#23 253.5 [info] Wrote /smui/target/scala-2.12/search-management-ui_2.12-3.14.0.pom[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 304.7 [warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 304.8 [info] Main Scala API documentation to /smui/target/scala-2.12/api...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 304.9 [info] Compiling 52 Scala sources and 1 Java source to /smui/target/scala-2.12/classes ...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 304.9 [info] Non-compiled module 'compiler-bridge_2.12' for Scala 2.12.11. Compiling...[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 319.6 [info]   Compilation completed in 14.72s.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 322.4 [warn] /smui/app/controllers/ApiController.scala:392:15: non-variable type argument org.checkerframework.checker.units.qual.A in type pattern controllers.auth.UserRequest[org.checkerframework.checker.units.qual.A] is unchecked since it is eliminated by erasure[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 322.4 [warn]       case _: UserRequest[A] => Option(request.asInstanceOf[UserRequest[A]].username)[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 322.4 [warn]               ^[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 322.4 [warn] /smui/app/controllers/ApiController.scala:392:15: non-variable type argument org.checkerframework.checker.units.qual.A in type pattern controllers.auth.UserRequest[org.checkerframework.checker.units.qual.A] is unchecked since it is eliminated by erasure[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 322.4 [warn]       case _: UserRequest[A] => Option(request.asInstanceOf[UserRequest[A]].username)[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 322.4 [warn]               ^[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 336.9 model contains 159 documentable templates[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 338.4 [warn] /smui/app/models/eventhistory/ActivityLog.scala:15:1: Fixing invalid column alignment: ~~~~~~~~~~~~~~~~[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 338.4 [warn] /**[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 338.4 [warn] ^[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 347.4 [warn] two warnings found[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 347.4 [info] Main Scala API documentation successful.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 349.4 [warn] one warning found[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 350.8 [info] Done compiling.[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 353.3 [warn] [1] The maintainer is empty[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 353.3 [warn] Add this to your build.sbt[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 353.3 [warn]   maintainer := "your.name@company.org"[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 353.3 [success] All package validations passed[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 359.0 [info] Your package is ready in /smui/target/universal/search-management-ui-3.14.0.zip[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 364.3 [info] Strategy 'concat' was applied to 2 files (Run the task at debug level to see details)[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 364.3 [info] Strategy 'discard' was applied to 83 files (Run the task at debug level to see details)[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 364.3 [info] Strategy 'filterDistinctLines' was applied to 2 files (Run the task at debug level to see details)[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 364.3 [info] Strategy 'rename' was applied to 10 files (Run the task at debug level to see details)[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 377.3 [success] Total time: 287 s (04:47), completed May 23, 2022, 6:11:35 PM[0m
+[0m[[0m[0minfo[0m] [0m[0m#23 DONE 378.4s[0m
+[0m[[0m[0minfo[0m] [0m[0m#24 [stage-1 7/7] COPY --from=builder --chown=smui:smui /smui/target/scala-*/search-management-ui-assembly-.jar .[0m
+[0m[[0m[0minfo[0m] [0m[0m#24 sha256:a2f678be39aad932fe4ec54975302759288a9138bc65f077ba786e3ceb059dc3[0m
+[0m[[0m[0minfo[0m] [0m[0m#24 DONE 0.8s[0m
+[0m[[0m[0minfo[0m] [0m[0m#26 exporting to image[0m
+[0m[[0m[0minfo[0m] [0m[0m#26 sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00[0m
+[0m[[0m[0minfo[0m] [0m[0m#26 exporting layers[0m
+[0m[[0m[0minfo[0m] [0m[0m#26 exporting layers 0.9s done[0m
+[0m[[0m[0minfo[0m] [0m[0m#26 writing image sha256:88ca7a6f8aff8c816b2b97c5776b2fee54fb026f388410e94512ccda34b111dc done[0m
+[0m[[0m[0minfo[0m] [0m[0m#26 DONE 0.9s[0m
+[0m[[0m[0minfo[0m] [0m[0mTagging image 88ca7a6f8aff8c816b2b97c5776b2fee54fb026f388410e94512ccda34b111dc with name: querqy/smui:latest[0m
+[0m[[0m[0minfo[0m] [0m[0mTagging image 88ca7a6f8aff8c816b2b97c5776b2fee54fb026f388410e94512ccda34b111dc with name: querqy/smui:3[0m
+[0m[[0m[0minfo[0m] [0m[0mTagging image 88ca7a6f8aff8c816b2b97c5776b2fee54fb026f388410e94512ccda34b111dc with name: querqy/smui:3.14[0m
+[0m[[0m[0minfo[0m] [0m[0mTagging image 88ca7a6f8aff8c816b2b97c5776b2fee54fb026f388410e94512ccda34b111dc with name: querqy/smui:3.14.0[0m

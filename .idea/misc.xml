@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="IntellijSFCCDeploymentSettings">
+    <option name="json" value="{&#10;  &quot;isFullCodeVersionCleanup&quot;: false,&#10;  &quot;tasks&quot;: [],&#10;  &quot;isWebDavActionAllowed&quot;: true&#10;}" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK" />
+  <component name="ProjectType">
+    <option name="id" value="jpab" />
+  </component>
+</project>

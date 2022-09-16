@@ -57,15 +57,18 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
     val canonicalSpellings = CanonicalSpelling.loadAllForIndex(solrIndexIdId)
     if (canonicalSpellings.size > 0) {
-      throw new Exception("Can't delete Solr Index that has " + canonicalSpellings.size + " canonical spellings existing");
+      throw new Exception("Can't delete Solr Index that has " + canonicalSpellings.size
+        + " canonical spellings existing");
     }
+
 
     val searchInputs = SearchInput.loadAllForIndex(solrIndexIdId)
-    if (searchInputs.size > 0) {
-      throw new Exception("Can't delete Solr Index that has " + searchInputs.size + " inputs existing");
+    for (searchInput <- searchInputs) {
+      SearchInput.delete(searchInput.id)
     }
 
-    // TODO consider reconfirmation and deletion of history entries (if some exist) (see https://github.com/querqy/smui/issues/97)
+    // TODO consider reconfirmation and deletion of history entries (if some exist) (
+    //  see https://github.com/querqy/smui/issues/97)
 
     val id = SolrIndex.delete(solrIndexId)
 
