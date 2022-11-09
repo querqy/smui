@@ -610,17 +610,13 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
         this.detailSearchInput.upDownRules = upDownRules.map(
           (upDownRule: UpDownRule, index: number) => {
             const { upDownDropdownDefinitionMapping } = upDownRule;
+            let idx = upDownDropdownDefinitionMapping === undefined ? -1 : upDownDropdownDefinitionMapping
+            if (idx == -1) throw Error("upDownDropdownDefinitionMapping was undefined");
             return {
               id: upDownRule.id,
               term: upDownRule.term,
-              upDownType: this.ruleManagementService
-                .upDownDropdownDefinitionMappings[
-                upDownDropdownDefinitionMapping || index
-              ].upDownType,
-              boostMalusValue: this.ruleManagementService
-                .upDownDropdownDefinitionMappings[
-                upDownDropdownDefinitionMapping || index
-              ].boostMalusValue,
+              upDownType: this.ruleManagementService.upDownDropdownDefinitionMappings[idx].upDownType,
+              boostMalusValue: this.ruleManagementService.upDownDropdownDefinitionMappings[idx].boostMalusValue,
               isActive: upDownRule.isActive
             };
           }
