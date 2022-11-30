@@ -45,7 +45,7 @@ libraryDependencies ++= {
     "org.codehaus.janino" % "janino" % "3.0.8", // For using conditions in logback.xml:
     "mysql" % "mysql-connector-java" % "8.0.18", // TODO verify use of mysql-connector over explicit mariaDB connector instead
     "org.postgresql" % "postgresql" % "42.2.5",
-    "org.xerial" % "sqlite-jdbc" % "3.25.2",
+    "org.xerial" % "sqlite-jdbc" % "3.40.0.0",
     "org.playframework.anorm" %% "anorm" % "2.6.4",
     "com.typesafe.play" %% "play-json" % "2.6.12",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
@@ -54,10 +54,9 @@ libraryDependencies ++= {
     "com.pauldijou" %% "jwt-play" % "4.1.0",
     "com.h2database" % "h2" % "1.4.197" % Test, // H2 DB for testing
     // Other databases as docker containers for testing with specific databases
-    "com.dimafeng" %% "testcontainers-scala" % "0.39.0" % Test,
-    "org.testcontainers" % "postgresql" % "1.15.2" % Test,
-    "org.testcontainers" % "mysql" % "1.15.2" % Test,
-    "org.xerial" % "sqlite-jdbc" % "3.28.0" % Test
+    "com.dimafeng" %% "testcontainers-scala" % "0.40.11" % Test,
+    "org.testcontainers" % "postgresql" % "1.17.6" % Test,
+    "org.testcontainers" % "mysql" % "1.17.6" % Test
   )
 }
 
