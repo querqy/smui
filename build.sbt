@@ -42,13 +42,14 @@ libraryDependencies ++= {
     guice,
     jdbc,
     evolutions,
+    "com.jayway.jsonpath" % "json-path" % "2.7.0",
     "org.querqy" % "querqy-core" % "3.7.0", // querqy dependency
     "net.logstash.logback" % "logstash-logback-encoder" % "5.3", // JSON logging:
     "org.codehaus.janino" % "janino" % "3.0.8", // For using conditions in logback.xml:
     "mysql" % "mysql-connector-java" % "8.0.18", // TODO verify use of mysql-connector over explicit mariaDB connector instead
-    "org.postgresql" % "postgresql" % "42.2.5",
+    "org.postgresql" % "postgresql" % "42.5.1",
     "org.xerial" % "sqlite-jdbc" % "3.40.0.0",
-    "org.playframework.anorm" %% "anorm" % "2.6.4",
+    "org.playframework.anorm" %% "anorm" % "2.7.0",
     "com.typesafe.play" %% "play-json" % "2.6.12",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
@@ -63,10 +64,11 @@ libraryDependencies ++= {
 }
 
 dependencyOverrides ++= {
-  lazy val jacksonVersion = "2.9.10"
+  lazy val jacksonVersion = "2.14.1"
   Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
-    "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
+    "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
+    "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
   )
 }
 
@@ -78,7 +80,7 @@ assembly / assemblyMergeStrategy := {
     // We don't need manifest files since sbt-assembly will create
     // one with the given settings
     MergeStrategy.discard
-  case "module-info.class" => MergeStrategy.discard
+  case x if x.endsWith("module-info.class") => MergeStrategy.discard
   case "play/reference-overrides.conf" => MergeStrategy.concat
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
