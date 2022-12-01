@@ -5,6 +5,7 @@ version := "3.14.0"
 
 scalaVersion := "2.12.11"
 
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .enablePlugins(BuildInfoPlugin)
@@ -19,7 +20,7 @@ lazy val root = (project in file("."))
   )
   .settings(dependencyCheckSettings: _*)
 
-updateOptions := updateOptions.value.withCachedResolution(cachedResoluton = true)
+updateOptions := updateOptions.value.withCachedResolution(true)
 
 lazy val dependencyCheckSettings: Seq[Setting[_]] = {
   import DependencyCheckPlugin.autoImport._
@@ -49,6 +50,8 @@ libraryDependencies ++= {
     "org.playframework.anorm" %% "anorm" % "2.6.4",
     "com.typesafe.play" %% "play-json" % "2.6.12",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
+    "com.auth0" % "jwks-rsa" % "0.17.0",
+    "org.scalaj" %% "scalaj-http" % "2.3.0",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
     "org.mockito" % "mockito-all" % "1.10.19" % Test,
     "com.pauldijou" %% "jwt-play" % "4.1.0",
