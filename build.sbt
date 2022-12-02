@@ -1,9 +1,11 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "3.14.0"
+version := "3.15.0"
 
-scalaVersion := "2.12.11"
+scalaVersion := "2.12.17"
+
+ThisBuild / evictionErrorLevel := Level.Info
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
@@ -19,7 +21,7 @@ lazy val root = (project in file("."))
   )
   .settings(dependencyCheckSettings: _*)
 
-updateOptions := updateOptions.value.withCachedResolution(cachedResoluton = true)
+updateOptions := updateOptions.value.withCachedResolution(cachedResolution = true)
 
 lazy val dependencyCheckSettings: Seq[Setting[_]] = {
   import DependencyCheckPlugin.autoImport._
@@ -40,13 +42,14 @@ libraryDependencies ++= {
     guice,
     jdbc,
     evolutions,
+    "com.jayway.jsonpath" % "json-path" % "2.7.0",
     "org.querqy" % "querqy-core" % "3.7.0", // querqy dependency
     "net.logstash.logback" % "logstash-logback-encoder" % "5.3", // JSON logging:
     "org.codehaus.janino" % "janino" % "3.0.8", // For using conditions in logback.xml:
     "mysql" % "mysql-connector-java" % "8.0.18", // TODO verify use of mysql-connector over explicit mariaDB connector instead
-    "org.postgresql" % "postgresql" % "42.2.5",
-    "org.xerial" % "sqlite-jdbc" % "3.25.2",
-    "org.playframework.anorm" %% "anorm" % "2.6.4",
+    "org.postgresql" % "postgresql" % "42.5.1",
+    "org.xerial" % "sqlite-jdbc" % "3.40.0.0",
+    "org.playframework.anorm" %% "anorm" % "2.7.0",
     "com.typesafe.play" %% "play-json" % "2.6.12",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
@@ -54,40 +57,40 @@ libraryDependencies ++= {
     "com.pauldijou" %% "jwt-play" % "4.1.0",
     "com.h2database" % "h2" % "1.4.197" % Test, // H2 DB for testing
     // Other databases as docker containers for testing with specific databases
-    "com.dimafeng" %% "testcontainers-scala" % "0.39.0" % Test,
-    "org.testcontainers" % "postgresql" % "1.15.2" % Test,
-    "org.testcontainers" % "mysql" % "1.15.2" % Test,
-    "org.xerial" % "sqlite-jdbc" % "3.28.0" % Test
+    "com.dimafeng" %% "testcontainers-scala" % "0.40.11" % Test,
+    "org.testcontainers" % "postgresql" % "1.17.6" % Test,
+    "org.testcontainers" % "mysql" % "1.17.6" % Test
   )
 }
 
 dependencyOverrides ++= {
-  lazy val jacksonVersion = "2.9.10"
+  lazy val jacksonVersion = "2.14.1"
   Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
-    "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
+    "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
+    "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
   )
 }
 
-mainClass in assembly := Some("play.core.server.ProdServerStart")
-fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value)
+assembly / mainClass := Some("play.core.server.ProdServerStart")
+assembly / fullClasspath += Attributed.blank(PlayKeys.playPackageAssets.value)
 
-assemblyMergeStrategy in assembly := {
+assembly / assemblyMergeStrategy := {
   case manifest if manifest.contains("MANIFEST.MF") =>
     // We don't need manifest files since sbt-assembly will create
     // one with the given settings
     MergeStrategy.discard
-  case "module-info.class" => MergeStrategy.discard
+  case x if x.endsWith("module-info.class") => MergeStrategy.discard
   case "play/reference-overrides.conf" => MergeStrategy.concat
   case x =>
-    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
 }
 
 lazy val dockerNamespace = "querqy"
 lazy val dockerRepo = "smui"
 
-imageNames in docker := {
+docker / imageNames := {
   val semVerLevels = version.value.split('.')
   val majorVersion = semVerLevels.head
   val minorVersion = semVerLevels.drop(1).head
@@ -102,13 +105,13 @@ imageNames in docker := {
   }
 }
 
-dockerfile in docker := NativeDockerfile(baseDirectory.value / "Dockerfile")
+docker / dockerfile := NativeDockerfile(baseDirectory.value / "Dockerfile")
 
-dockerBuildArguments in docker := Map(
+docker / dockerBuildArguments := Map(
   "VERSION" -> version.value,
 )
 
-buildOptions in docker := BuildOptions(
+docker / buildOptions := BuildOptions(
   pullBaseImage = BuildOptions.Pull.Always
 )
 
