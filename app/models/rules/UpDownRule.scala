@@ -22,6 +22,7 @@ case class UpDownRule(id: UpDownRuleId = UpDownRuleId(),
       UpDownRule.UP_DOWN_TYPE -> upDownType
     )
   }
+
 }
 
 object UpDownRule extends RuleObjectWithTerm[UpDownRule] {

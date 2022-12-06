@@ -36,13 +36,25 @@ import {
 import {
   AdminComponent,
   RulesCollectionListComponent,
-  RulesCollectionCreateComponent
+  RulesCollectionCreateComponent,
+  // FilzUploadComponent,
+  // ImporzComponent,
+  // ImporzRulesCollectionCreateComponent
 } from './components/admin';
 import {
   SuggestedFieldsComponent,
   SuggestedFieldsCreateComponent,
   SuggestedFieldsListComponent
 } from './components/admin/suggested-fields';
+
+import {
+  ImportComponent
+} from './components/import';
+
+import {
+  ImportRulesCollectionCreateComponent
+} from './components/import/import-rules-collection-create';
+
 import {
   ButtonRowComponent,
   CardComponent,
@@ -59,6 +71,7 @@ import {
   RulesListComponent,
   RulesSearchComponent
 } from './components/rules-panel';
+import {FileUploadComponent} from "./components/import/import-rules-collection-create/file-upload.component";
 
 @NgModule({
   imports: [
@@ -96,7 +109,13 @@ import {
     RulesCollectionCreateComponent,
     SuggestedFieldsComponent,
     SuggestedFieldsCreateComponent,
-    SuggestedFieldsListComponent
+    SuggestedFieldsListComponent,
+    ImportComponent,
+    ImportRulesCollectionCreateComponent,
+    FileUploadComponent,
+    // ImporzComponent,
+    // ImporzRulesCollectionCreateComponent,
+    // FilzUploadComponent
   ],
   providers: [
     CommonsService,

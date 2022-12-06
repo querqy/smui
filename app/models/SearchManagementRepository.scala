@@ -1,16 +1,20 @@
 package models
 
+import anorm._
+import models.FeatureToggleModel.FeatureToggleService
+import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
+import models.export.Exporter
+import models.input._
+import models.reports.{ActivityReport, DeploymentLog, RulesReport}
+import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
+import models.validatedimport.{ValidatedImportData, ValidatedImportImporter}
+import play.api.Logging
+import play.api.db.DBApi
+import play.api.libs.json.JsValue
+
 import java.time.LocalDateTime
 import java.util.{Date, UUID}
 import javax.inject.Inject
-import play.api.db.DBApi
-import anorm._
-import models.FeatureToggleModel.FeatureToggleService
-import models.input.{InputTag, InputTagId, PredefinedTag, SearchInput, SearchInputId, SearchInputWithRules, TagInputAssociation}
-import models.spellings.{CanonicalSpelling, CanonicalSpellingId, CanonicalSpellingWithAlternatives}
-import models.eventhistory.{ActivityLog, ActivityLogEntry, InputEvent}
-import models.reports.{ActivityReport, DeploymentLog, RulesReport}
-import play.api.Logging
 
 // TODO Make `userInfo` mandatory (for all input/spelling and deploymentLog CRUD operations), when removing unauthorized access.
 @javax.inject.Singleton
@@ -53,15 +57,18 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
 
     val canonicalSpellings = CanonicalSpelling.loadAllForIndex(solrIndexIdId)
     if (canonicalSpellings.size > 0) {
-      throw new Exception("Can't delete Solr Index that has " + canonicalSpellings.size + " canonical spellings existing");
+      throw new Exception("Can't delete Solr Index that has " + canonicalSpellings.size
+        + " canonical spellings existing");
     }
+
 
     val searchInputs = SearchInput.loadAllForIndex(solrIndexIdId)
-    if (searchInputs.size > 0) {
-      throw new Exception("Can't delete Solr Index that has " + searchInputs.size + " inputs existing");
+    for (searchInput <- searchInputs) {
+      SearchInput.delete(searchInput.id)
     }
 
-    // TODO consider reconfirmation and deletion of history entries (if some exist) (see https://github.com/querqy/smui/issues/97)
+    // TODO consider reconfirmation and deletion of history entries (if some exist) (
+    //  see https://github.com/querqy/smui/issues/97)
 
     val id = SolrIndex.delete(solrIndexId)
 
@@ -302,6 +309,26 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
           ))
       )
     }
+  }
+
+  def getDatabaseJsonWithId(id: String): JsValue = db.withConnection {
+    implicit connection => {
+      logger.debug("In SearchManagementRepository:getDatabaseJsonWithId():1")
+      val exporter : Exporter = new Exporter(dbapi, toggleService)
+      exporter.getDatabaseJsonWithId(id)
+    }
+  }
+
+  def doImport(validatedImport: ValidatedImportData): String = db.withTransaction { implicit connection =>
+    var aString : String = "At SearchManagementRepository:doImport():1"
+    logger.debug(aString)
+
+    val importer = new ValidatedImportImporter(validatedImport, dbapi, toggleService)
+    importer.performImport()
+
+    aString = "At SearchManagementRepository:doImport():2"
+    logger.debug(aString)
+    aString
   }
 
 }

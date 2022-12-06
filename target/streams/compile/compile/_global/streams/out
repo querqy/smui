@@ -1,0 +1,22 @@
+[0m[[0m[33mwarn[0m] [0m[0m/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/app/controllers/ApiController.scala:431:15: non-variable type argument org.checkerframework.checker.units.qual.A in type pattern controllers.auth.UserRequest[org.checkerframework.checker.units.qual.A] is unchecked since it is eliminated by erasure[0m
+[0m[[0m[33mwarn[0m] [0m[0m      case _: UserRequest[A] => Option(request.asInstanceOf[UserRequest[A]].username)[0m
+[0m[[0m[33mwarn[0m] [0m[0m              ^[0m
+[0m[[0m[33mwarn[0m] [0m[0m/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/app/models/export/AlternativeSpellingExport.scala:5:24: imported `JsonExportable' is permanently hidden by definition of trait JsonExportable in package export[0m
+[0m[[0m[33mwarn[0m] [0m[0mimport models.`export`.JsonExportable[0m
+[0m[[0m[33mwarn[0m] [0m[0m                       ^[0m
+[0m[[0m[33mwarn[0m] [0m[0m/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/app/models/export/CanonicalSpellingExport.scala:5:24: imported `JsonExportable' is permanently hidden by definition of trait JsonExportable in package export[0m
+[0m[[0m[33mwarn[0m] [0m[0mimport models.`export`.JsonExportable[0m
+[0m[[0m[33mwarn[0m] [0m[0m                       ^[0m
+[0m[[0m[33mwarn[0m] [0m[0m/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/app/models/export/DeleteRuleExport.scala:5:24: imported `JsonExportable' is permanently hidden by definition of trait JsonExportable in package export[0m
+[0m[[0m[33mwarn[0m] [0m[0mimport models.`export`.JsonExportable[0m
+[0m[[0m[33mwarn[0m] [0m[0m                       ^[0m
+[0m[[0m[33mwarn[0m] [0m[0m/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/app/models/export/RedirectRuleExport.scala:6:24: imported `JsonExportable' is permanently hidden by definition of trait JsonExportable in package export[0m
+[0m[[0m[33mwarn[0m] [0m[0mimport models.`export`.JsonExportable[0m
+[0m[[0m[33mwarn[0m] [0m[0m                       ^[0m
+[0m[[0m[33mwarn[0m] [0m[0m/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/app/models/export/SearchInputExport.scala:6:24: imported `JsonExportable' is permanently hidden by definition of trait JsonExportable in package export[0m
+[0m[[0m[33mwarn[0m] [0m[0mimport models.`export`.JsonExportable[0m
+[0m[[0m[33mwarn[0m] [0m[0m                       ^[0m
+[0m[[0m[33mwarn[0m] [0m[0m/Users/cjm/_cjm/CurrentNotes/osc/yy_repos/smui/app/models/export/SuggestedSolrFieldExport.scala:6:24: imported `JsonExportable' is permanently hidden by definition of trait JsonExportable in package export[0m
+[0m[[0m[33mwarn[0m] [0m[0mimport models.`export`.JsonExportable[0m
+[0m[[0m[33mwarn[0m] [0m[0m                       ^[0m
+[0m[[0m[33mwarn[0m] [0m[0m7 warnings found[0m

@@ -1,0 +1,40 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Handle Requests to the Server's root, and supply the Angular SPA
+GET     /         controllers.FrontendController.index()
+GET     /health   controllers.HealthController.health
+
+# serve the API v1 Specification
+# TODO search-input URL path partially "behind" solrIndexId path component and partially not
+GET     /api/v1/featureToggles                                  controllers.ApiController.getFeatureToggles
+GET     /api/v1/solr-index                                      controllers.ApiController.listAllSolrIndeces
+GET     /api/v1/solr-index/:solrIndexId                         controllers.ApiController.getSolrIndex(solrIndexId: String)
+PUT     /api/v1/solr-index                                      controllers.ApiController.addNewSolrIndex
+DELETE  /api/v1/solr-index/:solrIndexId                         controllers.ApiController.deleteSolrIndex(solrIndexId: String)
+GET     /api/v1/inputTags                                       controllers.ApiController.listAllInputTags
+GET     /api/v1/:solrIndexId/search-input                       controllers.ApiController.listAllSearchInputs(solrIndexId: String)
+GET     /api/v1/search-input/:searchInputId                     controllers.ApiController.getDetailedSearchInput(searchInputId: String)
+PUT     /api/v1/:solrIndexId/search-input                       controllers.ApiController.addNewSearchInput(solrIndexId: String)
+POST    /api/v1/search-input/:searchInputId                     controllers.ApiController.updateSearchInput(searchInputId: String)
+DELETE  /api/v1/search-input/:searchInputId                     controllers.ApiController.deleteSearchInput(searchInputId: String)
+POST    /api/v1/:solrIndexId/rules-txt/:targetPlatform          controllers.ApiController.updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: String, targetPlatform: String)
+GET     /api/v1/:solrIndexId/suggested-solr-field               controllers.ApiController.listAllSuggestedSolrFields(solrIndexId: String)
+PUT     /api/v1/:solrIndexId/suggested-solr-field               controllers.ApiController.addNewSuggestedSolrField(solrIndexId: String)
+DELETE  /api/v1/:solrIndexId/suggested-solr-field/:suggestedFieldId controllers.ApiController.deleteSuggestedSolrField(solrIndexId: String, suggestedFieldId: String)
+GET     /api/v1/allRulesTxtFiles                                controllers.ApiController.downloadAllRulesTxtFiles
+POST    /api/v1/:solrIndexId/import-from-rules-txt              controllers.ApiController.importFromRulesTxt(solrIndexId: String)
+GET     /api/v1/log/deployment-info                             controllers.ApiController.getLatestDeploymentResult(solrIndexId: String, targetSystem: String)
+GET     /api/v1/:solrIndexId/rules-and-spellings                controllers.ApiController.listAll(solrIndexId: String)
+PUT     /api/v1/:solrIndexId/spelling                           controllers.ApiController.addNewSpelling(solrIndexId: String)
+POST    /api/v1/:solrIndexId/spelling/:canonicalSpellingId      controllers.ApiController.updateSpelling(solrIndexId: String, canonicalSpellingId: String)
+DELETE  /api/v1/spelling/:canonicalSpellingId                   controllers.ApiController.deleteSpelling(canonicalSpellingId: String)
+GET     /api/v1/spelling/:canonicalSpellingId                   controllers.ApiController.getDetailedSpelling(canonicalSpellingId: String)
+GET     /api/v1/log/rule-activity-log                           controllers.ApiController.getActivityLog(inputId: String)
+GET     /api/v1/report/rules-report/:solrIndexId                controllers.ApiController.getRulesReport(solrIndexId: String)
+GET     /api/v1/report/activity-report/:solrIndexId             controllers.ApiController.getActivityReport(solrIndexId: String)
+GET     /api/v1/version/latest-info                             controllers.ApiController.getLatestVersionInfo()
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /*file   controllers.FrontendController.assetOrDefault(file)

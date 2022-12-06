@@ -2,8 +2,11 @@ package models.rules
 
 import anorm.SqlParser.get
 import anorm.{RowParser, ~}
+import models.input.SearchInputId
 import models.{Id, IdObject, Status}
 import play.api.libs.json.{Json, OFormat}
+
+import java.time.LocalDateTime
 
 class DeleteRuleId(id: String) extends Id(id)
 object DeleteRuleId extends IdObject[DeleteRuleId](new DeleteRuleId(_))
@@ -28,4 +31,5 @@ object DeleteRule extends RuleObjectWithTerm[DeleteRule] {
       DeleteRule(id, term, Status.isActiveFromStatus(status))
     }
   }
+
 }

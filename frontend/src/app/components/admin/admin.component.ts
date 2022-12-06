@@ -38,7 +38,6 @@ export class AdminComponent implements OnInit {
     this.toasterService.pop('error', '', msgText);
   }
 
-
   // @ts-ignore
   public openDeleteConfirmModal({ deleteCallback }) {
     const deferred = this.modalService.open('confirm-delete');

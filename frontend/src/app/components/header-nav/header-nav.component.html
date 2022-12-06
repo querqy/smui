@@ -63,6 +63,14 @@
         >Admin</a
         >
       </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [ngClass]="{ active: router.url === '/import' }"
+          routerLink="/import"
+        >Import</a
+        >
+      </li>
       <li>
         <button class="btn btn-outline-secondary" (click)="openHelpModal()">
           <i class="fa fa-info-circle" aria-hidden="true"></i> Help

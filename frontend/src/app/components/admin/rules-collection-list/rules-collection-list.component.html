@@ -6,20 +6,50 @@
 
     <ul *ngFor="let solrIndex of getSolrIndices()" class="list-group smui-search-input-list">
         <li class="list-group-item">
-          {{ solrIndex.description }} ({{ solrIndex.name }})- Key: <code>{{ solrIndex.id }}</code>
+          Description: {{ solrIndex.description }}<br/>
+          Name: {{ solrIndex.name }}<br/>
+          Key: <code>{{ solrIndex.id }}</code><br/>
 
-          <a
-            class="btn btn-primary btn-sm float-right"
-            [routerLink]="['/admin/suggested-fields/', solrIndex.id.toUpperCase()]"
-          >Configure</a>
+          <div class="float-right-top">
 
-          <button
-            type="button"
-            class="btn btn-danger btn-sm float-right"
-            (click)="deleteRulesCollection(solrIndex.id, $event)"
-          >
-            <i class="fa fa-minus" aria-hidden="true"></i>
-          </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm" [routerLink]="['/admin/suggested-fields/', solrIndex.id.toUpperCase()]"
+            >
+              <i class="fa fa-wrench" aria-hidden="true"></i>
+              <span class="horizontalgap">&nbsp;</span>
+              Configure
+              <span class="horizontalgap">&nbsp;</span>
+            </button>
+
+            <span class="horizontalgap">&nbsp;</span>
+
+            <button
+              type="button"
+              class="btn btn-dark btn-sm"
+              (click)="downloadRulesCollectionExport(solrIndex.id, $event)"
+            >
+              <i class="fa fa-download" aria-hidden="true"></i>
+              <span class="horizontalgap">&nbsp;</span>
+              Export
+              <span class="horizontalgap">&nbsp;</span>
+            </button>
+
+            <span class="horizontalgap">&nbsp;</span>
+
+            <button
+              type="button"
+              class="btn btn-danger btn-sm"
+              (click)="deleteRulesCollection(solrIndex.id, $event)"
+            >
+              <i class="fa fa-trash" aria-hidden="true"></i>
+              <span class="horizontalgap">&nbsp;</span>
+              Delete
+              <span class="horizontalgap">&nbsp;</span>
+            </button>
+            <span class="horizontalgap">&nbsp;</span>
+          </div>
+
         </li>
     </ul>
   </div>

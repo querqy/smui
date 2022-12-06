@@ -1,0 +1,27 @@
+[0m[[0m[31merror[0m] [0m[0mscala.MatchError: org.apache.logging.log4j.simple.SimpleLoggerContext@fa4c6f9 (of class org.apache.logging.log4j.simple.SimpleLoggerContext)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.util.LogExchange.logger(LogExchange.scala:28)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.internal.LogManager$.defaultLogger(LogManager.scala:136)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.internal.LogManager$DefaultLogManager.apply(LogManager.scala:103)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.internal.LogManager$.$anonfun$construct$1(LogManager.scala:51)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.std.Streams$$anon$2$$anon$3.log(Streams.scala:184)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.std.TaskStreams.log(Streams.scala:71)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.std.TaskStreams.log$(Streams.scala:71)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.std.Streams$$anon$2$$anon$3.log$lzycompute(Streams.scala:143)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.std.Streams$$anon$2$$anon$3.log(Streams.scala:143)[0m
+[0m[[0m[31merror[0m] [0m[0m	at play.twirl.sbt.SbtTwirl$.$anonfun$compileTemplatesTask$1(SbtTwirl.scala:108)[0m
+[0m[[0m[31merror[0m] [0m[0m	at scala.Function1.$anonfun$compose$1(Function1.scala:49)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.internal.util.$tilde$greater.$anonfun$$u2219$1(TypeFunctions.scala:62)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.std.Transform$$anon$4.work(Transform.scala:67)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.Execute.$anonfun$submit$2(Execute.scala:281)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.internal.util.ErrorHandling$.wideConvert(ErrorHandling.scala:19)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.Execute.work(Execute.scala:290)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.Execute.$anonfun$submit$1(Execute.scala:281)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.ConcurrentRestrictions$$anon$4.$anonfun$submitValid$1(ConcurrentRestrictions.scala:178)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.CompletionService$$anon$2.call(CompletionService.scala:37)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/java.lang.Thread.run(Thread.java:829)[0m
+[0m[[0m[31merror[0m] [0m[0m(Compile / [31mtwirlCompileTemplates[0m) scala.MatchError: org.apache.logging.log4j.simple.SimpleLoggerContext@fa4c6f9 (of class org.apache.logging.log4j.simple.SimpleLoggerContext)[0m

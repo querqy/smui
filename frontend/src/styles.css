@@ -2,3 +2,18 @@
 @import '~angular2-toaster/toaster.css';
 @import '~angular2-multiselect-dropdown/themes/default.theme.css';
 @import '~@fortawesome/fontawesome-free/css/all.css';
+
+div.horizontalgap {
+  float: left;
+  overflow: hidden;
+  height: 1px;
+  width: 0px;
+}
+
+.float-right-top {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding-top:10px;
+  padding-right:10px;
+}
