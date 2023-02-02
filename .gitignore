@@ -28,3 +28,6 @@ package-lock.json
 e2e/cypress/videos
 e2e/cypress/screenshots
 hs_err_pid*
+
+# SBT related stuff
+.bsp

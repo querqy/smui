@@ -2,6 +2,7 @@
   <app-smui-detail-header
     *ngIf="detailSpelling"
     title="Correct spelling:"
+    exactMatchWarn="true"
     placeholder="Edit Spelling..."
     [disabled]="!detailSpelling.isActive"
     (handleSave)="saveSpellingsDetails()"

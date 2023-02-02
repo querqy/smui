@@ -32,3 +32,6 @@
     </button>
   </div>
 </div>
+<div *ngIf="warn_for_exactmatch()" class="alert alert-warning mt-2 mb-0" role="alert">
+  <i class="fa fa-exclamation-circle"></i> WARNING: Exact query matches do not apply to spellings. The correct spelling term will include the double quotations.
+</div>
