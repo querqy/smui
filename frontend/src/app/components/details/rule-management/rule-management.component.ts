@@ -632,4 +632,13 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
         ListItemType[ListItemType.Spelling].toString()
     );
   }
+
+  warn_searchinput_exact(): boolean {
+    if(!this.detailSearchInput) {
+      return false
+    } else {
+      const trimmedTerm = this.detailSearchInput.term.trim()
+      return trimmedTerm.startsWith('"') && trimmedTerm.endsWith('"')
+    }
+  }
 }

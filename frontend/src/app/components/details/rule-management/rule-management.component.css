@@ -87,3 +87,8 @@
 .bottom-margin {
   margin-bottom: 1rem;
 }
+
+.smui-clean-input-group-append {
+  background-color: #fff;
+  border-left-style: none !important;
+}

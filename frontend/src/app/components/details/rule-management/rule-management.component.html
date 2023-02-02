@@ -22,6 +22,8 @@
               [style.width]="showTags ? '30%' : '60%'"
               [style.padding-right]="!showTags && '0.5rem'"
             >
+
+            <div class="input-group">
               <ng-container *ngIf="detailSearchInput">
                 <input
                   type="text"
@@ -33,14 +35,25 @@
                 />
               </ng-container>
               <ng-container *ngIf="!detailSearchInput">
-                <input
-                  type="text"
-                  class="form-control"
-                  id="inputSearchInput"
-                  placeholder="Edit Search Input ..."
-                  disabled="disabled"
-                />
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="inputSearchInput"
+                    placeholder="Edit Search Input ..."
+                    disabled="disabled"
+                  />
               </ng-container>
+              <div class="input-group-append" *ngIf="warn_searchinput_exact()">
+                <span class="input-group-text smui-clean-input-group-append">
+                  <span class="badge badge-warning">
+                    <i class="fa fa-info-circle">&nbsp;</i>
+                    Exact match
+                  </span>
+                </span>
+                <!--<span class="input-group-text">Right addon</span>-->
+              </div>
+            </div>
+
             </td>
             <td
               [style.display]="showTags ? 'table-cell' : 'none'"
