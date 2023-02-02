@@ -35,8 +35,14 @@ input {
     align-self: center;
 }
 
-.detail-input-row-delete {
+.detail-input-row-editdistance {
     grid-column: 4;
+    align-self: center;
+    width: 12rem;
+}
+
+.detail-input-row-delete {
+    grid-column: 5;
     align-self: center;
     justify-self: end;
 }

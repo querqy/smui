@@ -21,7 +21,24 @@
       (keyup.enter)="handleSave.emit()"
     />
   </div>
-  <div class="detail-input--row-delete">
+  
+  <div class="detail-input-row-editdistance">
+    <div class="progress" style="height: 32px;">
+      <div
+        [ngClass]="['progress-bar', editDistanceToBootstrapWarnClass()]"
+        role="progressbar"
+        [style.width]="editDistanceToProgressValue() + '%'"
+        [style.height]="'32px'"
+        [attr.aria-valuenow]="editDistanceToProgressValue()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        {{ editDistance }}
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-input-row-delete">
     <button
       type="button"
       class="btn btn-danger btn-sm"

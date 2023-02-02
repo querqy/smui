@@ -10,7 +10,8 @@ import {CommonsService, SpellingsService} from '../../../services';
 import {
   AlternativeSpelling,
   CanonicalSpelling,
-  ListItem
+  ListItem,
+  LevenshteinDistance
 } from '../../../models';
 
 @Component({
@@ -117,5 +118,12 @@ export class SpellingsComponent implements OnChanges {
         this.detailSpellingCleanState
       )
       : false;
+  }
+
+  editDistance(canonicalTerm: string, alternativeTerm: string): number {
+    return LevenshteinDistance.calc(
+      canonicalTerm.trim().toLowerCase(),
+      alternativeTerm.trim().toLowerCase()
+    )
   }
 }

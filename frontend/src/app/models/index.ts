@@ -9,3 +9,4 @@ export * from './activity-log.model';
 export * from './report.model';
 export * from './config.model';
 export * from './feature-toggle.model';
+export * from './levenshtein-distance.model';

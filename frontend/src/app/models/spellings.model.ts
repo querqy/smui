@@ -24,6 +24,6 @@ export class AssociatedSpelling {
     this.id = id;
     this.term = term;
     this.exists = exists;
-    this.alternatives = alternatives;
+    this.alternatives = alternatives
   }
 }
