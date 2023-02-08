@@ -89,4 +89,14 @@ object SearchInput {
     SQL"delete from #$TABLE_NAME where #$ID = $id".executeUpdate()
   }
 
+  // Further object helper
+
+  /**
+   * Identifies an exact matching input term (by querqy syntax specification).
+   */
+  def isExactMatch(term: String): Boolean = {
+    val trimmedTerm = term.trim()
+    trimmedTerm.startsWith("\"") && trimmedTerm.endsWith("\"")
+  }
+
 }
