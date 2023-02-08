@@ -51,20 +51,22 @@ export class RulesListComponent implements OnChanges {
     }
   }
 
-  refreshItemsInList() {
+  refreshItemsInList(bResetSearchInputTerm: boolean = true) {
     return this.currentSolrIndexId
       ? this.listItemsService
           .getAllItemsForInputList(this.currentSolrIndexId)
           .then(listItems => {
             this.listItems = listItems;
             this.listItemsChange.emit(listItems);
-            this.searchInputTerm = '';
+            if(bResetSearchInputTerm) {
+              this.searchInputTerm = '';
+            }
           })
       : Promise.reject('No selected Solr index');
   }
 
   refreshAndSelectListItemById(listItemId: string) {
-    return this.refreshItemsInList()
+    return this.refreshItemsInList(false)
       .then(() => {
         const listItem = this.listItems.find(item => item.id === listItemId);
         this.selectListItem(listItem || undefined);
