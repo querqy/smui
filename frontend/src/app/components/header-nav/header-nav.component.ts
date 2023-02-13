@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ToasterService } from 'angular2-toaster';
 import {Router} from '@angular/router';
 
-import { DeploymentLogInfo, SmuiVersionInfo, SolrIndex } from '../../models';
+import { DeploymentDetailedInfo, SmuiVersionInfo, SolrIndex } from '../../models';
 import {
   FeatureToggleService,
   SolrService,
   ConfigService,
-  ModalService
+  ModalService,
+  DeploymentDetailedInfoService
 } from '../../services';
 
 @Component({
@@ -20,8 +21,7 @@ export class HeaderNavComponent implements OnInit {
   currentSolrIndexId?: string;
   versionInfo?: SmuiVersionInfo;
   deploymentRunningForStage?: string;
-  hideDeploymentLogInfo = true;
-  deploymentLogInfo = 'Loading info ...';
+  deploymentLogInfo: DeploymentDetailedInfo[] = [];
 
   constructor(
     private toasterService: ToasterService,
@@ -29,10 +29,12 @@ export class HeaderNavComponent implements OnInit {
     private solrService: SolrService,
     private configService: ConfigService,
     public router: Router,
-    public modalService: ModalService
+    public modalService: ModalService,
+    public deploymentDetailedInfoService: DeploymentDetailedInfoService
   ) {
     this.solrService.currentSolrIndexIdSubject.subscribe(value => {
-      this.currentSolrIndexId = value;
+      this.currentSolrIndexId = value
+      this.loadLatestDeploymentLogInfo()
     });
   }
 
@@ -44,8 +46,20 @@ export class HeaderNavComponent implements OnInit {
       console.log("HeaderNav: rulesCollectionChangeEventListener fired");
       this.solrIndices = this.solrService.solrIndices;
     });
+    this.loadLatestDeploymentLogInfo()
   }
 
+  loadLatestDeploymentLogInfo() {
+    if(this.currentSolrIndexId !== undefined) {
+      this.deploymentDetailedInfoService
+        .get(this.currentSolrIndexId)
+        .then(apiDeploymentInfo => {
+          this.deploymentLogInfo = apiDeploymentInfo
+        })
+        // Ignore errors
+    }
+  }
+  
   hideSolrIndexSelector() {
     return (!this.currentSolrIndexId) || (this.currentSolrIndexId === '-1') || (this.solrService.solrIndices.length < 1)
   }
@@ -77,7 +91,7 @@ export class HeaderNavComponent implements OnInit {
           this.deploymentRunningForStage = undefined
           this.modalService.close('confirm-publish-live')
           this.showSuccessMsg(apiResult.message)
-
+          this.loadLatestDeploymentLogInfo()
         })
         .catch(error => {
           this.deploymentRunningForStage = undefined
@@ -111,19 +125,4 @@ export class HeaderNavComponent implements OnInit {
     window.location.href = this.featureToggleService.getSimpleLogoutButtonTargetUrl();
   }
 
-  public loadAndShowDeploymentLogInfo(targetPlatform: string) {
-    console.log('In AppComponent :: loadAndShowDeploymentLog');
-
-    if (this.currentSolrIndexId) {
-      this.hideDeploymentLogInfo = false;
-      this.deploymentLogInfo = 'Loading info for ' + targetPlatform + ' ...';
-
-      this.solrService
-        .lastDeploymentLogInfo(this.currentSolrIndexId, targetPlatform)
-        .then(retApiResult => {
-          this.deploymentLogInfo = retApiResult.msg;
-        })
-        .catch(error => this.showErrorMsg(error));
-    }
-  }
 }
