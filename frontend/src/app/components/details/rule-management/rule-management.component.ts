@@ -24,7 +24,9 @@ import {
   SearchInput,
   SuggestedSolrField,
   SynonymRule,
-  UpDownRule
+  UpDownRule,
+  PreviewSection,
+  PreviewItem
 } from '../../../models';
 import {
   CommonsService,
@@ -63,6 +65,7 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
   tagsDropDownSettings?: DropdownSettings;
   availableTags: InputTag[] = [];
   selectedTags: InputTag[] = [];
+  previewVisible: boolean;
 
   constructor(
     private commonsService: CommonsService,
@@ -83,6 +86,8 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
       labelKey: 'displayValue',
       noDataLabel: 'No Tags available'
     };
+
+    this.previewVisible = true
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -641,4 +646,18 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
       return trimmedTerm.startsWith('"') && trimmedTerm.endsWith('"')
     }
   }
+
+  previewData(): PreviewSection[] {
+    return [
+      new PreviewSection('LIVE', [
+        new PreviewItem('rule1','https://domain.tld/search/?query=rule1'),
+        new PreviewItem('rule2','https://domain.tld/search/?query=rule2')
+      ]),
+      new PreviewSection('PRELIVE (Staging)', [
+        new PreviewItem('rule1','https://staging-domain.tld/search/?query=rule1'),
+        new PreviewItem('rule2','https://staging-domain.tld/search/?query=rule2')
+      ]),
+    ]
+  }
+
 }
