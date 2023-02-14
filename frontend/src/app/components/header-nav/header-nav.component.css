@@ -41,3 +41,28 @@
   align-items: center;
   justify-items: center;
 }
+
+.depl-info-container {
+  font-size: small;
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  grid-column-gap: 0.5rem;
+}
+
+.depl-info-row-instance {
+    grid-column: 1;
+    align-self: center;
+    justify-self: start;
+}
+
+.depl-info-row-datetime {
+    grid-column: 2;
+    align-self: center;
+    justify-self: start;
+}
+
+.depl-info-row-result {
+    grid-column: 3;
+    align-self: center;
+    justify-self: start;
+}

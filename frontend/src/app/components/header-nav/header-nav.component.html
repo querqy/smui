@@ -78,14 +78,11 @@
       class="solrPanel"
     >
 
-    <div
-      style="font-size:small;width:325px;"
-    >
+    <div class="depl-info-container border-left border-right pl-2">
       <ng-container *ngFor="let singleDeploymentInfo of deploymentLogInfo; index as idxDeploy">
-        <span>
-          <b>{{ singleDeploymentInfo.targetSystem }}</b>&nbsp;
-          deployment:&nbsp;
-          <b>{{ singleDeploymentInfo.formattedDateTime }}</b>&nbsp;
+        <span class="depl-info-row-instance"><b>{{ singleDeploymentInfo.targetSystem }}</b> deployment:</span>
+        <span class="depl-info-row-datetime"><b>{{ singleDeploymentInfo.formattedDateTime }}</b></span>
+        <span class="depl-info-row-result">
           <b
             [ngStyle]="{'color': (singleDeploymentInfo.result == 0) ? '#28a745' : '#dc3545'}"
           >{{ (singleDeploymentInfo.result == 0) ? "OK" : "FAIL" }}</b>
