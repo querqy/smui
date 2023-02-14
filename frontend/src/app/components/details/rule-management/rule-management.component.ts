@@ -660,4 +660,8 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     ]
   }
 
+  __TODO_openPreviewLink(toURL: string): void {
+    console.log('In __TODO_openPreviewLink :: toURL = ' + toURL)
+  }
+
 }
