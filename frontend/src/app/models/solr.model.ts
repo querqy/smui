@@ -8,7 +8,3 @@ export class SuggestedSolrField {
   id: string;
   name: string;
 }
-
-export class DeploymentLogInfo {
-  msg: string;
-}

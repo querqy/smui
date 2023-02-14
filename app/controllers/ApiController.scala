@@ -21,6 +21,7 @@ import models.config.SmuiVersion
 import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
+import models.reports.{DeploymentLog}
 import org.checkerframework.checker.units.qual.A
 import services.{RulesTxtDeploymentService, RulesTxtImportService}
 
@@ -403,9 +404,10 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
   implicit val logDeploymentInfoWrites = Json.writes[DeploymentInfo]
 
-  def getLatestDeploymentResult(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  @deprecated("The old style of retrieving a deployment log summary as plain text will be removed", "SMUI version > 3.15.1")
+  def getLatestDeploymentResultV1(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
     Future {
-      logger.debug("In ApiController :: getLatestDeploymentResult")
+      logger.debug("In ApiController :: getLatestDeploymentResultV1")
       logger.debug(s"... solrIndexId = $solrIndexId")
       logger.debug(s"... targetSystem = $targetSystem")
 
@@ -443,6 +445,44 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       }
 
       Ok(Json.toJson(getRawVerboseDeplMsg()))
+    }
+  }
+
+  case class DeploymentDetailedInfo(targetSystem: String, formattedDateTime: String, result: Int)
+
+  implicit val logDeploymentDetailedInfoWrites = Json.writes[DeploymentDetailedInfo]
+
+  def getLatestDeploymentResult(solrIndexId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+    Future {
+      logger.debug("In ApiController :: getLatestDeploymentResult")
+      logger.debug(s"... solrIndexId = $solrIndexId")
+
+      def readDeploymentDetailedInfo(forTargetSystem: String) = {
+        searchManagementRepository.lastDeploymentLogDetail(solrIndexId, forTargetSystem) match {
+          case Some(deplLogDetailRaw) => DeploymentDetailedInfo(
+                forTargetSystem,
+                deplLogDetailRaw.lastUpdate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                deplLogDetailRaw.result
+          )
+          case None => DeploymentDetailedInfo(
+              forTargetSystem,
+              "<not yet deployed>",
+              0
+          )
+        }
+      }
+
+      val deplLogDetailList = if (featureToggleService.isSmuiSulrDeploymentPrelivePresent)
+          List(
+            readDeploymentDetailedInfo("LIVE"),
+            readDeploymentDetailedInfo("PRELIVE")
+          )
+        else
+          List(
+            readDeploymentDetailedInfo("LIVE")
+          )
+      
+      Ok(Json.toJson( deplLogDetailList ))
     }
   }
 

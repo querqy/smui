@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 
 import {
-  DeploymentLogInfo,
   SolrIndex,
   SuggestedSolrField,
   ApiResult
@@ -118,24 +117,6 @@ export class SolrService {
     const body = JSON.stringify( { name: name});
     return this.http
       .put<ApiResult>(`${this.baseUrl}/${solrIndexId}/${this.solrFieldsApiPath}`, body, httpOptions)
-      .toPromise();
-  }
-
-  lastDeploymentLogInfo(
-    solrIndexId: string,
-    targetSystem: string,
-    raw: boolean = false
-  ): Promise<DeploymentLogInfo> {
-    const options = {
-      params: {
-        solrIndexId,
-        targetSystem,
-        raw: raw.toString()
-      }
-    };
-
-    return this.http
-      .get<DeploymentLogInfo>(`${this.baseUrl}/log/deployment-info`, options)
       .toPromise();
   }
 

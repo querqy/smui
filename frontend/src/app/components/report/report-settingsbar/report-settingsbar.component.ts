@@ -9,8 +9,14 @@ import {
 } from '@angular/core';
 import { ToasterService } from 'angular2-toaster';
 
-import { FeatureToggleService, SolrService } from '../../../services';
-import { DeploymentLogInfo } from '../../../models';
+import {
+  FeatureToggleService,
+  SolrService,
+  DeploymentDetailedInfoService
+} from '../../../services';
+import {
+  DeploymentDetailedInfo
+} from '../../../models';
 
 interface ReportOption<ValueType> {
   [key: string]: ValueType;
@@ -40,7 +46,7 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
   constructor(
     public featureToggleService: FeatureToggleService,
     private toasterService: ToasterService,
-    private solrService: SolrService
+    public deploymentDetailedInfoService: DeploymentDetailedInfoService
   ) {
     this.reportSelectOptionModel['rules-report'] = 'Oldest rules (by last_updated date)';
     this.reportSelectOptionModel['activity-report'] = 'Latest rule management activities';
@@ -95,18 +101,28 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
     );
     console.log(':: this.currentSolrIndexId = ' + this.currentSolrIndexId);
     if (this.currentSolrIndexId) {
-      this.solrService
-        .lastDeploymentLogInfo(this.currentSolrIndexId, deployInstance, true)
-        .then(retDeplInfo => {
-          console.log(
-            ':: clickSetFromDate :: retDeplInfo = ' +
-              JSON.stringify(retDeplInfo)
-          );
-          // TODO make date format backend/frontend definitions more robust
-          // assume date to be in format, e.g.: 2020-02-16T23:59:12 (within msg field)
-          this.configDateFrom = this.dateToFrontendString(
-            new Date(Date.parse(retDeplInfo.msg))
-          );
+      this.deploymentDetailedInfoService
+        .get(this.currentSolrIndexId)
+        .then(apiDeploymentInfo => {
+          // filter deployInstance down to exactly one entry
+          let instanceDeplInfoList = apiDeploymentInfo
+            .filter(elemDeplInfo => elemDeplInfo.targetSystem == deployInstance)
+          if( instanceDeplInfoList.length == 1 ) {
+            let instanceDeplInfo = instanceDeplInfoList[0]
+
+            console.log(
+              ':: clickSetFromDate :: instanceDeplInfo = ' +
+                JSON.stringify(instanceDeplInfo)
+            )
+            // TODO make date format backend/frontend definitions more robust
+            // assume date to be in format, e.g.: "2020-02-16 23:59"
+            this.configDateFrom = this.dateToFrontendString(
+              new Date(Date.parse(instanceDeplInfo.formattedDateTime))
+            )
+  
+          } else {
+            this.showErrorMsg('Error in clickSetFromDate :: deployInstance = "' + deployInstance + '" not found!')
+          }
         })
         .catch(error => this.showErrorMsg(error));
     }

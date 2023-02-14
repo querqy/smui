@@ -25,7 +25,7 @@ PUT     /api/v1/:solrIndexId/suggested-solr-field               controllers.ApiC
 DELETE  /api/v1/:solrIndexId/suggested-solr-field/:suggestedFieldId controllers.ApiController.deleteSuggestedSolrField(solrIndexId: String, suggestedFieldId: String)
 GET     /api/v1/allRulesTxtFiles                                controllers.ApiController.downloadAllRulesTxtFiles
 POST    /api/v1/:solrIndexId/import-from-rules-txt              controllers.ApiController.importFromRulesTxt(solrIndexId: String)
-GET     /api/v1/log/deployment-info                             controllers.ApiController.getLatestDeploymentResult(solrIndexId: String, targetSystem: String)
+GET     /api/v1/log/deployment-info                             controllers.ApiController.getLatestDeploymentResultV1(solrIndexId: String, targetSystem: String)
 GET     /api/v1/:solrIndexId/rules-and-spellings                controllers.ApiController.listAll(solrIndexId: String)
 PUT     /api/v1/:solrIndexId/spelling                           controllers.ApiController.addNewSpelling(solrIndexId: String)
 POST    /api/v1/:solrIndexId/spelling/:canonicalSpellingId      controllers.ApiController.updateSpelling(solrIndexId: String, canonicalSpellingId: String)
@@ -35,6 +35,7 @@ GET     /api/v1/log/rule-activity-log                           controllers.ApiC
 GET     /api/v1/report/rules-report/:solrIndexId                controllers.ApiController.getRulesReport(solrIndexId: String)
 GET     /api/v1/report/activity-report/:solrIndexId             controllers.ApiController.getActivityReport(solrIndexId: String)
 GET     /api/v1/version/latest-info                             controllers.ApiController.getLatestVersionInfo()
+GET     /api/v2/log/deployment-info                             controllers.ApiController.getLatestDeploymentResult(solrIndexId: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /*file   controllers.FrontendController.assetOrDefault(file)

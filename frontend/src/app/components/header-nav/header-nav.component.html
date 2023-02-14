@@ -77,12 +77,20 @@
       *ngIf="currentSolrIndexId && currentSolrIndexId !== '-1'"
       class="solrPanel"
     >
-      <span
-        *ngIf="!hideDeploymentLogInfo"
-        style="font-size:x-small;margin-right:10px;width:8.5rem;"
-      >
-        {{ deploymentLogInfo }}
-      </span>
+
+    <div class="depl-info-container border-left border-right pl-2">
+      <ng-container *ngFor="let singleDeploymentInfo of deploymentLogInfo; index as idxDeploy">
+        <span class="depl-info-row-instance"><b>{{ singleDeploymentInfo.targetSystem }}</b> deployment:</span>
+        <span class="depl-info-row-datetime"><b>{{ singleDeploymentInfo.formattedDateTime }}</b></span>
+        <span class="depl-info-row-result">
+          <b
+            [ngStyle]="{'color': (singleDeploymentInfo.result == 0) ? '#28a745' : '#dc3545'}"
+          >{{ (singleDeploymentInfo.result == 0) ? "OK" : "FAIL" }}</b>
+        </span>
+        <br *ngIf="idxDeploy < 1">
+      </ng-container>
+    </div>
+
       <div class="selectpicker">
         <select
           class="custom-select"
@@ -100,8 +108,6 @@
           type="button"
           class="btn btn-outline-primary"
           (click)="publishSolrConfig()"
-          (mouseenter)="loadAndShowDeploymentLogInfo('PRELIVE')"
-          (mouseleave)="hideDeploymentLogInfo = true"
           [attr.disabled]="
             !currentSolrIndexId || deploymentRunningForStage == 'PRELIVE'
               ? ''
@@ -117,8 +123,6 @@
           type="button"
           class="btn btn-outline-danger"
           (click)="modalService.open('confirm-publish-live')"
-          (mouseenter)="loadAndShowDeploymentLogInfo('LIVE')"
-          (mouseleave)="hideDeploymentLogInfo = true"
           [attr.disabled]="
             !currentSolrIndexId || deploymentRunningForStage == 'LIVE'
               ? ''
