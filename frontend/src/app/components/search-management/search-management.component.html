@@ -20,6 +20,7 @@
       [searchInputTerm]="searchInputTerm"
       [appliedTagFilter]="appliedTagFilter"
       (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
+      (openCopyConfirmModal)="openCopyConfirmModal($event)"
       (executeWithChangeCheck)="executeWithChangeCheck($event)"
       (showErrorMsg)="showErrorMsg($event)"
       [(selectedListItem)]="selectedListItem"
@@ -100,3 +101,12 @@
 >
   <p>Are you sure you want to delete the item?</p>
 </app-smui-confirm-modal>
+
+<app-smui-copy-modal
+  id="confirm-copy"
+  title="Copy rule management or spelling item"
+  description="Please choose the destination Rules Collection"
+  okLabel="Copy"
+  cancelLabel="Cancel"
+>
+</app-smui-copy-modal>

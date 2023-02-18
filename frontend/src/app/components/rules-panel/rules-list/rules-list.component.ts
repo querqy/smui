@@ -31,6 +31,7 @@ export class RulesListComponent implements OnChanges {
   @Output() selectedListItemChange = new EventEmitter<ListItem>();
   @Output() listItemsChange = new EventEmitter<Array<ListItem>>();
   @Output() openDeleteConfirmModal: EventEmitter<any> = new EventEmitter();
+  @Output() openCopyConfirmModal: EventEmitter<any> = new EventEmitter();
   @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
 
@@ -111,6 +112,32 @@ export class RulesListComponent implements OnChanges {
         .catch(error => this.showErrorMsg.emit(error));
 
     this.openDeleteConfirmModal.emit({ deleteCallback });
+  }
+
+  copySpellingItem(id: string, event: Event) {
+    event.stopPropagation();
+    const copyCallback = (targetSolrIndexId: string) =>
+        this.showErrorMsg.emit("Copy Spelling " + id + " to " + targetSolrIndexId);
+//       this.spellingsService
+//         .deleteSpelling(id)
+//         .then(() => this.refreshItemsInList())
+//         .then(() => this.selectListItem(undefined))
+//         .catch(error => this.showErrorMsg.emit(error));
+
+    this.openCopyConfirmModal.emit({ copyCallback });
+  }
+
+  copyRuleItem(id: string, event: Event) {
+    event.stopPropagation();
+    const copyCallback = (targetSolrIndexId: string) =>
+        this.showErrorMsg.emit("Copy Rule " + id + " to " + targetSolrIndexId);
+//       this.ruleManagementService
+//         .deleteSearchInput(id)
+//         .then(() => this.refreshItemsInList())
+//         .then(() => this.selectListItem(undefined))
+//         .catch(error => this.showErrorMsg.emit(error));
+
+    this.openCopyConfirmModal.emit({ copyCallback });
   }
 
   toggleShowMore() {
