@@ -59,18 +59,10 @@
         </span>
 
         <button
-          *ngIf="listItem.itemType.toString() === 'RuleManagement'"
           type="button"
           class="btn btn-light btn-sm float-right"
           (click)="copyRuleItem(listItem.id, $event)"
-        >
-          <i class="fa fa-ellipsis-v" aria-hidden="true">  </i>
-        </button>
-        <button
-          *ngIf="listItem.itemType.toString() === 'Spelling'"
-          type="button"
-          class="btn btn-light btn-sm float-right"
-          (click)="copySpellingItem(listItem.id, $event)"
+          [disabled]="listItem.itemType.toString() !== 'RuleManagement'"
         >
           <i class="fa fa-ellipsis-v" aria-hidden="true">  </i>
         </button>

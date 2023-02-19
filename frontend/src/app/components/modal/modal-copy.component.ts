@@ -66,7 +66,7 @@ export class ModalCopyComponent implements OnInit, OnDestroy {
   }
 
   selectedChanged(event: any) {
-    console.error('selectedChanged ' + this.selectedSolrIndexId);
+    //console.log('selectedChanged ' + this.selectedSolrIndexId);
   }
 
   open(options?: NgbModalOptions): Deferred<any> {

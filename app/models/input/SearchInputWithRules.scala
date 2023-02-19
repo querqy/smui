@@ -50,6 +50,20 @@ object SearchInputWithRules {
     }
   }
 
+  def createFrom(id: SearchInputId, input: Option[SearchInputWithRules]): Option[SearchInputWithRules] = {
+       Some(SearchInputWithRules(id,
+         input.get.term,
+         synonymRules = input.get.synonymRules,
+         upDownRules = input.get.upDownRules,
+         filterRules = input.get.filterRules,
+         deleteRules = input.get.deleteRules,
+         redirectRules = input.get.redirectRules,
+         tags = input.get.tags,
+         isActive = input.get.isActive,
+         comment = input.get.comment
+      )
+     )
+  }
   /**
     * For displaying a list of search inputs with only some properties set.
     */
@@ -74,9 +88,13 @@ object SearchInputWithRules {
     SearchInput.update(searchInput.id, searchInput.term, searchInput.isActive, searchInput.comment)
 
     SynonymRule.updateForSearchInput(searchInput.id, searchInput.synonymRules)
+
     UpDownRule.updateForSearchInput(searchInput.id, searchInput.upDownRules)
+
     FilterRule.updateForSearchInput(searchInput.id, searchInput.filterRules)
+
     DeleteRule.updateForSearchInput(searchInput.id, searchInput.deleteRules)
+
     RedirectRule.updateForSearchInput(searchInput.id, searchInput.redirectRules)
 
     TagInputAssociation.updateTagsForSearchInput(searchInput.id, searchInput.tags.map(_.id))

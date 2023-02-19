@@ -40,4 +40,7 @@ object RedirectRule extends RuleObject[RedirectRule] {
     }
   }
 
+  override def createWithNewIdFrom(rule: RedirectRule): RedirectRule = {
+    RedirectRule(RedirectRuleId(), rule.target, rule.isActive)
+  }
 }

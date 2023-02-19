@@ -23,6 +23,7 @@
       (openCopyConfirmModal)="openCopyConfirmModal($event)"
       (executeWithChangeCheck)="executeWithChangeCheck($event)"
       (showErrorMsg)="showErrorMsg($event)"
+      (showSuccessMsg)="showSuccessMsg($event)"
       [(selectedListItem)]="selectedListItem"
       [(listItems)]="listItems"
       #rulesListComponent
@@ -104,7 +105,7 @@
 
 <app-smui-copy-modal
   id="confirm-copy"
-  title="Copy rule management or spelling item"
+  title="Copy rule management item"
   description="Please choose the destination Rules Collection"
   okLabel="Copy"
   cancelLabel="Cancel"
