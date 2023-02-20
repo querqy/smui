@@ -58,14 +58,34 @@
           </span>
         </span>
 
-        <button
-          type="button"
-          class="btn btn-light btn-sm float-right"
-          (click)="copyRuleItem(listItem.id, $event)"
-          [disabled]="listItem.itemType.toString() !== 'RuleManagement'"
-        >
-          <i class="fa fa-ellipsis-v" aria-hidden="true">  </i>
-        </button>
+        <span ngbDropdown container="body" class="d-inline-block float-right ml-1">
+          <button ngbDropdownToggle type="button" class="btn btn-secondary btn-sm" id="actionsDropdown" >
+            <i class="fa fa-cog"></i>
+          </button>
+          <div ngbDropdownMenu aria-labelledby="actionsDropdown">
+            <button ngbDropdownItem
+              [disabled]="listItem.itemType.toString() !== 'RuleManagement'"
+              (click)="copyRuleItem(listItem.id, $event)"
+            >
+              <i class="fa fa-clone mr-3"></i>Copy to
+            </button>
+            <hr class="dropdown-divider">
+            <button
+              *ngIf="listItem.itemType.toString() === 'RuleManagement'"
+              ngbDropdownItem class="dropdown-item-danger"
+              (click)="deleteRuleItem(listItem.id, $event)"
+            >
+              <i class="fa fa-trash mr-3" ></i>Delete
+            </button>
+            <button
+              *ngIf="listItem.itemType.toString() === 'Spelling'"
+              ngbDropdownItem class="dropdown-item-danger"
+              (click)="deleteSpellingItem(listItem.id, $event)"
+            >
+              <i class="fa fa-trash" ></i> Delete
+            </button>
+          </div>
+        </span>
 
         <button
           *ngIf="listItem.itemType.toString() === 'RuleManagement'"
@@ -99,6 +119,7 @@
       </li>
     </ng-container>
   </ul>
+
 
   <button
     type="button"

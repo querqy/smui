@@ -3,9 +3,7 @@
     <app-smui-rules-search
       [currentSolrIndexId]="currentSolrIndexId"
       [listItems]="listItems"
-      (refreshAndSelectListItemById)="
-        rulesListComponent.refreshAndSelectListItemById($event)
-      "
+      (refreshAndSelectListItemById)="rulesListComponent.refreshAndSelectListItemById($event)"
       (executeWithChangeCheck)="executeWithChangeCheck($event)"
       (showSuccessMsg)="showSuccessMsg($event)"
       (showErrorMsg)="showErrorMsg($event)"
