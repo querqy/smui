@@ -72,17 +72,17 @@
             <hr class="dropdown-divider">
             <button
               *ngIf="listItem.itemType.toString() === 'RuleManagement'"
-              ngbDropdownItem class="dropdown-item-danger"
+              ngbDropdownItem class="text-danger"
               (click)="deleteRuleItem(listItem.id, $event)"
             >
               <i class="fa fa-trash mr-3" ></i>Delete
             </button>
             <button
               *ngIf="listItem.itemType.toString() === 'Spelling'"
-              ngbDropdownItem class="dropdown-item-danger"
+              ngbDropdownItem class="text-danger"
               (click)="deleteSpellingItem(listItem.id, $event)"
             >
-              <i class="fa fa-trash" ></i> Delete
+              <i class="fa fa-trash mr-3" ></i> Delete
             </button>
           </div>
         </span>

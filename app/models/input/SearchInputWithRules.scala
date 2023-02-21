@@ -50,20 +50,6 @@ object SearchInputWithRules {
     }
   }
 
-  def createFrom(id: SearchInputId, input: Option[SearchInputWithRules]): Option[SearchInputWithRules] = {
-       Some(SearchInputWithRules(id,
-         input.get.term,
-         synonymRules = input.get.synonymRules,
-         upDownRules = input.get.upDownRules,
-         filterRules = input.get.filterRules,
-         deleteRules = input.get.deleteRules,
-         redirectRules = input.get.redirectRules,
-         tags = input.get.tags,
-         isActive = input.get.isActive,
-         comment = input.get.comment
-      )
-     )
-  }
   /**
     * For displaying a list of search inputs with only some properties set.
     */
