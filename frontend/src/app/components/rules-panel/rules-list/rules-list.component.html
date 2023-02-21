@@ -59,9 +59,13 @@
         </span>
 
         <span ngbDropdown container="body" class="d-inline-block float-right ml-1">
-          <button ngbDropdownToggle type="button" class="btn btn-secondary btn-sm" id="actionsDropdown" >
+          <button ngbDropdownToggle type="button"
+            class="btn btn-secondary btn-sm" id="actionsDropdown"
+            (click)="$event.stopImmediatePropagation()"
+          >
             <i class="fa fa-cog"></i>
           </button>
+
           <div ngbDropdownMenu aria-labelledby="actionsDropdown">
             <button ngbDropdownItem
               [disabled]="listItem.itemType.toString() !== 'RuleManagement'"
