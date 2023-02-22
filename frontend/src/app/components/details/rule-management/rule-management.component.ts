@@ -25,14 +25,14 @@ import {
   SuggestedSolrField,
   SynonymRule,
   UpDownRule,
-  PreviewSection,
-  PreviewItem
+  PreviewSection
 } from '../../../models';
 import {
   CommonsService,
   FeatureToggleService,
   RuleManagementService,
-  SpellingsService
+  SpellingsService,
+  PreviewLinkService
 } from '../../../services';
 
 @Component({
@@ -72,7 +72,8 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     private ruleManagementService: RuleManagementService,
     private spellingService: SpellingsService,
     private changeDetector: ChangeDetectorRef,
-    public featureToggleService: FeatureToggleService
+    public featureToggleService: FeatureToggleService,
+    public previewLinkService: PreviewLinkService
   ) {}
 
   ngOnInit() {
@@ -647,17 +648,8 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     }
   }
 
-  previewData(): PreviewSection[] {
-    return [
-      new PreviewSection('LIVE', [
-        new PreviewItem('rule1','https://domain.tld/search/?query=rule1'),
-        new PreviewItem('rule2','https://domain.tld/search/?query=rule2')
-      ]),
-      new PreviewSection('PRELIVE (Staging)', [
-        new PreviewItem('rule1','https://staging-domain.tld/search/?query=rule1'),
-        new PreviewItem('rule2','https://staging-domain.tld/search/?query=rule2')
-      ]),
-    ]
+  previewData(inputTerm: string): PreviewSection[] {
+    return this.previewLinkService.renderLinkFor(inputTerm)
   }
 
   __TODO_openPreviewLink(toURL: string): void {

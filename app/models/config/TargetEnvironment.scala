@@ -32,64 +32,61 @@ package object TargetEnvironment extends Logging {
     type TargetEnvironmentConfig = Seq[TargetEnvironmentInstance]
     val SUPER_DEFAULT_OUTPUT = Seq.empty
 
+    implicit val jsonFormatTargetEnvironmentDescription: OFormat[TargetEnvironmentDescription] = Json.format[TargetEnvironmentDescription]
+    implicit val jsonFormatTargetEnvironmentGroup: OFormat[TargetEnvironmentGroup] = Json.format[TargetEnvironmentGroup]
+    implicit val jsonFormatTargetEnvironmentInstance: OFormat[TargetEnvironmentInstance] = Json.format[TargetEnvironmentInstance]
+
+    implicit val jsonFormatTargetEnvironmentConfig = new Format[ Seq[TargetEnvironmentInstance] ] {
+        
+        def writes(targetEnvironmentConfig: Seq[TargetEnvironmentInstance]): JsValue =
+            JsArray(
+                targetEnvironmentConfig.map( envInst => Json.toJson(envInst) )
+            )
+        
+        private def parseTargetEnvironmentGroups(jo: JsObject) = {
+            jo.fieldSet.map({inner =>
+                val targetEnvironments = inner._2.as[JsArray].value.map(innerEntry => {
+                    // TODO implicit JSON Read from above can not be applied. Need to read the config manually.
+                    //innerEntry.as[TargetEnvironmentDescription]
+
+                    val previewUrlTemplate = (innerEntry \ "previewUrlTemplate").as[String]
+
+                    if( !previewUrlTemplate.contains("$QUERY") ) {
+                        throw new Exception("previewUrlTemplate does not contain $QUERY placeholder")
+                    }
+
+                    TargetEnvironmentDescription(
+                        rulesCollection = (innerEntry \ "rulesCollection").as[String],
+                        tenantTag = (innerEntry \ "tenantTag").asOpt[String],
+                        previewUrlTemplate = previewUrlTemplate
+                    )
+                }).toSeq
+                TargetEnvironmentGroup(
+                    id = inner._1,
+                    targetEnvironments = targetEnvironments
+                )
+            }).toSeq
+        }
+
+        def reads(jv: JsValue): JsResult[ Seq[TargetEnvironmentInstance] ] = {
+            val jo = jv.asInstanceOf[JsObject]
+            JsSuccess(
+                jo.fieldSet.map(inner =>
+                    TargetEnvironmentInstance(
+                        id = inner._1,
+                        targetEnvironmentGroups = parseTargetEnvironmentGroups(inner._2.asInstanceOf[JsObject])
+                    )
+                ).toSeq
+            )
+        }
+    }
+
     @javax.inject.Singleton
     class TargetEnvironmentConfigService @Inject()(
         appConfig: Configuration,
         // TODO resolve the FeatureToggleService into the config model in the future
         featureToggleService: FeatureToggleService
     ) {
-
-        implicit val jsonFormatTargetEnvironmentDescription: OFormat[TargetEnvironmentDescription] = Json.format[TargetEnvironmentDescription]
-
-        implicit val jsonFormatTargetEnvironmentConfig = new Format[ Seq[TargetEnvironmentInstance] ] {
-            
-            def writes(targetEnvironmentConfig: Seq[TargetEnvironmentInstance]): JsValue =
-                ??? // TODO implement, if necessary
-                /*
-                JsArray(
-                    targetEnvironmentConfig.map( envInst =>
-                        Json.obj( envInst.id -> "TBD" )
-                    )
-                )
-                */
-            
-            private def parseTargetEnvironmentGroups(jo: JsObject) = {
-                jo.fieldSet.map({inner =>
-                    val targetEnvironments = inner._2.as[JsArray].value.map(innerEntry => {
-                        // TODO implicit JSON Read from above can not be applied. Need to read the config manually.
-                        //innerEntry.as[TargetEnvironmentDescription]
-
-                        val previewUrlTemplate = (innerEntry \ "previewUrlTemplate").as[String]
-
-                        if( !previewUrlTemplate.contains("$QUERY") ) {
-                            throw new Exception("previewUrlTemplate does not contain $QUERY placeholder")
-                        }
-
-                        TargetEnvironmentDescription(
-                            rulesCollection = (innerEntry \ "rulesCollection").as[String],
-                            tenantTag = (innerEntry \ "tenantTag").asOpt[String],
-                            previewUrlTemplate = previewUrlTemplate
-                        )
-                    }).toSeq
-                    TargetEnvironmentGroup(
-                        id = inner._1,
-                        targetEnvironments = targetEnvironments
-                    )
-                }).toSeq
-            }
-
-            def reads(jv: JsValue): JsResult[ Seq[TargetEnvironmentInstance] ] = {
-                val jo = jv.asInstanceOf[JsObject]
-                JsSuccess(
-                    jo.fieldSet.map(inner =>
-                        TargetEnvironmentInstance(
-                            id = inner._1,
-                            targetEnvironmentGroups = parseTargetEnvironmentGroups(inner._2.asInstanceOf[JsObject])
-                        )
-                    ).toSeq
-                )
-            }
-        }
 
         def read: TargetEnvironmentConfig = {
             val strJsonTargetEnvConf = appConfig

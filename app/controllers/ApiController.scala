@@ -18,6 +18,7 @@ import controllers.auth.{AuthActionFactory, UserRequest}
 import models.FeatureToggleModel.FeatureToggleService
 import models._
 import models.config.SmuiVersion
+import models.config.TargetEnvironment._
 import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
@@ -33,7 +34,8 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
                               querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
                               cc: MessagesControllerComponents,
                               rulesTxtDeploymentService: RulesTxtDeploymentService,
-                              rulesTxtImportService: RulesTxtImportService)(implicit executionContext: ExecutionContext)
+                              rulesTxtImportService: RulesTxtImportService,
+                              targetEnvironmentConfigService: TargetEnvironmentConfigService)(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) with Logging {
 
   val API_RESULT_OK = "OK"
@@ -562,6 +564,21 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       })
 
       Ok(Json.toJson(versionInfo))
+    }
+  }
+
+  def getTargetEnvironment() = authActionFactory.getAuthenticatedAction(Action).async {
+    Future {
+
+      val targetEnvEnf = targetEnvironmentConfigService.read
+
+      logger.info("In ApiController :: getTargetEnvironment :: targetEnvironmentConfigService = " + targetEnvEnf.toString)
+
+      Ok(
+        Json.toJson(
+          targetEnvEnf
+        )
+      )
     }
   }
 

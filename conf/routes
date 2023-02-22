@@ -36,6 +36,7 @@ GET     /api/v1/report/rules-report/:solrIndexId                controllers.ApiC
 GET     /api/v1/report/activity-report/:solrIndexId             controllers.ApiController.getActivityReport(solrIndexId: String)
 GET     /api/v1/version/latest-info                             controllers.ApiController.getLatestVersionInfo()
 GET     /api/v2/log/deployment-info                             controllers.ApiController.getLatestDeploymentResult(solrIndexId: String)
+GET     /api/v1/config/target-environment                       controllers.ApiController.getTargetEnvironment()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /*file   controllers.FrontendController.assetOrDefault(file)

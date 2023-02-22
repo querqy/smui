@@ -1,14 +1,18 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core'
+import { HttpClient } from '@angular/common/http'
 
-import { SmuiVersionInfo } from '../models';
+import {
+  SmuiVersionInfo,
+  TargetEnvironmentInstance
+} from '../models'
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfigService {
-  versionInfo?: SmuiVersionInfo;
-  private readonly baseUrl = 'api/v1';
+  versionInfo?: SmuiVersionInfo
+  targetEnvironment?: TargetEnvironmentInstance[]
+  private readonly baseUrl = 'api/v1'
 
   constructor(private http: HttpClient) { }
 
@@ -20,4 +24,14 @@ export class ConfigService {
         this.versionInfo = versionInfo;
       });
   }
+
+  getTargetEnvironment(): Promise<void> {
+    return this.http
+      .get<TargetEnvironmentInstance[]>(this.baseUrl + '/config/target-environment')
+      .toPromise()
+      .then(returnTargetEnv => {
+        this.targetEnvironment = returnTargetEnv
+      })
+  }
+
 }

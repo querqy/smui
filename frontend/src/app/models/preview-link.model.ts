@@ -1,17 +1,16 @@
 export class PreviewItem {
-    queryLabel: string;
-    fullURL: string;
-    tenantTag?: string = undefined;
+    inputTerm: string
+    fullURL: string
 
-    constructor(queryLabel: string, fullURL: string) {
-        this.queryLabel = queryLabel
+    constructor(inputTerm: string, fullURL: string) {
+        this.inputTerm = inputTerm
         this.fullURL = fullURL
     }
 }
 
 export class PreviewSection {
-    name: string;
-    previewItems: PreviewItem[];
+    name: string
+    previewItems: PreviewItem[]
 
     constructor(name: string, previewItems: PreviewItem[]) {
         this.name = name

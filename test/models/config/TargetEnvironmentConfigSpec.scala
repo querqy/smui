@@ -63,40 +63,32 @@ class TargetEnvironmentConfigSpec extends FlatSpec with Matchers {
 
     val retTargetEnvConf = targetEnvironmentConfigService.read
 
-    /*
-    val toTestValue = featureToggleService.getJsFrontendToggleList
-      .filter(t => t.toggleName.equals(TOGGLE_TO_TEST))
-      .head
-      .toggleValue
-      .render()
-
-    (application, toTestValue)
-    */
-
     (application, retTargetEnvConf)
   }
 
-  "Default target environment config (JSON)" should "be evaluated into the correct SMUI config model" in {
-
-    val (application, retTargetEnvConf) = createAppAndGetConf(None)
-
-    retTargetEnvConf shouldEqual Seq(
-      TargetEnvironmentInstance(
-        id = "LIVE",
-        targetEnvironmentGroups = Seq(
-          TargetEnvironmentGroup(
-            id = "en",
-            targetEnvironments = Seq(
-              TargetEnvironmentDescription(
-                rulesCollection = "AmazonEN",
-                tenantTag = None,
-                previewUrlTemplate = "https://www.amazon.com/s?k=$QUERY"
-              )
+  val DEFAULT_TARGET_ENV_CONF_MODEL = Seq(
+    TargetEnvironmentInstance(
+      id = "LIVE",
+      targetEnvironmentGroups = Seq(
+        TargetEnvironmentGroup(
+          id = "en",
+          targetEnvironments = Seq(
+            TargetEnvironmentDescription(
+              rulesCollection = "AmazonEN",
+              tenantTag = None,
+              previewUrlTemplate = "https://www.amazon.com/s?k=$QUERY"
             )
           )
         )
       )
     )
+  )
+
+  "Default target environment config (JSON)" should "be evaluated into the correct SMUI config model" in {
+
+    val (application, retTargetEnvConf) = createAppAndGetConf(None)
+
+    retTargetEnvConf shouldEqual DEFAULT_TARGET_ENV_CONF_MODEL
 
     shutdownAppAndDb(application)
   }
@@ -152,7 +144,7 @@ class TargetEnvironmentConfigSpec extends FlatSpec with Matchers {
 |        }
 |      ]
 |    }
-|}""".stripMargin    
+|}""".stripMargin
 
     val (application, retTargetEnvConf) = createAppAndGetConf(
       Some(VALID_CUSTOM_TARGET_ENV_CONF),
@@ -418,6 +410,19 @@ class TargetEnvironmentConfigSpec extends FlatSpec with Matchers {
     // TODO "[warn]" ... In TargetEnvironmentConfigService :: read :: PRELIVE target environment configuration present, but not necessary. Will be ignored.
 
     shutdownAppAndDb(application)
+
+  }
+
+  "Default target environment config" should "be properly translated to a JSON string (for interfacing with the frontend)" in {
+
+    // TODO Test default target environment config within the application context (not only JSON conversion)
+
+    import models.config.TargetEnvironment._
+    import play.api.libs.json._
+
+    Json.toJson(
+      DEFAULT_TARGET_ENV_CONF_MODEL
+    ).toString shouldBe """[{"id":"LIVE","targetEnvironmentGroups":[{"id":"en","targetEnvironments":[{"rulesCollection":"AmazonEN","previewUrlTemplate":"https://www.amazon.com/s?k=$QUERY"}]}]}]"""
 
   }
 

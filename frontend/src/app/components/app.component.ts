@@ -32,7 +32,8 @@ export class AppComponent implements OnInit {
     Promise.all([
       this.initFeatureToggles(),
       this.initSolarIndices(),
-      this.initVersionInfo()
+      this.initVersionInfo(),
+      this.initTargetEnvironment()
     ]).then(() => (this.isInitialized = this.errors.length === 0));
   }
 
@@ -53,4 +54,11 @@ export class AppComponent implements OnInit {
       this.errors.push('Could not fetch version info from back-end');
     });
   }
+
+  private initTargetEnvironment(): Promise<void> {
+    return this.configService.getTargetEnvironment().catch(() => {
+      this.errors.push('Could not fetch target environment from back-end');
+    })
+  }
+
 }

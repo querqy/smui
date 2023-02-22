@@ -24,7 +24,7 @@ describe('AppComponent', () => {
       'getFeatureToggles'
     ]);
     configService = jasmine.createSpyObj('ConfigService', [
-      'getLatestVersionInfo'
+      'getLatestVersionInfo', 'getTargetEnvironment'
     ]);
 
     await TestBed.configureTestingModule({
@@ -47,6 +47,7 @@ describe('AppComponent', () => {
     (solrService.listAllSolrIndices as Spy).and.resolveTo();
     (featureToggleService.getFeatureToggles as Spy).and.resolveTo();
     (configService.getLatestVersionInfo as Spy).and.resolveTo();
+    (configService.getTargetEnvironment as Spy).and.resolveTo();
 
     expect(appComponent.isInitialized).toBeFalse();
 
@@ -62,6 +63,7 @@ describe('AppComponent', () => {
     (solrService.listAllSolrIndices as Spy).and.rejectWith();
     (featureToggleService.getFeatureToggles as Spy).and.resolveTo();
     (configService.getLatestVersionInfo as Spy).and.resolveTo();
+    (configService.getTargetEnvironment as Spy).and.resolveTo();
 
     appComponent.ngOnInit();
     tick();
@@ -77,6 +79,7 @@ describe('AppComponent', () => {
     (solrService.listAllSolrIndices as Spy).and.resolveTo();
     (featureToggleService.getFeatureToggles as Spy).and.rejectWith();
     (configService.getLatestVersionInfo as Spy).and.resolveTo();
+    (configService.getTargetEnvironment as Spy).and.resolveTo();
 
     appComponent.ngOnInit();
     tick();
@@ -92,6 +95,7 @@ describe('AppComponent', () => {
     (solrService.listAllSolrIndices as Spy).and.resolveTo();
     (featureToggleService.getFeatureToggles as Spy).and.resolveTo();
     (configService.getLatestVersionInfo as Spy).and.rejectWith();
+    (configService.getTargetEnvironment as Spy).and.resolveTo();
 
     appComponent.ngOnInit();
     tick();
@@ -103,10 +107,27 @@ describe('AppComponent', () => {
     ]);
   }));
 
+  it(`should show an error if the target environment could not be fetched`, fakeAsync(() => {
+    (solrService.listAllSolrIndices as Spy).and.resolveTo();
+    (featureToggleService.getFeatureToggles as Spy).and.resolveTo();
+    (configService.getLatestVersionInfo as Spy).and.resolveTo();
+    (configService.getTargetEnvironment as Spy).and.rejectWith();
+
+    appComponent.ngOnInit();
+    tick();
+
+    expect(appComponent).toBeTruthy();
+    expect(appComponent.isInitialized).toBeFalse();
+    expect(appComponent.errors).toEqual([
+      'Could not fetch target environment from back-end'
+    ]);
+  }));
+
   it(`should render a error message if the app count not be initiated`, fakeAsync(() => {
     (solrService.listAllSolrIndices as Spy).and.resolveTo();
     (featureToggleService.getFeatureToggles as Spy).and.resolveTo();
     (configService.getLatestVersionInfo as Spy).and.rejectWith();
+    (configService.getTargetEnvironment as Spy).and.resolveTo();
 
     appComponent.ngOnInit();
     tick();

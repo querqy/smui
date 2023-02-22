@@ -67,7 +67,7 @@
                   <div ngbDropdownMenu aria-labelledby="preview-dropdown">
                     TODO Show isDirty() state
                     <ng-container
-                      *ngFor="let sectionItem of previewData(); let idx = index"
+                      *ngFor="let sectionItem of previewData('TODO input'); let idx = index"
                     >
                       <div class="dropdown-divider" *ngIf="idx > 0"></div>
                       <h6 class="dropdown-header">{{ sectionItem.name }}</h6>
@@ -75,7 +75,7 @@
                         *ngFor="let previewItem of sectionItem.previewItems"
                       >
                         <button ngbDropdownItem (click)="__TODO_openPreviewLink(previewItem.fullURL)">
-                          {{ previewItem.queryLabel + " | " + previewItem.fullURL }}
+                          {{ previewItem.inputTerm + " | " + previewItem.fullURL }}
                         </button>
                       </ng-container>
                     </ng-container>

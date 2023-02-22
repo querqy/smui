@@ -10,3 +10,4 @@ export * from './report.service';
 export * from './config.service';
 export * from './modal.service';
 export * from './deployment-detailed-info.service';
+export * from './preview-link.service';

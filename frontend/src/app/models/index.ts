@@ -11,4 +11,5 @@ export * from './config.model';
 export * from './feature-toggle.model';
 export * from './levenshtein-distance.model';
 export * from './deployment-detailed-info.model';
-export * from './preview.model';
+export * from './target-environment.model';
+export * from './preview-link.model';
