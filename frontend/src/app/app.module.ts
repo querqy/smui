@@ -21,7 +21,8 @@ import {
   ActivityLogService,
   ReportService,
   ConfigService,
-  CommonsService
+  CommonsService,
+  PreviewLinkService
 } from './services';
 
 // // components
@@ -53,7 +54,8 @@ import {
   InputRowComponent,
   SpellingsComponent,
   RuleManagementComponent,
-  ActivityLogComponent
+  ActivityLogComponent,
+  PreviewLinkComponent
 } from './components/details';
 import {
   RulesListComponent,
@@ -96,7 +98,8 @@ import {
     RulesCollectionCreateComponent,
     SuggestedFieldsComponent,
     SuggestedFieldsCreateComponent,
-    SuggestedFieldsListComponent
+    SuggestedFieldsListComponent,
+    PreviewLinkComponent
   ],
   providers: [
     CommonsService,
@@ -109,6 +112,7 @@ import {
     ActivityLogService,
     ReportService,
     ConfigService,
+    PreviewLinkService,
     httpInterceptorProviders
   ],
   bootstrap: [AppComponent]

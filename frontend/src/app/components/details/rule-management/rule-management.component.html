@@ -55,33 +55,9 @@
               
               <div *ngIf="previewVisible">
 
-                <div ngbDropdown class="d-inline-block">
-                  <button
-                    class="btn btn-link"
-                    style="font-size: small;"
-                    id="preview-dropdown"
-                    ngbDropdownToggle
-                  >
-                    <i class="fa fa-link" aria-hidden="true"></i> Preview
-                  </button>
-                  <div ngbDropdownMenu aria-labelledby="preview-dropdown">
-                    TODO Show isDirty() state
-                    <ng-container
-                      *ngFor="let sectionItem of previewData('TODO input'); let idx = index"
-                    >
-                      <div class="dropdown-divider" *ngIf="idx > 0"></div>
-                      <h6 class="dropdown-header">{{ sectionItem.name }}</h6>
-                      <ng-container
-                        *ngFor="let previewItem of sectionItem.previewItems"
-                      >
-                        <button ngbDropdownItem (click)="__TODO_openPreviewLink(previewItem.fullURL)">
-                          {{ previewItem.inputTerm + " | " + previewItem.fullURL }}
-                        </button>
-                      </ng-container>
-                    </ng-container>
-                  </div>
-                </div>
-                                        
+                <app-smui-preview-link>
+                </app-smui-preview-link>
+                
               </div>
   
             </div>

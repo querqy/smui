@@ -8,3 +8,4 @@ export * from './input-row/input-row.component';
 export * from './rule-management/rule-management.component';
 export * from './spellings/spellings.component';
 export * from './activity-log/activity-log.component';
+export * from './preview-link/preview-link.component';

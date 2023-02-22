@@ -24,15 +24,13 @@ import {
   SearchInput,
   SuggestedSolrField,
   SynonymRule,
-  UpDownRule,
-  PreviewSection
+  UpDownRule
 } from '../../../models';
 import {
   CommonsService,
   FeatureToggleService,
   RuleManagementService,
-  SpellingsService,
-  PreviewLinkService
+  SpellingsService
 } from '../../../services';
 
 @Component({
@@ -72,8 +70,7 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     private ruleManagementService: RuleManagementService,
     private spellingService: SpellingsService,
     private changeDetector: ChangeDetectorRef,
-    public featureToggleService: FeatureToggleService,
-    public previewLinkService: PreviewLinkService
+    public featureToggleService: FeatureToggleService
   ) {}
 
   ngOnInit() {
@@ -646,14 +643,6 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
       const trimmedTerm = this.detailSearchInput.term.trim()
       return trimmedTerm.startsWith('"') && trimmedTerm.endsWith('"')
     }
-  }
-
-  previewData(inputTerm: string): PreviewSection[] {
-    return this.previewLinkService.renderLinkFor(inputTerm)
-  }
-
-  __TODO_openPreviewLink(toURL: string): void {
-    console.log('In __TODO_openPreviewLink :: toURL = ' + toURL)
   }
 
 }
