@@ -472,7 +472,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         }
       }
 
-      val deplLogDetailList = if (featureToggleService.isSmuiSulrDeploymentPrelivePresent)
+      val deplLogDetailList = if (featureToggleService.isSmuiRuleDeploymentPrelivePresent)
           List(
             readDeploymentDetailedInfo("LIVE"),
             readDeploymentDetailedInfo("PRELIVE")

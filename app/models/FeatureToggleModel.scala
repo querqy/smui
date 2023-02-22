@@ -215,7 +215,7 @@ package object FeatureToggleModel extends Logging {
       appConfig.getOptional[String](SMUI_DEPLOYMENT_GIT_FN_COMMON_RULES_TXT).getOrElse("rules.txt")
     }
 
-    def isSmuiSulrDeploymentPrelivePresent: Boolean = {
+    def isSmuiRuleDeploymentPrelivePresent: Boolean = {
       appConfig.getOptional[Boolean](FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT).getOrElse(false)
     }
 
