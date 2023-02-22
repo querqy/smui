@@ -1,11 +1,12 @@
 package models.config
 
+import scala.util.Try
+
+import javax.inject.Inject
 import play.api.{Configuration, Logging, ConfigLoader}
 import play.api.libs.json._
 
-import javax.inject.Inject
-
-import scala.util.Try
+import models.FeatureToggleModel.FeatureToggleService
 
 package object TargetEnvironment extends Logging {
 
@@ -32,7 +33,11 @@ package object TargetEnvironment extends Logging {
     val SUPER_DEFAULT_OUTPUT = Seq.empty
 
     @javax.inject.Singleton
-    class TargetEnvironmentConfigService @Inject()(appConfig: Configuration) {
+    class TargetEnvironmentConfigService @Inject()(
+        appConfig: Configuration,
+        // TODO resolve the FeatureToggleService into the config model in the future
+        featureToggleService: FeatureToggleService
+    ) {
 
         implicit val jsonFormatTargetEnvironmentDescription: OFormat[TargetEnvironmentDescription] = Json.format[TargetEnvironmentDescription]
 
@@ -94,23 +99,42 @@ package object TargetEnvironment extends Logging {
                     SUPER_DEFAULT_INPUT
                 })
             
-            try {
-                Json.parse(strJsonTargetEnvConf).validate[ Seq[TargetEnvironmentInstance] ].asOpt match {
-                    case None => {
-                        logger.error(s"In TargetEnvironmentConfigService :: read :: target environment configuration could not be parsed from JSON. There is no target environment (for e.g. preview links) configured.")
+            val parsedTargetEnvConf = 
+                try {
+                    Json.parse(strJsonTargetEnvConf).validate[ Seq[TargetEnvironmentInstance] ].asOpt match {
+                        case None => {
+                            logger.error(s"In TargetEnvironmentConfigService :: read :: target environment configuration could not be parsed from JSON. There is no target environment (for e.g. preview links) configured.")
+                            SUPER_DEFAULT_OUTPUT
+                        }
+                        case Some(customTargetEnvironmentConfig: Seq[TargetEnvironmentInstance]) => {
+                            customTargetEnvironmentConfig
+                        }
+                    }
+                }
+                catch {
+                    case e: Exception => {
+                        logger.error(s"In TargetEnvironmentConfigService :: read :: target environment configuration could not be parsed from JSON with error = ${e}. There is no target environment (for e.g. preview links) configured.")
                         SUPER_DEFAULT_OUTPUT
                     }
-                    case Some(customTargetEnvironmentConfig: Seq[TargetEnvironmentInstance]) => {
-                        customTargetEnvironmentConfig
+                }
+
+            // Perform some checks
+            // TODO Consider removing this behaviour with restructuring of the ``toggle.rule-deployment.pre-live.present``
+            val finalTargetEnvConf = 
+                (if (featureToggleService.isSmuiRuleDeploymentPrelivePresent) {
+                    if( !parsedTargetEnvConf.exists(_.id.equals("PRELIVE")) ) {
+                        logger.warn("In TargetEnvironmentConfigService :: read :: No PRELIVE target environment configuration for present, but necessary.")
                     }
-                }
-            }
-            catch {
-                case e: Exception => {
-                    logger.error(s"In TargetEnvironmentConfigService :: read :: target environment configuration could not be parsed from JSON with error = ${e}. There is no target environment (for e.g. preview links) configured.")
-                    SUPER_DEFAULT_OUTPUT
-                }
-            }
+                    parsedTargetEnvConf
+                } else {
+                    if( parsedTargetEnvConf.exists(_.id.equals("PRELIVE")) ) {
+                        logger.warn("In TargetEnvironmentConfigService :: read :: PRELIVE target environment configuration present, but not necessary. Will be ignored.")
+                        parsedTargetEnvConf.filter( !_.id.equals("PRELIVE") )
+                    } else {
+                        parsedTargetEnvConf
+                    }
+                })
+            finalTargetEnvConf
         }
     }
 

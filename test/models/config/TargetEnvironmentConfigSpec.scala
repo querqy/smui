@@ -367,7 +367,7 @@ class TargetEnvironmentConfigSpec extends FlatSpec with Matchers {
         )
       )
     )
-    // TODO WARN "previewUrlTemplate does not contain $QUERY placeholder"
+    // TODO "[warn]" ... "In TargetEnvironmentConfigService :: read :: No PRELIVE target environment configuration for present, but necessary."
 
     shutdownAppAndDb(application)
 
@@ -415,7 +415,7 @@ class TargetEnvironmentConfigSpec extends FlatSpec with Matchers {
         )
       )
     )
-    // TODO WARN "previewUrlTemplate does not contain $QUERY placeholder"
+    // TODO "[warn]" ... In TargetEnvironmentConfigService :: read :: PRELIVE target environment configuration present, but not necessary. Will be ignored.
 
     shutdownAppAndDb(application)
 
