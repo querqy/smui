@@ -8,6 +8,7 @@ import {
 } from './../models/preview-link.model'
 
 import { 
+    TargetEnvironmentDescription,
     TargetEnvironmentInstance
 } from './../models/target-environment.model'
 
@@ -28,32 +29,58 @@ export class PreviewLinkService {
     renderLinkFor(inputTerm: string, rulesCollectionName: string, allowOnlyTenantTags: string[]): PreviewSection[] {
         
         function renderPreviewItems(targetInst: TargetEnvironmentInstance): PreviewItem[] {
-            // Filter all relevant environment groups for the rules collection and tenant setup
-            const relevantEnvGroups = targetInst.targetEnvironmentGroups
-                .filter(envGroup =>
-                    envGroup.targetEnvironments
-                        .some(envDescr => (
-                                (envDescr.rulesCollection.trim() == rulesCollectionName)
-                                && (true) // TODO respect allowOnlyTenantTags
-                            )
-                        )
-                )
             
-            var resultPreviewItems: PreviewItem[] = []
-            // TODO Consider introding a flatMap mechanic here
-            relevantEnvGroups.forEach(envGroup => {
-                envGroup.targetEnvironments.forEach(targetEnv => {
-                    resultPreviewItems.push({
+            function doesEnvDescrMatchTenant(envDescr: TargetEnvironmentDescription): boolean {
+
+                console.log("In :: doesEnvDescrMatchTenant :: envDescr = " + JSON.stringify(envDescr) + " allowOnlyTenantTags = " + JSON.stringify(allowOnlyTenantTags))
+
+                if( allowOnlyTenantTags.length < 1 ) {
+                    // No specific tenant requirement, so every entry matches.
+                    return true
+                } else {
+                    if( envDescr.tenantTag === undefined ) {
+                        // No tenant specification present in the target environment (although demanded),
+                        // so it cannot match the requirement.
+                        return false
+                    } else {
+                        // See, if some tenant requirement can be fullfilled by the environment
+                        const envTenantTag = envDescr.tenantTag
+                        const bTenantRequirementFullfilled = allowOnlyTenantTags
+                            .some(tenantTagValue => 
+                                // TODO here we are testing for substring occurance, e.g.
+                                //   "tenant:AmazonDE" contains "AmazonDE"
+                                //   As it not fully enforced or specified by SMUI how
+                                //   tenant tags are being defined, this is a bit risky.
+                                envTenantTag.trim().indexOf(tenantTagValue.trim()) !== -1
+                            )
+                        
+                        return bTenantRequirementFullfilled
+                    }
+                }
+            }
+            
+            // Filter all relevant target environment descriptions for the rules collection and tenant setup
+            const resultPreviewItems: PreviewItem[] = []
+            // TODO Consider introducing a flatMap mechanic here
+            targetInst.targetEnvironmentGroups.forEach(envGroup => {
+                envGroup.targetEnvironments.forEach(envDescr => {
+                    if(
+                        (envDescr.rulesCollection.trim() == rulesCollectionName)
+                        && doesEnvDescrMatchTenant(envDescr)
+                    ) {
+                        // Push the preview link to the result list, if relevant
+                        resultPreviewItems.push({
                             "inputTerm": inputTerm,
-                            "fullURL": targetEnv.previewUrlTemplate.replace(
+                            "fullURL": envDescr.previewUrlTemplate.replace(
                                 "$QUERY",
                                 encodeURIComponent(inputTerm)
                             ),
-                            "tenantInfo": (targetEnv.tenantTag === undefined) ? "" : targetEnv.tenantTag
+                            "tenantInfo": (envDescr.tenantTag === undefined) ? "" : envDescr.tenantTag
                         })
+                    }
                 })
             })
-    
+
             return resultPreviewItems
         }
 
