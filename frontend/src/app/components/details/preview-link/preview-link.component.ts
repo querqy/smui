@@ -1,14 +1,11 @@
 import {
-    Component
+    Component,
+    Input
 } from '@angular/core'
 
 import {
     PreviewSection
 } from '../../../models'
-
-import {
-    PreviewLinkService
-} from '../../../services'
 
 @Component({
     selector: 'app-smui-preview-link',
@@ -17,16 +14,13 @@ import {
 })
 export class PreviewLinkComponent {
 
-    constructor(
-        public previewLinkService: PreviewLinkService
-    ) {}
+    @Input() previewSections: PreviewSection[] = []
 
-    previewData(inputTerm: string): PreviewSection[] {
-        return this.previewLinkService.renderLinkFor(inputTerm)
-    }
+    constructor(
+    ) { }
 
     openPreviewLink(toURL: string): void {
-        console.log('TODO openPreviewLink :: toURL = ' + toURL)
+        window.open(toURL, "_smui");
     }
     
 }

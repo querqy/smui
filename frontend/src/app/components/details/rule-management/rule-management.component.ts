@@ -24,13 +24,15 @@ import {
   SearchInput,
   SuggestedSolrField,
   SynonymRule,
-  UpDownRule
+  UpDownRule,
+  PreviewSection
 } from '../../../models';
 import {
   CommonsService,
   FeatureToggleService,
   RuleManagementService,
-  SpellingsService
+  SpellingsService,
+  PreviewLinkService
 } from '../../../services';
 
 @Component({
@@ -63,14 +65,14 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
   tagsDropDownSettings?: DropdownSettings;
   availableTags: InputTag[] = [];
   selectedTags: InputTag[] = [];
-  previewVisible: boolean;
 
   constructor(
     private commonsService: CommonsService,
     private ruleManagementService: RuleManagementService,
     private spellingService: SpellingsService,
     private changeDetector: ChangeDetectorRef,
-    public featureToggleService: FeatureToggleService
+    public featureToggleService: FeatureToggleService,
+    public previewLinkService: PreviewLinkService
   ) {}
 
   ngOnInit() {
@@ -84,8 +86,6 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
       labelKey: 'displayValue',
       noDataLabel: 'No Tags available'
     };
-
-    this.previewVisible = true
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -642,6 +642,38 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     } else {
       const trimmedTerm = this.detailSearchInput.term.trim()
       return trimmedTerm.startsWith('"') && trimmedTerm.endsWith('"')
+    }
+  }
+
+  private cleanPreviewInputTerm(rawInputTerm: string): string {
+    const trimmedTerm = rawInputTerm.trim()
+    const startIdx = trimmedTerm.startsWith('"') ? 1 : 0
+    const endIdx = trimmedTerm.endsWith('"') ? (trimmedTerm.length-1) : trimmedTerm.length
+//    console.log(
+//      'In :: cleanPreviewInputTerm :: trimmedTerm = "' + trimmedTerm
+//      + '" startIdx = ' + startIdx
+//      + ' endIdx = ' + endIdx
+//    )
+    return trimmedTerm.substring(startIdx, endIdx)
+  }
+
+  previewLinks(forInputTerm: string): PreviewSection[] {
+//    console.log('In :: previewLinks :: selectedTags = ' + JSON.stringify(this.selectedTags))
+    if( this.currentSolrIndexId === undefined ) {
+      console.log("[ERROR] In :: previewLinks :: currentSolrIndexId is undefined" )
+      return []
+    } else {
+      const previewInputTerm = this.cleanPreviewInputTerm(forInputTerm)
+      const returnPreviewLinks = this.previewLinkService
+        .renderLinkFor(
+          previewInputTerm,
+          this.currentSolrIndexId,
+          this.selectedTags.map(
+            tag => tag.value
+          )
+        )
+//      console.log(':: returnPreviewLinks = ' + JSON.stringify(returnPreviewLinks))
+      return returnPreviewLinks
     }
   }
 

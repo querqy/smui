@@ -1,26 +1,33 @@
-<div ngbDropdown class="d-inline-block">
-    <button
-      class="btn btn-link"
-      style="font-size: small;"
-      id="preview-dropdown"
-      ngbDropdownToggle
-    >
-      <i class="fa fa-link" aria-hidden="true"></i> Preview
-    </button>
-    <div ngbDropdownMenu aria-labelledby="preview-dropdown">
-      TODO Show isDirty() state
-      <ng-container
-        *ngFor="let sectionItem of previewData('TODOinput'); let idx = index"
-      >
-        <div class="dropdown-divider" *ngIf="idx > 0"></div>
-        <h6 class="dropdown-header">{{ sectionItem.name }}</h6>
-        <ng-container
-          *ngFor="let previewItem of sectionItem.previewItems"
+<ng-container *ngIf="previewSections.length > 0">
+
+    <div ngbDropdown class="d-inline-block">
+        <button
+        class="btn btn-link"
+        style="font-size: small;"
+        id="preview-dropdown"
+        ngbDropdownToggle
         >
-          <button ngbDropdownItem (click)="openPreviewLink(previewItem.fullURL)">
-            {{ previewItem.inputTerm + " | " + previewItem.fullURL }}
-          </button>
+        <i class="fa fa-link" aria-hidden="true"></i> Preview
+        </button>
+        <div ngbDropdownMenu aria-labelledby="preview-dropdown">
+        <ng-container
+            *ngFor="
+                let sectionItem of previewSections;
+                let idx = index
+            "
+        >
+            <div class="dropdown-divider" *ngIf="idx > 0"></div>
+            <h6 class="dropdown-header">{{ sectionItem.name }}</h6>
+            <ng-container
+                *ngFor="let previewItem of sectionItem.previewItems"
+            >
+                <button ngbDropdownItem (click)="openPreviewLink(previewItem.fullURL)">
+                    {{ previewItem.inputTerm }}
+                    {{ (previewItem.tenantInfo) ? (" | " + previewItem.tenantInfo) : "" }}
+                </button>
+            </ng-container>
         </ng-container>
-      </ng-container>
+        </div>
     </div>
-</div>
+
+</ng-container>

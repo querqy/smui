@@ -53,11 +53,11 @@
                 </span>
               </div>
               
-              <div *ngIf="previewVisible">
-
-                <app-smui-preview-link>
+              <div *ngIf="detailSearchInput">
+                <app-smui-preview-link
+                  [previewSections]="previewLinks(detailSearchInput.term)"
+                >
                 </app-smui-preview-link>
-                
               </div>
   
             </div>

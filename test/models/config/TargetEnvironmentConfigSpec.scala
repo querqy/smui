@@ -88,7 +88,10 @@ class TargetEnvironmentConfigSpec extends FlatSpec with Matchers {
 
     val (application, retTargetEnvConf) = createAppAndGetConf(None)
 
-    retTargetEnvConf shouldEqual DEFAULT_TARGET_ENV_CONF_MODEL
+    // TODO Consider for a v4 major update to make this the default
+//    retTargetEnvConf shouldEqual DEFAULT_TARGET_ENV_CONF_MODEL
+
+    retTargetEnvConf shouldEqual Seq()
 
     shutdownAppAndDb(application)
   }
@@ -425,5 +428,7 @@ class TargetEnvironmentConfigSpec extends FlatSpec with Matchers {
     ).toString shouldBe """[{"id":"LIVE","targetEnvironmentGroups":[{"id":"en","targetEnvironments":[{"rulesCollection":"AmazonEN","previewUrlTemplate":"https://www.amazon.com/s?k=$QUERY"}]}]}]"""
 
   }
+
+  // TODO "target environment config" should "not define overlapping tenant and rule collection setups" in { }
 
 }
