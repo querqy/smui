@@ -99,12 +99,15 @@ export class PreviewLinkService {
         } else {
             // Apply target environment config to render the preview links for the inputTerm
             const rawPreviewSections = targetEnvConf
+                // Construct the preview sections
                 .map(targetInst => {
                     return<PreviewSection>{
                         "name": targetInst.id,
                         "previewItems": renderPreviewItems( targetInst )
                     }
                 })
+                // A preview section must have at least one preview item
+                .filter(targetInst => targetInst.previewItems.length > 0)
 
             return rawPreviewSections
         }

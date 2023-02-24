@@ -24,7 +24,9 @@
                     <button ngbDropdownItem (click)="openPreviewLink(previewItem.fullURL)">
                         <i class="fa fa-link"></i> {{ previewItem.inputTerm }}
                         <ng-container *ngIf="previewItem.tenantInfo">
-                            {{ " | " + previewItem.tenantInfo }}
+                            <span class="badge badge-pill badge-info ml-2">
+                                {{ previewItem.tenantInfo }}
+                            </span>
                         </ng-container>
                     </button>
                 </ng-container>
@@ -38,6 +40,8 @@
 
 </ng-container>
 
-<ng-container *ngIf="previewSections.length < 0">
-    No preview
+<ng-container *ngIf="previewSections.length < 1">
+    <span class="no-preview-info">
+        <i class="fa fa-exclamation-circle"></i> No preview
+    </span>
 </ng-container>
