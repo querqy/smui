@@ -645,6 +645,10 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     }
   }
 
+  showPreviewLinks(): boolean {
+    return this.previewLinkService.previewLinksAvailable()
+  }
+
   private cleanPreviewInputTerm(rawInputTerm: string): string {
     const trimmedTerm = rawInputTerm.trim()
     const startIdx = trimmedTerm.startsWith('"') ? 1 : 0

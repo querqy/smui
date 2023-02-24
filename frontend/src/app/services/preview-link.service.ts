@@ -25,8 +25,17 @@ export class PreviewLinkService {
     constructor(
         public configService: ConfigService
     ) { }
+    
+    public previewLinksAvailable(): boolean {
+        const targetEnvConf = this.configService.targetEnvironment
+        if( targetEnvConf === undefined ) {
+            return false
+        } else {
+            return targetEnvConf.length > 0
+        }
+    }
 
-    renderLinkFor(inputTerm: string, rulesCollectionName: string, allowOnlyTenantTags: string[]): PreviewSection[] {
+    public renderLinkFor(inputTerm: string, rulesCollectionName: string, allowOnlyTenantTags: string[]): PreviewSection[] {
         
         function renderPreviewItems(targetInst: TargetEnvironmentInstance): PreviewItem[] {
             

@@ -40,4 +40,6 @@ describe('ConfigService', () => {
 
     httpMock.expectOne({}).flush(testVersionInfo);
   });
+
+  // TODO add spec for getTargetEnvironment()
 });

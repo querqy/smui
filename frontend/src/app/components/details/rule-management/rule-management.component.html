@@ -53,7 +53,7 @@
                 </span>
               </div>
               
-              <div *ngIf="detailSearchInput">
+              <div *ngIf="detailSearchInput && showPreviewLinks()">
                 <app-smui-preview-link
                   [previewSections]="previewLinks(detailSearchInput.term)"
                 >
@@ -237,15 +237,23 @@
             </select>
           </td>
           <td style="width:55%">
-            <input
-              type="text"
-              class="form-control"
-              id="inputSynonymTerm"
-              placeholder="Edit Synonym Rule Term ..."
-              [(ngModel)]="synonymRule.term"
-              (keyup.enter)="saveSearchInputDetails()"
-            />
-          </td>
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                id="inputSynonymTerm"
+                placeholder="Edit Synonym Rule Term ..."
+                [(ngModel)]="synonymRule.term"
+                (keyup.enter)="saveSearchInputDetails()"
+              />
+              <div *ngIf="synonymRule && showPreviewLinks() && (synonymRule.synonymType === 0)">
+                <app-smui-preview-link
+                  [previewSections]="previewLinks(synonymRule.term)"
+                >
+                </app-smui-preview-link>
+              </div>
+            </div>
+        </td>
           <td style="width:5%">
             <button
               type="button"

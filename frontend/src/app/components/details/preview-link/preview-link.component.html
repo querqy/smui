@@ -1,33 +1,41 @@
 <ng-container *ngIf="previewSections.length > 0">
 
-    <div ngbDropdown class="d-inline-block">
+    <div ngbDropdown class="d-inline-block" #previewMenuDropdown="ngbDropdown">
         <button
         class="btn btn-link"
         style="font-size: small;"
         id="preview-dropdown"
         ngbDropdownToggle
         >
-        <i class="fa fa-link" aria-hidden="true"></i> Preview
+            <i class="fa fa-link"></i> Preview
         </button>
         <div ngbDropdownMenu aria-labelledby="preview-dropdown">
-        <ng-container
-            *ngFor="
-                let sectionItem of previewSections;
-                let idx = index
-            "
-        >
-            <div class="dropdown-divider" *ngIf="idx > 0"></div>
-            <h6 class="dropdown-header">{{ sectionItem.name }}</h6>
             <ng-container
-                *ngFor="let previewItem of sectionItem.previewItems"
+                *ngFor="
+                    let sectionItem of previewSections;
+                    let idx = index
+                "
             >
-                <button ngbDropdownItem (click)="openPreviewLink(previewItem.fullURL)">
-                    {{ previewItem.inputTerm }}
-                    {{ (previewItem.tenantInfo) ? (" | " + previewItem.tenantInfo) : "" }}
-                </button>
+                <div class="dropdown-divider" *ngIf="idx > 0"></div>
+                <h6 class="dropdown-header">{{ sectionItem.name }}</h6>
+                <ng-container
+                    *ngFor="let previewItem of sectionItem.previewItems"
+                >
+                    <button ngbDropdownItem (click)="openPreviewLink(previewItem.fullURL)">
+                        <i class="fa fa-link"></i> {{ previewItem.inputTerm }}
+                        {{ (previewItem.tenantInfo) ? (" | " + previewItem.tenantInfo) : "" }}
+                    </button>
+                </ng-container>
             </ng-container>
-        </ng-container>
+            <div class="dropdown-divider"></div>
+            <button ngbDropdownItem (click)="previewMenuDropdown.close()">
+                <i class="fa fa-ban"></i> Cancel preview
+            </button>
         </div>
     </div>
 
+</ng-container>
+
+<ng-container *ngIf="previewSections.length < 0">
+    No preview
 </ng-container>
