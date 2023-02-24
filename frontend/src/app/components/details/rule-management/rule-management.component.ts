@@ -636,12 +636,25 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     );
   }
 
-  warn_searchinput_exact(): boolean {
+  warnSearchinputExact(): (string | undefined) {
     if(!this.detailSearchInput) {
-      return false
+      return undefined
     } else {
       const trimmedTerm = this.detailSearchInput.term.trim()
-      return trimmedTerm.startsWith('"') && trimmedTerm.endsWith('"')
+      const bStartsWithQuot = trimmedTerm.startsWith('"')
+      const bEndsWithQuot = trimmedTerm.endsWith('"')
+      if( bStartsWithQuot && bEndsWithQuot ) {
+        return "exact match"
+      } else {
+        if( bStartsWithQuot ) {
+          return "left exact"
+        }
+        else if( bEndsWithQuot ) {
+          return "right exact"
+        } else {
+          return undefined
+        }
+      }
     }
   }
 
