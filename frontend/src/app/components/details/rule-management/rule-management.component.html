@@ -43,11 +43,11 @@
                     disabled="disabled"
                   />
               </ng-container>
-              <div class="input-group-append" *ngIf="warn_searchinput_exact()">
+              <div class="input-group-append" *ngIf="warnSearchinputExact()">
                 <span class="input-group-text smui-clean-input-group-append">
                   <span class="badge badge-warning">
                     <i class="fa fa-info-circle">&nbsp;</i>
-                    Exact match
+                    {{ warnSearchinputExact() }}
                   </span>
                 </span>
               </div>
