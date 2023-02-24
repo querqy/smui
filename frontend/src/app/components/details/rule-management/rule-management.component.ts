@@ -640,16 +640,13 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     if(!this.detailSearchInput) {
       return undefined
     } else {
-      const trimmedTerm = this.detailSearchInput.term.trim()
-      const bStartsWithQuot = trimmedTerm.startsWith('"')
-      const bEndsWithQuot = trimmedTerm.endsWith('"')
-      if( bStartsWithQuot && bEndsWithQuot ) {
+      if( SearchInput.isTermExact(this.detailSearchInput.term) ) {
         return "exact match"
       } else {
-        if( bStartsWithQuot ) {
+        if( SearchInput.isTermLeftExact(this.detailSearchInput.term) ) {
           return "left exact"
         }
-        else if( bEndsWithQuot ) {
+        else if( SearchInput.isTermRightExact(this.detailSearchInput.term) ) {
           return "right exact"
         } else {
           return undefined
@@ -658,20 +655,20 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     }
   }
 
+  warnForExactMatchingSyntax(inSynonymTerm: string): boolean {
+    return (
+      SearchInput.isTermExact(inSynonymTerm)
+      || SearchInput.isTermLeftExact(inSynonymTerm)
+      || SearchInput.isTermRightExact(inSynonymTerm)
+    )
+  }
+
   showPreviewLinks(): boolean {
     return this.previewLinkService.previewLinksAvailable()
   }
 
   private cleanPreviewInputTerm(rawInputTerm: string): string {
-    const trimmedTerm = rawInputTerm.trim()
-    const startIdx = trimmedTerm.startsWith('"') ? 1 : 0
-    const endIdx = trimmedTerm.endsWith('"') ? (trimmedTerm.length-1) : trimmedTerm.length
-//    console.log(
-//      'In :: cleanPreviewInputTerm :: trimmedTerm = "' + trimmedTerm
-//      + '" startIdx = ' + startIdx
-//      + ' endIdx = ' + endIdx
-//    )
-    return trimmedTerm.substring(startIdx, endIdx)
+    return SearchInput.stripExactMatchingSyntax(rawInputTerm)
   }
 
   previewLinks(forInputTerm: string): PreviewSection[] {

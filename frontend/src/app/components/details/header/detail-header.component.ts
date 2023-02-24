@@ -1,4 +1,13 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter
+} from '@angular/core'
+
+import {
+  SearchInput,
+} from '../../../models';
 
 @Component({
   selector: 'app-smui-detail-header',
@@ -18,12 +27,15 @@ export class DetailHeaderComponent {
   @Output() handleSave = new EventEmitter();
   @Output() handleDelete = new EventEmitter();
 
-  warn_for_exactmatch(): boolean {
+  warnForExactMatchingSyntax(): boolean {
     if(!this.exactMatchWarn) {
       return false
     } else {
-      const trimmedTerm = this.term.trim()
-      return trimmedTerm.startsWith('"') && trimmedTerm.endsWith('"')
+      return (
+        SearchInput.isTermExact(this.term)
+        || SearchInput.isTermLeftExact(this.term)
+        || SearchInput.isTermRightExact(this.term)
+      )
     }
   }
 }

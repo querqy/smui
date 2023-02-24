@@ -202,15 +202,16 @@
       *ngIf="detailSearchInput && detailSearchInput.synonymRules.length > 0"
     >
       <table style="width:100%">
-        <tr
-          *ngFor="
-            let synonymRule of detailSearchInput.synonymRules;
-            let idxSynonymRules = index
-          "
-          [class.smui-disabled-rule-line]="
-            !synonymRule.isActive || !detailSearchInput.isActive
-          "
+        <ng-container
+            *ngFor="
+              let synonymRule of detailSearchInput.synonymRules;
+              let idxSynonymRules = index
+            "
+            [class.smui-disabled-rule-line]="
+              !synonymRule.isActive || !detailSearchInput.isActive
+            "
         >
+        <tr>
           <!--
           TODO evaluate the use of this nicer Bootstrap toggle button instead of `input type="checkbox"` ...
 
@@ -266,6 +267,14 @@
             </button>
           </td>
         </tr>
+        <tr *ngIf="warnForExactMatchingSyntax(synonymRule.term)">
+          <td colspan="4">
+            <div class="alert alert-warning mb-3" role="alert">
+              <i class="fa fa-exclamation-circle"></i> WARNING: Exact matching instruction on synonyms do not have any effect. The quotation(s) will be contained in the search query.
+            </div>
+          </td>
+        </tr>
+        </ng-container>
       </table>
     </ng-container>
 

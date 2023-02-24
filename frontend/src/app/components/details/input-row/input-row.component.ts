@@ -10,7 +10,8 @@ import {
 } from '../../../services'
 
 import {
-  PreviewSection
+  PreviewSection,
+  SearchInput
 } from '../../../models'
 
 @Component({
@@ -66,15 +67,7 @@ export class InputRowComponent {
   }
 
   private cleanPreviewInputTerm(rawInputTerm: string): string {
-    const trimmedTerm = rawInputTerm.trim()
-    const startIdx = trimmedTerm.startsWith('"') ? 1 : 0
-    const endIdx = trimmedTerm.endsWith('"') ? (trimmedTerm.length-1) : trimmedTerm.length
-//    console.log(
-//      'In :: cleanPreviewInputTerm :: trimmedTerm = "' + trimmedTerm
-//      + '" startIdx = ' + startIdx
-//      + ' endIdx = ' + endIdx
-//    )
-    return trimmedTerm.substring(startIdx, endIdx)
+    return SearchInput.stripExactMatchingSyntax(rawInputTerm)
   }
 
   previewLinks(forInputTerm: string): PreviewSection[] {
@@ -93,6 +86,14 @@ export class InputRowComponent {
 //      console.log(':: returnPreviewLinks = ' + JSON.stringify(returnPreviewLinks))
       return returnPreviewLinks
     }
+  }
+
+  warnForExactMatchingSyntax(): boolean {
+    return (
+      SearchInput.isTermExact(this.term)
+      || SearchInput.isTermLeftExact(this.term)
+      || SearchInput.isTermRightExact(this.term)
+    )
   }
 
 }

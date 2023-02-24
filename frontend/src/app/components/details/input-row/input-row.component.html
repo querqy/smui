@@ -57,3 +57,7 @@
     </button>
   </div>
 </div>
+
+<div *ngIf="warnForExactMatchingSyntax()" class="alert alert-warning mt-2 mb-0" role="alert">
+  <i class="fa fa-exclamation-circle"></i> WARNING: Exact query matches do not apply to misspellings. The misspelled query now requires the formulated quotation(s).
+</div>

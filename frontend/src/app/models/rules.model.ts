@@ -47,4 +47,36 @@ export class SearchInput {
   tags: Array<InputTag>;
   isActive: boolean;
   comment: string;
+
+  // Dealing with querqy exact matching syntax for input terms
+
+  public static isTermLeftExact(term: string): boolean {
+    const trimmedTerm = term.trim()
+    return trimmedTerm.startsWith('"')
+  }
+
+  public static isTermRightExact(term: string): boolean {
+    const trimmedTerm = term.trim()
+    return trimmedTerm.endsWith('"')
+  }
+
+  public static isTermExact(term: string): boolean {
+    return (
+      SearchInput.isTermLeftExact(term)
+      && SearchInput.isTermRightExact(term)
+    )
+  }
+
+  public static stripExactMatchingSyntax(rawInputTerm: string): string {
+    const trimmedTerm = rawInputTerm.trim()
+    const startIdx = trimmedTerm.startsWith('"') ? 1 : 0
+    const endIdx = trimmedTerm.endsWith('"') ? (trimmedTerm.length-1) : trimmedTerm.length
+//    console.log(
+//      'In SearchInput :: stripExactMatchingSyntax :: trimmedTerm = "' + trimmedTerm
+//      + '" startIdx = ' + startIdx
+//      + ' endIdx = ' + endIdx
+//    )
+    return trimmedTerm.substring(startIdx, endIdx)
+  }
+
 }
