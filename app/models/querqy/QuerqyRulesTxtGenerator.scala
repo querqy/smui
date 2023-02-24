@@ -5,6 +5,7 @@ import java.net.{URI, URISyntaxException}
 
 import javax.inject.Inject
 import models.FeatureToggleModel._
+import models.input.SearchInput
 import models.rules._
 import models.{SearchManagementRepository, SolrIndexId}
 import models.input.SearchInputWithRules
@@ -51,7 +52,20 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
   def renderSearchInputRulesForTerm(term: String, searchInput: SearchInputWithRules): String = {
 
     val retSearchInputRulesTxtPartial = new StringBuilder()
-    retSearchInputRulesTxtPartial.append(term + " =>\n")
+    retSearchInputRulesTxtPartial.append(
+      (
+        // Re-identify the main input term
+        if( term.equals(searchInput.term) )
+          term
+        else
+          // ... because ALL OTHERS need special treatment for being the querqy input term
+          SearchInput.deriveAlternativeInput(
+            searchInput.term,
+            term
+          )
+      )
+      + " =>\n"
+    )
 
     val allSynonymTerms: List[String] = searchInput.term ::
       searchInput.synonymRules
@@ -61,7 +75,16 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     for (synonymTerm <- allSynonymTerms) {
       // TODO equals on term-level, evaluate if synonym-term identity should be transferred on id-level
       if (synonymTerm != term) {
-        retSearchInputRulesTxtPartial.append(renderSynonymRule(synonymTerm))
+        retSearchInputRulesTxtPartial.append(
+          renderSynonymRule(
+            // Re-identify the main input term
+            if( synonymTerm.equals(searchInput.term) )
+              // ... because IT needs special treatment for being the querqy SYNONYM term
+              SearchInput.stripDownInputToSynonym(synonymTerm)
+            else
+              synonymTerm
+          )
+        )
       }
     }
     for (upDownRule <- searchInput.upDownRules

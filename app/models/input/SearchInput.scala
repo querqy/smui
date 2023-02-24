@@ -91,12 +91,70 @@ object SearchInput {
 
   // Further object helper
 
+  def isTermLeftExact(term: String): Boolean = {
+    term.trim().startsWith("\"")
+  }
+
+  def isTermRightExact(term: String): Boolean = {
+    term.trim().endsWith("\"")
+  }
+
   /**
    * Identifies an exact matching input term (by querqy syntax specification).
    */
-  def isExactMatch(term: String): Boolean = {
-    val trimmedTerm = term.trim()
-    trimmedTerm.startsWith("\"") && trimmedTerm.endsWith("\"")
+  def isTermExact(term: String): Boolean = {
+    isTermLeftExact(term) && isTermRightExact(term)
+  }
+
+  def hasTermAnyExactInstruction(term: String): Boolean = {
+    isTermExact(term) || isTermLeftExact(term) || isTermRightExact(term)
+  }
+
+  def deriveAlternativeInput(fromMainInputTerm: String, forUndirectedSynonymTerm: String): String = {
+    if( hasTermAnyExactInstruction(fromMainInputTerm) ) {
+      if( hasTermAnyExactInstruction(forUndirectedSynonymTerm) ) {
+        return forUndirectedSynonymTerm
+      } else {
+        if( isTermExact(fromMainInputTerm) ) {
+          // Make sure the derivate term is also (left and right) exact
+          return "\"" + forUndirectedSynonymTerm + "\""
+        } else {
+          (
+            isTermLeftExact(fromMainInputTerm), 
+            isTermRightExact(fromMainInputTerm)
+          ) match {
+            case (true, false) => {
+              return "\"" + forUndirectedSynonymTerm
+            }
+            case (false, true) => {
+              return forUndirectedSynonymTerm + "\""
+            }
+          }
+        }
+      }
+    } else {
+      return forUndirectedSynonymTerm
+    }
+  }
+
+  def stripDownInputToSynonym(inputTerm: String): String = {
+    if( !hasTermAnyExactInstruction(inputTerm) ) {
+      return inputTerm
+    } else if( isTermExact(inputTerm) ) {
+      inputTerm.substring(1, inputTerm.length()-1)
+    } else {
+        (
+          isTermLeftExact(inputTerm), 
+          isTermRightExact(inputTerm)
+        ) match {
+          case (true, false) => {
+            return inputTerm.substring(1, inputTerm.length())
+          }
+          case (false, true) => {
+            return inputTerm.substring(0, inputTerm.length()-1)
+          }
+        }
+    }
   }
 
 }
