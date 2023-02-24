@@ -6,13 +6,17 @@ import {
   EventEmitter
 } from '@angular/core';
 
-import {CommonsService, SpellingsService} from '../../../services';
+import {
+  CommonsService,
+  SpellingsService
+} from '../../../services'
+
 import {
   AlternativeSpelling,
   CanonicalSpelling,
   ListItem,
   LevenshteinDistance
-} from '../../../models';
+} from '../../../models'
 
 @Component({
   selector: 'app-smui-spellings',

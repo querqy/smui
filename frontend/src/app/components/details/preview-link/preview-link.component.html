@@ -23,7 +23,9 @@
                 >
                     <button ngbDropdownItem (click)="openPreviewLink(previewItem.fullURL)">
                         <i class="fa fa-link"></i> {{ previewItem.inputTerm }}
-                        {{ (previewItem.tenantInfo) ? (" | " + previewItem.tenantInfo) : "" }}
+                        <ng-container *ngIf="previewItem.tenantInfo">
+                            {{ " | " + previewItem.tenantInfo }}
+                        </ng-container>
                     </button>
                 </ng-container>
             </ng-container>
