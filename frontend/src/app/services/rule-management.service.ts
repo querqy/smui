@@ -55,6 +55,14 @@ export class RuleManagementService {
       .toPromise();
   }
 
+  addNewRuleItemCopyFromSearchInput(solrIndexId: string, searchInputId: string): Promise<ApiResult> {
+    const body = JSON.stringify( { });
+
+    return this.http
+      .post<ApiResult>(`${this.baseUrl}/${solrIndexId}/${this.searchInputApiPath}/source-id/${searchInputId}`, body, httpOptions)
+      .toPromise();
+  }
+
   getDetailedSearchInput(searchInputId: string): Promise<SearchInput> {
     return this.http
       .get<SearchInput>(`${this.baseUrl}/${this.searchInputApiPath}/${searchInputId}`)

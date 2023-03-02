@@ -29,4 +29,7 @@ object FilterRule extends RuleObjectWithTerm[FilterRule] {
     }
   }
 
+  override def createWithNewIdFrom(rule: FilterRule): FilterRule = {
+    FilterRule(FilterRuleId(), rule.term, rule.isActive)
+  }
 }

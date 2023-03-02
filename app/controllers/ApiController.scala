@@ -20,6 +20,7 @@ import models._
 import models.config.SmuiVersion
 import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
+import models.rules.{DeleteRule, FilterRule, RedirectRule, SynonymRule, UpDownRule}
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
 import models.reports.{DeploymentLog}
 import org.checkerframework.checker.units.qual.A
@@ -197,6 +198,46 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       val userInfo: Option[String] = lookupUserInfo(request)
       searchManagementRepository.deleteSearchInput(searchInputId, userInfo)
       Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Search Input successful", None)))
+    }
+  }
+
+  def copySearchInput(searchInputId: String, solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+    Future {
+      val userInfo: Option[String] = lookupUserInfo(request)
+
+      try {
+        val sourceSearchInputWithRules = searchManagementRepository.getDetailedSearchInput(SearchInputId(searchInputId))
+        // TODO Make transactional to rollback in case of error. BUT it's not crucial since there is just a copy created and the user can recover easily using the UI in case it could not finish
+        val copySearchInputId = searchManagementRepository.addNewSearchInput(
+          SolrIndexId(solrIndexId),
+          sourceSearchInputWithRules.get.term,
+          sourceSearchInputWithRules.get.tags.map(x => x.id),
+          userInfo)
+
+        val copySearchInputWithRules =
+          SearchInputWithRules(copySearchInputId,
+            term = sourceSearchInputWithRules.get.term,
+            synonymRules = sourceSearchInputWithRules.get.synonymRules.map(x => SynonymRule.createWithNewIdFrom(x)),
+            upDownRules = sourceSearchInputWithRules.get.upDownRules.map(x => UpDownRule.createWithNewIdFrom(x)),
+            filterRules = sourceSearchInputWithRules.get.filterRules.map(x => FilterRule.createWithNewIdFrom(x)),
+            deleteRules = sourceSearchInputWithRules.get.deleteRules.map(x => DeleteRule.createWithNewIdFrom(x)),
+            redirectRules = sourceSearchInputWithRules.get.redirectRules.map(x => RedirectRule.createWithNewIdFrom(x)),
+            tags = sourceSearchInputWithRules.get.tags,
+            isActive = sourceSearchInputWithRules.get.isActive,
+            comment = sourceSearchInputWithRules.get.comment);
+
+        searchManagementRepository.updateSearchInput(copySearchInputWithRules, userInfo)
+
+        Ok(Json.toJson(ApiResult(API_RESULT_OK, "Copying Search Input successful", Some(copySearchInputId))))
+
+      } catch {
+        case e: Exception => BadRequest(
+          Json.toJson(ApiResult(API_RESULT_FAIL, s"Copying Search Input failed: ${e.getMessage}", None))
+        )
+        case _: Throwable => BadRequest(
+          Json.toJson(ApiResult(API_RESULT_FAIL, s"Copying Search Input failed due to an unknown error", None))
+        )
+      }
     }
   }
 
