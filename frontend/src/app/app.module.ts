@@ -27,7 +27,7 @@ import {
 
 // // components
 import { AppComponent } from './components/app.component';
-import { ModalComponent, ModalConfirmComponent } from './components/modal';
+import { ModalComponent, ModalConfirmComponent, ModalCopyComponent } from './components/modal';
 import { HeaderNavComponent } from './components/header-nav';
 import { SearchManagementComponent } from './components/search-management';
 import {
@@ -77,6 +77,7 @@ import {
     AppComponent,
     ModalComponent,
     ModalConfirmComponent,
+    ModalCopyComponent,
     HeaderNavComponent,
     ButtonRowComponent,
     CardComponent,

@@ -74,9 +74,13 @@ object SearchInputWithRules {
     SearchInput.update(searchInput.id, searchInput.term, searchInput.isActive, searchInput.comment)
 
     SynonymRule.updateForSearchInput(searchInput.id, searchInput.synonymRules)
+
     UpDownRule.updateForSearchInput(searchInput.id, searchInput.upDownRules)
+
     FilterRule.updateForSearchInput(searchInput.id, searchInput.filterRules)
+
     DeleteRule.updateForSearchInput(searchInput.id, searchInput.deleteRules)
+
     RedirectRule.updateForSearchInput(searchInput.id, searchInput.redirectRules)
 
     TagInputAssociation.updateTagsForSearchInput(searchInput.id, searchInput.tags.map(_.id))

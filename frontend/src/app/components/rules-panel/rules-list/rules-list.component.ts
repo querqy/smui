@@ -31,8 +31,10 @@ export class RulesListComponent implements OnChanges {
   @Output() selectedListItemChange = new EventEmitter<ListItem>();
   @Output() listItemsChange = new EventEmitter<Array<ListItem>>();
   @Output() openDeleteConfirmModal: EventEmitter<any> = new EventEmitter();
+  @Output() openCopyConfirmModal: EventEmitter<any> = new EventEmitter();
   @Output() executeWithChangeCheck: EventEmitter<any> = new EventEmitter();
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
+  @Output() showSuccessMsg: EventEmitter<string> = new EventEmitter();
 
   readonly limitItemsTo: number = +this.featureToggleService.getSyncToggleUiListLimitItemsTo();
   isShowingAllItems: boolean = this.limitItemsTo < 0;
@@ -113,6 +115,17 @@ export class RulesListComponent implements OnChanges {
         .catch(error => this.showErrorMsg.emit(error));
 
     this.openDeleteConfirmModal.emit({ deleteCallback });
+  }
+
+  copyRuleItem(id: string, event: Event) {
+    event.stopPropagation();
+    const copyCallback = (targetSolrIndexId: string) =>
+        this.ruleManagementService
+                  .addNewRuleItemCopyFromSearchInput(id, targetSolrIndexId)
+                  .then(() => this.showSuccessMsg.emit("Copied Rule management item"))
+                  .catch(error => this.showErrorMsg.emit(error.error.message));
+
+    this.openCopyConfirmModal.emit({ copyCallback });
   }
 
   toggleShowMore() {

@@ -17,6 +17,8 @@ GET     /api/v1/inputTags                                       controllers.ApiC
 GET     /api/v1/:solrIndexId/search-input                       controllers.ApiController.listAllSearchInputs(solrIndexId: String)
 GET     /api/v1/search-input/:searchInputId                     controllers.ApiController.getDetailedSearchInput(searchInputId: String)
 PUT     /api/v1/:solrIndexId/search-input                       controllers.ApiController.addNewSearchInput(solrIndexId: String)
+# TODO more restful would be /search-input?source-id=:searchInputId
+POST    /api/v1/:solrIndexId/search-input/source-id/:searchInputId   controllers.ApiController.copySearchInput(solrIndexId: String, searchInputId: String)
 POST    /api/v1/search-input/:searchInputId                     controllers.ApiController.updateSearchInput(searchInputId: String)
 DELETE  /api/v1/search-input/:searchInputId                     controllers.ApiController.deleteSearchInput(searchInputId: String)
 POST    /api/v1/:solrIndexId/rules-txt/:targetPlatform          controllers.ApiController.updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: String, targetPlatform: String)
