@@ -77,12 +77,14 @@ trait RuleObject[T <: Rule] extends CommonRuleFields {
     SQL"select * from #$TABLE_NAME where #$SEARCH_INPUT_ID = $searchInputId order by #$orderByField".as(sqlParser.*)
   }
 
+  def createWithNewIdFrom(rule: T): T
 }
 
 trait RuleObjectWithTerm[T <: RuleWithTerm] extends RuleObject[T] {
 
   override def fieldNames: Seq[String] = super.fieldNames :+ TERM
   override def orderByField: String = TERM
+  def createWithNewIdFrom(rule: T): T
 }
 
 object Rule extends CommonRuleFields {

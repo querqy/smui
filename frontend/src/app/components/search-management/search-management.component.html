@@ -3,9 +3,7 @@
     <app-smui-rules-search
       [currentSolrIndexId]="currentSolrIndexId"
       [listItems]="listItems"
-      (refreshAndSelectListItemById)="
-        rulesListComponent.refreshAndSelectListItemById($event)
-      "
+      (refreshAndSelectListItemById)="rulesListComponent.refreshAndSelectListItemById($event)"
       (executeWithChangeCheck)="executeWithChangeCheck($event)"
       (showSuccessMsg)="showSuccessMsg($event)"
       (showErrorMsg)="showErrorMsg($event)"
@@ -20,8 +18,10 @@
       [searchInputTerm]="searchInputTerm"
       [appliedTagFilter]="appliedTagFilter"
       (openDeleteConfirmModal)="openDeleteConfirmModal($event)"
+      (openCopyConfirmModal)="openCopyConfirmModal($event)"
       (executeWithChangeCheck)="executeWithChangeCheck($event)"
       (showErrorMsg)="showErrorMsg($event)"
+      (showSuccessMsg)="showSuccessMsg($event)"
       [(selectedListItem)]="selectedListItem"
       [(listItems)]="listItems"
       #rulesListComponent
@@ -100,3 +100,12 @@
 >
   <p>Are you sure you want to delete the item?</p>
 </app-smui-confirm-modal>
+
+<app-smui-copy-modal
+  id="confirm-copy"
+  title="Copy rule management item"
+  description="Please choose the destination Rules Collection"
+  okLabel="Copy"
+  cancelLabel="Cancel"
+>
+</app-smui-copy-modal>

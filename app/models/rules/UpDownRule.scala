@@ -48,4 +48,7 @@ object UpDownRule extends RuleObjectWithTerm[UpDownRule] {
     }
   }
 
+  override def createWithNewIdFrom(rule: UpDownRule): UpDownRule = {
+    UpDownRule(UpDownRuleId(), rule.upDownType, rule.boostMalusValue, rule.term, rule.isActive)
+  }
 }

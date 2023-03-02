@@ -52,4 +52,7 @@ object SynonymRule extends RuleObjectWithTerm[SynonymRule] {
     }.groupBy(_._1).mapValues(_.map(_._2))
   }
 
+  override def createWithNewIdFrom(rule: SynonymRule): SynonymRule = {
+    SynonymRule(SynonymRuleId(), rule.synonymType, rule.term, rule.isActive)
+  }
 }

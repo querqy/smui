@@ -28,4 +28,8 @@ object DeleteRule extends RuleObjectWithTerm[DeleteRule] {
       DeleteRule(id, term, Status.isActiveFromStatus(status))
     }
   }
+
+  override def createWithNewIdFrom(rule: DeleteRule): DeleteRule = {
+    DeleteRule(DeleteRuleId(), rule.term, rule.isActive)
+  }
 }

@@ -135,4 +135,16 @@ export class SearchManagementComponent implements OnInit {
       this.modalService.close('confirm-delete');
     });
   }
+
+  // @ts-ignore
+  public openCopyConfirmModal({ copyCallback }) {
+    const deferred = this.modalService.open('confirm-copy');
+    deferred.promise.then((targetSolrIndexId: any) => {
+      if (targetSolrIndexId != false) {
+        copyCallback(targetSolrIndexId);
+      }
+      this.modalService.close('confirm-copy');
+    });
+  }
+
 }
