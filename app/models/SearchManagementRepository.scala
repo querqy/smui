@@ -234,11 +234,11 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def addNewDeploymentLogOk(solrIndexId: String, targetPlatform: String): Boolean = db.withConnection { implicit connection =>
     SQL("insert into deployment_log(id, solr_index_id, target_platform, last_update, result) values ({id}, {solr_index_id}, {target_platform}, {last_update}, {result})")
       .on(
-        'id -> UUID.randomUUID().toString,
-        'solr_index_id -> solrIndexId,
-        'target_platform -> targetPlatform,
-        'last_update -> new Date(),
-        'result -> 0
+        "id" -> UUID.randomUUID().toString,
+        "solr_index_id" -> solrIndexId,
+        "target_platform" -> targetPlatform,
+        "last_update" -> new Date(),
+        "result" -> 0
       )
       .execute()
   }

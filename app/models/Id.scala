@@ -33,7 +33,7 @@ abstract class IdObject[T <: Id](fromString: String => T) {
 
   def apply(str: String): T = fromString(str)
 
-  implicit val jsonWrites: Writes[T] = Id.jsonWrites
+  implicit val jsonWrites: Writes[T] = Id.jsonWrites.asInstanceOf[Writes[T]]
   implicit val jsonReads: Reads[T] = Reads[T](_.validate[String].map(apply))
 
   def apply(): T = apply(UUID.randomUUID().toString)

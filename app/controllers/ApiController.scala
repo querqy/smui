@@ -433,7 +433,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
   }
   private def lookupUserInfo(request: Request[AnyContent]) = {
     val userInfo: Option[String] = request match {
-      case _: UserRequest[A] => Option(request.asInstanceOf[UserRequest[A]].username)
+      case _: UserRequest[_] => Option(request.asInstanceOf[UserRequest[_]].username)
       case _ => None
     }
     userInfo
