@@ -66,6 +66,12 @@ class JWTJsonAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configu
     } else true
   }
 
+  private def getUserRequestIfAvailable[A](token: JwtClaim, request: Request[A]): Request[A] = {
+    if (token.subject.isDefined) {
+      UserRequest(token.subject.get, request)
+    } else request
+  }
+
   private def redirectToLoginPage(): Future[Result] = {
     Future {
       Results.Redirect(JWT_LOGIN_URL)
@@ -79,7 +85,7 @@ class JWTJsonAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configu
     getJwtCookie(request) match {
       case Some(cookie) =>
         isAuthenticated(cookie.value) match {
-          case Some(token) if isAuthorized(token.content) => block(request)
+          case Some(token) if isAuthorized(token.content) => block(getUserRequestIfAvailable(token, request))
           case _ => redirectToLoginPage()
         }
       case None => redirectToLoginPage()
