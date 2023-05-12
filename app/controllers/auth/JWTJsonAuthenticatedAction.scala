@@ -1,5 +1,6 @@
 package controllers.auth
 
+import com.google.inject.Inject
 import com.jayway.jsonpath.JsonPath
 import net.minidev.json.JSONArray
 import pdi.jwt.{JwtAlgorithm, JwtClaim, JwtJson}
@@ -9,7 +10,7 @@ import play.api.{Configuration, Logging}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class JWTJsonAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext)
+class JWTJsonAuthenticatedAction @Inject()(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) with Logging {
 
   logger.debug("In JWTJsonAuthenticatedAction")
