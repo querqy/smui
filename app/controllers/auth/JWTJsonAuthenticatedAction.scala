@@ -68,9 +68,10 @@ class JWTJsonAuthenticatedAction @Inject()(parser: BodyParsers.Default, appConfi
   }
 
   private def getUserRequestIfAvailable[A](token: JwtClaim, request: Request[A]): Request[A] = {
-    if (token.subject.isDefined) {
-      UserRequest(token.subject.get, request)
-    } else request
+    token.subject match {
+      case Some(subject) => UserRequest(subject, request)
+      case None => request
+    }
   }
 
   private def redirectToLoginPage(): Future[Result] = {
