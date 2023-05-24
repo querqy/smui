@@ -1,22 +1,22 @@
 package auth
 
-import java.security.{KeyPairGenerator, SecureRandom}
-import java.util.Base64
-
+import controllers.auth.{JWTJsonAuthenticatedAction, UserRequest}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import pdi.jwt.{JwtAlgorithm, JwtJson}
 import play.api.db.{Database, Databases}
-import play.api.{Application, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
-import play.api.mvc.{Cookie, Result}
+import play.api.libs.json.{JsString, Json}
+import play.api.mvc.{Cookie, Request, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.{Application, Mode}
 
-import scala.concurrent.Future
+import java.security.{KeyPairGenerator, SecureRandom}
+import java.util.Base64
+import scala.concurrent.{ExecutionContext, Future}
 
 class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerTest with ScalaFutures {
 
@@ -58,7 +58,7 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
 
     "redirect if an invalid jwt token is provided" in {
       val request = FakeRequest(GET, "/")
-        .withCookies(buildJWTCookie("test_user", Seq("admin"), Some("invalid_token")))
+        .withCookies(buildJWTCookie(Seq("admin"), value = Some("invalid_token")))
 
       val home: Future[Result] = route(app, request).get
 
@@ -70,7 +70,7 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
 
     "redirect if the user has not the right permissions" in {
       val request = FakeRequest(GET, "/")
-        .withCookies(buildJWTCookie("test_user", Seq("not_admin")))
+        .withCookies(buildJWTCookie(Seq("not_admin")))
 
       val home: Future[Result] = route(app, request).get
 
@@ -82,7 +82,7 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
 
     "lead user to SMUI if a valid rsa encoded token is provided" in {
       val request = FakeRequest(GET, "/")
-        .withCookies(buildJWTCookie("test_user", Seq("search-manager")))
+        .withCookies(buildJWTCookie(Seq("search-manager")))
 
       val home: Future[Result] = route(app, request).get
 
@@ -94,7 +94,7 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
 
     "let users pass to SMUI if they have the right role even if they also have other roles" in {
       val request = FakeRequest(GET, "/")
-        .withCookies(buildJWTCookie("test_user", Seq("search-manager", "barkeeper")))
+        .withCookies(buildJWTCookie(Seq("search-manager", "barkeeper")))
 
       val home: Future[Result] = route(app, request).get
 
@@ -105,7 +105,7 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
 
     "let users pass to SMUI if they have role containing a whitespace character" in {
       val request = FakeRequest(GET, "/")
-        .withCookies(buildJWTCookie("test_user", Seq("smui rules analyst")))
+        .withCookies(buildJWTCookie(Seq("smui rules analyst")))
 
       val home: Future[Result] = route(app, request).get
 
@@ -116,7 +116,7 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
 
     "should secure API routes" in {
       var request = FakeRequest(GET, "/api/v1/inputTags")
-        .withCookies(buildJWTCookie("test_user", Seq("search-manager")))
+        .withCookies(buildJWTCookie(Seq("search-manager")))
 
       var home: Future[Result] = route(app, request).get
 
@@ -135,12 +135,45 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
 
     "respond correct to api call" in {
       val request = FakeRequest(GET, "/api/v1/allRulesTxtFiles")
-        .withCookies(buildJWTCookie("test_user", Seq("search-manager")))
+        .withCookies(buildJWTCookie(Seq("search-manager")))
 
       val home: Future[Result] = route(app, request).get
 
       whenReady(home) { result =>
         result.header.status mustBe 200
+      }
+    }
+
+    "return a UserRequest if the subject claim is present" in {
+      val request = FakeRequest(GET, "/api/v1/allRulesTxtFiles")
+        .withCookies(buildJWTCookie(Seq("search-manager")))
+      val authenticator = app.injector.instanceOf[JWTJsonAuthenticatedAction]
+      var modifiedRequest: Request[Any] = request
+
+      val authenticated = authenticator.invokeBlock(request, (receivedRequest: Request[Any]) => {
+        modifiedRequest = receivedRequest
+        Future.successful(Results.Ok)
+      })
+
+      whenReady(authenticated) { _ =>
+        modifiedRequest mustBe a[UserRequest[Any]]
+      }
+    }
+
+    "not touch the request if the subject claim is not present" in {
+      val request = FakeRequest(GET, "/api/v1/allRulesTxtFiles")
+        .withCookies(buildJWTCookie(Seq("search-manager"), optUserName = None))
+      val authenticator = app.injector.instanceOf[JWTJsonAuthenticatedAction]
+      var modifiedRequest: Request[Any] = request
+
+      val authenticated = authenticator.invokeBlock(request, (receivedRequest: Request[Any]) => {
+        modifiedRequest = receivedRequest
+        Future.apply(Results.Ok)(ExecutionContext.global)
+      })
+
+      whenReady(authenticated) { _ =>
+        modifiedRequest mustBe request
+        modifiedRequest must not be a[UserRequest[Any]]
       }
     }
   }
@@ -151,8 +184,11 @@ class JWTJsonAuthenticatedActionSpec extends PlaySpec with MockitoSugar with Gui
     keyGen.generateKeyPair()
   }
 
-  private def buildJWTCookie(userName: String, roles: Seq[String], value: Option[String] = None): Cookie = {
-    val token = Json.obj(("roles", roles), ("user", userName))
+  private def buildJWTCookie(roles: Seq[String] = Seq.empty, optUserName: Option[String] = Option("test_user"), value: Option[String] = None) = {
+    var token = Json.obj(("roles", roles))
+    for (userName <- optUserName) {
+      token = token + ("sub", JsString(userName))
+    }
 
     Cookie(
       name = getJwtConfiguration("cookie.name"),

@@ -1,5 +1,6 @@
 package controllers.auth
 
+import com.google.inject.Inject
 import com.jayway.jsonpath.JsonPath
 import net.minidev.json.JSONArray
 import pdi.jwt.{JwtAlgorithm, JwtClaim, JwtJson}
@@ -9,7 +10,7 @@ import play.api.{Configuration, Logging}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class JWTJsonAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext)
+class JWTJsonAuthenticatedAction @Inject()(parser: BodyParsers.Default, appConfig: Configuration)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) with Logging {
 
   logger.debug("In JWTJsonAuthenticatedAction")
@@ -66,6 +67,13 @@ class JWTJsonAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configu
     } else true
   }
 
+  private def getUserRequestIfAvailable[A](token: JwtClaim, request: Request[A]): Request[A] = {
+    token.subject match {
+      case Some(subject) => UserRequest(subject, request)
+      case None => request
+    }
+  }
+
   private def redirectToLoginPage(): Future[Result] = {
     Future {
       Results.Redirect(JWT_LOGIN_URL)
@@ -79,7 +87,7 @@ class JWTJsonAuthenticatedAction(parser: BodyParsers.Default, appConfig: Configu
     getJwtCookie(request) match {
       case Some(cookie) =>
         isAuthenticated(cookie.value) match {
-          case Some(token) if isAuthorized(token.content) => block(request)
+          case Some(token) if isAuthorized(token.content) => block(getUserRequestIfAvailable(token, request))
           case _ => redirectToLoginPage()
         }
       case None => redirectToLoginPage()
