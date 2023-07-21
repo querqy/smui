@@ -1,13 +1,13 @@
-import { 
+import {
     Injectable
 } from '@angular/core'
 
-import { 
+import {
     PreviewItem,
     PreviewSection
 } from './../models/preview-link.model'
 
-import { 
+import {
     TargetEnvironmentDescription,
     TargetEnvironmentInstance
 } from './../models/target-environment.model'
@@ -25,7 +25,7 @@ export class PreviewLinkService {
     constructor(
         public configService: ConfigService
     ) { }
-    
+
     public previewLinksAvailable(): boolean {
         const targetEnvConf = this.configService.targetEnvironment
         if( targetEnvConf === undefined ) {
@@ -36,9 +36,9 @@ export class PreviewLinkService {
     }
 
     public renderLinkFor(inputTerm: string, rulesCollectionName: string, allowOnlyTenantTags: string[]): PreviewSection[] {
-        
+
         function renderPreviewItems(targetInst: TargetEnvironmentInstance): PreviewItem[] {
-            
+
             function doesEnvDescrMatchTenant(envDescr: TargetEnvironmentDescription): boolean {
 
                 console.log("In :: doesEnvDescrMatchTenant :: envDescr = " + JSON.stringify(envDescr) + " allowOnlyTenantTags = " + JSON.stringify(allowOnlyTenantTags))
@@ -53,21 +53,17 @@ export class PreviewLinkService {
                         return false
                     } else {
                         // See, if some tenant requirement can be fullfilled by the environment
-                        const envTenantTag = envDescr.tenantTag
+                        const tagFromConfig = envDescr.tenantTag.trim();
+                        // Tag formats are not standardized, assume they are either "value" or "key:value",
+                        // extract "value" from both variants
+                        const tenantTagFromConfig = tagFromConfig.substring(tagFromConfig.lastIndexOf(":") + 1)
                         const bTenantRequirementFullfilled = allowOnlyTenantTags
-                            .some(tenantTagValue => 
-                                // TODO here we are testing for substring occurance, e.g.
-                                //   "tenant:AmazonDE" contains "AmazonDE"
-                                //   As it not fully enforced or specified by SMUI how
-                                //   tenant tags are being defined, this is a bit risky.
-                                envTenantTag.trim().indexOf(tenantTagValue.trim()) !== -1
-                            )
-                        
+                            .some(tenantTagValue => tenantTagFromConfig === tenantTagValue.trim())
                         return bTenantRequirementFullfilled
                     }
                 }
             }
-            
+
             // Filter all relevant target environment descriptions for the rules collection and tenant setup
             const resultPreviewItems: PreviewItem[] = []
             // TODO Consider introducing a flatMap mechanic here
