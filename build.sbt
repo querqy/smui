@@ -1,7 +1,7 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "3.17.1"
+version := "3.17.2"
 
 scalaVersion := "2.12.17"
 
@@ -50,7 +50,7 @@ libraryDependencies ++= {
     "org.postgresql" % "postgresql" % "42.5.1",
     "org.xerial" % "sqlite-jdbc" % "3.40.0.0",
     "org.playframework.anorm" %% "anorm" % "2.7.0",
-    "com.typesafe.play" %% "play-json" % "2.6.12",
+    "com.typesafe.play" %% "play-json" % "2.9.3",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
     "org.mockito" % "mockito-all" % "1.10.19" % Test,
@@ -68,7 +68,8 @@ dependencyOverrides ++= {
   Seq(
     "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
-    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
+    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
   )
 }
 
@@ -81,6 +82,8 @@ assembly / assemblyMergeStrategy := {
     // one with the given settings
     MergeStrategy.discard
   case x if x.endsWith("module-info.class") => MergeStrategy.discard
+  // Protobuf schemas, we just use the first one as we don't use Protobuf at all
+  case x if x.endsWith(".proto") => MergeStrategy.first
   case "play/reference-overrides.conf" => MergeStrategy.concat
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value

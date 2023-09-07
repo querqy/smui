@@ -271,8 +271,8 @@ object InputEvent extends Logging {
       s"order by $EVENT_TIME asc"
     )
       .on(
-        'dateFrom -> dateFrom,
-        'dateTo -> dateTo
+        "dateFrom" -> dateFrom,
+        "dateTo" -> dateTo
       )
       .as(sqlParser.*)
 
@@ -304,8 +304,8 @@ object InputEvent extends Logging {
           s"limit 1"
         )
           .on(
-            'inputId -> inputEvent.inputId,
-            'dateFrom -> inputEvent.eventTime,
+            "inputId" -> inputEvent.inputId,
+            "dateFrom" -> inputEvent.eventTime,
           )
           .as(sqlParser.*)
 
@@ -340,9 +340,9 @@ object InputEvent extends Logging {
       s"order by $EVENT_TIME asc"
     )
       .on(
-        'inputId -> inputId,
-        'dateFrom -> dateFrom,
-        'dateTo -> dateTo
+        "inputId" -> inputId,
+        "dateFrom" -> dateFrom,
+        "dateTo" -> dateTo
       )
       .as(sqlParser.*)
 
@@ -359,8 +359,8 @@ object InputEvent extends Logging {
         s"limit 1"
       )
         .on(
-          'inputId -> inputId,
-          'dateFrom -> dateFrom,
+          "inputId" -> inputId,
+          "dateFrom" -> dateFrom,
         )
         .as(sqlParser.*)
 

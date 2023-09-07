@@ -1,8 +1,7 @@
 package models
 
 import java.time.LocalDateTime
-import scala.util.{Try, Failure}
-
+import scala.util.Try
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import play.api.db.Database
 import models.input.{InputTag, InputTagId, SearchInput, SearchInputWithRules}
@@ -109,7 +108,9 @@ abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData 
           val trySecondCreate = Try(
             SmuiMigrationLock.create(MIGRATION_KEY)
           )
-          trySecondCreate shouldBe Failure
+          // Postgres: ERROR: duplicate key value violates unique constraint "smui_migration_lock_pkey"
+          // SQLite:  [SQLITE_CONSTRAINT_PRIMARYKEY] A PRIMARY KEY constraint failed (UNIQUE constraint failed: smui_migration_lock.migration_key)
+          trySecondCreate.isFailure shouldBe true
           // thread#1: make sure, the test migration can be selected (while its locked), but is not completed yet
           val migrationLockEntry = SmuiMigrationLock.select(MIGRATION_KEY).get
           migrationLockEntry.migrationKey shouldBe MIGRATION_KEY
