@@ -1,7 +1,7 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "3.17.2"
+version := "4.0.0"
 
 scalaVersion := "2.12.17"
 
@@ -34,8 +34,11 @@ lazy val dependencyCheckSettings: Seq[Setting[_]] = {
 
 resolvers ++= Seq(
   Resolver.jcenterRepo,
-  Resolver.bintrayRepo("renekrie", "maven")
+  Resolver.bintrayRepo("renekrie", "maven"),
+  "Shibboleth releases" at "https://build.shibboleth.net/nexus/content/repositories/releases/"
 )
+
+lazy val jacksonVersion = "2.15.2"
 
 libraryDependencies ++= {
   Seq(
@@ -44,6 +47,7 @@ libraryDependencies ++= {
     evolutions,
     "com.jayway.jsonpath" % "json-path" % "2.7.0",
     "org.querqy" % "querqy-core" % "3.7.0", // querqy dependency
+    "ch.qos.logback" % "logback-classic" % "1.4.8",
     "net.logstash.logback" % "logstash-logback-encoder" % "5.3", // JSON logging:
     "org.codehaus.janino" % "janino" % "3.0.8", // For using conditions in logback.xml:
     "mysql" % "mysql-connector-java" % "8.0.18", // TODO verify use of mysql-connector over explicit mariaDB connector instead
@@ -52,6 +56,11 @@ libraryDependencies ++= {
     "org.playframework.anorm" %% "anorm" % "2.7.0",
     "com.typesafe.play" %% "play-json" % "2.9.3",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
+    "org.apache.shiro" % "shiro-core" % "1.12.0",
+    "org.pac4j" % "pac4j-http" % "5.7.1" excludeAll (ExclusionRule(organization = "com.fasterxml.jackson.core")),
+    "org.pac4j" % "pac4j-saml" % "5.7.1" excludeAll (ExclusionRule(organization = "com.fasterxml.jackson.core")),
+    "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
     "org.mockito" % "mockito-all" % "1.10.19" % Test,
     "com.pauldijou" %% "jwt-play" % "4.1.0",
@@ -64,7 +73,6 @@ libraryDependencies ++= {
 }
 
 dependencyOverrides ++= {
-  lazy val jacksonVersion = "2.14.1"
   Seq(
     "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,

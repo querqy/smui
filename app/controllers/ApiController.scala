@@ -14,7 +14,7 @@ import java.nio.file.Paths
 import java.time.format.DateTimeFormatter
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
-import controllers.auth.{AuthActionFactory, UserRequest}
+import collection.JavaConverters._
 import models.FeatureToggleModel.FeatureToggleService
 import models._
 import models.config.SmuiVersion
@@ -23,21 +23,23 @@ import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, Search
 import models.querqy.QuerqyRulesTxtGenerator
 import models.rules.{DeleteRule, FilterRule, RedirectRule, SynonymRule, UpDownRule}
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
-import models.reports.{DeploymentLog}
-import org.checkerframework.checker.units.qual.A
+import org.pac4j.core.profile.{ProfileManager, UserProfile}
+import org.pac4j.play.PlayWebContext
+import org.pac4j.play.scala.{Security, SecurityComponents}
+import play.api.libs.Files
 import services.{RulesTxtDeploymentService, RulesTxtImportService}
 
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
-class ApiController @Inject()(authActionFactory: AuthActionFactory,
+class ApiController @Inject()(val controllerComponents: SecurityComponents,
                               featureToggleService: FeatureToggleService,
                               searchManagementRepository: SearchManagementRepository,
                               querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
-                              cc: MessagesControllerComponents,
                               rulesTxtDeploymentService: RulesTxtDeploymentService,
                               rulesTxtImportService: RulesTxtImportService,
-                              targetEnvironmentConfigService: TargetEnvironmentConfigService)(implicit executionContext: ExecutionContext)
-  extends MessagesAbstractController(cc) with Logging {
+                              targetEnvironmentConfigService: TargetEnvironmentConfigService)
+                             (implicit executionContext: ExecutionContext)
+  extends Security[UserProfile] with play.api.i18n.I18nSupport with Logging {
 
   val API_RESULT_OK = "OK"
   val API_RESULT_FAIL = "KO"
@@ -46,15 +48,15 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
   implicit val apiResultWrites = Json.writes[ApiResult]
 
-  def getFeatureToggles = authActionFactory.getAuthenticatedAction(Action) {
+  def getFeatureToggles: Action[AnyContent] = Action {
     Ok(Json.toJson(featureToggleService.getJsFrontendToggleList))
   }
 
-  def listAllSolrIndeces = authActionFactory.getAuthenticatedAction(Action) {
+  def listAllSolrIndeces: Action[AnyContent] = Action {
     Ok(Json.toJson(searchManagementRepository.listAllSolrIndexes))
   }
 
-  def addNewSolrIndex = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
+  def addNewSolrIndex: Action[AnyContent] = Action { request: Request[AnyContent] =>
     val body: AnyContent = request.body
     val jsonBody: Option[JsValue] = body.asJson
 
@@ -72,13 +74,13 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
-  def getSolrIndex(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+  def getSolrIndex(solrIndexId: String): Action[AnyContent] = Action.async {
     Future {
       Ok(Json.toJson(searchManagementRepository.getSolrIndex(SolrIndexId(solrIndexId))))
     }
   }
 
-  def deleteSolrIndex(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+  def deleteSolrIndex(solrIndexId: String): Action[AnyContent] = Action.async {
     Future {
       // TODO handle exception, give API_RESULT_FAIL
       try {
@@ -99,7 +101,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
-  def downloadAllRulesTxtFiles = authActionFactory.getAuthenticatedAction(Action) { req =>
+  def downloadAllRulesTxtFiles: Action[AnyContent] = Action {
     Ok.chunked(
       createStreamResultInBackground(
         rulesTxtDeploymentService.writeAllRulesTxtFilesAsZipFileToStream)).as("application/zip")
@@ -113,22 +115,22 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
   }
 
   // TODO check, if method is still in use or got substituted by listAll()?
-  def listAllSearchInputs(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action) {
+  def listAllSearchInputs(solrIndexId: String): Action[AnyContent] = Action {
     // TODO add error handling (database connection, other exceptions)
     Ok(Json.toJson(searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))))
   }
 
-  def listAllInputTags(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+  def listAllInputTags(): Action[AnyContent] = Action {
     Ok(Json.toJson(searchManagementRepository.listAllInputTags()))
   }
 
-  def getDetailedSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action) {
+  def getDetailedSearchInput(searchInputId: String): Action[AnyContent] = Action {
     // TODO add error handling (database connection, other exceptions)
     Ok(Json.toJson(searchManagementRepository.getDetailedSearchInput(SearchInputId(searchInputId))))
   }
 
 
-  def addNewSearchInput(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def addNewSearchInput(solrIndexId: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
     Future {
       val userInfo: Option[String] = lookupUserInfo(request)
 
@@ -159,7 +161,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
 
 
-  def updateSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
+  def updateSearchInput(searchInputId: String): Action[AnyContent] = Action { request: Request[AnyContent] =>
     val body: AnyContent = request.body
     val jsonBody: Option[JsValue] = body.asJson
     val userInfo: Option[String] = lookupUserInfo(request)
@@ -195,7 +197,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
-  def deleteSearchInput(searchInputId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def deleteSearchInput(searchInputId: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
     Future {
       val userInfo: Option[String] = lookupUserInfo(request)
       searchManagementRepository.deleteSearchInput(searchInputId, userInfo)
@@ -203,7 +205,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
-  def copySearchInput(searchInputId: String, solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def copySearchInput(searchInputId: String, solrIndexId: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
     Future {
       val userInfo: Option[String] = lookupUserInfo(request)
 
@@ -243,13 +245,13 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
-  def listAll(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action) {
+  def listAll(solrIndexId: String) : Action[AnyContent] = Action {
     val searchInputs = searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))
     val spellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId))
     Ok(Json.toJson(ListItem.create(searchInputs, spellings)))
   }
 
-  def addNewSpelling(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def addNewSpelling(solrIndexId: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
     Future {
       val userInfo: Option[String] = lookupUserInfo(request)
       val body: AnyContent = request.body
@@ -272,14 +274,14 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
-  def getDetailedSpelling(canonicalSpellingId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+  def getDetailedSpelling(canonicalSpellingId: String): Action[AnyContent] = Action.async {
     Future {
       val spellingWithAlternatives = searchManagementRepository.getDetailedSpelling(canonicalSpellingId)
       Ok(Json.toJson(spellingWithAlternatives))
     }
   }
 
-  def updateSpelling(solrIndexId: String, canonicalSpellingId: String) = authActionFactory.getAuthenticatedAction(Action) { request: Request[AnyContent] =>
+  def updateSpelling(solrIndexId: String, canonicalSpellingId: String): Action[AnyContent] = Action { request: Request[AnyContent] =>
     val userInfo: Option[String] = lookupUserInfo(request)
     val body: AnyContent = request.body
     val jsonBody: Option[JsValue] = body.asJson
@@ -302,7 +304,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       BadRequest(Json.toJson(ApiResult(API_RESULT_FAIL, "Updating Canonical Spelling failed. Unexpected body data.", None)))
     }
   }
-  def deleteSpelling(canonicalSpellingId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def deleteSpelling(canonicalSpellingId: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
     Future {
       val userInfo: Option[String] = lookupUserInfo(request)
       searchManagementRepository.deleteSpelling(canonicalSpellingId, userInfo)
@@ -318,7 +320,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
    * @param targetSystem "PRELIVE" vs. "LIVE" ... for reference @see evolutions/default/1.sql
    * @return Ok or BadRequest, if something failed.
    */
-  def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action) {
+  def updateRulesTxtForSolrIndexAndTargetPlatform(solrIndexId: String, targetSystem: String): Action[AnyContent] = Action {
     logger.debug("In ApiController :: updateRulesTxtForSolrIndexAndTargetPlatform")
 
     // generate rules.txt(s)
@@ -357,14 +359,14 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
-  def listAllSuggestedSolrFields(solrIndexId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async {
+  def listAllSuggestedSolrFields(solrIndexId: String): Action[AnyContent] = Action.async {
     Future {
       // TODO add error handling (database connection, other exceptions)
       Ok(Json.toJson(searchManagementRepository.listAllSuggestedSolrFields(solrIndexId)))
     }
   }
 
-  def addNewSuggestedSolrField(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def addNewSuggestedSolrField(solrIndexId: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
     Future {
       val body: AnyContent = request.body
       val jsonBody: Option[JsValue] = body.asJson
@@ -385,7 +387,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
   // I am requiring the solrIndexId because it is more RESTful, but it turns out we don't need it.
   // Maybe validation some day?
-  def deleteSuggestedSolrField(solrIndexId: String, suggestedFieldId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def deleteSuggestedSolrField(solrIndexId: String, suggestedFieldId: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
     Future {
       searchManagementRepository.deleteSuggestedSolrField(SuggestedSolrFieldId(suggestedFieldId))
       Ok(Json.toJson(ApiResult(API_RESULT_OK, "Deleting Suggested Field successful", None)))
@@ -393,7 +395,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
   }
 
   // TODO consider making method .asynch
-  def importFromRulesTxt(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action)(parse.multipartFormData) { request =>
+  def importFromRulesTxt(solrIndexId: String): Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData) { request =>
     request.body
       .file("rules_txt")
       .map { rules_txt =>
@@ -431,13 +433,6 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
         Ok(Json.toJson(ApiResult(API_RESULT_FAIL, "File rules_txt missing in request body.", None)))
       }
   }
-  private def lookupUserInfo(request: Request[AnyContent]) = {
-    val userInfo: Option[String] = request match {
-      case _: UserRequest[_] => Option(request.asInstanceOf[UserRequest[_]].username)
-      case _ => None
-    }
-    userInfo
-  }
 
   /**
    * Deployment info (raw or formatted)
@@ -448,7 +443,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
   implicit val logDeploymentInfoWrites = Json.writes[DeploymentInfo]
 
   @deprecated("The old style of retrieving a deployment log summary as plain text will be removed", "SMUI version > 3.15.1")
-  def getLatestDeploymentResultV1(solrIndexId: String, targetSystem: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def getLatestDeploymentResultV1(solrIndexId: String, targetSystem: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
     Future {
       logger.debug("In ApiController :: getLatestDeploymentResultV1")
       logger.debug(s"... solrIndexId = $solrIndexId")
@@ -495,7 +490,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
 
   implicit val logDeploymentDetailedInfoWrites = Json.writes[DeploymentDetailedInfo]
 
-  def getLatestDeploymentResult(solrIndexId: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] =>
+  def getLatestDeploymentResult(solrIndexId: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
     Future {
       logger.debug("In ApiController :: getLatestDeploymentResult")
       logger.debug(s"... solrIndexId = $solrIndexId")
@@ -549,7 +544,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
   implicit val smuiVersionInfoWrites = Json.writes[SmuiVersionInfo]
 
   // TODO consider outsourcing this "business logic" into the (config) model
-  def getLatestVersionInfo() = authActionFactory.getAuthenticatedAction(Action).async {
+  def getLatestVersionInfo() = Action.async {
     Future {
       // get latest version from dockerhub
       val latestFromDockerHub = SmuiVersion.latestVersionFromDockerHub()
@@ -582,7 +577,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
             // note: logical HTML structure within modal dialog begins with <h5>
             "<h5>Info</h5>" +
               // TODO get maintainer from build.sbt
-              "<div>Your locally installed <strong>SMUI instance is outdated</strong>. Please consider an update. If you have issues, contact the maintainer (<a href=\"mailto:paulbartusch@gmx.de\">paulbartusch@gmx.de</a>) or file an issue to the project: <a href=\"https://github.com/querqy/smui/issues\" target=\"_new\">https://github.com/querqy/smui/issues</a><div>"
+              "<div>Your locally installed <strong>SMUI instance is outdated</strong>. Please consider an update. If you have issues, contact the maintainer (<a href=\"mailto:hello@productful.io\">hello@productful.io</a>) or file an issue to the project: <a href=\"https://github.com/querqy/smui/issues\" target=\"_new\">https://github.com/querqy/smui/issues</a><div>"
             // TODO parse querqy.org/docs/smui/release-notes/ and teaser new features (optional) - might look like:
             // "<hr>" +
             // "<h5>What's new</h5>"
@@ -608,7 +603,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
     }
   }
 
-  def getTargetEnvironment() = authActionFactory.getAuthenticatedAction(Action).async {
+  def getTargetEnvironment() = Action.async {
     Future {
 
       val targetEnvEnf = targetEnvironmentConfigService.read
@@ -627,7 +622,7 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
    * Activity log
    */
 
-  def getActivityLog(inputId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+  def getActivityLog(inputId: String) = Action.async {
     Future {
       val activityLog = searchManagementRepository.getInputRuleActivityLog(inputId)
       Ok(Json.toJson(activityLog))
@@ -638,14 +633,14 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
    * Reports (for Activity log as well)
    */
 
-  def getRulesReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async {
+  def getRulesReport(solrIndexId: String) = Action.async {
     Future {
       val report = searchManagementRepository.getRulesReport(SolrIndexId(solrIndexId))
       Ok(Json.toJson(report))
     }
   }
 
-  def getActivityReport(solrIndexId: String) = authActionFactory.getAuthenticatedAction(Action).async { request: Request[AnyContent] => {
+  def getActivityReport(solrIndexId: String) = Action.async { request: Request[AnyContent] => {
     Future {
       val rawDateFrom: Option[String] = request.getQueryString("dateFrom")
       val rawDateTo: Option[String] = request.getQueryString("dateTo")
@@ -670,6 +665,18 @@ class ApiController @Inject()(authActionFactory: AuthActionFactory,
       Ok(Json.toJson(report))
     }
   }
+  }
+
+  private def lookupUserInfo(request: Request[AnyContent]) = {
+    val maybeUserId = getProfiles(request).headOption.map(_.getId)
+    logger.debug(s"Current user: $maybeUserId")
+    maybeUserId
+  }
+
+  private def getProfiles(request: RequestHeader): List[UserProfile] = {
+    val webContext = new PlayWebContext(request)
+    val profileManager = new ProfileManager(webContext, controllerComponents.sessionStore)
+    profileManager.getProfiles.asScala.toList
   }
 
 }

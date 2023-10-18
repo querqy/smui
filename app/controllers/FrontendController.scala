@@ -1,29 +1,25 @@
 package controllers
 
-import javax.inject.Inject
-import controllers.auth.AuthActionFactory
-import play.api.{Configuration, Logging}
-import play.api.mvc._
-
-import scala.concurrent.{ExecutionContext, Future}
-import models.FeatureToggleModel._
-import javax.inject._
-import play.api.Configuration
+import org.pac4j.core.profile.UserProfile
+import org.pac4j.play.scala.{Security, SecurityComponents}
+import play.api.Logging
 import play.api.http.HttpErrorHandler
-import play.api.libs.json.Json
 import play.api.mvc._
 
-class FrontendController @Inject()(cc: MessagesControllerComponents,
-                                   assets: Assets,
-                                   errorHandler: HttpErrorHandler,
-                                   authActionFactory: AuthActionFactory)(implicit executionContext: ExecutionContext)
-  extends MessagesAbstractController(cc) with Logging {
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
-  def index(): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request =>
+class FrontendController @Inject()(val controllerComponents: SecurityComponents,
+                                   assets: Assets,
+                                   errorHandler: HttpErrorHandler)
+                                  (implicit executionContext: ExecutionContext)
+  extends Security [UserProfile] with play.api.i18n.I18nSupport with Logging {
+
+  def index(): Action[AnyContent] = Action.async { request =>
     assets.at("index.html")(request)
   }
 
-  def assetOrDefault(resource: String): Action[AnyContent] = authActionFactory.getAuthenticatedAction(Action).async { request =>
+  def assetOrDefault(resource: String): Action[AnyContent] = Action.async { request =>
     if (resource.startsWith("api")) {
       errorHandler.onClientError(request, NOT_FOUND, "Not found")
     } else {

@@ -59,7 +59,7 @@ export class HeaderNavComponent implements OnInit {
         // Ignore errors
     }
   }
-  
+
   hideSolrIndexSelector() {
     return (!this.currentSolrIndexId) || (this.currentSolrIndexId === '-1') || (this.solrService.solrIndices.length < 1)
   }
@@ -116,13 +116,6 @@ export class HeaderNavComponent implements OnInit {
   public publishSolrConfig() {
     console.log('In AppComponent :: publishSolrConfig');
     this.requestPublishRulesTxtToSolr('PRELIVE');
-  }
-
-  public callSimpleLogoutUrl() {
-    console.log('In AppComponent :: callSimpleLogoutUrl');
-
-    // TODO redirect in a more "Angular-way" to target URL
-    window.location.href = this.featureToggleService.getSimpleLogoutButtonTargetUrl();
   }
 
 }
