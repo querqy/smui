@@ -39,7 +39,16 @@ resolvers ++= Seq(
   "Shibboleth releases" at "https://build.shibboleth.net/nexus/content/repositories/releases/"
 )
 
-lazy val jacksonVersion = "2.15.2"
+lazy val JacksonVersion = "2.15.2"
+lazy val Pac4jVersion = "5.7.1"
+
+lazy val JacksonCoreExclusion     = ExclusionRule(organization = "com.fasterxml.jackson.core")
+
+// we can omit bcprov-jdk15on as we also have bcprov-jdk18on as dependency
+lazy val BcProv15Exclusion        = ExclusionRule(organization = "org.bouncycastle", name = "bcprov-jdk15on")
+
+// we can omit spring-jcl as Play provides jcl-over-slf4j
+lazy val SpringJclBridgeExclusion = ExclusionRule(organization = "org.springframework", name = "spring-jcl")
 
 libraryDependencies ++= {
   Seq(
@@ -57,10 +66,10 @@ libraryDependencies ++= {
     "org.playframework.anorm" %% "anorm" % "2.7.0",
     "com.typesafe.play" %% "play-json" % "2.9.3",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion,
     "org.apache.shiro" % "shiro-core" % "1.12.0",
-    "org.pac4j" % "pac4j-http" % "5.7.1" excludeAll (ExclusionRule(organization = "com.fasterxml.jackson.core")),
-    "org.pac4j" % "pac4j-saml" % "5.7.1" excludeAll (ExclusionRule(organization = "com.fasterxml.jackson.core")),
+    "org.pac4j" % "pac4j-http" % Pac4jVersion excludeAll (JacksonCoreExclusion, BcProv15Exclusion, SpringJclBridgeExclusion),
+    "org.pac4j" % "pac4j-saml" % Pac4jVersion excludeAll (JacksonCoreExclusion, BcProv15Exclusion, SpringJclBridgeExclusion),
     "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
     "org.mockito" % "mockito-all" % "1.10.19" % Test,
@@ -75,18 +84,15 @@ libraryDependencies ++= {
 
 dependencyOverrides ++= {
   Seq(
-    "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
-    "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
-    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
+    "com.fasterxml.jackson.core" % "jackson-annotations" % JacksonVersion,
+    "com.fasterxml.jackson.core" % "jackson-core" % JacksonVersion,
+    "com.fasterxml.jackson.core" % "jackson-databind" % JacksonVersion,
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion
   )
 }
 
 assembly / mainClass := Some("play.core.server.ProdServerStart")
 assembly / fullClasspath += Attributed.blank(PlayKeys.playPackageAssets.value)
-
-/*
-// TODO Need to doublecheck that merge strategy below does entail all relevant aspects here:
 
 assembly / assemblyMergeStrategy := {
   case manifest if manifest.contains("MANIFEST.MF") =>
@@ -97,14 +103,10 @@ assembly / assemblyMergeStrategy := {
   // Protobuf schemas, we just use the first one as we don't use Protobuf at all
   case x if x.endsWith(".proto") => MergeStrategy.first
   case "play/reference-overrides.conf" => MergeStrategy.concat
+  case PathList("META-INF", "spring.factories") => MergeStrategy.concat
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
-}
-*/
-assembly / assemblyMergeStrategy := {
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-  case x => MergeStrategy.first
 }
 
 lazy val dockerNamespace = "querqy"
