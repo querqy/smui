@@ -6,6 +6,11 @@
 GET     /         controllers.FrontendController.index()
 GET     /health   controllers.HealthController.health
 
+# pac4j
+GET    /callback                    @org.pac4j.play.CallbackController.callback(request: Request)
+POST   /callback                    @org.pac4j.play.CallbackController.callback(request: Request)
+GET    /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
+
 # serve the API v1 Specification
 # TODO search-input URL path partially "behind" solrIndexId path component and partially not
 GET     /api/v1/featureToggles                                  controllers.ApiController.getFeatureToggles

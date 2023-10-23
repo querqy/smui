@@ -56,7 +56,6 @@ package object FeatureToggleModel extends Logging {
     private val FEATURE_TOGGLE_HEADLINE = "toggle.headline"
     private val ACTIVATE_RULE_TAGGING = "toggle.rule-tagging"
     private val PREDEFINED_TAGS_FILE = "toggle.predefined-tags-file"
-    private val SMUI_AUTH_SIMPLE_LOGOUT = "smui.auth.ui-concept.simple-logout-button-target-url"
     private val SMUI_VERSION = "smui.version"
     private val FEATURE_TOGGLE_ACTIVATE_SPELLING = "toggle.activate-spelling"
     private val SMUI_DEFAULT_DISPLAY_USERNAME = "toggle.display-username.default"
@@ -137,8 +136,6 @@ package object FeatureToggleModel extends Logging {
         jsBoolFeatureToggle(ACTIVATE_RULE_TAGGING, false),
         JsFeatureToggle(FEATURE_TOGGLE_HEADLINE, new JsStringFeatureToggleValue(
           appConfig.getOptional[String](FEATURE_TOGGLE_HEADLINE).getOrElse("Search Management UI"))),
-        JsFeatureToggle(SMUI_AUTH_SIMPLE_LOGOUT, new JsStringFeatureToggleValue(
-          appConfig.getOptional[String](SMUI_AUTH_SIMPLE_LOGOUT).getOrElse(""))),
         JsFeatureToggle(SMUI_VERSION, new JsStringFeatureToggleValue(models.buildInfo.BuildInfo.version)),
         JsFeatureToggle(FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO, new JsStringFeatureToggleValue(
           appConfig.getOptional[String](FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO).getOrElse("-1"))),
