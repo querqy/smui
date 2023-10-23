@@ -1,7 +1,8 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "4.0.1"
+version := "4.0.2"
+maintainer := "Contact productful.io <hello@productful.io>"
 
 scalaVersion := "2.12.17"
 
@@ -84,6 +85,9 @@ dependencyOverrides ++= {
 assembly / mainClass := Some("play.core.server.ProdServerStart")
 assembly / fullClasspath += Attributed.blank(PlayKeys.playPackageAssets.value)
 
+/*
+// TODO Need to doublecheck that merge strategy below does entail all relevant aspects here:
+
 assembly / assemblyMergeStrategy := {
   case manifest if manifest.contains("MANIFEST.MF") =>
     // We don't need manifest files since sbt-assembly will create
@@ -96,6 +100,11 @@ assembly / assemblyMergeStrategy := {
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
+}
+*/
+assembly / assemblyMergeStrategy := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
 }
 
 lazy val dockerNamespace = "querqy"
