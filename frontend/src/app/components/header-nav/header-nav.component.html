@@ -175,17 +175,28 @@
       class="btn btn-success mr-2"
       type="button"
       (click)="requestPublishRulesTxtToSolr('LIVE')"
+      [attr.disabled]="
+        !currentSolrIndexId || deploymentRunningForStage == 'LIVE'
+        ? ''
+        : null
+        "
     >
       <i class="fa fa-thumbs-up smui-icon"></i>
-      Yes, publish to LIVE
+      {{ publishToLiveButtonText() }}
+
     </button>
     <button
       class="btn btn-danger"
       type="button"
       (click)="modalService.close('confirm-publish-live')"
+      [attr.disabled]="
+        !currentSolrIndexId || deploymentRunningForStage == 'LIVE'
+        ? ''
+        : null
+        "
     >
       <i class="fa fa-ban smui-icon"></i>
-      No, cancel publish
+      Cancel publish
     </button>
   </div>
 </app-smui-modal>
