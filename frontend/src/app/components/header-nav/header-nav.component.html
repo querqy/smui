@@ -119,6 +119,7 @@
               : null
           "
         >
+          <span *ngIf="deploymentRunningForStage == 'PRELIVE'" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           {{ publishToPreliveButtonText() }}
         </button>
         <button
@@ -181,7 +182,8 @@
         : null
         "
     >
-      <i class="fa fa-thumbs-up smui-icon"></i>
+      <i *ngIf="deploymentRunningForStage != 'LIVE'" class="fa fa-thumbs-up smui-icon"></i>
+      <span *ngIf="deploymentRunningForStage == 'LIVE'" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       {{ publishToLiveButtonText() }}
 
     </button>
