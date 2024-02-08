@@ -9,6 +9,9 @@ const FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO = 'toggle.ui-list.limit-items-to';
 const FEATURE_ACTIVATE_SPELLING = 'toggle.activate-spelling';
 const FEATURE_ACTIVATE_EVENTHISTORY = 'toggle.activate-eventhistory';
 const FEATURE_CUSTOM_UP_DOWN_MAPPINGS = 'toggle.ui-concept.custom.up-down-dropdown-mappings';
+const FEATURE_TOGGLE_DEPLOYMENT_LABEL = "toggle.rule-deployment-label";
+const FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL = "toggle.rule-deployment-prelive-label";
+
 
 @Injectable({
   providedIn: 'root'

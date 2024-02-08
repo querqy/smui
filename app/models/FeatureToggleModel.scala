@@ -54,6 +54,8 @@ package object FeatureToggleModel extends Logging {
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT = "toggle.rule-deployment.custom-script"
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = "toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH"
     private val FEATURE_TOGGLE_HEADLINE = "toggle.headline"
+    private val FEATURE_TOGGLE_DEPLOYMENT_LABEL = "toggle.rule-deployment-label"
+    private val FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL = "toggle.rule-deployment-prelive-label"
     private val ACTIVATE_RULE_TAGGING = "toggle.rule-tagging"
     private val PREDEFINED_TAGS_FILE = "toggle.predefined-tags-file"
     private val SMUI_VERSION = "smui.version"
@@ -160,7 +162,11 @@ package object FeatureToggleModel extends Logging {
               }
             }
           )
-        )
+        ),
+        JsFeatureToggle(FEATURE_TOGGLE_DEPLOYMENT_LABEL, new JsStringFeatureToggleValue(
+          appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_LABEL).getOrElse("Solr"))),
+        JsFeatureToggle(FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL, new JsStringFeatureToggleValue(
+          appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL).getOrElse("Solr-test")))
       )
     }
 
@@ -214,6 +220,14 @@ package object FeatureToggleModel extends Logging {
 
     def isSmuiRuleDeploymentPrelivePresent: Boolean = {
       appConfig.getOptional[Boolean](FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT).getOrElse(false)
+    }
+
+    def getSmuiRuleDeploymentLabel: String = {
+      appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_LABEL).getOrElse("Solr")
+    }
+
+    def getSmuiRuleDeploymentPreliveLabel: String = {
+      appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL).getOrElse("Solr-test")
     }
 
   }
