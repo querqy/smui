@@ -121,9 +121,11 @@ export class RulesListComponent implements OnChanges {
     event.stopPropagation();
     const copyCallback = (targetSolrIndexId: string) =>
         this.ruleManagementService
-                  .addNewRuleItemCopyFromSearchInput(id, targetSolrIndexId)
-                  .then(() => this.showSuccessMsg.emit("Copied Rule management item"))
-                  .catch(error => this.showErrorMsg.emit(error.error.message));
+          .addNewRuleItemCopyFromSearchInput(id, targetSolrIndexId)
+          // refresh list if a rule was copied within our current rule collection
+          .then(() => this.currentSolrIndexId == targetSolrIndexId ? this.refreshItemsInList() : Promise.resolve())
+          .then(() => this.showSuccessMsg.emit("Copied Rule management item"))
+          .catch(error => this.showErrorMsg.emit(error.error.message));
 
     this.openCopyConfirmModal.emit({ copyCallback });
   }
@@ -153,6 +155,10 @@ export class RulesListComponent implements OnChanges {
     }
 
     if (searchTermIncludesString(item.term)) {
+      return true;
+    }
+
+    if (searchTermLower == item.id) {
       return true;
     }
 
