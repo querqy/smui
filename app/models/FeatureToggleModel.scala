@@ -223,11 +223,11 @@ package object FeatureToggleModel extends Logging {
     }
 
     def getSmuiRuleDeploymentLabel: String = {
-      appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_LABEL).getOrElse("Solr")
+      appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_LABEL).getOrElse("LIVE")
     }
 
     def getSmuiRuleDeploymentPreliveLabel: String = {
-      appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL).getOrElse("Solr-test")
+      appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL).getOrElse("PRELIVE")
     }
 
   }
