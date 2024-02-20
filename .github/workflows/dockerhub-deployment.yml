@@ -1,11 +1,48 @@
 name: dockerhub-deployment
+# test-build is run on any push to a branch.
+# test-build-push is run only when a tag is made.
 
 on:
   push:
-    branches: master
+    branches: 
+      - '*'
+    tags:
+      - '*'      
 
 jobs:
+  test-build:
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up JDK 11
+        uses: olafurpg/setup-scala@v11
+        with:
+          java-version: adopt@1.11
+      # enable experimental status for docker in order to support SMUI's backend tests that rely on Ryuk images
+      # (see https://github.com/actions/virtual-environments/issues/368)
+      - name: Docker experimental Status
+        run: |
+          docker version -f '{{.Server.Experimental}}'
+      - name: Docker restart (with experimental status)
+        run: |
+          sudo rm /etc/docker/daemon.json || true
+          echo $'{ "experimental": true }' | sudo tee /etc/docker/daemon.json
+          sudo service docker restart
+          docker version -f '{{.Server.Experimental}}'
+      - uses: actions/checkout@v2
+      - name: Setup NPM environment specfic to SMUI
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: npm i graceful-fs
+      - run: npm i resolve
+      - run: npm i esutils
+      - run: npm i semver
+      - name: Run tests
+        run: sbt test
+
   test-build-push:
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - name: Set up JDK 11
@@ -39,12 +76,12 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
-#      # see https://github.com/marketplace/actions/docker-login
-#      - name: Login to Docker Hub
-#        uses: docker/login-action@v1
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #      # see https://github.com/marketplace/actions/docker-login
+  #      - name: Login to Docker Hub
+  #        uses: docker/login-action@v1
+  #        with:
+  #          username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build & deploy SMUI
         run: |
           make docker-build-only
