@@ -49,10 +49,7 @@ class SecurityModule(environment: Environment, configuration: Configuration) ext
       case "SAML2Client" => createSaml2Config(s"$ConfigKeyPrefixClientConfig.SAML2Client")
       case other => throw new RuntimeException(s"Unsupported auth client config value: $other")
     }
-    config match {
-      case Some(config) => config
-      case None => throw new RuntimeException(s"Failed configuring auth client")
-    }
+    config.getOrElse(new Config())
   }
 
   private def createConfiguredDirectBasicAuthConfig(keyPrefix: String): Config = {
