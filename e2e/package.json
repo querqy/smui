@@ -7,11 +7,11 @@
   },
   "devDependencies": {
     "@cypress/eslint-plugin-dev": "^5.0.2",
-    "cypress": "^6.4.0",
-    "cypress-wait-until": "^1.7.1",
-    "eslint": "6.0.1",
+    "cypress": "^13.6.5",
+    "cypress-wait-until": "^3.0.1",
+    "eslint": "8.56.0",
     "eslint-plugin-cypress": "^2.11.2",
     "eslint-plugin-json-format": "2.0.1",
-    "eslint-plugin-mocha": "5.0.0"
+    "eslint-plugin-mocha": "10.3.0"
   }
 }
