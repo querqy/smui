@@ -164,9 +164,9 @@ package object FeatureToggleModel extends Logging {
           )
         ),
         JsFeatureToggle(FEATURE_TOGGLE_DEPLOYMENT_LABEL, new JsStringFeatureToggleValue(
-          appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_LABEL).getOrElse("Solr"))),
+          appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_LABEL).getOrElse("LIVE"))),
         JsFeatureToggle(FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL, new JsStringFeatureToggleValue(
-          appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL).getOrElse("Solr-test")))
+          appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL).getOrElse("PRELIVE")))
       )
     }
 
