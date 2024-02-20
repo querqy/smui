@@ -71,7 +71,7 @@
     </ul>
 
     <div *ngIf="hideSolrIndexSelector()">
-      In order to push the rules, <a routerLink="/admin">please create a Solr collection first</a>.
+      In order to push the rules, <a routerLink="/admin">please create a rules collection first</a>.
     </div>
     <div
       *ngIf="currentSolrIndexId && currentSolrIndexId !== '-1'"
@@ -80,7 +80,10 @@
 
     <div class="depl-info-container border-left border-right pl-2">
       <ng-container *ngFor="let singleDeploymentInfo of deploymentLogInfo; index as idxDeploy">
-        <span class="depl-info-row-instance"><b>{{ singleDeploymentInfo.targetSystem }}</b> deployment:</span>
+        <span class="depl-info-row-instance">
+          <b>{{ (singleDeploymentInfo.targetSystem == 'PRELIVE' ?
+                  featureToggleService.getSync('toggle.rule-deployment-prelive-label') :
+                  featureToggleService.getSync('toggle.rule-deployment-label'))}}</b> deployment:</span>
         <span class="depl-info-row-datetime"><b>{{ singleDeploymentInfo.formattedDateTime }}</b></span>
         <span class="depl-info-row-result">
           <b
@@ -105,6 +108,9 @@
       </div>
       <div class="btn-group">
         <button
+          *ngIf="
+            featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()
+          "
           type="button"
           class="btn btn-outline-primary"
           (click)="publishSolrConfig()"
@@ -117,9 +123,6 @@
           {{ publishToPreliveButtonText() }}
         </button>
         <button
-          *ngIf="
-            featureToggleService.getSyncToggleRuleDeploymentPreLivePresent()
-          "
           type="button"
           class="btn btn-outline-danger"
           (click)="modalService.open('confirm-publish-live')"
@@ -161,9 +164,9 @@
   </div>
 </app-smui-modal>
 
-<app-smui-modal id="confirm-publish-live" title="Confirm publish to LIVE">
+<app-smui-modal id="confirm-publish-live" title="Confirm publish to {{ featureToggleService.getSync('toggle.rule-deployment-label') }}">
   <div content>
-    <p>Are you sure to publish current Search Rules to LIVE?</p>
+    <p>Are you sure to publish current Search Rules to {{ featureToggleService.getSync('toggle.rule-deployment-label') }}?</p>
   </div>
   <div footer class="btn-toolbar">
     <button
@@ -172,7 +175,7 @@
       (click)="requestPublishRulesTxtToSolr('LIVE')"
     >
       <i class="fa fa-thumbs-up smui-icon"></i>
-      Yes, publish to LIVE
+      Yes, publish to {{ featureToggleService.getSync('toggle.rule-deployment-label') }}
     </button>
     <button
       class="btn btn-danger"
