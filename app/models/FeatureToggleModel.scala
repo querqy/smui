@@ -55,7 +55,7 @@ package object FeatureToggleModel extends Logging {
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = "toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH"
     private val FEATURE_TOGGLE_HEADLINE = "toggle.headline"
     private val FEATURE_TOGGLE_DEPLOYMENT_LABEL = "toggle.rule-deployment-label"
-    private val FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL = "toggle.rule-deployment-prelive-label"
+    private val FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL = "toggle.deploy-prelive-fn-label"
     private val ACTIVATE_RULE_TAGGING = "toggle.rule-tagging"
     private val PREDEFINED_TAGS_FILE = "toggle.predefined-tags-file"
     private val SMUI_VERSION = "smui.version"

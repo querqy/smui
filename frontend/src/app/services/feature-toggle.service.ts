@@ -10,7 +10,7 @@ const FEATURE_ACTIVATE_SPELLING = 'toggle.activate-spelling';
 const FEATURE_ACTIVATE_EVENTHISTORY = 'toggle.activate-eventhistory';
 const FEATURE_CUSTOM_UP_DOWN_MAPPINGS = 'toggle.ui-concept.custom.up-down-dropdown-mappings';
 const FEATURE_TOGGLE_DEPLOYMENT_LABEL = "toggle.rule-deployment-label";
-const FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL = "toggle.rule-deployment-prelive-label";
+const FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL = "toggle.deploy-prelive-fn-label";
 
 
 @Injectable({
@@ -88,6 +88,14 @@ export class FeatureToggleService {
       console.error(e);
       return {};
     }
+  }
+
+  getSyncToggleDeploymentLabel(stage: string): any {
+    const s =
+      (stage == 'PRELIVE') ?
+        FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL :
+        FEATURE_TOGGLE_DEPLOYMENT_LABEL;
+    return this.getSync(s);
   }
 
 }

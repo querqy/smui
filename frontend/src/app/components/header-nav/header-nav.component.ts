@@ -103,14 +103,14 @@ export class HeaderNavComponent implements OnInit {
 
   public publishToPreliveButtonText(): string {
     return this.deploymentRunningForStage === 'PRELIVE'
-      ? 'Publishing to ' + this.featureToggleService.getSync('toggle.rule-deployment-prelive-label') + '...'
-      : 'Publish to ' + this.featureToggleService.getSync('toggle.rule-deployment-prelive-label') + '';
+      ? 'Publishing to ' + this.featureToggleService.getSyncToggleDeploymentLabel('PRELIVE') + '...'
+      : 'Publish to ' + this.featureToggleService.getSyncToggleDeploymentLabel('PRELIVE') + '';
   }
 
   public publishToLiveButtonText(): string {
     return this.deploymentRunningForStage === 'LIVE'
-      ? 'Publishing to ' + this.featureToggleService.getSync('toggle.rule-deployment-label') + '...'
-      : 'Publish to ' + this.featureToggleService.getSync('toggle.rule-deployment-label') + '';
+      ? 'Publishing to ' + this.featureToggleService.getSyncToggleDeploymentLabel('LIVE') + '...'
+      : 'Publish to ' + this.featureToggleService.getSyncToggleDeploymentLabel('LIVE') + '';
   }
 
   public publishSolrConfig() {
