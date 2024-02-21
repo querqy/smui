@@ -90,4 +90,12 @@ export class FeatureToggleService {
     }
   }
 
+  getSyncToggleDeploymentLabel(stage: string): any {
+    const s =
+      (stage == 'PRELIVE') ?
+        FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL :
+        FEATURE_TOGGLE_DEPLOYMENT_LABEL;
+    return this.getSync(s);
+  }
+
 }

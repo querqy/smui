@@ -82,8 +82,8 @@
       <ng-container *ngFor="let singleDeploymentInfo of deploymentLogInfo; index as idxDeploy">
         <span class="depl-info-row-instance">
           <b>{{ (singleDeploymentInfo.targetSystem == 'PRELIVE' ?
-                  featureToggleService.getSync('toggle.deploy-prelive-fn-label') :
-                  featureToggleService.getSync('toggle.rule-deployment-label'))}}</b> deployment:</span>
+                  featureToggleService.getSyncToggleDeploymentLabel('PRELIVE') :
+                  featureToggleService.getSyncToggleDeploymentLabel('LIVE'))}}</b> deployment:</span>
         <span class="depl-info-row-datetime"><b>{{ singleDeploymentInfo.formattedDateTime }}</b></span>
         <span class="depl-info-row-result">
           <b
@@ -164,9 +164,9 @@
   </div>
 </app-smui-modal>
 
-<app-smui-modal id="confirm-publish-live" title="Confirm publish to {{ featureToggleService.getSync('toggle.rule-deployment-label') }}">
+<app-smui-modal id="confirm-publish-live" title="Confirm publish to {{ featureToggleService.getSyncToggleDeploymentLabel('LIVE') }}">
   <div content>
-    <p>Are you sure to publish current Search Rules to {{ featureToggleService.getSync('toggle.rule-deployment-label') }}?</p>
+    <p>Are you sure to publish current Search Rules to {{ featureToggleService.getSyncToggleDeploymentLabel('LIVE') }}?</p>
   </div>
   <div footer class="btn-toolbar">
     <button
@@ -175,7 +175,7 @@
       (click)="requestPublishRulesTxtToSolr('LIVE')"
     >
       <i class="fa fa-thumbs-up smui-icon"></i>
-      Yes, publish to {{ featureToggleService.getSync('toggle.rule-deployment-label') }}
+      Yes, publish to {{ featureToggleService.getSyncToggleDeploymentLabel('LIVE') }}
     </button>
     <button
       class="btn btn-danger"
