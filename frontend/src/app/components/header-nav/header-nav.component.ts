@@ -103,8 +103,8 @@ export class HeaderNavComponent implements OnInit {
 
   public publishToPreliveButtonText(): string {
     return this.deploymentRunningForStage === 'PRELIVE'
-      ? 'Publishing to ' + this.featureToggleService.getSync('toggle.rule-deployment-prelive-label') + '...'
-      : 'Publish to ' + this.featureToggleService.getSync('toggle.rule-deployment-prelive-label') + '';
+      ? 'Publishing to ' + this.featureToggleService.getSync('toggle.deploy-prelive-fn-label') + '...'
+      : 'Publish to ' + this.featureToggleService.getSync('toggle.deploy-prelive-fn-label') + '';
   }
 
   public publishToLiveButtonText(): string {

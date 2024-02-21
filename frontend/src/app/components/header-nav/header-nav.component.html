@@ -82,7 +82,7 @@
       <ng-container *ngFor="let singleDeploymentInfo of deploymentLogInfo; index as idxDeploy">
         <span class="depl-info-row-instance">
           <b>{{ (singleDeploymentInfo.targetSystem == 'PRELIVE' ?
-                  featureToggleService.getSync('toggle.rule-deployment-prelive-label') :
+                  featureToggleService.getSync('toggle.deploy-prelive-fn-label') :
                   featureToggleService.getSync('toggle.rule-deployment-label'))}}</b> deployment:</span>
         <span class="depl-info-row-datetime"><b>{{ singleDeploymentInfo.formattedDateTime }}</b></span>
         <span class="depl-info-row-result">
