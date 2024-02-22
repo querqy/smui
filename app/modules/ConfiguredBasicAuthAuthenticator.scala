@@ -18,7 +18,7 @@ case class ConfiguredBasicAuthAuthenticator(validUserId: String, validPassword: 
     val password = userCredentials.getPassword()
     if (CommonHelper.isBlank(username)) throw new CredentialsException("Username cannot be blank")
     if (CommonHelper.isBlank(password)) throw new CredentialsException("Password cannot be blank")
-    if (CommonHelper.areNotEquals(username, validUserId)) throw new CredentialsException("Username : '" + username + "' does not match valid user")
+    if (CommonHelper.areNotEquals(username.toLowerCase, validUserId.toLowerCase)) throw new CredentialsException("Username : '" + username + "' does not match valid user")
     if (CommonHelper.areNotEquals(password, validPassword)) throw new CredentialsException("Password does not match valid password")
     val profile = new CommonProfile
     profile.setId(username)
