@@ -26,3 +26,14 @@ export class ActivityReportEntry {
 export class ActivityReport {
   items: Array<ActivityReportEntry>;
 }
+
+export class RulesUsageReportEntry {
+  searchInputId: string;
+  searchInputTerm?: string;
+  keywords: string;
+  frequency: number;
+}
+
+export class RulesUsageReport {
+  items: Array<RulesUsageReportEntry>;
+}

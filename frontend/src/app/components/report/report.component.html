@@ -8,7 +8,7 @@
 </app-smui-report-settingsbar>
 
 <div
-  *ngIf="!rulesReport && !activityReport"
+  *ngIf="!rulesReport && !activityReport && !rulesUsageReport"
   style="width:100%;text-align:center;"
 >
   No report generated yet. Use panel above to select and generate a report.
@@ -136,6 +136,80 @@
               </td>
             </tr>
           </ng-container>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div
+  *ngIf="
+    rulesUsageReport && smuiReportSettingsBar.configReport === 'rules-usage-report'
+  "
+  class="card card-gap"
+>
+  <div class="card-body">
+    <div class="row">
+      <div class="col">
+
+        <form class="rule-usage-report-filters">
+          <input type="checkbox" id="ruleUsageReportShowUsed" name="ruleUsageReportShowUsed"
+                 [checked]="ruleUsageReportShowUsed" (change)="ruleUsageReportFilter('used')"
+                 title="Show/hide rules that were triggered according to usage statistics" />
+          <label for="ruleUsageReportShowUsed">Show Used</label>
+
+          <input type="checkbox" id="ruleUsageReportShowUnused" name="ruleUsageReportShowUnused"
+                 [checked]="ruleUsageReportShowUnused" (change)="ruleUsageReportFilter('unused')"
+                 title="Show/hide rules that were not used, i.e. not triggered according to usage statistics" />
+          <label for="ruleUsageReportShowUnused">Show Unused</label>
+
+          <input type="checkbox" id="ruleUsageReportShowFound" name="ruleUsageReportShowFound"
+                 [checked]="ruleUsageReportShowFound" (change)="ruleUsageReportFilter('found')"
+                 title="Show/hide rules for which we got usage statistics and which are found in our rules collection" />
+          <label for="ruleUsageReportShowFound">Show Found</label>
+
+          <input type="checkbox" id="ruleUsageReportShowNotFound" name="ruleUsageReportShowNotFound"
+                 [checked]="ruleUsageReportShowNotFound" (change)="ruleUsageReportFilter('notfound')"
+                 title="Show/hide rules for which we got usage statistics but which could not be resolved to rules in the current collection" />
+          <label for="ruleUsageReportShowNotFound">Show Not Found</label>
+        </form>
+
+        <br />
+
+        <table datatable [dtOptions]="dtOptions" class="table">
+          <thead>
+            <tr>
+              <th>Search Management Input</th>
+              <th>Keywords</th>
+              <th>Frequency</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let reportItem of rulesUsageReport.items">
+              <tr>
+                <td>
+                  <span *ngIf="reportItem.searchInputTerm">
+                    {{ reportItem.searchInputTerm }}
+                  </span>
+                  <span *ngIf="!reportItem.searchInputTerm">
+                    <i class="fa fa-exclamation-circle" data-toggle='tooltip'
+                       title='The rule for which these searches were logged could not be found. It might be part of a different rules collection or might have been deleted.'></i>
+                    not found
+                  </span>
+
+                  <span style="font-size: x-small">{{ reportItem.searchInputId }}</span>
+
+                </td>
+                <td>
+                  {{ reportItem.keywords }}
+                </td>
+                <td>
+                  {{ reportItem.frequency }}
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
         </table>
       </div>
     </div>

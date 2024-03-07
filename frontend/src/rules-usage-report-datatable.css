@@ -1,0 +1,9 @@
+/* Styling the inner datatable elements for the rules usage report was not possible from within the component. */
+
+.dt-length label {
+  margin-left: 10px;
+}
+
+.dt-search label {
+  margin-right: 10px;
+}

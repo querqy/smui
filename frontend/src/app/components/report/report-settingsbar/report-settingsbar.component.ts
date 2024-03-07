@@ -35,7 +35,7 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
   @Output() generateReport: EventEmitter<void> = new EventEmitter();
 
   // TODO make more elegant in just one dict
-  reportSelectOptionModelKeys = ['rules-report', 'activity-report'];
+  reportSelectOptionModelKeys = ['rules-report', 'activity-report', 'rules-usage-report'];
   // keys aligned with URL partial of /report route in /smui/conf/routes
   reportSelectOptionModel: ReportOption<string> = {};
   configReport: string = this.reportSelectOptionModelKeys[0];
@@ -50,6 +50,7 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
   ) {
     this.reportSelectOptionModel['rules-report'] = 'Oldest rules (by last_updated date)';
     this.reportSelectOptionModel['activity-report'] = 'Latest rule management activities';
+    this.reportSelectOptionModel['rules-usage-report'] = 'Rules usage';
   }
 
   ngOnInit() {
@@ -119,7 +120,7 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
             this.configDateFrom = this.dateToFrontendString(
               new Date(Date.parse(instanceDeplInfo.formattedDateTime))
             )
-  
+
           } else {
             this.showErrorMsg('Error in clickSetFromDate :: deployInstance = "' + deployInstance + '" not found!')
           }
