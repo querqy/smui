@@ -636,31 +636,57 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     );
   }
 
-  warnSearchinputExact(): (string | undefined) {
+  warnSearchinputExact(): ([string, string] | null) {
     if(!this.detailSearchInput) {
-      return undefined
+      return null
     } else {
       if( SearchInput.isTermExact(this.detailSearchInput.term) ) {
-        return "exact match"
+        return ["exact match", "Matches only when a user enters the exact same query"]
       } else {
         if( SearchInput.isTermLeftExact(this.detailSearchInput.term) ) {
-          return "left exact"
+          return ["left exact", "Matches only queries starting with this input"]
         }
         else if( SearchInput.isTermRightExact(this.detailSearchInput.term) ) {
-          return "right exact"
+          return ["right exact", "Matches only queries ending with this input"]
         } else {
-          return undefined
+          return null
         }
       }
     }
   }
 
-  warnForExactMatchingSyntax(inSynonymTerm: string): boolean {
+  shouldWarnSearchinputExact(): boolean {
+    return this.detailSearchInput != undefined && this.warnForExactMatchingSyntax(this.detailSearchInput.term);
+  }
+
+  warnForExactMatchingSyntax(term: string): boolean {
     return (
-      SearchInput.isTermExact(inSynonymTerm)
-      || SearchInput.isTermLeftExact(inSynonymTerm)
-      || SearchInput.isTermRightExact(inSynonymTerm)
+      SearchInput.isTermExact(term)
+      || SearchInput.isTermLeftExact(term)
+      || SearchInput.isTermRightExact(term)
     )
+  }
+
+  shouldWarnForUnescapedQuotesInTerm(term: string): boolean {
+    // if this is a term value used as a (Lucene) filter we should warn when there are unescaped quotes
+    const isSolrTarget = this.featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields();
+    if (isSolrTarget) {
+      let withinQuotes = false;
+      let escapeNext = false;
+      for (let i = 0; i < term.length; i++) {
+        const char = term[i];
+        if (escapeNext) {
+          escapeNext = false;
+        } else if (char === '\\') {
+          escapeNext = true;
+        } else if (char === '"') {
+          withinQuotes = !withinQuotes;
+        }
+      }
+      return withinQuotes;
+    } else {
+      return false;
+    }
   }
 
   showPreviewLinks(): boolean {
