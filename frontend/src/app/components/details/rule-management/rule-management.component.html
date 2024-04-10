@@ -44,24 +44,24 @@
                     disabled="disabled"
                   />
               </ng-container>
-              <div class="input-group-append" *ngIf="warnSearchinputExact()">
+              <div class="input-group-append" *ngIf="shouldWarnSearchinputExact()">
                 <span class="input-group-text smui-clean-input-group-append">
                   <span class="badge badge-warning">
-                    <i class="fa fa-info-circle">&nbsp;</i>
-                    {{ warnSearchinputExact() }}
+                    <i class="fa fa-info-circle" title="{{warnSearchinputExact()![1]}}">&nbsp;</i>
+                    {{ warnSearchinputExact()![0] }}
                   </span>
                 </span>
               </div>
-              
+
               <div *ngIf="detailSearchInput && showPreviewLinks()">
                 <app-smui-preview-link
                   [previewSections]="previewLinks(detailSearchInput.term)"
                 >
                 </app-smui-preview-link>
               </div>
-  
+
             </div>
-            
+
             </td>
             <td
               [style.display]="showTags ? 'table-cell' : 'none'"
@@ -364,14 +364,25 @@
           <td
             ng-style="{'width' : (featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) ? '35%' : '55%'}"
           >
-            <input
-              type="text"
-              class="form-control"
-              id="inputUpDownTerm"
-              placeholder="Edit UP/DOWN Rule Term ..."
-              [(ngModel)]="upDownRule.term"
-              (keyup.enter)="saveSearchInputDetails()"
-            />
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                id="inputUpDownTerm"
+                placeholder="Edit UP/DOWN Rule Term ..."
+                [(ngModel)]="upDownRule.term"
+                (keyup.enter)="saveSearchInputDetails()"
+              />
+              <div class="input-group-append" *ngIf="shouldWarnForUnescapedQuotesInTerm(upDownRule.term)">
+                  <span class="input-group-text smui-clean-input-group-append">
+                    <span class="badge badge-warning">
+                      <i class="fa fa-info-circle"
+                         title="Solr/Lucene query syntax requires matching starting and closing quotes, escape them with \ if you want to match the quote character">&nbsp;</i>
+                      Unmatched quotes!
+                    </span>
+                  </span>
+              </div>
+            </div>
           </td>
           <td style="width:5%">
             <button
@@ -426,14 +437,27 @@
           <td
             ng-style="{'width' : (featureToggleService.getSyncToggleUiConceptAllRulesWithSolrFields()) ? '55%' : '75%'}"
           >
-            <input
-              type="text"
-              class="form-control"
-              id="inputFilterTerm"
-              placeholder="Edit FILTER Rule Term ..."
-              [(ngModel)]="filterRule.term"
-              (keyup.enter)="saveSearchInputDetails()"
-            />
+
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                id="inputFilterTerm"
+                placeholder="Edit FILTER Rule Term ..."
+                [(ngModel)]="filterRule.term"
+                (keyup.enter)="saveSearchInputDetails()"
+              />
+
+              <div class="input-group-append" *ngIf="shouldWarnForUnescapedQuotesInTerm(filterRule.term)">
+                  <span class="input-group-text smui-clean-input-group-append">
+                    <span class="badge badge-warning">
+                      <i class="fa fa-info-circle"
+                         title="Solr/Lucene query syntax requires matching starting and closing quotes, escape them with \ if you want to match the quote character">&nbsp;</i>
+                      Unmatched quotes!
+                    </span>
+                  </span>
+              </div>
+            </div>
           </td>
           <td style="width:5%">
             <button
