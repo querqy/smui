@@ -1,7 +1,7 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "4.0.11"
+version := "4.1.0"
 maintainer := "Contact productful.io <hello@productful.io>"
 
 scalaVersion := "2.12.17"
@@ -67,10 +67,12 @@ libraryDependencies ++= {
     "com.typesafe.play" %% "play-json" % "2.9.3",
     "com.pauldijou" %% "jwt-play" % "4.1.0",
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion,
+    "org.apache.commons" % "commons-csv" % "1.10.0",
     "org.apache.shiro" % "shiro-core" % "1.12.0",
     "org.pac4j" % "pac4j-http" % Pac4jVersion excludeAll (JacksonCoreExclusion, BcProv15Exclusion, SpringJclBridgeExclusion),
     "org.pac4j" % "pac4j-saml" % Pac4jVersion excludeAll (JacksonCoreExclusion, BcProv15Exclusion, SpringJclBridgeExclusion),
     "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
+    "com.google.cloud" % "google-cloud-storage" % "2.33.0",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
     "org.mockito" % "mockito-all" % "1.10.19" % Test,
     "com.pauldijou" %% "jwt-play" % "4.1.0",

@@ -21,13 +21,14 @@ import models.config.SmuiVersion
 import models.config.TargetEnvironment._
 import models.input.{InputTagId, InputValidator, ListItem, SearchInputId, SearchInputWithRules}
 import models.querqy.QuerqyRulesTxtGenerator
+import models.reports.RulesUsageReport
 import models.rules.{DeleteRule, FilterRule, RedirectRule, SynonymRule, UpDownRule}
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
 import org.pac4j.core.profile.{ProfileManager, UserProfile}
 import org.pac4j.play.PlayWebContext
 import org.pac4j.play.scala.{Security, SecurityComponents}
 import play.api.libs.Files
-import services.{RulesTxtDeploymentService, RulesTxtImportService}
+import services.{RulesTxtDeploymentService, RulesTxtImportService, RulesUsageService}
 
 
 // TODO Make ApiController pure REST- / JSON-Controller to ensure all implicit Framework responses (e.g. 400, 500) conformity
@@ -37,7 +38,8 @@ class ApiController @Inject()(val controllerComponents: SecurityComponents,
                               querqyRulesTxtGenerator: QuerqyRulesTxtGenerator,
                               rulesTxtDeploymentService: RulesTxtDeploymentService,
                               rulesTxtImportService: RulesTxtImportService,
-                              targetEnvironmentConfigService: TargetEnvironmentConfigService)
+                              targetEnvironmentConfigService: TargetEnvironmentConfigService,
+                              rulesUsageService: RulesUsageService)
                              (implicit executionContext: ExecutionContext)
   extends Security[UserProfile] with play.api.i18n.I18nSupport with Logging {
 
@@ -665,6 +667,16 @@ class ApiController @Inject()(val controllerComponents: SecurityComponents,
       Ok(Json.toJson(report))
     }
   }
+  }
+
+  def getRulesUsageReport(solrIndexId: String): Action[AnyContent] = Action {
+    rulesUsageService.getRulesUsageStatistics.map { ruleUsageStatistics =>
+      val allSearchInputs = searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))
+      val report = RulesUsageReport.create(allSearchInputs, ruleUsageStatistics)
+      Ok(Json.toJson(report))
+    }.getOrElse(
+      NoContent
+    )
   }
 
   private def lookupUserInfo(request: Request[AnyContent]) = {

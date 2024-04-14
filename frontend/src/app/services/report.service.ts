@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { RulesReport, ActivityReport } from '../models';
+import {RulesReport, ActivityReport, RulesUsageReport} from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +27,12 @@ export class ReportService {
     };
     return this.http
       .get<ActivityReport>(this.baseUrl + '/report/activity-report/' + solrIndexId, options)
+      .toPromise();
+  }
+
+  getRulesUsageReport(solrIndexId: string): Promise<RulesUsageReport> {
+    return this.http
+      .get<RulesUsageReport>(this.baseUrl + '/report/rules-usage-report/' + solrIndexId)
       .toPromise();
   }
 }

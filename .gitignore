@@ -31,3 +31,6 @@ hs_err_pid*
 
 # SBT related stuff
 .bsp
+
+# Ignore the Angular Cache
+frontend/.angular/cache

@@ -8,6 +8,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToasterModule } from 'angular2-toaster';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularMultiSelectModule } from 'angular2-multiselect-dropdown';
+import { DataTablesModule } from "angular-datatables";
 import { httpInterceptorProviders } from './interceptors';
 
 // services
@@ -71,7 +72,8 @@ import {
     ToasterModule,
     BrowserAnimationsModule,
     AngularMultiSelectModule,
-    NgbModule
+    NgbModule,
+    DataTablesModule
   ],
   declarations: [
     AppComponent,

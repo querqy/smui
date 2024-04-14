@@ -9,10 +9,10 @@
       [(ngModel)]="configReport"
     >
       <option
-        *ngFor="let reportItemKey of reportSelectOptionModelKeys"
-        [value]="reportItemKey"
+        *ngFor="let reportItem of availableReports()"
+        [value]="reportItem[0]"
       >
-        {{ reportSelectOptionModel[reportItemKey] }}
+        {{ reportItem[1] }}
       </option>
     </select>
 
