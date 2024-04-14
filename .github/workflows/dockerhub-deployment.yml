@@ -25,9 +25,9 @@ jobs:
           docker version -f '{{.Server.Experimental}}'
       - uses: actions/checkout@v2
       - name: Setup NPM environment specfic to SMUI
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '12'
+          node-version: '16'
       - run: npm i graceful-fs
       - run: npm i resolve
       - run: npm i esutils
