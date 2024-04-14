@@ -11,6 +11,7 @@ const FEATURE_ACTIVATE_EVENTHISTORY = 'toggle.activate-eventhistory';
 const FEATURE_CUSTOM_UP_DOWN_MAPPINGS = 'toggle.ui-concept.custom.up-down-dropdown-mappings';
 const FEATURE_TOGGLE_DEPLOYMENT_LABEL = "toggle.rule-deployment-label";
 const FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL = "toggle.deploy-prelive-fn-label";
+const FEATURE_TOGGLE_REPORT_RULE_USAGE_STATISTICS = "toggle.report.rule-usage-statistics"
 
 
 @Injectable({
@@ -96,6 +97,10 @@ export class FeatureToggleService {
         FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL :
         FEATURE_TOGGLE_DEPLOYMENT_LABEL;
     return this.getSync(s);
+  }
+
+  getSyncToggleRuleUsageStatistics(): any {
+    return this.getSync(FEATURE_TOGGLE_REPORT_RULE_USAGE_STATISTICS);
   }
 
 }

@@ -7,6 +7,7 @@ import play.twirl.api.utils.StringEscapeUtils
 
 import scala.util.Try
 import models.rules.UpDownRule
+import services.RulesUsageService
 
 // TODO refactor FeatureToggleModel (and FeatureToggleService) to config package (for being in sync with Spec structure)
 package object FeatureToggleModel extends Logging {
@@ -65,6 +66,7 @@ package object FeatureToggleModel extends Logging {
     private val FEATURE_CUSTOM_UP_DOWN_MAPPINGS = "toggle.ui-concept.custom.up-down-dropdown-mappings"
     private val SMUI_DEPLOYMENT_GIT_REPO_URL = "smui.deployment.git.repo-url"
     private val SMUI_DEPLOYMENT_GIT_FN_COMMON_RULES_TXT = "smui2solr.deployment.git.filename.common-rules-txt"
+    private val FEATURE_TOGGLE_REPORT_RULE_USAGE_STATISTICS = "toggle.report.rule-usage-statistics"
 
     /**
       * helper for custom UP/DOWN mappings
@@ -166,7 +168,8 @@ package object FeatureToggleModel extends Logging {
         JsFeatureToggle(FEATURE_TOGGLE_DEPLOYMENT_LABEL, new JsStringFeatureToggleValue(
           appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_LABEL).getOrElse("LIVE"))),
         JsFeatureToggle(FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL, new JsStringFeatureToggleValue(
-          appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL).getOrElse("PRELIVE")))
+          appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL).getOrElse("PRELIVE"))),
+        jsBoolFeatureToggle(FEATURE_TOGGLE_REPORT_RULE_USAGE_STATISTICS, hasRulesUsageStatisticsLocationConfigured)
       )
     }
 
@@ -228,6 +231,10 @@ package object FeatureToggleModel extends Logging {
 
     def getSmuiRuleDeploymentPreliveLabel: String = {
       appConfig.getOptional[String](FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL).getOrElse("PRELIVE")
+    }
+
+    def hasRulesUsageStatisticsLocationConfigured: Boolean = {
+      appConfig.getOptional[String](RulesUsageService.ConfigKeyRuleUsageStatistics).nonEmpty
     }
 
   }

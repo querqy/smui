@@ -14,12 +14,10 @@ case class RulesUsage(inputId: SearchInputId,
 class RulesUsageService @Inject()(configuration: Configuration,
                                   readerProvider: ReaderProviderDispatcher) extends Logging {
 
-  private val ConfigKeyRuleUsageStatistics = "smui.rule-usage-statistics.location"
-
   private val CsvFormat = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build()
 
   def getRulesUsageStatistics: Option[Seq[RulesUsage]] = {
-    configuration.getOptional[String](ConfigKeyRuleUsageStatistics)
+    configuration.getOptional[String](RulesUsageService.ConfigKeyRuleUsageStatistics)
       .map { location =>
         logger.info(s"Loading rule usage statistics from ${location}")
         try {
@@ -41,5 +39,11 @@ class RulesUsageService @Inject()(configuration: Configuration,
         }
       }
   }
+
+}
+
+object RulesUsageService {
+
+  val ConfigKeyRuleUsageStatistics = "smui.rule-usage-statistics.location"
 
 }

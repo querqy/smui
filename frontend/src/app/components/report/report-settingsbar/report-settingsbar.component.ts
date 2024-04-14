@@ -18,9 +18,10 @@ import {
   DeploymentDetailedInfo
 } from '../../../models';
 
-interface ReportOption<ValueType> {
-  [key: string]: ValueType;
-}
+// keys for selectint the different reports, aligned with URL partial of /report route in /smui/conf/routes
+export const KEY_OLDEST_RULES_REPORT = 'rules-report';
+export const KEY_ACTIVITY_REPORT = 'activity-report';
+export const KEY_RULES_USAGE_REPORT = 'rules-usage-report';
 
 @Component({
   selector: 'app-smui-report-settingsbar',
@@ -34,11 +35,11 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
   @Output() changeReport: EventEmitter<void> = new EventEmitter();
   @Output() generateReport: EventEmitter<void> = new EventEmitter();
 
-  // TODO make more elegant in just one dict
-  reportSelectOptionModelKeys = ['rules-report', 'activity-report', 'rules-usage-report'];
-  // keys aligned with URL partial of /report route in /smui/conf/routes
-  reportSelectOptionModel: ReportOption<string> = {};
-  configReport: string = this.reportSelectOptionModelKeys[0];
+  private readonly OLDEST_RULES_REPORT: [string, string] = [KEY_OLDEST_RULES_REPORT, 'Oldest rules (by last_updated date)']
+  private readonly ACTIVITY_REPORT: [string, string] = [KEY_ACTIVITY_REPORT, 'Latest rule management activities']
+  private readonly RULES_USAGE_REPORT: [string, string] = [KEY_RULES_USAGE_REPORT, 'Rules usage']
+
+  configReport: string = KEY_OLDEST_RULES_REPORT;
 
   configDateFrom?: string;
   configDateTo?: string;
@@ -47,10 +48,14 @@ export class ReportSettingsBarComponent implements OnInit, OnChanges {
     public featureToggleService: FeatureToggleService,
     private toasterService: ToasterService,
     public deploymentDetailedInfoService: DeploymentDetailedInfoService
-  ) {
-    this.reportSelectOptionModel['rules-report'] = 'Oldest rules (by last_updated date)';
-    this.reportSelectOptionModel['activity-report'] = 'Latest rule management activities';
-    this.reportSelectOptionModel['rules-usage-report'] = 'Rules usage';
+  ) {}
+
+  availableReports() {
+    return [
+      this.OLDEST_RULES_REPORT,
+      this.ACTIVITY_REPORT,
+      ...(this.featureToggleService.getSyncToggleRuleUsageStatistics() ? [this.RULES_USAGE_REPORT] : [])
+    ]
   }
 
   ngOnInit() {
