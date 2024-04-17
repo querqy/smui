@@ -385,7 +385,9 @@ object ActivityLog extends Logging {
     // support the following valid event constellations:
     // before -> after    | compare activity
     // ~~~~~~~~~~~~~~~~~~ | ~~~~~~~~~~~~~~~~
-    // None    -> CREATED | event, output all contents of beforeEvent as after, before = empty
+    // None    -> CREATED | event, output all contents of afterEvent as after, before = empty
+    // None    -> UPDATED | events, before = empty, after = all contents of afterEvent (FIX https://github.com/querqy/smui/issues/114)
+    // None    -> DELETED | events, before = empty, after = empty (FIX https://github.com/querqy/smui/issues/114)
     // CREATED -> DELETED | events, output all contents of beforeEvent as before, after = empty
     // CREATED -> UPDATED | events, output diff of before/after
     // UPDATED -> UPDATED | events, output diff of before/after
@@ -415,13 +417,21 @@ object ActivityLog extends Logging {
     val wrappedAfter = new InputWrapper(afterEvent)
 
     (beforeEventType, afterEventType) match {
-      case (None, SmuiEventType.CREATED)
-           | (None, SmuiEventType.VIRTUALLY_CREATED) => {
-
+      case (None, SmuiEventType.DELETED) => {
         ActivityLogEntry(
           formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
           userInfo = virtualUserInfo(afterEvent.userInfo, afterEvent.eventType),
-          diffSummary = outputEvent(wrappedAfter, SmuiEventType.CREATED, false, encodeInputTerm)
+          diffSummary = outputEvent(wrappedAfter, afterEventType, true, encodeInputTerm)
+        )
+
+      }
+      case (None, SmuiEventType.CREATED)
+           | (None, SmuiEventType.VIRTUALLY_CREATED)
+           | (None, SmuiEventType.UPDATED) => {
+        ActivityLogEntry(
+          formattedDateTime = afterEvent.eventTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+          userInfo = virtualUserInfo(afterEvent.userInfo, afterEvent.eventType),
+          diffSummary = outputEvent(wrappedAfter, afterEventType, false, encodeInputTerm)
         )
 
       }
