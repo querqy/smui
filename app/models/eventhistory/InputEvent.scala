@@ -2,14 +2,13 @@ package models.eventhistory
 
 import java.sql.Connection
 import java.time.LocalDateTime
-
 import play.api.libs.json._
 import play.api.Logging
 import anorm._
 import anorm.SqlParser.get
-
+import models.eventhistory.ActivityLog.logger
 import models.{Id, IdObject, SolrIndexId}
-import models.input.{SearchInputId, FullSearchInputWithRules}
+import models.input.{FullSearchInputWithRules, SearchInputId}
 import models.spellings.{CanonicalSpellingId, FullCanonicalSpellingWithAlternatives}
 
 /**
@@ -309,8 +308,11 @@ object InputEvent extends Logging {
           )
           .as(sqlParser.*)
 
-        isEventForSolrIndex(beforeEvents.head)
-
+          if (!beforeEvents.isEmpty) { // FIX https://github.com/querqy/smui/issues/114
+            isEventForSolrIndex(beforeEvents.head)
+          } else {
+            false;
+          }
       }
     }
 
