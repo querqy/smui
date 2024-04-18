@@ -1,7 +1,7 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "4.1.1"
+version := "4.1.2"
 maintainer := "Contact productful.io <hello@productful.io>"
 
 scalaVersion := "2.12.17"
