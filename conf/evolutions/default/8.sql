@@ -10,5 +10,5 @@ create unique index suggested_solr_field_name_solr_index on suggested_solr_field
 
 # --- !Downs
 
-drop index solr_index_field_name
-drop index suggested_solr_field_name_solr_index;
+drop index solr_index_field_name on solr_index;
+drop index suggested_solr_field_name_solr_index on suggested_solr_field;
