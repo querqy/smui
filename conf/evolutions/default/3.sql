@@ -17,7 +17,7 @@ create table input_tag (
 	last_update timestamp not null
 );
 
-create unique index input_tag_property_value_index on input_tag (solr_index_id, property, tag_value);
+create unique index input_tag_property_value_index on input_tag (solr_index_id, property (100), tag_value (100));
 create index input_tag_predefined_index on input_tag (predefined);
 
 -- Add table tag_2_input
