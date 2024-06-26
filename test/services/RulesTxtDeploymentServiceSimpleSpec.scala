@@ -6,9 +6,10 @@ import java.util.zip.ZipInputStream
 import models.ApplicationTestBase
 import models.input.SearchInputId
 import org.apache.commons.io.IOUtils
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RulesTxtDeploymentServiceSpec extends FlatSpec with Matchers with ApplicationTestBase {
+class RulesTxtDeploymentServiceSpec extends AnyFlatSpec with Matchers with ApplicationTestBase {
 
   private lazy val service = injector.instanceOf[RulesTxtDeploymentService]
   private var inputIds: Seq[SearchInputId] = Seq.empty

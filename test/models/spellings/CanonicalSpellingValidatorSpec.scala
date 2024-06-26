@@ -1,8 +1,9 @@
 package models.spellings
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class CanonicalSpellingValidatorSpec extends FlatSpec with Matchers {
+class CanonicalSpellingValidatorSpec extends AnyFlatSpec with Matchers {
 
   import models.spellings.{CanonicalSpellingValidator => validator}
 

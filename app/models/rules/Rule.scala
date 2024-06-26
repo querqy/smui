@@ -55,7 +55,8 @@ trait RuleObject[T <: Rule] extends CommonRuleFields {
 
   val sqlParser: RowParser[T]
 
-  def updateForSearchInput(searchInputId: SearchInputId, rules: Seq[T])(implicit connection: Connection) {
+  def updateForSearchInput(searchInputId: SearchInputId, rules: Seq[T])
+                          (implicit connection: Connection): Unit = {
     // TODO consider to really determine an update/delete diff to ensure that last_update timestamps only updated for affected rules
 
     SQL"delete from #$TABLE_NAME where #$SEARCH_INPUT_ID = $searchInputId".execute()

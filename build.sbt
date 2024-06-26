@@ -1,10 +1,10 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "4.1.2"
+version := "4.2.0"
 maintainer := "Contact productful.io <hello@productful.io>"
 
-scalaVersion := "2.12.17"
+scalaVersion := "2.13.14"
 
 ThisBuild / evictionErrorLevel := Level.Info
 
@@ -40,7 +40,7 @@ resolvers ++= Seq(
 )
 
 lazy val JacksonVersion = "2.15.2"
-lazy val Pac4jVersion = "5.7.1"
+lazy val Pac4jVersion = "6.0.4"
 
 lazy val JacksonCoreExclusion     = ExclusionRule(organization = "com.fasterxml.jackson.core")
 
@@ -64,18 +64,16 @@ libraryDependencies ++= {
     "org.postgresql" % "postgresql" % "42.5.1",
     "org.xerial" % "sqlite-jdbc" % "3.40.0.0",
     "org.playframework.anorm" %% "anorm" % "2.7.0",
-    "com.typesafe.play" %% "play-json" % "2.9.3",
-    "com.pauldijou" %% "jwt-play" % "4.1.0",
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion,
     "org.apache.commons" % "commons-csv" % "1.10.0",
     "org.apache.shiro" % "shiro-core" % "1.12.0",
     "org.pac4j" % "pac4j-http" % Pac4jVersion excludeAll (JacksonCoreExclusion, BcProv15Exclusion, SpringJclBridgeExclusion),
     "org.pac4j" % "pac4j-saml" % Pac4jVersion excludeAll (JacksonCoreExclusion, BcProv15Exclusion, SpringJclBridgeExclusion),
-    "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
+    "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
     "com.google.cloud" % "google-cloud-storage" % "2.33.0",
-    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
-    "org.mockito" % "mockito-all" % "1.10.19" % Test,
-    "com.pauldijou" %% "jwt-play" % "4.1.0",
+    "org.scalatest" %% "scalatest" % "3.2.18" % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
+    "org.scalatestplus" %% "mockito-5-10" % "3.2.18.0" % Test,
     "com.h2database" % "h2" % "1.4.197" % Test, // H2 DB for testing
     // Other databases as docker containers for testing with specific databases
     "com.dimafeng" %% "testcontainers-scala" % "0.40.11" % Test,
@@ -106,6 +104,7 @@ assembly / assemblyMergeStrategy := {
   case x if x.endsWith(".proto") => MergeStrategy.first
   case "play/reference-overrides.conf" => MergeStrategy.concat
   case PathList("META-INF", "spring.factories") => MergeStrategy.concat
+  case PathList("META-INF", "spring", "aot.factories") => MergeStrategy.concat
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)

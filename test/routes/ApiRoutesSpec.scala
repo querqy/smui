@@ -3,7 +3,8 @@ package routes
 import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
 import models.{ApplicationTestBase}
 import models.input.{ListItem, ListItemType}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import play.api.http.ContentTypes
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -12,7 +13,7 @@ import play.api.test.Helpers.{GET, route, _}
 
 import scala.concurrent.Future
 
-class ApiRoutesSpec extends FlatSpec with Matchers with ApplicationTestBase {
+class ApiRoutesSpec extends AnyFlatSpec with Matchers with ApplicationTestBase {
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()

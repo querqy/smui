@@ -1,8 +1,9 @@
 package models.config
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class SmuiVersionSpec extends FlatSpec with Matchers {
+class SmuiVersionSpec extends AnyFlatSpec with Matchers {
 
   "SmuiVersion" should "correctly interpret equality" in {
     SmuiVersion(1, 0, 0) shouldEqual SmuiVersion(1, 0, 0)
@@ -44,7 +45,7 @@ class SmuiVersionSpec extends FlatSpec with Matchers {
 
   "SmuiVersion for next deployment" should "be greater than latest version provided on DockerHub" in {
 
-    val latestDockerHub = SmuiVersion.latestVersionFromDockerHub
+    val latestDockerHub = SmuiVersion.latestVersionFromDockerHub()
     val current = SmuiVersion.parse(models.buildInfo.BuildInfo.version)
 
     current.get.greaterThan(latestDockerHub.get) shouldEqual true

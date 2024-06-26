@@ -1,13 +1,12 @@
 package models.eventhistory
 
-import java.time.LocalDateTime
-
 import models.ApplicationTestBase
 import models.input.SearchInputId
 import models.spellings.CanonicalSpellingId
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class DeactivatedEventHistorySpec extends FlatSpec with Matchers with ApplicationTestBase {
+class DeactivatedEventHistorySpec extends AnyFlatSpec with Matchers with ApplicationTestBase {
 
   private var inputIds: Seq[SearchInputId] = Seq.empty
   private var spellingIds: Seq[CanonicalSpellingId] = Seq.empty

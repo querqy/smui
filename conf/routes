@@ -18,7 +18,7 @@ GET     /api/v1/solr-index                                      controllers.ApiC
 GET     /api/v1/solr-index/:solrIndexId                         controllers.ApiController.getSolrIndex(solrIndexId: String)
 PUT     /api/v1/solr-index                                      controllers.ApiController.addNewSolrIndex
 DELETE  /api/v1/solr-index/:solrIndexId                         controllers.ApiController.deleteSolrIndex(solrIndexId: String)
-GET     /api/v1/inputTags                                       controllers.ApiController.listAllInputTags
+GET     /api/v1/inputTags                                       controllers.ApiController.listAllInputTags()
 GET     /api/v1/:solrIndexId/search-input                       controllers.ApiController.listAllSearchInputs(solrIndexId: String)
 GET     /api/v1/search-input/:searchInputId                     controllers.ApiController.getDetailedSearchInput(searchInputId: String)
 PUT     /api/v1/:solrIndexId/search-input                       controllers.ApiController.addNewSearchInput(solrIndexId: String)

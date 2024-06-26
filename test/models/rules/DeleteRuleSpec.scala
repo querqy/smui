@@ -1,8 +1,9 @@
 package models.rules
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class DeleteRuleSpec extends FlatSpec with Matchers {
+class DeleteRuleSpec extends AnyFlatSpec with Matchers {
 
   val rule1 = DeleteRule(DeleteRuleId(), "term1", isActive = true)
   val rule2 = DeleteRule(DeleteRuleId(), "term2", isActive = false)

@@ -2,12 +2,13 @@ package models
 
 
 import org.h2.jdbc.JdbcSQLException
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import utils.WithInMemoryDB
 
 
 
-class SuggestedSolrFieldSpec extends FlatSpec with Matchers with WithInMemoryDB with TestData {
+class SuggestedSolrFieldSpec extends AnyFlatSpec with Matchers with WithInMemoryDB with TestData {
 
   "SuggestedField" should "be creatable" in {
     db.withConnection { implicit conn =>

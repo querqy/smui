@@ -1,6 +1,7 @@
 package models.config
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 import play.api.inject.Injector
 import play.api.{Application, Mode}
@@ -9,7 +10,7 @@ import play.api.db.{Database, Databases}
 
 import models.FeatureToggleModel._
 
-class CustomUpDownDropdownMappingsSpec extends FlatSpec with Matchers {
+class CustomUpDownDropdownMappingsSpec extends AnyFlatSpec with Matchers {
 
   private val db: Database = Databases.inMemory()
 

@@ -93,7 +93,7 @@ object ActivityLog extends Logging {
   private def diffTermStatus(entity: String, beforeTerm: String, beforeStatus: Boolean, afterTerm: String, afterStatus: Boolean, smuiEventType: SmuiEventType.Value): Option[DiffSummary] = {
 
     val termDiff = if (beforeTerm.trim.equals(afterTerm.trim)) None else Some(afterTerm.trim)
-    val statDiff = if (beforeStatus.equals(afterStatus)) None else Some(afterStatus)
+    val statDiff = if (beforeStatus == afterStatus) None else Some(afterStatus)
 
     if (termDiff.isDefined || statDiff.isDefined) {
 

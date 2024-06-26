@@ -2,7 +2,9 @@ package models
 
 import java.time.LocalDateTime
 import scala.util.Try
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import models.input.{InputTag, InputTagId, SearchInput, SearchInputWithRules}
 import models.eventhistory.InputEvent
@@ -11,7 +13,7 @@ import models.rules._
 import models.spellings.{AlternativeSpelling, AlternativeSpellingId, CanonicalSpelling, CanonicalSpellingWithAlternatives}
 import services.SmuiMigrationLock
 
-abstract class DBCompatibilitySpec extends FlatSpec with Matchers with TestData with BeforeAndAfterAll {
+abstract class DBCompatibilitySpec extends AnyFlatSpec with Matchers with TestData with BeforeAndAfterAll {
 
   protected def db: Database
 

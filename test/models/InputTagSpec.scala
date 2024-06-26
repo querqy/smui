@@ -4,10 +4,12 @@ import java.time.LocalDateTime
 
 import models.input.{SearchInput, InputTag, TagInputAssociation, PredefinedTag, InputTagId}
 import org.h2.jdbc.JdbcBatchUpdateException
-import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import utils.WithInMemoryDB
 
-class InputTagSpec extends FlatSpec with Matchers with BeforeAndAfterEach with WithInMemoryDB {
+class InputTagSpec extends AnyFlatSpec with Matchers with BeforeAndAfterEach with WithInMemoryDB {
 
   private val index = SolrIndex(name = "de", description = "German")
   private val inputTags = Seq(

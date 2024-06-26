@@ -1,11 +1,12 @@
 package models
 
 import org.h2.jdbc.JdbcSQLException
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import utils.WithInMemoryDB
 
 
-class SolrIndexSpec extends FlatSpec with Matchers with WithInMemoryDB with TestData {
+class SolrIndexSpec extends AnyFlatSpec with Matchers with WithInMemoryDB with TestData {
 
   "SolrIndex" should "be creatable" in {
     db.withConnection { implicit conn =>

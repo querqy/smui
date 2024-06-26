@@ -1,8 +1,9 @@
 package models.rules
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RedirectRuleSpec extends FlatSpec with Matchers {
+class RedirectRuleSpec extends AnyFlatSpec with Matchers {
 
   val rule1 = RedirectRule(RedirectRuleId(), "target1", isActive = true)
   val rule2 = RedirectRule(RedirectRuleId(), "target2", isActive = false)

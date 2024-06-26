@@ -1,8 +1,9 @@
 package models.input
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class InputValidatorSpec extends FlatSpec with Matchers {
+class InputValidatorSpec extends AnyFlatSpec with Matchers {
 
   "InputValidator" should "validate invalid input terms correctly" in {
 

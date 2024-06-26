@@ -220,7 +220,7 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
     def tagsFingerprint(input: PreliminarySearchInput): String = {
       //Sorting is necessary because play.api.libs.json considers JsArray with same elements but different ordering as not equal. (behaviour tested up to play version 2.8.8)
       def sortArrays(json: JsValue): JsValue = json match {
-        case JsObject(obj) => JsObject(obj.toMap.mapValues(sortArrays(_)).toList)
+        case JsObject(obj) => JsObject(obj.toMap.view.mapValues(sortArrays).toList)
         case JsArray(arr) => JsArray(arr.map(sortArrays).sortBy(_.toString))
         case other => other
       }
@@ -257,7 +257,7 @@ class RulesTxtImportService @Inject() (querqyRulesTxtGenerator: QuerqyRulesTxtGe
                 if(a_synonymRule.term == b_input.term) {
                   println("^-- Found according synonym on " + b_input.term + " in = " + a_synonymRule)
                   a_synonymRule.asInstanceOf[PreliminarySynonymRule].synonymType = SynonymRule.TYPE_UNDIRECTED
-                  break
+                  break()
                 }
               }
               skip_i += j

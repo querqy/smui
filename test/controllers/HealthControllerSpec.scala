@@ -1,6 +1,6 @@
 package controllers
 
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play._
 import play.api.http.ContentTypes
 import play.api.mvc.Result

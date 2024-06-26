@@ -1,15 +1,19 @@
 package modules
 
 import com.google.inject.{AbstractModule, Provides}
-import org.pac4j.core.client.{Client, Clients}
+import org.pac4j.core.client.Clients
 import org.pac4j.core.client.direct.AnonymousClient
 import org.pac4j.core.config.Config
-import org.pac4j.core.context.session.SessionStore
+import org.pac4j.core.context.FrameworkParameters
+import org.pac4j.core.context.session.{SessionStore, SessionStoreFactory}
 import org.pac4j.core.profile.CommonProfile
+import org.pac4j.core.profile.factory.ProfileManagerFactory
 import org.pac4j.http.client.direct.DirectBasicAuthClient
+import org.pac4j.play.context.PlayContextFactory
+import org.pac4j.play.http.PlayHttpActionAdapter
 import org.pac4j.play.scala.{DefaultSecurityComponents, Pac4jScalaTemplateHelper, SecurityComponents}
 import org.pac4j.play.store.{PlayCookieSessionStore, ShiroAesDataEncrypter}
-import org.pac4j.play.{CallbackController, LogoutController}
+import org.pac4j.play.{CallbackController, LogoutController, PlayWebContext}
 import org.pac4j.saml.client.SAML2Client
 import org.pac4j.saml.config.SAML2Configuration
 import play.api.{Configuration, Environment}
@@ -42,23 +46,31 @@ class SecurityModule(environment: Environment, configuration: Configuration) ext
   }
 
   @Provides
-  def provideConfig(): Config = {
+  def provideConfig(sessionStore: SessionStore): Config = {
     val maybeConfiguredClientName = configuration.getOptional[String](ConfigKeyAuthClient).filter(_.nonEmpty)
-    val config: Option[Config] = maybeConfiguredClientName.map {
-      case "DirectBasicAuthClient" => createConfiguredDirectBasicAuthConfig(s"$ConfigKeyPrefixClientConfig.ConfiguredDirectBasicAuthClient")
-      case "SAML2Client" => createSaml2Config(s"$ConfigKeyPrefixClientConfig.SAML2Client")
+    val maybeClients = maybeConfiguredClientName.map {
+      case "DirectBasicAuthClient" => createConfiguredDirectBasicAuthClient(s"$ConfigKeyPrefixClientConfig.ConfiguredDirectBasicAuthClient")
+      case "SAML2Client" => createSaml2Client(s"$ConfigKeyPrefixClientConfig.SAML2Client")
       case other => throw new RuntimeException(s"Unsupported auth client config value: $other")
     }
-    config.getOrElse(new Config())
+    val config = new Config()
+    for (clients <- maybeClients) {
+      config.setClients(clients)
+    }
+    config.setSessionStoreFactory((_: FrameworkParameters) => sessionStore)
+    config.setHttpActionAdapter(PlayHttpActionAdapter.INSTANCE)
+    config.setWebContextFactory(PlayContextFactory.INSTANCE)
+    config.setProfileManagerFactory(ProfileManagerFactory.DEFAULT)
+    config
   }
 
-  private def createConfiguredDirectBasicAuthConfig(keyPrefix: String): Config = {
+  private def createConfiguredDirectBasicAuthClient(keyPrefix: String): Clients = {
     val username = configuration.get[String](s"$keyPrefix.username")
     val password = configuration.get[String](s"$keyPrefix.password")
-    new Config(new DirectBasicAuthClient(ConfiguredBasicAuthAuthenticator(username, password)))
+    new Clients(new DirectBasicAuthClient(ConfiguredBasicAuthAuthenticator(username, password)))
   }
 
-  private def createSaml2Config(keyPrefix: String): Config = {
+  private def createSaml2Client(keyPrefix: String): Clients = {
     val cfg = new SAML2Configuration(
       configuration.get[String](s"$keyPrefix.keystore"),
       configuration.get[String](s"$keyPrefix.keystorePassword"),
@@ -68,10 +80,8 @@ class SecurityModule(environment: Environment, configuration: Configuration) ext
     cfg.setServiceProviderEntityId(configuration.get[String](s"$keyPrefix.serviceProviderEntityId"))
     cfg.setServiceProviderMetadataPath(configuration.get[String](s"$keyPrefix.serviceProviderMetadataPath"))
     cfg.setMaximumAuthenticationLifetime(configuration.get[Long](s"$keyPrefix.maximumAuthenticationLifetime"))
-    val allClients = Option(new SAML2Client(cfg)).toSeq :+ new AnonymousClient()
     // callback URL path as configured in `routes`
-    val clients = new Clients(s"$baseUrl/callback", allClients:_*)
-    new Config(clients)
+    new Clients(s"$baseUrl/callback", new SAML2Client(cfg), new AnonymousClient)
   }
 
 }

@@ -2,10 +2,11 @@ package models
 
 import models.input.{InputTag, SearchInput}
 import models.spellings.CanonicalSpelling
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 
-class SearchManagementRepositorySpec extends FlatSpec with Matchers with TestData with ApplicationTestBase {
+class SearchManagementRepositorySpec extends AnyFlatSpec with Matchers with TestData with ApplicationTestBase {
 
   protected def createTestCore(): Unit = {
     repo.addNewSolrIndex(SolrIndex(core1Id, "core1", "First core"))
