@@ -2,13 +2,14 @@ package models
 
 import java.sql.Connection
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import utils.WithInMemoryDB
 
 import models.input.{SearchInput, SearchInputWithRules, InputTag, TagInputAssociation}
 import models.rules.{SynonymRule, SynonymRuleId}
 
-class SearchInputWithRulesSpec extends FlatSpec with Matchers with WithInMemoryDB with TestData {
+class SearchInputWithRulesSpec extends AnyFlatSpec with Matchers with WithInMemoryDB with TestData {
 
   private val tag = InputTag.create(None, Some("tenant"), "MO", exported = true)
 

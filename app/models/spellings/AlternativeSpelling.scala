@@ -79,6 +79,6 @@ object AlternativeSpelling {
       SQL"select * from #$TABLE_NAME where #$CANONICAL_SPELLING_ID in ($idGroup)".as((sqlParser ~ get[CanonicalSpellingId](CANONICAL_SPELLING_ID)).*).map { case alternativeSpelling ~ id =>
         id -> alternativeSpelling
       }
-    }.groupBy(_._1).mapValues(_.map(_._2))
+    }.groupBy(_._1).view.mapValues(_.map(_._2)).toMap
   }
 }

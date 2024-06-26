@@ -95,6 +95,7 @@ object CanonicalSpellingValidator {
     val allSpellings = allCanonicalSpellings
       .flatMap(canonical => canonical.alternativeSpellings.map(alternative => alternative.term.toLowerCase.trim -> canonical.term.toLowerCase.trim))
       .groupBy(_._1)
+      .view
       .mapValues(_.map(_._2))
     allSpellings.get(canonical).map { canonicalsHavingThatAlternative =>
       s"Canonical spelling $canonical is already an alternative spelling of ${canonicalsHavingThatAlternative.mkString(",")}"

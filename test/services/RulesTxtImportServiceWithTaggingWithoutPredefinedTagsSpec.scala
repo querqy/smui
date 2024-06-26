@@ -3,9 +3,10 @@ package services
 import models.ApplicationTestBase
 import models.input.SearchInputWithRules
 import models.rules.SynonymRule
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RulesTxtImportServiceWithTaggingWithoutPredefinedTagsSpec extends FlatSpec with Matchers with ApplicationTestBase {
+class RulesTxtImportServiceWithTaggingWithoutPredefinedTagsSpec extends AnyFlatSpec with Matchers with ApplicationTestBase {
 
   private lazy val service = injector.instanceOf[RulesTxtImportService]
 

@@ -1,7 +1,10 @@
 # syntax = docker/dockerfile:1.0-experimental
-FROM openjdk:11-buster as builder
+FROM eclipse-temurin:17-jdk-focal as builder
 
 ARG NODE_VERSION=16
+
+RUN apt-get update \
+    && apt-get install -y curl gnupg
 
 RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list \
     && curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | apt-key add \
@@ -22,7 +25,7 @@ WORKDIR /smui
 
 RUN --mount=target=/root/.ivy2,type=cache sbt "set assembly / test := {}" clean assembly
 
-FROM openjdk:11-jre-slim-buster
+FROM eclipse-temurin:17-jre-focal
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends openssh-client sshpass bash curl git \

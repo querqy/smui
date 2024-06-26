@@ -1,8 +1,9 @@
 package models.rules
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class UpDownRuleSpec extends FlatSpec with Matchers {
+class UpDownRuleSpec extends AnyFlatSpec with Matchers {
 
   val rule1 = UpDownRule(UpDownRuleId(), UpDownRule.TYPE_DOWN, 100, "term1", isActive = true)
   val rule2 = UpDownRule(UpDownRuleId(), UpDownRule.TYPE_UP, 200, "term1", isActive = false)

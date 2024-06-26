@@ -4,13 +4,12 @@ import models.FeatureToggleModel.FeatureToggleService
 import models.SearchManagementRepository
 import models.input.{SearchInputId, SearchInput, SearchInputWithRules}
 import models.rules._
-import models.querqy.QuerqyRulesTxtGenerator
 
-import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class QuerqyExactMatchRulesGeneratorSpec extends FlatSpec with Matchers with MockitoSugar {
+class QuerqyExactMatchRulesGeneratorSpec extends AnyFlatSpec with Matchers with MockitoSugar {
 
     val searchManagementRepository = mock[SearchManagementRepository]
     val featureToggleService = mock[FeatureToggleService]
