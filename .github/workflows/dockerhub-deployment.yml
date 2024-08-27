@@ -8,10 +8,12 @@ jobs:
   test-build-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up JDK 11
-        uses: olafurpg/setup-scala@v11
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
-          java-version: adopt@1.11
+          distribution: temurin
+          java-version: 17
+          cache: sbt
       # enable experimental status for docker in order to support SMUI's backend tests that rely on Ryuk images
       # (see https://github.com/actions/virtual-environments/issues/368)
       - name: Docker experimental Status
