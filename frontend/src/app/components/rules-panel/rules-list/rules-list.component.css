@@ -53,3 +53,17 @@ li.list-group-item.active > .text-muted {
 .smui-align-middle {
   vertical-align: middle;
 }
+
+.smui-frequency-box-container {
+  display: inline-block;
+  width: 32px;
+  height: 28px;
+  border-left: 1px solid #666;
+}
+
+.smui-frequency-box {
+  display: inline-block;
+  height: 1rem;
+  background-image: linear-gradient(to right, #db5f57, #dbc257, #91db57, #57db80, #57d3db, #5770db, #a157db, #db57b2);
+  background-size: 35px 16px;
+}

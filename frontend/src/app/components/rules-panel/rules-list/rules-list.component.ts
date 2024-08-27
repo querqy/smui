@@ -134,6 +134,10 @@ export class RulesListComponent implements OnChanges {
     this.isShowingAllItems = !this.isShowingAllItems;
   }
 
+  shouldDisplayUsageFrequency() {
+    return this.featureToggleService.getSyncToggleRuleUsageStatistics();
+  }
+
   private selectListItem(listItem?: ListItem) {
     console.log(
       `In SearchInputListComponent :: selectListItem :: id = ${
