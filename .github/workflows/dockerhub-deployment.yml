@@ -8,6 +8,10 @@ jobs:
   test-build-push:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout current branch (full)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -25,7 +29,6 @@ jobs:
           echo $'{ "experimental": true }' | sudo tee /etc/docker/daemon.json
           sudo service docker restart
           docker version -f '{{.Server.Experimental}}'
-      - uses: actions/checkout@v2
       - name: Setup NPM environment specfic to SMUI
         uses: actions/setup-node@v4
         with:
