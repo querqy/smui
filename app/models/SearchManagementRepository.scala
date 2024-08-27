@@ -46,7 +46,7 @@ class SearchManagementRepository @Inject()(dbapi: DBApi, toggleService: FeatureT
   def deleteSolrIndex(solrIndexId: String): Int = db.withTransaction { implicit connection =>
 
     val solrIndexIdId = SolrIndexId(solrIndexId)
-    val inputTags = InputTag.loadAll.filter(_.solrIndexId== Option(solrIndexIdId))
+    val inputTags = InputTag.loadAll().filter(_.solrIndexId== Option(solrIndexIdId))
     if (inputTags.size > 0) {
       throw new Exception("Can't delete rules collection that has " + inputTags.size + "tags existing");
     }

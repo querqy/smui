@@ -1,6 +1,8 @@
 package services
 
-import org.scalatest.{FlatSpec, Matchers, Suite}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.Suite
 import models.ApplicationTestBase
 import models.input.SearchInputWithRules
 import models.rules.{SynonymRule, SynonymRuleId}
@@ -57,7 +59,7 @@ trait CommonRulesTxtDeploymentServiceConfigVariantsSpecBase extends ApplicationT
   * Variants for different rules.txt, replace-rules.txt, decompound-rules.txt
   */
 
-class RulesTxtOnlyDeploymentConfigVariantSpec extends FlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
+class RulesTxtOnlyDeploymentConfigVariantSpec extends AnyFlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
 
   override protected lazy val additionalAppConfig = Seq(
     "smui2solr.SRC_TMP_FILE" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp",
@@ -90,7 +92,7 @@ class RulesTxtOnlyDeploymentConfigVariantSpec extends FlatSpec with Matchers wit
 
 }
 
-class RulesAndReplaceTxtDeploymentConfigVariantSpec extends FlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
+class RulesAndReplaceTxtDeploymentConfigVariantSpec extends AnyFlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
 
   override protected lazy val activateSpelling = true
 
@@ -137,7 +139,7 @@ class RulesAndReplaceTxtDeploymentConfigVariantSpec extends FlatSpec with Matche
 
 }
 
-class RulesAndDecompoundTxtDeploymentConfigVariantSpec extends FlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
+class RulesAndDecompoundTxtDeploymentConfigVariantSpec extends AnyFlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
 
   override protected lazy val activateSpelling = false
 
@@ -188,7 +190,7 @@ class RulesAndDecompoundTxtDeploymentConfigVariantSpec extends FlatSpec with Mat
 
 }
 
-class RulesReplaceAndDecompoundTxtDeploymentConfigVariantSpec extends FlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
+class RulesReplaceAndDecompoundTxtDeploymentConfigVariantSpec extends AnyFlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
 
   override protected lazy val activateSpelling = true
 
@@ -257,7 +259,7 @@ class RulesReplaceAndDecompoundTxtDeploymentConfigVariantSpec extends FlatSpec w
   * Interface with deployment script (for regular and "GIT" target alike)
   */
 
-class RulesTxtDeploymentRegularTargetSpec extends FlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
+class RulesTxtDeploymentRegularTargetSpec extends AnyFlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
 
   override protected lazy val activateSpelling = true
 
@@ -320,7 +322,7 @@ class RulesTxtDeploymentRegularTargetSpec extends FlatSpec with Matchers with Co
 
 }
 
-class RulesTxtDeploymentGitTargetSpec extends FlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
+class RulesTxtDeploymentGitTargetSpec extends AnyFlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
 
   override protected lazy val activateSpelling = true
 

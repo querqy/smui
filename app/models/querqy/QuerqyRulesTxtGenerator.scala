@@ -110,11 +110,11 @@ class QuerqyRulesTxtGenerator @Inject()(searchManagementRepository: SearchManage
     }
     if (featureToggleService.isRuleTaggingActive) {
       val tagsByProperty = searchInput.tags.filter(i => i.exported && i.property.nonEmpty).groupBy(_.property.get)
-      jsonProperties ++= tagsByProperty.mapValues(tags => Json.toJsFieldJsValueWrapper(tags.map(_.value))).toSeq
+      jsonProperties ++= tagsByProperty.view.mapValues(tags => Json.toJsFieldJsValueWrapper(tags.map(_.value))).toSeq
     }
 
     if (jsonProperties.nonEmpty) {
-      retSearchInputRulesTxtPartial.append(renderJsonProperties(jsonProperties))
+      retSearchInputRulesTxtPartial.append(renderJsonProperties(jsonProperties.toSeq))
     }
 
     retSearchInputRulesTxtPartial.toString()

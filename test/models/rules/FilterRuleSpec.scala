@@ -1,8 +1,9 @@
 package models.rules
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class FilterRuleSpec extends FlatSpec with Matchers {
+class FilterRuleSpec extends AnyFlatSpec with Matchers {
 
   val rule1 = FilterRule(FilterRuleId(), "term1", isActive = true)
   val rule2 = FilterRule(FilterRuleId(), "term2", isActive = false)

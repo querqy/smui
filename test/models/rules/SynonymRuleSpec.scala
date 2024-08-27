@@ -1,8 +1,9 @@
 package models.rules
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class SynonymRuleSpec extends FlatSpec with Matchers {
+class SynonymRuleSpec extends AnyFlatSpec with Matchers {
 
   val rule1 = SynonymRule(SynonymRuleId(), SynonymRule.TYPE_DIRECTED, "term1", isActive = true)
   val rule2 = SynonymRule(SynonymRuleId(), SynonymRule.TYPE_UNDIRECTED, "term2", isActive = false)

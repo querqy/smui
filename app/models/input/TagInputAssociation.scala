@@ -60,7 +60,7 @@ object TagInputAssociation {
         map { case tag ~ inputId =>
           inputId -> tag
         }
-    }.groupBy(_._1).mapValues(_.map(_._2))
+    }.groupBy(_._1).view.mapValues(_.map(_._2)).toMap
   }
 
   def deleteBySearchInputId(id: SearchInputId)(implicit connection: Connection): Int = {

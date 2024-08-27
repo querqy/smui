@@ -1,6 +1,7 @@
 package models.eventhistory
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{BeMatcher, MatchResult}
 
 import java.time.LocalDateTime
@@ -27,7 +28,7 @@ trait CustomerMatchers {
 
 }
 
-class EventHistorySpec extends FlatSpec with Matchers with CustomerMatchers with ApplicationTestBase {
+class EventHistorySpec extends AnyFlatSpec with Matchers with CustomerMatchers with ApplicationTestBase {
 
   private var inputIds: Seq[SearchInputId] = Seq.empty
   private var spellingIds: Seq[CanonicalSpellingId] = Seq.empty

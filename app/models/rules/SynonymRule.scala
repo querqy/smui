@@ -49,7 +49,7 @@ object SynonymRule extends RuleObjectWithTerm[SynonymRule] {
       SQL"select * from #$TABLE_NAME where #$TYPE = #$TYPE_UNDIRECTED AND #$SEARCH_INPUT_ID in ($idGroup)".as((sqlParser ~ get[SearchInputId](SEARCH_INPUT_ID)).*).map { case rule ~ id =>
         id -> rule
       }
-    }.groupBy(_._1).mapValues(_.map(_._2))
+    }.groupBy(_._1).view.mapValues(_.map(_._2)).toMap
   }
 
   override def createWithNewIdFrom(rule: SynonymRule): SynonymRule = {

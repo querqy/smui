@@ -1,8 +1,8 @@
 package controllers
 
 import java.io.{OutputStream, PipedInputStream, PipedOutputStream}
-import akka.stream.scaladsl.{Source, StreamConverters}
-import akka.util.ByteString
+import org.apache.pekko.stream.scaladsl.{Source, StreamConverters}
+import org.apache.pekko.util.ByteString
 
 import javax.inject.Inject
 import play.api.Logging
@@ -14,7 +14,6 @@ import java.nio.file.Paths
 import java.time.format.DateTimeFormatter
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
-import collection.JavaConverters._
 import models.FeatureToggleModel.FeatureToggleService
 import models._
 import models.config.SmuiVersion
@@ -24,10 +23,11 @@ import models.querqy.QuerqyRulesTxtGenerator
 import models.reports.RulesUsageReport
 import models.rules.{DeleteRule, FilterRule, RedirectRule, SynonymRule, UpDownRule}
 import models.spellings.{CanonicalSpellingId, CanonicalSpellingValidator, CanonicalSpellingWithAlternatives}
-import org.pac4j.core.profile.{ProfileManager, UserProfile}
-import org.pac4j.play.PlayWebContext
+import org.pac4j.core.profile.UserProfile
+import org.pac4j.play.context.PlayFrameworkParameters
 import org.pac4j.play.scala.{Security, SecurityComponents}
 import play.api.libs.Files
+import scala.jdk.CollectionConverters.ListHasAsScala
 import services.{RulesTxtDeploymentService, RulesTxtImportService, RulesUsageService}
 
 
@@ -48,7 +48,7 @@ class ApiController @Inject()(val controllerComponents: SecurityComponents,
 
   case class ApiResult(result: String, message: String, returnId: Option[Id])
 
-  implicit val apiResultWrites = Json.writes[ApiResult]
+  implicit val apiResultWrites: OWrites[ApiResult] = Json.writes[ApiResult]
 
   def getFeatureToggles: Action[AnyContent] = Action {
     Ok(Json.toJson(featureToggleService.getJsFrontendToggleList))
@@ -411,7 +411,7 @@ class ApiController @Inject()(val controllerComponents: SecurityComponents,
         rules_txt.ref.copyTo(Paths.get(tmp_file_path), replace = true)
         // process rules.txt file
         val bufferedSource = scala.io.Source.fromFile(tmp_file_path)
-        val filePayload = bufferedSource.getLines.mkString("\n")
+        val filePayload = bufferedSource.getLines().mkString("\n")
         try {
           val importStatistics = rulesTxtImportService.importFromFilePayload(filePayload, SolrIndexId(solrIndexId))
           val apiResultMsg = "Import from rules.txt file successful with following statistics:\n" +
@@ -442,7 +442,7 @@ class ApiController @Inject()(val controllerComponents: SecurityComponents,
 
   case class DeploymentInfo(msg: Option[String])
 
-  implicit val logDeploymentInfoWrites = Json.writes[DeploymentInfo]
+  implicit val logDeploymentInfoWrites: OWrites[DeploymentInfo] = Json.writes[DeploymentInfo]
 
   @deprecated("The old style of retrieving a deployment log summary as plain text will be removed", "SMUI version > 3.15.1")
   def getLatestDeploymentResultV1(solrIndexId: String, targetSystem: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
@@ -490,7 +490,7 @@ class ApiController @Inject()(val controllerComponents: SecurityComponents,
 
   case class DeploymentDetailedInfo(targetSystem: String, formattedDateTime: String, result: Int)
 
-  implicit val logDeploymentDetailedInfoWrites = Json.writes[DeploymentDetailedInfo]
+  implicit val logDeploymentDetailedInfoWrites: OWrites[DeploymentDetailedInfo] = Json.writes[DeploymentDetailedInfo]
 
   def getLatestDeploymentResult(solrIndexId: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
     Future {
@@ -543,7 +543,7 @@ class ApiController @Inject()(val controllerComponents: SecurityComponents,
     val ERROR = Value("ERROR")
   }
 
-  implicit val smuiVersionInfoWrites = Json.writes[SmuiVersionInfo]
+  implicit val smuiVersionInfoWrites: OWrites[SmuiVersionInfo] = Json.writes[SmuiVersionInfo]
 
   // TODO consider outsourcing this "business logic" into the (config) model
   def getLatestVersionInfo() = Action.async {
@@ -686,8 +686,10 @@ class ApiController @Inject()(val controllerComponents: SecurityComponents,
   }
 
   private def getProfiles(request: RequestHeader): List[UserProfile] = {
-    val webContext = new PlayWebContext(request)
-    val profileManager = new ProfileManager(webContext, controllerComponents.sessionStore)
+    val parameters = new PlayFrameworkParameters(request)
+    val webContext = controllerComponents.config.getWebContextFactory.newContext(parameters)
+    val sessionStore = controllerComponents.config.getSessionStoreFactory.newSessionStore(parameters)
+    val profileManager = controllerComponents.config.getProfileManagerFactory.apply(webContext, sessionStore)
     profileManager.getProfiles.asScala.toList
   }
 

@@ -36,7 +36,7 @@ package object TargetEnvironment extends Logging {
     implicit val jsonFormatTargetEnvironmentGroup: OFormat[TargetEnvironmentGroup] = Json.format[TargetEnvironmentGroup]
     implicit val jsonFormatTargetEnvironmentInstance: OFormat[TargetEnvironmentInstance] = Json.format[TargetEnvironmentInstance]
 
-    implicit val jsonFormatTargetEnvironmentConfig = new Format[ Seq[TargetEnvironmentInstance] ] {
+    implicit val jsonFormatTargetEnvironmentConfig: Format[Seq[TargetEnvironmentInstance]] = new Format[Seq[TargetEnvironmentInstance] ] {
         
         def writes(targetEnvironmentConfig: Seq[TargetEnvironmentInstance]): JsValue =
             JsArray(

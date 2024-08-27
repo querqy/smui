@@ -5,7 +5,7 @@ import org.apache.commons.csv.CSVFormat
 import play.api.{Configuration, Logging}
 
 import javax.inject.Inject
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.jdk.CollectionConverters.IterableHasAsScala
 
 case class RulesUsage(inputId: SearchInputId,
                       keywords: String,
