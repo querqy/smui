@@ -250,7 +250,7 @@ class ApiController @Inject()(val controllerComponents: SecurityComponents,
   def listAll(solrIndexId: String) : Action[AnyContent] = Action {
     val searchInputs = searchManagementRepository.listAllSearchInputsInclDirectedSynonyms(SolrIndexId(solrIndexId))
     val spellings = searchManagementRepository.listAllSpellingsWithAlternatives(SolrIndexId(solrIndexId))
-    Ok(Json.toJson(ListItem.create(searchInputs, spellings)))
+    Ok(Json.toJson(ListItem.create(searchInputs, spellings, rulesUsageService.getRulesUsageStatistics)))
   }
 
   def addNewSpelling(solrIndexId: String): Action[AnyContent] = Action.async { request: Request[AnyContent] =>

@@ -14,4 +14,6 @@ export class ListItem {
   tags: Array<InputTag>;
   comment: string;
   additionalTermsForSearch: Array<string>;
+  usageFrequency: number | null;
+  usageFrequencyBucket: number | undefined;
 }

@@ -27,18 +27,26 @@
         }"
         (click)="selectListItemWithCheck(listItem)"
       >
+        <div class="smui-frequency-box-container smui-right-gap" *ngIf="shouldDisplayUsageFrequency()">
+          <span class="smui-frequency-box align-middle"
+                title="Rule has been applied {{listItem.usageFrequency || '0'}} time(s)."
+                [style.width.px]="4 * (listItem.usageFrequencyBucket || 0) + 2"
+          >
+          </span>
+        </div>
+
         <span class="smui-right-gap smui-align-middle">
-          <i
-            *ngIf="listItem.itemType.toString() === 'RuleManagement'"
-            class="fa fa-list smui-align-middle"
-            aria-hidden="true"
-          ></i>
-          <i
-            *ngIf="listItem.itemType.toString() === 'Spelling'"
-            class="fa fa-book smui-align-middle"
-            aria-hidden="true"
-          ></i>
-        </span>
+              <i
+                *ngIf="listItem.itemType.toString() === 'RuleManagement'"
+                class="fa fa-list smui-align-middle"
+                aria-hidden="true"
+              ></i>
+              <i
+                *ngIf="listItem.itemType.toString() === 'Spelling'"
+                class="fa fa-book smui-align-middle"
+                aria-hidden="true"
+              ></i>
+            </span>
 
         <span class="smui-align-middle list-item-term">{{ listItem.term }}</span>
 
@@ -68,7 +76,7 @@
 
           <div ngbDropdownMenu aria-labelledby="actionsDropdown">
             <button ngbDropdownItem
-              [disabled]="listItem.itemType.toString() !== 'RuleManagement'"
+              [disabled]="listItem.itemType.toString() !== 'Rule*Management'"
               (click)="copyRuleItem(listItem.id, $event)"
             >
               <i class="fa fa-clone mr-3"></i>Copy to
