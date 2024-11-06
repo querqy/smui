@@ -28,7 +28,7 @@ RUN --mount=target=/root/.ivy2,type=cache sbt "set assembly / test := {}" clean 
 FROM eclipse-temurin:17-jre-focal
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends openssh-client sshpass bash curl git \
+    && apt-get install -y --no-install-recommends openssh-client sshpass bash curl git jq \
     && rm -rf /var/lib/apt/lists/*
 
 ARG VERSION

@@ -63,33 +63,18 @@ class RulesTxtOnlyDeploymentConfigVariantSpec extends AnyFlatSpec with Matchers 
 
   override protected lazy val additionalAppConfig = Seq(
     "smui2solr.SRC_TMP_FILE" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp",
-    "smui2solr.DST_CP_FILE_TO" -> "/deployment-path-live/common-rules.txt",
     "toggle.rule-deployment.pre-live.present" -> true,
-    "smui2solr.deploy-prelive-fn-rules-txt" -> "/deployment-path-prelive/common-rules.txt"
   )
 
-  "RulesTxtDeploymentService" should "provide only the (common) rules.txt for PRELIVE" in {
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "PRELIVE", logDebug = false)
+  "RulesTxtDeploymentService" should "provide only the (common) rules.txt" in {
+    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
 
     deploymentDescriptor.solrIndexId shouldBe core1Id
     deploymentDescriptor.regularRules.content should include ("aerosmith") // simply cross check content
     deploymentDescriptor.regularRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp"
-    deploymentDescriptor.regularRules.destinationFileName shouldBe "/deployment-path-prelive/common-rules.txt"
     deploymentDescriptor.replaceRules shouldBe None
     deploymentDescriptor.decompoundRules shouldBe None
   }
-
-  "RulesTxtDeploymentService" should "provide only the (common) rules.txt for LIVE" in {
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
-
-    deploymentDescriptor.solrIndexId shouldBe core1Id
-    deploymentDescriptor.regularRules.content should include ("aerosmith") // simply cross check content
-    deploymentDescriptor.regularRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp"
-    deploymentDescriptor.regularRules.destinationFileName shouldBe "/deployment-path-live/common-rules.txt"
-    deploymentDescriptor.replaceRules shouldBe None
-    deploymentDescriptor.decompoundRules shouldBe None
-  }
-
 }
 
 class RulesAndReplaceTxtDeploymentConfigVariantSpec extends AnyFlatSpec with Matchers with CommonRulesTxtDeploymentServiceConfigVariantsSpecBase {
@@ -98,42 +83,21 @@ class RulesAndReplaceTxtDeploymentConfigVariantSpec extends AnyFlatSpec with Mat
 
   override protected lazy val additionalAppConfig = Seq(
     "smui2solr.SRC_TMP_FILE" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp",
-    "smui2solr.DST_CP_FILE_TO" -> "/deployment-path-live/common-rules.txt",
     "toggle.rule-deployment.pre-live.present" -> true,
-    "smui2solr.deploy-prelive-fn-rules-txt" -> "/deployment-path-prelive/common-rules.txt",
     // spelling is activated (@see /smui/test/models/ApplicationTestBase.scala)
-    "smui2solr.replace-rules-tmp-file" -> "/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp",
-    "smui2solr.replace-rules-dst-cp-file-to" -> "/deployment-path-live/replace-rules.txt",
-    "smui2solr.deploy-prelive-fn-replace-txt" -> "/deployment-path-prelive/replace-rules.txt"
+    "smui2solr.replace-rules-tmp-file" -> "/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp"
   )
 
-  "RulesTxtDeploymentService" should "provide the (common) rules.txt and a replace-rules.txt for PRELIVE" in {
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "PRELIVE", logDebug = false)
+  "RulesTxtDeploymentService" should "provide the (common) rules.txt and a replace-rules.txt" in {
+    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
 
     deploymentDescriptor.solrIndexId shouldBe core1Id
     deploymentDescriptor.regularRules.content should include ("aerosmith") // simply cross check content
     deploymentDescriptor.regularRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp"
-    deploymentDescriptor.regularRules.destinationFileName shouldBe "/deployment-path-prelive/common-rules.txt"
 
     val replaceRules = deploymentDescriptor.replaceRules.get
     replaceRules.content should include ("freezer") // simply cross check content
     replaceRules.sourceFileName shouldBe "/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp"
-    replaceRules.destinationFileName shouldBe "/deployment-path-prelive/replace-rules.txt"
-    deploymentDescriptor.decompoundRules shouldBe None
-  }
-
-  "RulesTxtDeploymentService" should "provide the (common) rules.txt and a replace-rules.txt for LIVE" in {
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
-
-    deploymentDescriptor.solrIndexId shouldBe core1Id
-    deploymentDescriptor.regularRules.content should include ("aerosmith") // simply cross check content
-    deploymentDescriptor.regularRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp"
-    deploymentDescriptor.regularRules.destinationFileName shouldBe "/deployment-path-live/common-rules.txt"
-
-    val replaceRules = deploymentDescriptor.replaceRules.get
-    replaceRules.content should include ("freezer") // simply cross check content
-    replaceRules.sourceFileName shouldBe "/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp"
-    replaceRules.destinationFileName shouldBe "/deployment-path-live/replace-rules.txt"
     deploymentDescriptor.decompoundRules shouldBe None
   }
 
@@ -145,12 +109,8 @@ class RulesAndDecompoundTxtDeploymentConfigVariantSpec extends AnyFlatSpec with 
 
   override protected lazy val additionalAppConfig = Seq(
     "smui2solr.SRC_TMP_FILE" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp",
-    "smui2solr.DST_CP_FILE_TO" -> "/deployment-path-live/common-rules.txt",
     "toggle.rule-deployment.pre-live.present" -> true,
-    "smui2solr.deploy-prelive-fn-rules-txt" -> "/deployment-path-prelive/common-rules.txt",
-    "toggle.rule-deployment.split-decompound-rules-txt" -> true,
-    "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO" -> "/deployment-path-live/decompound-rules.txt",
-    "smui2solr.deploy-prelive-fn-decompound-txt" -> "/deployment-path-prelive/decompound-rules.txt"
+    "toggle.rule-deployment.split-decompound-rules-txt" -> true
   )
 
   override protected def beforeAll(): Unit = {
@@ -158,34 +118,17 @@ class RulesAndDecompoundTxtDeploymentConfigVariantSpec extends AnyFlatSpec with 
     createDecompoundRule()
   }
 
-  "RulesTxtDeploymentService" should "provide the (common) rules.txt and a decompound-rules.txt for PRELIVE" in {
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "PRELIVE", logDebug = false)
+  "RulesTxtDeploymentService" should "provide the (common) rules.txt and a decompound-rules.txt" in {
+    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
 
     deploymentDescriptor.solrIndexId shouldBe core1Id
     deploymentDescriptor.regularRules.content should include ("aerosmith") // simply cross check content
     deploymentDescriptor.regularRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp"
-    deploymentDescriptor.regularRules.destinationFileName shouldBe "/deployment-path-prelive/common-rules.txt"
     deploymentDescriptor.replaceRules shouldBe None
 
     val decompoundRules = deploymentDescriptor.decompoundRules.get
     decompoundRules.content should include ("damen")
     decompoundRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp-2" // auto generated (by spec)
-    decompoundRules.destinationFileName shouldBe "/deployment-path-prelive/decompound-rules.txt"
-  }
-
-  "RulesTxtDeploymentService" should "provide the (common) rules.txt and a decompound-rules.txt for LIVE" in {
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
-
-    deploymentDescriptor.solrIndexId shouldBe core1Id
-    deploymentDescriptor.regularRules.content should include ("aerosmith") // simply cross check content
-    deploymentDescriptor.regularRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp"
-    deploymentDescriptor.regularRules.destinationFileName shouldBe "/deployment-path-live/common-rules.txt"
-    deploymentDescriptor.replaceRules shouldBe None
-
-    val decompoundRules = deploymentDescriptor.decompoundRules.get
-    decompoundRules.content should include ("damen")
-    decompoundRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp-2" // auto generated (by spec)
-    decompoundRules.destinationFileName shouldBe "/deployment-path-live/decompound-rules.txt"
   }
 
 }
@@ -197,17 +140,11 @@ class RulesReplaceAndDecompoundTxtDeploymentConfigVariantSpec extends AnyFlatSpe
   override protected lazy val additionalAppConfig = Seq(
     // (common) rules.txt config
     "smui2solr.SRC_TMP_FILE" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp",
-    "smui2solr.DST_CP_FILE_TO" -> "/deployment-path-live/common-rules.txt",
     "toggle.rule-deployment.pre-live.present" -> true,
-    "smui2solr.deploy-prelive-fn-rules-txt" -> "/deployment-path-prelive/common-rules.txt",
     // replace-rules.txt config
     "smui2solr.replace-rules-tmp-file" -> "/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp",
-    "smui2solr.replace-rules-dst-cp-file-to" -> "/deployment-path-live/replace-rules.txt",
-    "smui2solr.deploy-prelive-fn-replace-txt" -> "/deployment-path-prelive/replace-rules.txt",
     // decompound-rules.txt config
-    "toggle.rule-deployment.split-decompound-rules-txt" -> true,
-    "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO" -> "/deployment-path-live/decompound-rules.txt",
-    "smui2solr.deploy-prelive-fn-decompound-txt" -> "/deployment-path-prelive/decompound-rules.txt"
+    "toggle.rule-deployment.split-decompound-rules-txt" -> true
   )
 
   override protected def beforeAll(): Unit = {
@@ -215,42 +152,20 @@ class RulesReplaceAndDecompoundTxtDeploymentConfigVariantSpec extends AnyFlatSpe
     createDecompoundRule()
   }
 
-  "RulesTxtDeploymentService" should "provide the (common) rules.txt, replace-rules.txt and a decompound-rules.txt for PRELIVE" in {
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "PRELIVE", logDebug = false)
+  "RulesTxtDeploymentService" should "provide the (common) rules.txt, replace-rules.txt and a decompound-rules.txt" in {
+    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
 
     deploymentDescriptor.solrIndexId shouldBe core1Id
     deploymentDescriptor.regularRules.content should include ("aerosmith") // simply cross check content
     deploymentDescriptor.regularRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp"
-    deploymentDescriptor.regularRules.destinationFileName shouldBe "/deployment-path-prelive/common-rules.txt"
 
     val replaceRules = deploymentDescriptor.replaceRules.get
     replaceRules.content should include ("freezer") // simply cross check content
     replaceRules.sourceFileName shouldBe "/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp"
-    replaceRules.destinationFileName shouldBe "/deployment-path-prelive/replace-rules.txt"
 
     val decompoundRules = deploymentDescriptor.decompoundRules.get
     decompoundRules.content should include ("damen")
     decompoundRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp-2" // auto generated (by spec)
-    decompoundRules.destinationFileName shouldBe "/deployment-path-prelive/decompound-rules.txt"
-  }
-
-  "RulesTxtDeploymentService" should "provide the (common) rules.txt, replace-rules.txt and a decompound-rules.txt for LIVE" in {
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
-
-    deploymentDescriptor.solrIndexId shouldBe core1Id
-    deploymentDescriptor.regularRules.content should include ("aerosmith") // simply cross check content
-    deploymentDescriptor.regularRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp"
-    deploymentDescriptor.regularRules.destinationFileName shouldBe "/deployment-path-live/common-rules.txt"
-
-    val replaceRules = deploymentDescriptor.replaceRules.get
-    replaceRules.content should include ("freezer") // simply cross check content
-    replaceRules.sourceFileName shouldBe "/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp"
-    replaceRules.destinationFileName shouldBe "/deployment-path-live/replace-rules.txt"
-
-    val decompoundRules = deploymentDescriptor.decompoundRules.get
-    decompoundRules.content should include ("damen")
-    decompoundRules.sourceFileName shouldBe "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp-2" // auto generated (by spec)
-    decompoundRules.destinationFileName shouldBe "/deployment-path-live/decompound-rules.txt"
   }
 
 }
@@ -266,20 +181,11 @@ class RulesTxtDeploymentRegularTargetSpec extends AnyFlatSpec with Matchers with
   override protected lazy val additionalAppConfig = Seq(
     // (common) rules.txt config
     "smui2solr.SRC_TMP_FILE" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp",
-    "smui2solr.DST_CP_FILE_TO" -> "/deployment-path-live/common-rules.txt",
     "toggle.rule-deployment.pre-live.present" -> true,
-    "smui2solr.deploy-prelive-fn-rules-txt" -> "/deployment-path-prelive/common-rules.txt",
     // replace-rules.txt config
     "smui2solr.replace-rules-tmp-file" -> "/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp",
-    "smui2solr.replace-rules-dst-cp-file-to" -> "/deployment-path-live/replace-rules.txt",
-    "smui2solr.deploy-prelive-fn-replace-txt" -> "/deployment-path-prelive/replace-rules.txt",
     // decompound-rules.txt config
     "toggle.rule-deployment.split-decompound-rules-txt" -> true,
-    "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO" -> "/deployment-path-live/decompound-rules.txt",
-    "smui2solr.deploy-prelive-fn-decompound-txt" -> "/deployment-path-prelive/decompound-rules.txt",
-    // Solr host config complete
-    "smui2solr.SOLR_HOST" -> "live.solr.instance:8983",
-    "smui2solr.deploy-prelive-solr-host" -> "prelive.solr.instance:8983",
     // test script
     "toggle.rule-deployment.custom-script" -> true,
     "toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH" -> "test/resources/smui2test.sh"
@@ -291,32 +197,24 @@ class RulesTxtDeploymentRegularTargetSpec extends AnyFlatSpec with Matchers with
   }
 
   "interfaceSmui2SolrSh" should "interface the test script should return all rules.txts for PRELIVE" in {
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "PRELIVE", logDebug = false)
+    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
     val res = service.executeDeploymentScript(deploymentDescriptor, "PRELIVE")
     res.success shouldBe true
     res.output shouldBe s"""$$1 = >>>/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp
-                           |$$2 = >>>/deployment-path-prelive/common-rules.txt
-                           |$$3 = >>>prelive.solr.instance:8983
+                           |$$2 = >>>/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp
+                           |$$3 = >>>PRELIVE
                            |$$4 = >>>core1
-                           |$$5 = >>>/deployment-path-prelive/decompound-rules.txt
-                           |$$6 = >>>PRELIVE
-                           |$$7 = >>>/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp
-                           |$$8 = >>>/deployment-path-prelive/replace-rules.txt
                            |""".stripMargin
   }
 
   "interfaceSmui2SolrSh" should "interface the test script should return all rules.txts for LIVE" in {
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
+    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
     val res = service.executeDeploymentScript(deploymentDescriptor, "LIVE")
     res.success shouldBe true
     res.output shouldBe s"""$$1 = >>>/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp
-                           |$$2 = >>>/deployment-path-live/common-rules.txt
-                           |$$3 = >>>live.solr.instance:8983
+                           |$$2 = >>>/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp
+                           |$$3 = >>>LIVE
                            |$$4 = >>>core1
-                           |$$5 = >>>/deployment-path-live/decompound-rules.txt
-                           |$$6 = >>>LIVE
-                           |$$7 = >>>/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp
-                           |$$8 = >>>/deployment-path-live/replace-rules.txt
                            |""".stripMargin
   }
 
@@ -328,24 +226,16 @@ class RulesTxtDeploymentGitTargetSpec extends AnyFlatSpec with Matchers with Com
 
   override protected lazy val additionalAppConfig = Seq(
     // switch to GIT for LIVE deployment
-    "smui2solr.DST_CP_FILE_TO" -> "GIT",
+    "toggle.rule-deployment.git.enable" -> true,
     "smui.deployment.git.repo-url" -> "ssh://git@changed-git-server.tld/repos/smui_rulestxt_repo.git",
     "smui2solr.deployment.git.filename.common-rules-txt" -> "common-rules.txt",
     // (common) rules.txt config
     "smui2solr.SRC_TMP_FILE" -> "/changed-common-rules-temp-path/search-management-ui_rules-txt.tmp",
     "toggle.rule-deployment.pre-live.present" -> true,
-    "smui2solr.deploy-prelive-fn-rules-txt" -> "/deployment-path-prelive/common-rules.txt",
     // replace-rules.txt config
     "smui2solr.replace-rules-tmp-file" -> "/changed-replace-rules-temp-path/search-management-ui_replace-rules-txt.tmp",
-    "smui2solr.replace-rules-dst-cp-file-to" -> "/deployment-path-live/replace-rules.txt",
-    "smui2solr.deploy-prelive-fn-replace-txt" -> "/deployment-path-prelive/replace-rules.txt",
     // decompound-rules.txt config
-    "toggle.rule-deployment.split-decompound-rules-txt" -> true,
-    "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO" -> "/deployment-path-live/decompound-rules.txt",
-    "smui2solr.deploy-prelive-fn-decompound-txt" -> "/deployment-path-prelive/decompound-rules.txt",
-    // Solr host config complete
-    "smui2solr.SOLR_HOST" -> "live.solr.instance:8983",
-    "smui2solr.deploy-prelive-solr-host" -> "prelive.solr.instance:8983"
+    "toggle.rule-deployment.split-decompound-rules-txt" -> true
   )
 
   override protected def beforeAll(): Unit = {
@@ -358,7 +248,7 @@ class RulesTxtDeploymentGitTargetSpec extends AnyFlatSpec with Matchers with Com
 
   "interfaceSmui2GitSh" should "interface the test script should return all rules.txts for LIVE" in {
 
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
+    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
     val res = service.executeDeploymentScript(deploymentDescriptor, "LIVE")
 
     // TODO script result itself failed - this is cheesy, but cristal clear, as we don't have a local git server running or a test script instead
@@ -375,14 +265,13 @@ class RulesTxtDeploymentGitTargetSpec extends AnyFlatSpec with Matchers with Com
 
   "interfacing git configured SMUI" should "stick with file copy deployment configuration PRELIVE" in {
 
-    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, "PRELIVE", logDebug = false)
+    val deploymentDescriptor = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
     val res = service.executeDeploymentScript(deploymentDescriptor, "PRELIVE")
 
     // TODO script result itself failed - this is cheesy, but cristal clear, as we don't have a local git server running or a test script instead
 
-    res.output should include ("/deployment-path-prelive/common-rules.txt")
-    res.output should include ("/deployment-path-prelive/replace-rules.txt")
-    res.output should include ("/deployment-path-prelive/decompound-rules.txt")
+    res.exitCode shouldBe -1
+    res.output shouldBe "Git deployment only support for LIVE target"
 
     // TODO As of v3.11.7 there is no option:
     // TODO ... to deploy to different git hosts / repos / branches (it all makes sense)
