@@ -1,7 +1,7 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "4.3.0"
+version := "4.3.1"
 maintainer := "Contact productful.io <hello@productful.io>"
 
 scalaVersion := "2.13.14"
@@ -40,7 +40,7 @@ resolvers ++= Seq(
 )
 
 lazy val JacksonVersion = "2.15.2"
-lazy val Pac4jVersion = "6.0.4"
+lazy val Pac4jVersion = "6.1.0"
 
 lazy val JacksonCoreExclusion     = ExclusionRule(organization = "com.fasterxml.jackson.core")
 
