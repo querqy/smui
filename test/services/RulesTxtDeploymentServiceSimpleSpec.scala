@@ -53,21 +53,19 @@ class RulesTxtDeploymentServiceSpec extends AnyFlatSpec with Matchers with Appli
        |mechine => machine""".stripMargin
 
   "RulesTxtDeploymentService" should "generate rules files with correct file names" in {
-    val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
+    val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
     rulesTxt.solrIndexId shouldBe core1Id
     rulesTxt.decompoundRules shouldBe empty
     rulesTxt.regularRules.content.trim shouldBe rulesFileContent(inputIds)
 
     rulesTxt.regularRules.sourceFileName shouldBe "/tmp/search-management-ui_rules-txt.tmp"
-    rulesTxt.regularRules.destinationFileName shouldBe "/usr/bin/solr/liveCore/conf/rules.txt"
 
     rulesTxt.replaceRules.get.content.trim shouldBe replaceRulesFileContent()
     rulesTxt.replaceRules.get.sourceFileName shouldBe "/tmp/search-management-ui_replace-rules-txt.tmp"
-    rulesTxt.replaceRules.get.destinationFileName shouldBe "/usr/bin/solr/liveCore/conf/replace-rules.txt"
   }
 
   it should "validate the rules files correctly" in {
-    val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, "LIVE", logDebug = false)
+    val rulesTxt = service.generateRulesTxtContentWithFilenames(core1Id, logDebug = false)
     service.validateCompleteRulesTxts(rulesTxt, logDebug = false) shouldBe empty
 
     val badRulesTxt = rulesTxt.copy(regularRules = rulesTxt.regularRules.copy(content = "a very bad rules file"))

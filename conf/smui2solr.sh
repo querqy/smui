@@ -2,86 +2,135 @@
 
 set -euo pipefail
 
-SRC_TMP_FILE=$1
-DST_CP_FILE_TO=$2
-SOLR_HOST=$3
-SOLR_CORE_NAME=$4
-DECOMPOUND_DST_CP_FILE_TO=$5
-TARGET_SYSTEM=$6
-REPLACE_RULES_SRC_TMP_FILE=$7
-REPLACE_RULES_DST_CP_FILE_TO=$8
+# Expected command line parameters
+common_rules_file=$1
+decompound_rules_file="${common_rules_file}-2"
+replace_rules_file=$2
+target_system=$3
+solr_core_or_collection_name=$4
 
-echo "In smui2solr.sh - script performing rules.txt update and core reload"
-echo "^-- SRC_TMP_FILE = $SRC_TMP_FILE"
-echo "^-- DST_CP_FILE_TO = $DST_CP_FILE_TO"
-echo "^-- SOLR_HOST = $SOLR_HOST"
-echo "^-- SOLR_CORE_NAME: $SOLR_CORE_NAME"
-echo "^-- DECOMPOUND_DST_CP_FILE_TO = $DECOMPOUND_DST_CP_FILE_TO"
-echo "^-- TARGET_SYSTEM = $TARGET_SYSTEM"
-echo "^-- REPLACE_RULES_SRC_TMP_FILE = $REPLACE_RULES_SRC_TMP_FILE"
-echo "^-- REPLACE_RULES_DST_CP_FILE_TO = $REPLACE_RULES_DST_CP_FILE_TO"
+# Read in environment variables
+
+# Querqy rewriter names for rules, (optionally when exported separately) the decompound rules and spelling/replacement rules
+common_rules_rewriter_name="${SMUI_QUERQY_REWRITER_COMMON_RULES:-common_rules}"
+common_rules_decompound_rewriter_name="${SMUI_QUERQY_REWRITER_COMMON_RULES_DECOMPOUND:-common_rules_decompound}"
+replace_rules_rewriter_name="${SMUI_QUERQY_REWRITER_REPLACE:-replace_rules}"
+
+# (legacy) the live Solr host the rules should be deployed to
+SMUI_2SOLR_SOLR_HOST=${SMUI_2SOLR_SOLR_HOST:-}
+
+# (alternatively) the live Solr host the rules should be deployed to
+SMUI_DEPLOY_LIVE_SOLR_HOST=${SMUI_DEPLOY_LIVE_SOLR_HOST:-}
+
+# (optional, if basic authentication is used): Solr user for non-prelive deployment
+SMUI_DEPLOY_LIVE_SOLR_USER=${SMUI_DEPLOY_LIVE_SOLR_USER:-}
+
+# (optional, if basic authentication is used): Solr password for non-prelive deployment
+SMUI_DEPLOY_LIVE_SOLR_PASSWORD=${SMUI_DEPLOY_LIVE_SOLR_PASSWORD:-}
+
+# (optional): whether certificate validation should be turned off when connecting to (live) Solr host
+SMUI_DEPLOY_LIVE_SOLR_ALLOW_INSECURE=${SMUI_DEPLOY_LIVE_SOLR_ALLOW_INSECURE:-}
+
+# (optional, if PRELIVE is used as a deployment target): the prelive Solr host the rules should be deployed to
+SMUI_DEPLOY_PRELIVE_SOLR_HOST=${SMUI_DEPLOY_PRELIVE_SOLR_HOST:-}
+
+# (optional, if basic authentication is used): Prelive Solr user
+SMUI_DEPLOY_PRELIVE_SOLR_USER=${SMUI_DEPLOY_PRELIVE_SOLR_USER:-}
+
+# (optional, if basic authentication is used): Prelive Solr user
+SMUI_DEPLOY_PRELIVE_SOLR_PASSWORD=${SMUI_DEPLOY_PRELIVE_SOLR_PASSWORD:-}
+
+# (optional): whether certificate validation should be turned off when connecting to prelive Solr host
+SMUI_DEPLOY_PRELIVE_SOLR_ALLOW_INSECURE=${SMUI_DEPLOY_PRELIVE_SOLR_ALLOW_INSECURE:-}
+
+# Solr (basic) authentication
+solr_host=""
+solr_basic_auth_user=""
+solr_basic_auth_password=""
+curl_solr_insecure_flag=""
+
+if [ "${target_system}" == "PRELIVE" ] ;
+then
+  solr_host="${SMUI_DEPLOY_PRELIVE_SOLR_HOST:-}"
+  if [ -n "${SMUI_DEPLOY_PRELIVE_SOLR_USER}" ] && [ -n "${SMUI_DEPLOY_PRELIVE_SOLR_PASSWORD}" ]; then
+    solr_basic_auth_user=${SMUI_DEPLOY_PRELIVE_SOLR_USER}
+    solr_basic_auth_password=${SMUI_DEPLOY_PRELIVE_SOLR_PASSWORD}
+  fi
+  if [ "${SMUI_DEPLOY_PRELIVE_SOLR_ALLOW_INSECURE,,}" == "true" ] ;
+  then
+    curl_solr_insecure_flag="--insecure"
+  fi
+fi
+
+if [ "${target_system}" == "LIVE" ] ;
+then
+  solr_host="${SMUI_2SOLR_SOLR_HOST:-${SMUI_DEPLOY_LIVE_SOLR_HOST:-}}"
+  if [ -n "${SMUI_DEPLOY_LIVE_SOLR_USER}" ] && [ -n "${SMUI_DEPLOY_LIVE_SOLR_PASSWORD}" ]; then
+    solr_basic_auth_user=${SMUI_DEPLOY_LIVE_SOLR_USER}
+    solr_basic_auth_password=${SMUI_DEPLOY_LIVE_SOLR_PASSWORD}
+  fi
+  if [ "${SMUI_DEPLOY_LIVE_SOLR_ALLOW_INSECURE,,}" == "true" ] ;
+  then
+    curl_solr_insecure_flag="--insecure"
+  fi
+fi
+
+save_rewriter() {
+  local querqy_rewriter_name="$1"
+  local querqy_rewriter_data="$2"
+
+  # read into array
+  IFS=' ' read -r -a curl_command <<< "curl -X POST -H \"Content-Type: application/json\" --fail"
+
+  # add payload
+  curl_command+=("-d" "${querqy_rewriter_data}")
+
+  # optional basic auth username + password and curl --insecure flag
+  if [ -n "${solr_basic_auth_user}" ] && [ -n "${solr_basic_auth_password}" ]; then
+    curl_command+=("--user" "${solr_basic_auth_user}:${solr_basic_auth_password}")
+  fi
+  if [ -n "${curl_solr_insecure_flag:-}" ]; then
+    curl_command+=("${curl_solr_insecure_flag}")
+  fi
+
+  # add url
+  curl_command+=("${solr_host}/solr/${solr_core_or_collection_name}/querqy/rewriter/${querqy_rewriter_name}?action=save")
+
+  echo "${curl_command[@]}"
+
+  "${curl_command[@]}"
+}
+
+echo "In smui2solr.sh - script for updating rules in Solr using an API call to the Querqy (>=v5) plugin "
+echo "^-- common_rules_file = ${common_rules_file}"
+echo "^-- decompound_rules_file = ${common_rules_file}-2"
+echo "^-- solr_host = ${solr_host}"
+echo "^-- target_system: ${target_system}"
+echo "^-- solr_core_or_collection_name = ${solr_core_or_collection_name}"
 
 # DEPLOYMENT
 #####
 
-echo "^-- Perform rules.txt deployment (decompound-rules.txt eventually)"
-
-# $1 - from_filename
-# $2 - to_filename (might be local or remote)
-function deploy_rules_txt {
-	# e.g.: remote_user:remote_pass@remote_host:/path/to/live/solr/defaultCore/conf/rules.txt
-	if [[ $2 =~ (.*):(.*)@(.*) ]]
-	then
-		echo "^-- ... matched remote target (regex). proceeding with remote copy ..."
-		sshpass -p "${BASH_REMATCH[2]}" scp -v -o StrictHostKeyChecking=no $1 ${BASH_REMATCH[1]}@${BASH_REMATCH[3]}
-	else
-		echo "^-- ... no match (regex). proceeding with regular cp ..."
-		cp $1 $2
-	fi
-}
-
-echo "^-- ... rules.txt"
-deploy_rules_txt $SRC_TMP_FILE $DST_CP_FILE_TO
-
-echo "^-- ... decompound-rules.txt"
-if ! [[ $DECOMPOUND_DST_CP_FILE_TO == "NONE" ]]
-then
-    deploy_rules_txt "$SRC_TMP_FILE-2" $DECOMPOUND_DST_CP_FILE_TO
+# common rules
+if [ -s "${common_rules_file}" ] && [ -n "${common_rules_rewriter_name}" ]; then
+  # build the rewriter request payload by embedding the rules text into JSON
+  common_rules_rewriter_data=$(jq -Rs '{class: "querqy.solr.rewriter.commonrules.CommonRulesRewriterFactory", config: { rules: . }}' "${common_rules_file}")
+  echo "Deploying common rules for core ${solr_core_or_collection_name} to rewriter ${common_rules_rewriter_name} at ${solr_host}..."
+  save_rewriter "${common_rules_rewriter_name}" "${common_rules_rewriter_data}"
 fi
 
-echo "^-- ... replace-rules.txt"
-if ! [[ $REPLACE_RULES_SRC_TMP_FILE == "NONE" && $REPLACE_RULES_DST_CP_FILE_TO == "NONE" ]]
-then
-    deploy_rules_txt $REPLACE_RULES_SRC_TMP_FILE $REPLACE_RULES_DST_CP_FILE_TO
+# optional: decompound rules to a separate common rules rewriter
+if [ -s "${decompound_rules_file}" ] && [ -n "${common_rules_decompound_rewriter_name}" ]; then
+  common_rules_decompound_rewriter_data=$(jq -Rs '{class: "querqy.solr.rewriter.commonrules.CommonRulesRewriterFactory", config: { rules: . }}' "${decompound_rules_file}")
+  echo "Deploying decompound common rules for core ${solr_core_or_collection_name} to rewriter ${common_rules_decompound_rewriter_name} at ${solr_host}..."
+  save_rewriter "${common_rules_decompound_rewriter_name}" "${common_rules_decompound_rewriter_data}"
 fi
 
-# CORE RELOAD
-#####
-
-echo "^-- Perform core reload for SOLR_HOST = $SOLR_HOST, SOLR_CORE_NAME = $SOLR_CORE_NAME"
-
-if ! [[ $SOLR_HOST == "NONE" ]]
-then
-	# TODO only core reload over http possible. make configurable.
-	SOLR_STATUS=$(curl -s -i -XGET "http://$SOLR_HOST/solr/admin/cores?wt=xml&action=RELOAD&core=$SOLR_CORE_NAME")
-
-	if [ $? -ne 0 ]; then
-		exit 16
-	fi
-
-	if ! [[ $SOLR_STATUS ==  *"200 OK"* ]]
-	then
-		>&2 echo "Error reloading Solr core: $SOLR_STATUS"
-		exit 17
-	fi
-
-	if ! [[ $SOLR_STATUS ==  *"<int name=\"status\">0</int>"* ]]
-	then
-		>&2 echo "Error reloading Solr core: $SOLR_STATUS"
-		exit 18
-	fi
+# deploy replace / spelling correction rules to a separate replace rewriter if they exist
+if [ -s "${replace_rules_file}" ] && [ -n "${replace_rules_rewriter_name}" ]; then
+  replace_rules_rewriter_data=$(jq -Rs '{class: "querqy.solr.rewriter.replace.ReplaceRewriterFactory", config: { ignoreCase: true, inputDelimiter: ";", rules: . }}' "${replace_rules_file}")
+  echo "Deploying replace rules for core ${solr_core_or_collection_name} to rewriter ${replace_rules_rewriter_name} at ${solr_host}..."
+  save_rewriter "${replace_rules_rewriter_name}" "${replace_rules_rewriter_data}"
 fi
 
-# all ok
-echo "smui2solr.sh - ok"
-exit 0
+echo "Done"

@@ -1,10 +1,10 @@
 import com.typesafe.sbt.GitBranchPrompt
 
 name := "search-management-ui"
-version := "4.3.1"
+version := "4.4.0"
 maintainer := "Contact productful.io <hello@productful.io>"
 
-scalaVersion := "2.13.14"
+scalaVersion := "2.13.15"
 
 ThisBuild / evictionErrorLevel := Level.Info
 

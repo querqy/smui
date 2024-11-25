@@ -326,7 +326,7 @@ class ApiController @Inject()(val controllerComponents: SecurityComponents,
     logger.debug("In ApiController :: updateRulesTxtForSolrIndexAndTargetPlatform")
 
     // generate rules.txt(s)
-    val rulesFiles = rulesTxtDeploymentService.generateRulesTxtContentWithFilenames(SolrIndexId(solrIndexId), targetSystem)
+    val rulesFiles = rulesTxtDeploymentService.generateRulesTxtContentWithFilenames(SolrIndexId(solrIndexId))
 
     // validate every generated rules.txt
     rulesTxtDeploymentService.validateCompleteRulesTxts(rulesFiles) match {

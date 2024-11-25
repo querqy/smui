@@ -50,10 +50,10 @@ package object FeatureToggleModel extends Logging {
     private val FEATURE_TOGGLE_UI_LIST_LIMIT_ITEMS_TO = "toggle.ui-list.limit-items-to"
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_LOG_RULE_ID = "toggle.rule-deployment.log-rule-id"
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT = "toggle.rule-deployment.split-decompound-rules-txt"
-    private val FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO = "toggle.rule-deployment.split-decompound-rules-txt-DST_CP_FILE_TO"
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_PRE_LIVE_PRESENT = "toggle.rule-deployment.pre-live.present"
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT = "toggle.rule-deployment.custom-script"
     private val FEATURE_TOGGLE_RULE_DEPLOYMENT_CUSTOM_SCRIPT_SMUI2SOLR_SH_PATH = "toggle.rule-deployment.custom-script-SMUI2SOLR-SH_PATH"
+    private val FEATURE_TOGGLE_RULE_DEPLOYMENT_ENABLE_GIT = "toggle.rule-deployment.git.enable"
     private val FEATURE_TOGGLE_HEADLINE = "toggle.headline"
     private val FEATURE_TOGGLE_DEPLOYMENT_LABEL = "toggle.rule-deployment-label"
     private val FEATURE_TOGGLE_DEPLOYMENT_PRELIVE_LABEL = "toggle.deploy-prelive-fn-label"
@@ -173,16 +173,16 @@ package object FeatureToggleModel extends Logging {
       )
     }
 
+    def getToggleRuleDeploymentGitEnabled: Boolean = {
+      appConfig.getOptional[Boolean](FEATURE_TOGGLE_RULE_DEPLOYMENT_ENABLE_GIT).getOrElse(false)
+    }
+
     def getToggleRuleDeploymentLogRuleId: Boolean = {
       appConfig.getOptional[Boolean](FEATURE_TOGGLE_RULE_DEPLOYMENT_LOG_RULE_ID).getOrElse(false)
     }
 
     def getToggleRuleDeploymentSplitDecompoundRulesTxt: Boolean = {
       appConfig.getOptional[Boolean](FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT).getOrElse(false)
-    }
-
-    def getToggleRuleDeploymentSplitDecompoundRulesTxtDstCpFileTo: String = {
-      appConfig.getOptional[String](FEATURE_TOGGLE_RULE_DEPLOYMENT_SPLIT_DECOMPOUND_RULES_TXT_DST_CP_FILE_TO).getOrElse("")
     }
 
     def getToggleRuleDeploymentCustomScript: Boolean = {
