@@ -45,6 +45,13 @@
       >
         <i class="fa fa-plus" aria-hidden="true"></i> New
       </button>
+      <button
+        class="btn btn-success create-button"
+        type="button"
+        (click)="openFileModal()"
+      >
+        <i class="fa fa-upload" aria-hidden="true"></i> Import
+      </button>
     </span>
   </div>
 </app-smui-card>
@@ -75,5 +82,42 @@
     >
       <i class="fa fa-list smui-icon"></i>Rule Management
     </button>
+  </div>
+</app-smui-modal>
+<app-smui-modal
+  id="file-import"
+  title="Import rules from CSV"
+>
+  <div content>
+    <p>
+      Your csv must be in the following format (do not include the header row)
+    </p>
+    <table class="table">
+      <thead class="thead-dark">
+        <tr>
+          <th>search term</th>
+          <th>synonym</th>
+          <th>comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>boot</td>
+          <td>shoe</td>
+          <td>Requested by footware</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div footer class="btn-toolbar">
+    <div class="custom-file">
+      <input
+        type="file"
+        class="custom-file-input"
+        id="customFile"
+        (change)="fileSelect($event)"
+      >
+      <label class="custom-file-label" for="customFile">Choose file</label>
+    </div>
   </div>
 </app-smui-modal>

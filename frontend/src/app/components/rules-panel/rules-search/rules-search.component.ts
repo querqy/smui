@@ -14,6 +14,7 @@ import {
   SpellingsService,
   TagsService
 } from '../../../services';
+import Papa from 'papaparse';
 import {InputTag, ListItem} from '../../../models';
 
 @Component({
@@ -65,6 +66,48 @@ export class RulesSearchComponent implements OnChanges {
     });
   }
 
+  openFileModal(): void {
+    this.modalService.open('file-import');
+  }
+
+  fileSelect(event: Event): void {
+    const element = event.currentTarget as HTMLInputElement;
+    const file = element?.files?.[0];
+    Papa.parse(file, {
+      complete: (results) => {
+        const ruleCreations = results
+          .data.filter(row => row.length === 3)
+          .map(row => {
+            console.log({row});
+            this.ruleManagementService
+              .addNewRuleItem(this.currentSolrIndexId, row[0], [])
+              .then(ruleId => {
+                console.log(ruleId);
+                this.ruleManagementService.updateSearchInput({
+                  id: ruleId.returnId,
+                  term: row[0],
+                  synonymRules: [{term: row[1], isActive: true, synonymType: 0, id: this.randomUUID()}],
+                  isActive: true,
+                  redirectRules: [],
+                  deleteRules: [],
+                  filterRules: [],
+                  tags: [],
+                  upDownRules: [],
+                  comment: row[2],
+                  term: row[0]
+                })
+                  .then(ruleId =>
+                    this.refreshAndSelectListItemById.emit(ruleId.returnId)
+                  );
+              })
+          });
+        Promise.all(ruleCreations).then(
+          () => this.modalService.close('file-import')
+        );
+      }
+    });
+  }
+
   createNewSpellingItem() {
     if (this.currentSolrIndexId) {
       this.spellingsService
@@ -76,6 +119,16 @@ export class RulesSearchComponent implements OnChanges {
         .then(() => this.modalService.close('create-modal'))
         .catch(error => this.showErrorMsg.emit(error.error.message));
     }
+  }
+
+  private randomUUID() {
+    /* eslint-disable */
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = (Math.random() * 16) | 0,
+        v = c == 'x' ? r : (r & 0x3) | 0x8
+      return v.toString(16)
+    })
+    /* eslint-enable */
   }
 
   createNewRuleItem() {

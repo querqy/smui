@@ -100,7 +100,7 @@ import {
     SuggestedFieldsComponent,
     SuggestedFieldsCreateComponent,
     SuggestedFieldsListComponent,
-    PreviewLinkComponent
+    PreviewLinkComponent,
   ],
   providers: [
     CommonsService,
