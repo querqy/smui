@@ -88,12 +88,17 @@ export class RulesSearchComponent implements OnChanges {
                   });
               });
           }, Promise.resolve());
-        ruleCreations.then(
-          () => {
-            this.modalService.close('file-import')
-            this.refreshAndSelectListItemById.emit(searchInputs[0].id);
-          }
-        );
+        ruleCreations
+          .then(
+            () => {
+              this.modalService.close('file-import')
+              this.refreshAndSelectListItemById.emit(searchInputs[0].id);
+            }
+          )
+          .error(err => this.showErrorMsg.emit(err.message));
+      },
+      error: (err, file, inputElem, reason) => {
+        this.showErrorMsg.emit(err);
       }
     });
   }
