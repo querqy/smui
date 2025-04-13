@@ -78,26 +78,20 @@ export class RulesSearchComponent implements OnChanges {
       complete: (results) => {
         const searchInputs = rowsToSearchInputs(results.data);
         const ruleCreations = searchInputs
-          .map(searchInput => {
-            return this.ruleManagementService.addNewRuleItem(this.currentSolrIndexId, searchInput.term, [])
-            .then(inputId => {
-              searchInput.id = inputId.returnId;
-              return this.ruleManagementService.updateSearchInput(searchInput)
-            })
-            .then(() => new Promise((resolve, reject) => setTimeout(resolve, 100)));
-          });
-
-        // save all rules syncronously (there seems to be an issue with saving rules in parallel)
-        ruleCreations.reduce(
-          (promiseChain, creation) => promiseChain.then(creation),
-          Promise.resolve()
-        ).then(
+          .reduce((chain, searchInput) => {
+            return chain
+              .then(() => {
+                return this.ruleManagementService.addNewRuleItem(this.currentSolrIndexId, searchInput.term, [])
+                  .then(inputId => {
+                    searchInput.id = inputId.returnId;
+                    return this.ruleManagementService.updateSearchInput(searchInput)
+                  });
+              });
+          }, Promise.resolve());
+        ruleCreations.then(
           () => {
             this.modalService.close('file-import')
-            // wait for all rules to be persisted before refreshing list to ensure correct state
-            setTimeout(() => {
-              this.refreshAndSelectListItemById.emit(searchInputs[0].id);
-            }, 1000);
+            this.refreshAndSelectListItemById.emit(searchInputs[0].id);
           }
         );
       }
