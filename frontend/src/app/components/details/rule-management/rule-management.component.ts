@@ -27,6 +27,7 @@ import {
   UpDownRule,
   PreviewSection
 } from '../../../models';
+import {randomUUID} from '../../../lib/uuid';
 import {
   CommonsService,
   FeatureToggleService,
@@ -284,7 +285,7 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     console.log('In SearchInputDetailComponent :: addNewSynonym');
 
     const emptySynonymRule: SynonymRule = {
-      id: this.randomUUID(),
+      id: randomUUID(),
       synonymType: 0,
       term: '',
       isActive: true
@@ -558,17 +559,6 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     }
 
     return idxMinimumDistance;
-  }
-
-  // taken from https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-  private randomUUID() {
-    /* eslint-disable */
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = (Math.random() * 16) | 0,
-        v = c == 'x' ? r : (r & 0x3) | 0x8
-      return v.toString(16)
-    })
-    /* eslint-enable */
   }
 
   private updateSelectedTagsInModel() {

@@ -16,6 +16,7 @@ import {
 } from '../../../services';
 import Papa from 'papaparse';
 import {InputTag, ListItem} from '../../../models';
+import {rowsToSearchInputs} from '../../../lib/csv';
 
 @Component({
   selector: 'app-smui-rules-search',
@@ -75,34 +76,29 @@ export class RulesSearchComponent implements OnChanges {
     const file = element?.files?.[0];
     Papa.parse(file, {
       complete: (results) => {
-        const ruleCreations = results
-          .data.filter(row => row.length === 3)
-          .map(row => {
-            console.log({row});
-            this.ruleManagementService
-              .addNewRuleItem(this.currentSolrIndexId, row[0], [])
-              .then(ruleId => {
-                console.log(ruleId);
-                this.ruleManagementService.updateSearchInput({
-                  id: ruleId.returnId,
-                  term: row[0],
-                  synonymRules: [{term: row[1], isActive: true, synonymType: 0, id: this.randomUUID()}],
-                  isActive: true,
-                  redirectRules: [],
-                  deleteRules: [],
-                  filterRules: [],
-                  tags: [],
-                  upDownRules: [],
-                  comment: row[2],
-                  term: row[0]
-                })
-                  .then(ruleId =>
-                    this.refreshAndSelectListItemById.emit(ruleId.returnId)
-                  );
-              })
+        const searchInputs = rowsToSearchInputs(results.data);
+        const ruleCreations = searchInputs
+          .map(searchInput => {
+            return this.ruleManagementService.addNewRuleItem(this.currentSolrIndexId, searchInput.term, [])
+            .then(inputId => {
+              searchInput.id = inputId.returnId;
+              return this.ruleManagementService.updateSearchInput(searchInput)
+            })
+            .then(() => new Promise((resolve, reject) => setTimeout(resolve, 100)));
           });
-        Promise.all(ruleCreations).then(
-          () => this.modalService.close('file-import')
+
+        // save all rules syncronously (there seems to be an issue with saving rules in parallel)
+        ruleCreations.reduce(
+          (promiseChain, creation) => promiseChain.then(creation),
+          Promise.resolve()
+        ).then(
+          () => {
+            this.modalService.close('file-import')
+            // wait for all rules to be persisted before refreshing list to ensure correct state
+            setTimeout(() => {
+              this.refreshAndSelectListItemById.emit(searchInputs[0].id);
+            }, 1000);
+          }
         );
       }
     });
@@ -119,16 +115,6 @@ export class RulesSearchComponent implements OnChanges {
         .then(() => this.modalService.close('create-modal'))
         .catch(error => this.showErrorMsg.emit(error.error.message));
     }
-  }
-
-  private randomUUID() {
-    /* eslint-disable */
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = (Math.random() * 16) | 0,
-        v = c == 'x' ? r : (r & 0x3) | 0x8
-      return v.toString(16)
-    })
-    /* eslint-enable */
   }
 
   createNewRuleItem() {
