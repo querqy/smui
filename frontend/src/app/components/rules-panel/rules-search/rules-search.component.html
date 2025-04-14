@@ -89,6 +89,15 @@
   title="Import rules from CSV"
 >
   <div content>
+    <div class="progress" *ngIf="progress">
+      <div class="progress-bar"
+        [style.width.%]="progress"
+        [attr.aria-valuenow]="progress"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      ></div>
+    </div>
     <p>
       Your csv must be in the following format (do not include the header row)
     </p>

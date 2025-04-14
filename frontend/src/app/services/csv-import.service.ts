@@ -11,17 +11,22 @@ const fileImportModal = 'file-import';
 export class CSVImportService {
   constructor(private ruleManagementService: RuleManagementService, private modalService: ModalService) {}
 
-  import(file: File, indexId: string): Promise<ApiResult | null> {
+  import(file: File, indexId: string, progress: () => void): Promise<ApiResult | null> {
     return new Promise((resolve, reject) => {
       parse(file, {
         complete: (results: {data: string[][]}) => {
           const searchInputs = rowsToSearchInputs(results.data);
+          let i = 1;
           const ruleCreations: Promise<ApiResult | null> = searchInputs
             .reduce((chain: Promise<ApiResult | null>, searchInput): Promise<null | ApiResult> => {
               return chain
                 .then(() => {
                   return this.ruleManagementService.addNewRuleItem(indexId, searchInput.term, [])
                     .then(inputId => {
+                      const onePercent = 100 / (searchInputs.length);
+
+                      progress(onePercent * i);
+                      i ++;
                       searchInput.id = inputId.returnId;
                       return this.ruleManagementService.updateSearchInput(searchInput)
                     });

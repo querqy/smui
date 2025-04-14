@@ -4,7 +4,8 @@ import {
   Output,
   EventEmitter,
   OnChanges,
-  SimpleChanges
+  SimpleChanges,
+  ChangeDetectorRef
 } from '@angular/core';
 
 import {
@@ -37,6 +38,7 @@ export class RulesSearchComponent implements OnChanges {
   @Output() showErrorMsg: EventEmitter<string> = new EventEmitter();
 
   allTags: InputTag[] = [];
+  progress: number = 0;
   readonly isTaggingActive = this.featureToggleService.isRuleTaggingActive();
   private readonly isSpellingActive = this.featureToggleService.getSyncToggleActivateSpelling();
 
@@ -46,7 +48,8 @@ export class RulesSearchComponent implements OnChanges {
     private spellingsService: SpellingsService,
     private tagsService: TagsService,
     private modalService: ModalService,
-    private csvImportService: CSVImportService
+    private csvImportService: CSVImportService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -77,14 +80,25 @@ export class RulesSearchComponent implements OnChanges {
     if (element?.files?.length && this.currentSolrIndexId) {
       const files: FileList = element?.files;
       const file = element?.files?.[0];
-      const ruleCreations = this.csvImportService.import(file, this.currentSolrIndexId);
+      const ruleCreations = this.csvImportService.import(
+        file,
+        this.currentSolrIndexId,
+        (percentage) => {
+          this.progress = percentage;
+          this.cdr.detectChanges();
+        }
+      );
       ruleCreations
         .then(
           () => {
+            this.progress = 0;
             this.modalService.close(fileImportModal)
             this.refreshAndSelectListItemById.emit();
           }
-        ).catch(err => this.showErrorMsg.emit(err.message));
+        ).catch(err => {
+          this.showErrorMsg.emit(err.message)
+          this.progress = 0;
+        });
     }
   }
 
