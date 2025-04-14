@@ -14,7 +14,6 @@ export function rowsToSearchInputs(rows: string[][]): SearchInput[] {
   return rows
     .filter(row => row.length === 3)
     .reduce((searchInputs, row) => {
-      console.log(row);
       const [term, synonymTerm, comment] = row;
       const searchInput = searchInputs.find(searchInput => searchInput.term === term);
       if (!searchInput) {

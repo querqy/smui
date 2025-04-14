@@ -17,6 +17,7 @@ import {
 import Papa from 'papaparse';
 import {InputTag, ListItem} from '../../../models';
 import {rowsToSearchInputs} from '../../../lib/csv';
+const fileImportModal = 'file-import';
 
 @Component({
   selector: 'app-smui-rules-search',
@@ -68,7 +69,7 @@ export class RulesSearchComponent implements OnChanges {
   }
 
   openFileModal(): void {
-    this.modalService.open('file-import');
+    this.modalService.open(fileImportModal);
   }
 
   fileSelect(event: Event): void {
@@ -91,7 +92,7 @@ export class RulesSearchComponent implements OnChanges {
         ruleCreations
           .then(
             () => {
-              this.modalService.close('file-import')
+              this.modalService.close(fileImportModal)
               this.refreshAndSelectListItemById.emit(searchInputs[0].id);
             }
           )
