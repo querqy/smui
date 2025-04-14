@@ -93,7 +93,9 @@ export class RulesSearchComponent implements OnChanges {
           .then(
             () => {
               this.modalService.close(fileImportModal)
-              this.refreshAndSelectListItemById.emit(searchInputs[0].id);
+              if (searchInputs.length > 0) {
+                this.refreshAndSelectListItemById.emit(searchInputs[0].id);
+              }
             }
           )
           .error(err => this.showErrorMsg.emit(err.message));
