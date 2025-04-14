@@ -1,6 +1,7 @@
+import {SynonymRule, SearchInput} from '../models';
 import {randomUUID} from './uuid';
 
-function makeActiveSynonymTerm(synonymTerm) {
+function makeActiveSynonymTerm(synonymTerm: string): SynonymRule {
   return {
     term: synonymTerm,
     isActive: true,
@@ -33,5 +34,5 @@ export function rowsToSearchInputs(rows: string[][]): SearchInput[] {
         searchInput.synonymRules.push(makeActiveSynonymTerm(synonymTerm))
       }
       return searchInputs;
-     }, []);
+     }, [] as SearchInput[]);
 }
