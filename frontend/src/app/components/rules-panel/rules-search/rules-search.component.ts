@@ -15,9 +15,7 @@ import {
   TagsService,
   CSVImportService
 } from '../../../services';
-import {parse} from 'papaparse';
 import {InputTag, ListItem, ApiResult} from '../../../models';
-import {rowsToSearchInputs} from '../../../lib/csv';
 const fileImportModal = 'file-import';
 
 @Component({
@@ -79,37 +77,14 @@ export class RulesSearchComponent implements OnChanges {
     if (element?.files?.length && this.currentSolrIndexId) {
       const files: FileList = element?.files;
       const file = element?.files?.[0];
-      parse(file, {
-        complete: (results: {data: string[][]}) => {
-          this.csvImportService.import();
-          const searchInputs = rowsToSearchInputs(results.data);
-          const ruleCreations: Promise<ApiResult | null> = searchInputs
-            .reduce((chain: Promise<ApiResult | null>, searchInput): Promise<null | ApiResult> => {
-              return chain
-                .then(() => {
-                  return this.ruleManagementService.addNewRuleItem(this.currentSolrIndexId as string, searchInput.term, [])
-                    .then(inputId => {
-                      searchInput.id = inputId.returnId;
-                      return this.ruleManagementService.updateSearchInput(searchInput)
-                    });
-                });
-            }, Promise.resolve(null));
-          ruleCreations
-            .then(
-              () => {
-                this.modalService.close(fileImportModal)
-                if (searchInputs.length > 0) {
-                  this.refreshAndSelectListItemById.emit(searchInputs[0].id);
-                }
-              }
-            )
-            .catch(err => this.showErrorMsg.emit(err.message));
-        },
-        error: (err: Error) => {
-          this.showErrorMsg.emit(err?.message);
-        }
-
-      });
+      const ruleCreations = this.csvImportService.import(file, this.currentSolrIndexId);
+      ruleCreations
+        .then(
+          () => {
+            this.modalService.close(fileImportModal)
+            this.refreshAndSelectListItemById.emit();
+          }
+        ).catch(err => this.showErrorMsg.emit(err.message));
     }
   }
 
