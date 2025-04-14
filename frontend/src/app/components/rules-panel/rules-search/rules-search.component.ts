@@ -12,10 +12,11 @@ import {
   ModalService,
   RuleManagementService,
   SpellingsService,
-  TagsService
+  TagsService,
+  CSVImportService
 } from '../../../services';
-import Papa from 'papaparse';
-import {InputTag, ListItem} from '../../../models';
+import {parse} from 'papaparse';
+import {InputTag, ListItem, ApiResult} from '../../../models';
 import {rowsToSearchInputs} from '../../../lib/csv';
 const fileImportModal = 'file-import';
 
@@ -46,7 +47,8 @@ export class RulesSearchComponent implements OnChanges {
     private ruleManagementService: RuleManagementService,
     private spellingsService: SpellingsService,
     private tagsService: TagsService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private csvImportService: CSVImportService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -74,36 +76,41 @@ export class RulesSearchComponent implements OnChanges {
 
   fileSelect(event: Event): void {
     const element = event.currentTarget as HTMLInputElement;
-    const file = element?.files?.[0];
-    Papa.parse(file, {
-      complete: (results) => {
-        const searchInputs = rowsToSearchInputs(results.data);
-        const ruleCreations = searchInputs
-          .reduce((chain, searchInput) => {
-            return chain
-              .then(() => {
-                return this.ruleManagementService.addNewRuleItem(this.currentSolrIndexId, searchInput.term, [])
-                  .then(inputId => {
-                    searchInput.id = inputId.returnId;
-                    return this.ruleManagementService.updateSearchInput(searchInput)
-                  });
-              });
-          }, Promise.resolve());
-        ruleCreations
-          .then(
-            () => {
-              this.modalService.close(fileImportModal)
-              if (searchInputs.length > 0) {
-                this.refreshAndSelectListItemById.emit(searchInputs[0].id);
+    if (element?.files?.length && this.currentSolrIndexId) {
+      const files: FileList = element?.files;
+      const file = element?.files?.[0];
+      parse(file, {
+        complete: (results: {data: string[][]}) => {
+          this.csvImportService.import();
+          const searchInputs = rowsToSearchInputs(results.data);
+          const ruleCreations: Promise<ApiResult | null> = searchInputs
+            .reduce((chain: Promise<ApiResult | null>, searchInput): Promise<null | ApiResult> => {
+              return chain
+                .then(() => {
+                  return this.ruleManagementService.addNewRuleItem(this.currentSolrIndexId as string, searchInput.term, [])
+                    .then(inputId => {
+                      searchInput.id = inputId.returnId;
+                      return this.ruleManagementService.updateSearchInput(searchInput)
+                    });
+                });
+            }, Promise.resolve(null));
+          ruleCreations
+            .then(
+              () => {
+                this.modalService.close(fileImportModal)
+                if (searchInputs.length > 0) {
+                  this.refreshAndSelectListItemById.emit(searchInputs[0].id);
+                }
               }
-            }
-          )
-          .error(err => this.showErrorMsg.emit(err.message));
-      },
-      error: (err, file, inputElem, reason) => {
-        this.showErrorMsg.emit(err);
-      }
-    });
+            )
+            .catch(err => this.showErrorMsg.emit(err.message));
+        },
+        error: (err: Error) => {
+          this.showErrorMsg.emit(err?.message);
+        }
+
+      });
+    }
   }
 
   createNewSpellingItem() {

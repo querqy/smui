@@ -309,7 +309,7 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     console.log('In SearchInputDetailComponent :: addNewUpDownRule');
 
     const emptyUpDownRule: UpDownRule = {
-      id: this.randomUUID(),
+      id: randomUUID(),
       term: '',
       isActive: true
     };
@@ -341,7 +341,7 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     console.log('In SearchInputDetailComponent :: addNewFilterRule');
 
     const emptyFilterRule: FilterRule = {
-      id: this.randomUUID(),
+      id: randomUUID(),
       term: '',
       isActive: true
     };
@@ -370,7 +370,7 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     console.log('In SearchInputDetailComponent :: addNewDeleteRule');
 
     const emptyDeleteRule: DeleteRule = {
-      id: this.randomUUID(),
+      id: randomUUID(),
       term: '',
       isActive: true
     };
@@ -394,7 +394,7 @@ export class RuleManagementComponent implements OnChanges, OnInit, AfterContentC
     console.log('In SearchInputDetailComponent :: addNewRedirectRule');
 
     const emptyRedirectRule: RedirectRule = {
-      id: this.randomUUID(),
+      id: randomUUID(),
       target: '',
       isActive: true
     };
