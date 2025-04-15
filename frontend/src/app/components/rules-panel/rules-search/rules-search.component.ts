@@ -83,7 +83,7 @@ export class RulesSearchComponent implements OnChanges {
       const ruleCreations = this.csvImportService.import(
         file,
         this.currentSolrIndexId,
-        (percentage) => {
+        (percentage: number) => {
           this.progress = percentage;
           this.cdr.detectChanges();
         }

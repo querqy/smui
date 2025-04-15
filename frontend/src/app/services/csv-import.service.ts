@@ -2,7 +2,8 @@ import {parse} from 'papaparse';
 import { Injectable } from '@angular/core';
 import {ApiResult} from '../models';
 import {rowsToSearchInputs} from '../lib/csv';
-import {RuleManagementService, ModalService} from '.';
+import {RuleManagementService} from './rule-management.service'
+import {ModalService} from './modal.service';
 
 const fileImportModal = 'file-import';
 @Injectable({
@@ -11,7 +12,7 @@ const fileImportModal = 'file-import';
 export class CSVImportService {
   constructor(private ruleManagementService: RuleManagementService, private modalService: ModalService) {}
 
-  import(file: File, indexId: string, progress: () => void): Promise<ApiResult | null> {
+  import(file: File, indexId: string, progress: (percentage: number) => void): Promise<ApiResult | null> {
     return new Promise((resolve, reject) => {
       parse(file, {
         complete: (results: {data: string[][]}) => {

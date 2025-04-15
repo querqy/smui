@@ -89,7 +89,7 @@
   title="Import rules from CSV"
 >
   <div content>
-    <div class="progress" *ngIf="progress">
+    <div class="progress" [style.visibility]="progress ? 'visible' : 'hidden'">
       <div class="progress-bar"
         [style.width.%]="progress"
         [attr.aria-valuenow]="progress"
