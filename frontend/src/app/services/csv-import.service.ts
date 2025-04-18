@@ -10,7 +10,7 @@ const fileImportModal = 'file-import';
   providedIn: 'root'
 })
 export class CSVImportService {
-  constructor(private ruleManagementService: RuleManagementService, private modalService: ModalService) {}
+  constructor(private ruleManagementService: RuleManagementService) {}
 
   import(file: File, indexId: string, progress: (percentage: number) => void): Promise<ApiResult | null> {
     return new Promise((resolve, reject) => {
