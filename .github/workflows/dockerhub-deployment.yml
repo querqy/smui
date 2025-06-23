@@ -18,6 +18,7 @@ jobs:
           distribution: temurin
           java-version: 17
           cache: sbt
+      - uses: sbt/setup-sbt@v1
       # enable experimental status for docker in order to support SMUI's backend tests that rely on Ryuk images
       # (see https://github.com/actions/virtual-environments/issues/368)
       - name: Docker experimental Status
