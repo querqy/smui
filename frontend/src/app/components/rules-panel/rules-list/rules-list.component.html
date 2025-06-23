@@ -76,7 +76,7 @@
 
           <div ngbDropdownMenu aria-labelledby="actionsDropdown">
             <button ngbDropdownItem
-              [disabled]="listItem.itemType.toString() !== 'Rule*Management'"
+              [disabled]="listItem.itemType.toString() !== 'RuleManagement'"
               (click)="copyRuleItem(listItem.id, $event)"
             >
               <i class="fa fa-clone mr-3"></i>Copy to
